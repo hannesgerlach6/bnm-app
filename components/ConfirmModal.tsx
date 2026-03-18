@@ -57,10 +57,10 @@ export function ConfirmModal({
   const isConfirm = type === "confirm";
 
   return (
-    <View style={styles.overlay} pointerEvents="box-none">
+    <View style={styles.overlay}>
       <Pressable style={styles.backdrop} onPress={isConfirm ? onCancel : onConfirm} />
       <View style={styles.card}>
-        {type !== "confirm" && <TypeIcon type={type} />}
+        {type !== "confirm" ? <TypeIcon type={type} /> : null}
 
         <Text style={styles.title}>{title}</Text>
         <Text style={styles.message}>{message}</Text>
