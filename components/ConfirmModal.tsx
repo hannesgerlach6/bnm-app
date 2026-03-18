@@ -1,11 +1,10 @@
 import React from "react";
 import {
-  Modal,
   View,
   Text,
   TouchableOpacity,
   StyleSheet,
-  Platform,
+  Pressable,
 } from "react-native";
 import { COLORS } from "../constants/Colors";
 
@@ -53,61 +52,68 @@ export function ConfirmModal({
   onConfirm,
   onCancel,
 }: ConfirmModalProps) {
+  if (!visible) return null;
+
   const isConfirm = type === "confirm";
 
   return (
-    <Modal
-      visible={visible}
-      transparent
-      animationType="fade"
-      statusBarTranslucent
-      onRequestClose={onCancel ?? onConfirm}
-    >
-      <View style={styles.overlay}>
-        <View style={styles.card}>
-          {type !== "confirm" && <TypeIcon type={type} />}
+    <View style={styles.overlay} pointerEvents="box-none">
+      <Pressable style={styles.backdrop} onPress={isConfirm ? onCancel : onConfirm} />
+      <View style={styles.card}>
+        {type !== "confirm" && <TypeIcon type={type} />}
 
-          <Text style={styles.title}>{title}</Text>
-          <Text style={styles.message}>{message}</Text>
+        <Text style={styles.title}>{title}</Text>
+        <Text style={styles.message}>{message}</Text>
 
-          <View style={styles.buttonRow}>
-            {isConfirm && onCancel && (
-              <TouchableOpacity
-                style={styles.cancelButton}
-                onPress={onCancel}
-                activeOpacity={0.7}
-              >
-                <Text style={styles.cancelButtonText}>Abbrechen</Text>
-              </TouchableOpacity>
-            )}
+        <View style={styles.buttonRow}>
+          {isConfirm && onCancel && (
             <TouchableOpacity
-              style={[
-                styles.confirmButton,
-                type === "error" && { backgroundColor: COLORS.error },
-                type === "success" && { backgroundColor: COLORS.cta },
-                !isConfirm && styles.confirmButtonFull,
-              ]}
-              onPress={onConfirm}
+              style={styles.cancelButton}
+              onPress={onCancel}
               activeOpacity={0.7}
             >
-              <Text style={styles.confirmButtonText}>
-                {isConfirm ? "Bestätigen" : "OK"}
-              </Text>
+              <Text style={styles.cancelButtonText}>Abbrechen</Text>
             </TouchableOpacity>
-          </View>
+          )}
+          <TouchableOpacity
+            style={[
+              styles.confirmButton,
+              type === "error" && { backgroundColor: COLORS.error },
+              type === "success" && { backgroundColor: COLORS.cta },
+              !isConfirm && styles.confirmButtonFull,
+            ]}
+            onPress={onConfirm}
+            activeOpacity={0.7}
+          >
+            <Text style={styles.confirmButtonText}>
+              {isConfirm ? "Bestätigen" : "OK"}
+            </Text>
+          </TouchableOpacity>
         </View>
       </View>
-    </Modal>
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
   overlay: {
-    flex: 1,
-    backgroundColor: "rgba(0,0,0,0.5)",
+    position: "absolute",
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
     alignItems: "center",
     justifyContent: "center",
     paddingHorizontal: 24,
+    zIndex: 9999,
+  },
+  backdrop: {
+    position: "absolute",
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    backgroundColor: "rgba(0,0,0,0.5)",
   },
   card: {
     backgroundColor: COLORS.white,
