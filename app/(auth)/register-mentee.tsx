@@ -8,9 +8,11 @@ import {
   Alert,
   KeyboardAvoidingView,
   Platform,
+  StyleSheet,
 } from "react-native";
 import { useRouter } from "expo-router";
 import type { Gender, ContactPreference } from "../../types";
+import { COLORS } from "../../constants/Colors";
 
 interface MenteeFormData {
   name: string;
@@ -83,23 +85,23 @@ export default function RegisterMenteeScreen() {
 
   return (
     <KeyboardAvoidingView
-      className="flex-1 bg-bnm-bg"
+      style={styles.flex1}
       behavior={Platform.OS === "ios" ? "padding" : "height"}
     >
       <ScrollView
-        className="flex-1"
+        style={styles.flex1}
         contentContainerStyle={{ paddingBottom: 40 }}
         keyboardShouldPersistTaps="handled"
       >
-        <View className="px-6 pt-6">
-          <Text className="text-bnm-secondary text-sm mb-6">
+        <View style={styles.container}>
+          <Text style={styles.intro}>
             Melde dich als neuer Muslim an, um einer Betreuung zugewiesen zu werden.
           </Text>
 
           {/* Name */}
           <FieldLabel label="Vollständiger Name" error={errors.name} />
           <TextInput
-            className={`bg-white border rounded-xl px-4 py-3 text-bnm-primary mb-4 ${errors.name ? "border-red-400" : "border-bnm-border"}`}
+            style={[styles.input, errors.name ? styles.inputError : styles.inputNormal]}
             placeholder="Dein Name"
             placeholderTextColor="#98A2B3"
             value={form.name}
@@ -109,7 +111,7 @@ export default function RegisterMenteeScreen() {
           {/* E-Mail */}
           <FieldLabel label="E-Mail-Adresse" error={errors.email} />
           <TextInput
-            className={`bg-white border rounded-xl px-4 py-3 text-bnm-primary mb-4 ${errors.email ? "border-red-400" : "border-bnm-border"}`}
+            style={[styles.input, errors.email ? styles.inputError : styles.inputNormal]}
             placeholder="deine@email.de"
             placeholderTextColor="#98A2B3"
             keyboardType="email-address"
@@ -121,7 +123,7 @@ export default function RegisterMenteeScreen() {
           {/* Telefon */}
           <FieldLabel label="Telefonnummer (optional)" />
           <TextInput
-            className="bg-white border border-bnm-border rounded-xl px-4 py-3 text-bnm-primary mb-4"
+            style={[styles.input, styles.inputNormal]}
             placeholder="+49 151 ..."
             placeholderTextColor="#98A2B3"
             keyboardType="phone-pad"
@@ -131,23 +133,24 @@ export default function RegisterMenteeScreen() {
 
           {/* Geschlecht */}
           <FieldLabel label="Ich bin" error={errors.gender} />
-          <View className="flex-row gap-3 mb-4">
+          <View style={styles.rowGap3Mb4}>
             {GENDER_OPTIONS.map((opt) => (
               <TouchableOpacity
                 key={opt.value}
-                className={`flex-1 py-3 rounded-xl border items-center ${
+                style={[
+                  styles.toggleButton,
                   form.gender === opt.value
-                    ? "bg-bnm-primary border-bnm-primary"
-                    : "bg-white border-bnm-border"
-                }`}
+                    ? styles.toggleButtonActive
+                    : styles.toggleButtonInactive,
+                ]}
                 onPress={() => update("gender", opt.value)}
               >
                 <Text
-                  className={`font-medium ${
+                  style={
                     form.gender === opt.value
-                      ? "text-white"
-                      : "text-bnm-secondary"
-                  }`}
+                      ? styles.toggleTextActive
+                      : styles.toggleTextInactive
+                  }
                 >
                   {opt.label}
                 </Text>
@@ -158,7 +161,7 @@ export default function RegisterMenteeScreen() {
           {/* Stadt */}
           <FieldLabel label="Wohnort / Stadt" error={errors.city} />
           <TextInput
-            className={`bg-white border rounded-xl px-4 py-3 text-bnm-primary mb-4 ${errors.city ? "border-red-400" : "border-bnm-border"}`}
+            style={[styles.input, errors.city ? styles.inputError : styles.inputNormal]}
             placeholder="z.B. Berlin"
             placeholderTextColor="#98A2B3"
             value={form.city}
@@ -168,7 +171,7 @@ export default function RegisterMenteeScreen() {
           {/* Alter */}
           <FieldLabel label="Alter" error={errors.age} />
           <TextInput
-            className={`bg-white border rounded-xl px-4 py-3 text-bnm-primary mb-4 ${errors.age ? "border-red-400" : "border-bnm-border"}`}
+            style={[styles.input, errors.age ? styles.inputError : styles.inputNormal]}
             placeholder="z.B. 25"
             placeholderTextColor="#98A2B3"
             keyboardType="number-pad"
@@ -181,23 +184,25 @@ export default function RegisterMenteeScreen() {
             label="Bevorzugter Kontaktweg"
             error={errors.contact_preference}
           />
-          <View className="flex-row flex-wrap gap-2 mb-6">
+          <View style={styles.chipRow}>
             {CONTACT_OPTIONS.map((opt) => (
               <TouchableOpacity
                 key={opt.value}
-                className={`px-4 py-2 rounded-full border ${
+                style={[
+                  styles.chip,
                   form.contact_preference === opt.value
-                    ? "bg-bnm-primary border-bnm-primary"
-                    : "bg-white border-bnm-border"
-                }`}
+                    ? styles.chipActive
+                    : styles.chipInactive,
+                ]}
                 onPress={() => update("contact_preference", opt.value)}
               >
                 <Text
-                  className={`text-sm font-medium ${
+                  style={[
+                    styles.chipText,
                     form.contact_preference === opt.value
-                      ? "text-white"
-                      : "text-bnm-secondary"
-                  }`}
+                      ? styles.chipTextActive
+                      : styles.chipTextInactive,
+                  ]}
                 >
                   {opt.label}
                 </Text>
@@ -207,10 +212,10 @@ export default function RegisterMenteeScreen() {
 
           {/* Submit */}
           <TouchableOpacity
-            className="bg-bnm-cta rounded-xl py-4 items-center"
+            style={styles.submitButton}
             onPress={handleSubmit}
           >
-            <Text className="text-white font-bold text-base">
+            <Text style={styles.submitButtonText}>
               Registrierung einreichen
             </Text>
           </TouchableOpacity>
@@ -228,9 +233,109 @@ function FieldLabel({
   error?: string;
 }) {
   return (
-    <View className="flex-row justify-between mb-1">
-      <Text className="text-bnm-secondary text-sm font-medium">{label}</Text>
-      {error ? <Text className="text-red-500 text-xs">{error}</Text> : null}
+    <View style={{ flexDirection: "row", justifyContent: "space-between", marginBottom: 4 }}>
+      <Text style={{ color: COLORS.secondary, fontSize: 14, fontWeight: "500" }}>{label}</Text>
+      {error ? <Text style={{ color: "#ef4444", fontSize: 12 }}>{error}</Text> : null}
     </View>
   );
 }
+
+const styles = StyleSheet.create({
+  flex1: {
+    flex: 1,
+    backgroundColor: COLORS.bg,
+  },
+  container: {
+    paddingHorizontal: 24,
+    paddingTop: 24,
+  },
+  intro: {
+    color: COLORS.secondary,
+    fontSize: 14,
+    marginBottom: 24,
+  },
+  input: {
+    backgroundColor: COLORS.white,
+    borderWidth: 1,
+    borderRadius: 12,
+    paddingHorizontal: 16,
+    paddingVertical: 12,
+    color: COLORS.primary,
+    marginBottom: 16,
+  },
+  inputNormal: {
+    borderColor: COLORS.border,
+  },
+  inputError: {
+    borderColor: "#f87171",
+  },
+  rowGap3Mb4: {
+    flexDirection: "row",
+    gap: 12,
+    marginBottom: 16,
+  },
+  toggleButton: {
+    flex: 1,
+    paddingVertical: 12,
+    borderRadius: 12,
+    borderWidth: 1,
+    alignItems: "center",
+  },
+  toggleButtonActive: {
+    backgroundColor: COLORS.primary,
+    borderColor: COLORS.primary,
+  },
+  toggleButtonInactive: {
+    backgroundColor: COLORS.white,
+    borderColor: COLORS.border,
+  },
+  toggleTextActive: {
+    color: COLORS.white,
+    fontWeight: "500",
+  },
+  toggleTextInactive: {
+    color: COLORS.secondary,
+    fontWeight: "500",
+  },
+  chipRow: {
+    flexDirection: "row",
+    flexWrap: "wrap",
+    gap: 8,
+    marginBottom: 24,
+  },
+  chip: {
+    paddingHorizontal: 16,
+    paddingVertical: 8,
+    borderRadius: 9999,
+    borderWidth: 1,
+  },
+  chipActive: {
+    backgroundColor: COLORS.primary,
+    borderColor: COLORS.primary,
+  },
+  chipInactive: {
+    backgroundColor: COLORS.white,
+    borderColor: COLORS.border,
+  },
+  chipText: {
+    fontSize: 14,
+    fontWeight: "500",
+  },
+  chipTextActive: {
+    color: COLORS.white,
+  },
+  chipTextInactive: {
+    color: COLORS.secondary,
+  },
+  submitButton: {
+    backgroundColor: COLORS.cta,
+    borderRadius: 12,
+    paddingVertical: 16,
+    alignItems: "center",
+  },
+  submitButtonText: {
+    color: COLORS.white,
+    fontWeight: "bold",
+    fontSize: 16,
+  },
+});

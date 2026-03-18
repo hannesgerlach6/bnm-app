@@ -8,9 +8,11 @@ import {
   Alert,
   KeyboardAvoidingView,
   Platform,
+  StyleSheet,
 } from "react-native";
 import { useRouter } from "expo-router";
 import type { Gender, ContactPreference } from "../../types";
+import { COLORS } from "../../constants/Colors";
 
 interface MentorFormData {
   name: string;
@@ -88,23 +90,23 @@ export default function RegisterMentorScreen() {
 
   return (
     <KeyboardAvoidingView
-      className="flex-1 bg-bnm-bg"
+      style={styles.flex1}
       behavior={Platform.OS === "ios" ? "padding" : "height"}
     >
       <ScrollView
-        className="flex-1"
+        style={styles.flex1}
         contentContainerStyle={{ paddingBottom: 40 }}
         keyboardShouldPersistTaps="handled"
       >
-        <View className="px-6 pt-6">
-          <Text className="text-bnm-secondary text-sm mb-6">
+        <View style={styles.container}>
+          <Text style={styles.intro}>
             Bewirb dich als Mentor und begleite neue Muslime auf ihrem Weg.
           </Text>
 
           {/* Name */}
           <FieldLabel label="Vollständiger Name" error={errors.name} />
           <TextInput
-            className={`bg-white border rounded-xl px-4 py-3 text-bnm-primary mb-4 ${errors.name ? "border-red-400" : "border-bnm-border"}`}
+            style={[styles.input, errors.name ? styles.inputError : styles.inputNormal]}
             placeholder="Dein Name"
             placeholderTextColor="#98A2B3"
             value={form.name}
@@ -114,7 +116,7 @@ export default function RegisterMentorScreen() {
           {/* E-Mail */}
           <FieldLabel label="E-Mail-Adresse" error={errors.email} />
           <TextInput
-            className={`bg-white border rounded-xl px-4 py-3 text-bnm-primary mb-4 ${errors.email ? "border-red-400" : "border-bnm-border"}`}
+            style={[styles.input, errors.email ? styles.inputError : styles.inputNormal]}
             placeholder="deine@email.de"
             placeholderTextColor="#98A2B3"
             keyboardType="email-address"
@@ -126,7 +128,7 @@ export default function RegisterMentorScreen() {
           {/* Telefon */}
           <FieldLabel label="Telefonnummer (optional)" />
           <TextInput
-            className="bg-white border border-bnm-border rounded-xl px-4 py-3 text-bnm-primary mb-4"
+            style={[styles.input, styles.inputNormal]}
             placeholder="+49 151 ..."
             placeholderTextColor="#98A2B3"
             keyboardType="phone-pad"
@@ -136,23 +138,24 @@ export default function RegisterMentorScreen() {
 
           {/* Geschlecht */}
           <FieldLabel label="Ich bin" error={errors.gender} />
-          <View className="flex-row gap-3 mb-4">
+          <View style={styles.rowGap3Mb4}>
             {GENDER_OPTIONS.map((opt) => (
               <TouchableOpacity
                 key={opt.value}
-                className={`flex-1 py-3 rounded-xl border items-center ${
+                style={[
+                  styles.toggleButton,
                   form.gender === opt.value
-                    ? "bg-bnm-primary border-bnm-primary"
-                    : "bg-white border-bnm-border"
-                }`}
+                    ? styles.toggleButtonActive
+                    : styles.toggleButtonInactive,
+                ]}
                 onPress={() => update("gender", opt.value)}
               >
                 <Text
-                  className={`font-medium ${
+                  style={
                     form.gender === opt.value
-                      ? "text-white"
-                      : "text-bnm-secondary"
-                  }`}
+                      ? styles.toggleTextActive
+                      : styles.toggleTextInactive
+                  }
                 >
                   {opt.label}
                 </Text>
@@ -163,7 +166,7 @@ export default function RegisterMentorScreen() {
           {/* Stadt */}
           <FieldLabel label="Wohnort / Stadt" error={errors.city} />
           <TextInput
-            className={`bg-white border rounded-xl px-4 py-3 text-bnm-primary mb-4 ${errors.city ? "border-red-400" : "border-bnm-border"}`}
+            style={[styles.input, errors.city ? styles.inputError : styles.inputNormal]}
             placeholder="z.B. Hamburg"
             placeholderTextColor="#98A2B3"
             value={form.city}
@@ -173,7 +176,7 @@ export default function RegisterMentorScreen() {
           {/* Alter */}
           <FieldLabel label="Alter (mindestens 18)" error={errors.age} />
           <TextInput
-            className={`bg-white border rounded-xl px-4 py-3 text-bnm-primary mb-4 ${errors.age ? "border-red-400" : "border-bnm-border"}`}
+            style={[styles.input, errors.age ? styles.inputError : styles.inputNormal]}
             placeholder="z.B. 28"
             placeholderTextColor="#98A2B3"
             keyboardType="number-pad"
@@ -186,23 +189,25 @@ export default function RegisterMentorScreen() {
             label="Bevorzugter Kontaktweg"
             error={errors.contact_preference}
           />
-          <View className="flex-row flex-wrap gap-2 mb-4">
+          <View style={styles.chipRow}>
             {CONTACT_OPTIONS.map((opt) => (
               <TouchableOpacity
                 key={opt.value}
-                className={`px-4 py-2 rounded-full border ${
+                style={[
+                  styles.chip,
                   form.contact_preference === opt.value
-                    ? "bg-bnm-primary border-bnm-primary"
-                    : "bg-white border-bnm-border"
-                }`}
+                    ? styles.chipActive
+                    : styles.chipInactive,
+                ]}
                 onPress={() => update("contact_preference", opt.value)}
               >
                 <Text
-                  className={`text-sm font-medium ${
+                  style={[
+                    styles.chipText,
                     form.contact_preference === opt.value
-                      ? "text-white"
-                      : "text-bnm-secondary"
-                  }`}
+                      ? styles.chipTextActive
+                      : styles.chipTextInactive,
+                  ]}
                 >
                   {opt.label}
                 </Text>
@@ -216,7 +221,7 @@ export default function RegisterMentorScreen() {
             error={errors.experience}
           />
           <TextInput
-            className="bg-white border border-bnm-border rounded-xl px-4 py-3 text-bnm-primary mb-4"
+            style={[styles.input, styles.inputNormal, { minHeight: 80 }]}
             placeholder="Wie lange bist du Muslim? Hast du Erfahrung in der Dawah-Arbeit?"
             placeholderTextColor="#98A2B3"
             multiline
@@ -224,7 +229,6 @@ export default function RegisterMentorScreen() {
             textAlignVertical="top"
             value={form.experience}
             onChangeText={(v) => update("experience", v)}
-            style={{ minHeight: 80 }}
           />
 
           {/* Motivation */}
@@ -233,7 +237,11 @@ export default function RegisterMentorScreen() {
             error={errors.motivation}
           />
           <TextInput
-            className={`bg-white border rounded-xl px-4 py-3 text-bnm-primary mb-6 ${errors.motivation ? "border-red-400" : "border-bnm-border"}`}
+            style={[
+              styles.input,
+              errors.motivation ? styles.inputError : styles.inputNormal,
+              { minHeight: 100, marginBottom: 24 },
+            ]}
             placeholder="Erzähl uns, warum du neuen Muslimen helfen möchtest..."
             placeholderTextColor="#98A2B3"
             multiline
@@ -241,15 +249,14 @@ export default function RegisterMentorScreen() {
             textAlignVertical="top"
             value={form.motivation}
             onChangeText={(v) => update("motivation", v)}
-            style={{ minHeight: 100 }}
           />
 
           {/* Submit */}
           <TouchableOpacity
-            className="bg-bnm-cta rounded-xl py-4 items-center"
+            style={styles.submitButton}
             onPress={handleSubmit}
           >
-            <Text className="text-white font-bold text-base">
+            <Text style={styles.submitButtonText}>
               Bewerbung einreichen
             </Text>
           </TouchableOpacity>
@@ -267,9 +274,109 @@ function FieldLabel({
   error?: string;
 }) {
   return (
-    <View className="flex-row justify-between mb-1">
-      <Text className="text-bnm-secondary text-sm font-medium">{label}</Text>
-      {error ? <Text className="text-red-500 text-xs">{error}</Text> : null}
+    <View style={{ flexDirection: "row", justifyContent: "space-between", marginBottom: 4 }}>
+      <Text style={{ color: COLORS.secondary, fontSize: 14, fontWeight: "500" }}>{label}</Text>
+      {error ? <Text style={{ color: "#ef4444", fontSize: 12 }}>{error}</Text> : null}
     </View>
   );
 }
+
+const styles = StyleSheet.create({
+  flex1: {
+    flex: 1,
+    backgroundColor: COLORS.bg,
+  },
+  container: {
+    paddingHorizontal: 24,
+    paddingTop: 24,
+  },
+  intro: {
+    color: COLORS.secondary,
+    fontSize: 14,
+    marginBottom: 24,
+  },
+  input: {
+    backgroundColor: COLORS.white,
+    borderWidth: 1,
+    borderRadius: 12,
+    paddingHorizontal: 16,
+    paddingVertical: 12,
+    color: COLORS.primary,
+    marginBottom: 16,
+  },
+  inputNormal: {
+    borderColor: COLORS.border,
+  },
+  inputError: {
+    borderColor: "#f87171",
+  },
+  rowGap3Mb4: {
+    flexDirection: "row",
+    gap: 12,
+    marginBottom: 16,
+  },
+  toggleButton: {
+    flex: 1,
+    paddingVertical: 12,
+    borderRadius: 12,
+    borderWidth: 1,
+    alignItems: "center",
+  },
+  toggleButtonActive: {
+    backgroundColor: COLORS.primary,
+    borderColor: COLORS.primary,
+  },
+  toggleButtonInactive: {
+    backgroundColor: COLORS.white,
+    borderColor: COLORS.border,
+  },
+  toggleTextActive: {
+    color: COLORS.white,
+    fontWeight: "500",
+  },
+  toggleTextInactive: {
+    color: COLORS.secondary,
+    fontWeight: "500",
+  },
+  chipRow: {
+    flexDirection: "row",
+    flexWrap: "wrap",
+    gap: 8,
+    marginBottom: 16,
+  },
+  chip: {
+    paddingHorizontal: 16,
+    paddingVertical: 8,
+    borderRadius: 9999,
+    borderWidth: 1,
+  },
+  chipActive: {
+    backgroundColor: COLORS.primary,
+    borderColor: COLORS.primary,
+  },
+  chipInactive: {
+    backgroundColor: COLORS.white,
+    borderColor: COLORS.border,
+  },
+  chipText: {
+    fontSize: 14,
+    fontWeight: "500",
+  },
+  chipTextActive: {
+    color: COLORS.white,
+  },
+  chipTextInactive: {
+    color: COLORS.secondary,
+  },
+  submitButton: {
+    backgroundColor: COLORS.cta,
+    borderRadius: 12,
+    paddingVertical: 16,
+    alignItems: "center",
+  },
+  submitButtonText: {
+    color: COLORS.white,
+    fontWeight: "bold",
+    fontSize: 16,
+  },
+});

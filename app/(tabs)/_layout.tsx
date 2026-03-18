@@ -1,8 +1,12 @@
 import React from "react";
 import { Tabs } from "expo-router";
 import { SymbolView } from "expo-symbols";
+import { useAuth } from "../../contexts/AuthContext";
 
 export default function TabLayout() {
+  const { user } = useAuth();
+  const isAdmin = user?.role === "admin";
+
   return (
     <Tabs
       screenOptions={{
@@ -41,6 +45,24 @@ export default function TabLayout() {
                 ios: "person.2.fill",
                 android: "group",
                 web: "group",
+              }}
+              tintColor={color}
+              size={24}
+            />
+          ),
+        }}
+      />
+      <Tabs.Screen
+        name="reports"
+        options={{
+          title: "Berichte",
+          href: isAdmin ? undefined : null,
+          tabBarIcon: ({ color }) => (
+            <SymbolView
+              name={{
+                ios: "chart.bar.fill",
+                android: "bar_chart",
+                web: "bar_chart",
               }}
               tintColor={color}
               size={24}

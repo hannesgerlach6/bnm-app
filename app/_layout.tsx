@@ -4,8 +4,9 @@ import { Stack, useRouter, useSegments } from "expo-router";
 import * as SplashScreen from "expo-splash-screen";
 import { useEffect } from "react";
 import "react-native-reanimated";
-import "../global.css";
+
 import { AuthProvider, useAuth } from "../contexts/AuthContext";
+import { DataProvider } from "../contexts/DataContext";
 
 export { ErrorBoundary } from "expo-router";
 
@@ -72,6 +73,57 @@ function RootLayoutInner() {
         <Stack.Screen name="(auth)" options={{ headerShown: false }} />
         <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
         <Stack.Screen name="+not-found" />
+        <Stack.Screen
+          name="assign"
+          options={{
+            presentation: "modal",
+            title: "Mentor zuweisen",
+            headerStyle: { backgroundColor: "#FFFFFF" },
+            headerTintColor: "#101828",
+          }}
+        />
+        <Stack.Screen
+          name="document-session"
+          options={{
+            presentation: "modal",
+            title: "Session dokumentieren",
+            headerStyle: { backgroundColor: "#FFFFFF" },
+            headerTintColor: "#101828",
+          }}
+        />
+        <Stack.Screen
+          name="feedback"
+          options={{
+            presentation: "modal",
+            title: "Feedback",
+            headerStyle: { backgroundColor: "#FFFFFF" },
+            headerTintColor: "#101828",
+          }}
+        />
+        <Stack.Screen
+          name="mentorship/[id]"
+          options={{
+            title: "Betreuung",
+            headerStyle: { backgroundColor: "#FFFFFF" },
+            headerTintColor: "#101828",
+          }}
+        />
+        <Stack.Screen
+          name="chat/[mentorshipId]"
+          options={{
+            title: "Chat",
+            headerStyle: { backgroundColor: "#FFFFFF" },
+            headerTintColor: "#101828",
+          }}
+        />
+        <Stack.Screen
+          name="admin/session-types"
+          options={{
+            title: "Session-Typen",
+            headerStyle: { backgroundColor: "#FFFFFF" },
+            headerTintColor: "#101828",
+          }}
+        />
       </Stack>
     </ThemeProvider>
   );
@@ -80,7 +132,9 @@ function RootLayoutInner() {
 export default function RootLayout() {
   return (
     <AuthProvider>
-      <RootLayoutInner />
+      <DataProvider>
+        <RootLayoutInner />
+      </DataProvider>
     </AuthProvider>
   );
 }

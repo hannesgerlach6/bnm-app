@@ -8,10 +8,12 @@ import {
   ActivityIndicator,
   KeyboardAvoidingView,
   Platform,
+  StyleSheet,
 } from "react-native";
 import { useRouter } from "expo-router";
 import { useAuth } from "../../contexts/AuthContext";
 import type { UserRole } from "../../types";
+import { COLORS } from "../../constants/Colors";
 
 export default function LoginScreen() {
   const router = useRouter();
@@ -40,40 +42,40 @@ export default function LoginScreen() {
 
   return (
     <KeyboardAvoidingView
-      className="flex-1 bg-bnm-bg"
+      style={styles.flex1}
       behavior={Platform.OS === "ios" ? "padding" : "height"}
     >
       <ScrollView
-        className="flex-1"
+        style={styles.flex1}
         contentContainerStyle={{ flexGrow: 1 }}
         keyboardShouldPersistTaps="handled"
       >
         {/* Header Banner */}
-        <View className="bg-bnm-primary pt-16 pb-10 px-6 items-center">
-          <View className="w-16 h-16 rounded-2xl bg-bnm-gold items-center justify-center mb-4">
-            <Text className="text-white text-3xl font-bold">B</Text>
+        <View style={styles.header}>
+          <View style={styles.logoBox}>
+            <Text style={styles.logoLetter}>B</Text>
           </View>
-          <Text className="text-white text-2xl font-bold mb-1">BNM</Text>
-          <Text className="text-white opacity-70 text-sm text-center">
+          <Text style={styles.logoTitle}>BNM</Text>
+          <Text style={styles.logoSubtitle}>
             Betreuung neuer Muslime
           </Text>
         </View>
 
         {/* Login Card */}
-        <View className="flex-1 px-6 pt-8">
-          <Text className="text-bnm-primary text-xl font-bold mb-1">
+        <View style={styles.formContainer}>
+          <Text style={styles.welcomeTitle}>
             Willkommen
           </Text>
-          <Text className="text-bnm-secondary text-sm mb-6">
+          <Text style={styles.welcomeSubtitle}>
             Melde dich an, um fortzufahren.
           </Text>
 
           {/* E-Mail */}
-          <Text className="text-bnm-secondary text-sm font-medium mb-1">
+          <Text style={styles.fieldLabel}>
             E-Mail-Adresse
           </Text>
           <TextInput
-            className="bg-white border border-bnm-border rounded-xl px-4 py-3 text-bnm-primary mb-4"
+            style={styles.input}
             placeholder="deine@email.de"
             placeholderTextColor="#98A2B3"
             keyboardType="email-address"
@@ -84,11 +86,11 @@ export default function LoginScreen() {
           />
 
           {/* Passwort */}
-          <Text className="text-bnm-secondary text-sm font-medium mb-1">
+          <Text style={styles.fieldLabel}>
             Passwort
           </Text>
           <TextInput
-            className="bg-white border border-bnm-border rounded-xl px-4 py-3 text-bnm-primary mb-4"
+            style={styles.input}
             placeholder="Passwort"
             placeholderTextColor="#98A2B3"
             secureTextEntry
@@ -98,66 +100,66 @@ export default function LoginScreen() {
 
           {/* Fehlermeldung */}
           {errorMsg ? (
-            <View className="bg-red-50 border border-red-200 rounded-xl px-4 py-3 mb-4">
-              <Text className="text-red-600 text-sm">{errorMsg}</Text>
+            <View style={styles.errorBox}>
+              <Text style={styles.errorText}>{errorMsg}</Text>
             </View>
           ) : null}
 
           {/* Login-Button */}
           <TouchableOpacity
-            className="bg-bnm-cta rounded-xl py-4 items-center mb-4"
+            style={styles.loginButton}
             onPress={handleLogin}
             disabled={isLoading}
           >
             {isLoading ? (
               <ActivityIndicator color="#FFFFFF" />
             ) : (
-              <Text className="text-white font-bold text-base">Anmelden</Text>
+              <Text style={styles.loginButtonText}>Anmelden</Text>
             )}
           </TouchableOpacity>
 
           {/* Registrierungs-Links */}
-          <View className="flex-row justify-center gap-4 mb-8">
+          <View style={styles.registerRow}>
             <TouchableOpacity
               onPress={() => router.push("/(auth)/register-mentee")}
             >
-              <Text className="text-bnm-link text-sm">Mentee registrieren</Text>
+              <Text style={styles.linkText}>Mentee registrieren</Text>
             </TouchableOpacity>
-            <Text className="text-bnm-tertiary text-sm">|</Text>
+            <Text style={styles.divider}>|</Text>
             <TouchableOpacity
               onPress={() => router.push("/(auth)/register-mentor")}
             >
-              <Text className="text-bnm-link text-sm">Als Mentor bewerben</Text>
+              <Text style={styles.linkText}>Als Mentor bewerben</Text>
             </TouchableOpacity>
           </View>
 
           {/* Test-Schnellzugang */}
-          <View className="border-t border-bnm-border pt-6 mb-8">
-            <Text className="text-bnm-tertiary text-xs text-center mb-3 uppercase tracking-wider">
-              Schnellzugang (Entwicklung)
+          <View style={styles.quickSection}>
+            <Text style={styles.quickLabel}>
+              {"SCHNELLZUGANG (ENTWICKLUNG)"}
             </Text>
-            <View className="flex-row gap-2">
+            <View style={styles.quickRow}>
               <TouchableOpacity
-                className="flex-1 bg-bnm-bg border border-bnm-border rounded-xl py-3 items-center"
+                style={styles.quickButton}
                 onPress={() => handleQuickLogin("admin")}
               >
-                <Text className="text-bnm-primary text-xs font-semibold">
+                <Text style={styles.quickButtonText}>
                   Admin
                 </Text>
               </TouchableOpacity>
               <TouchableOpacity
-                className="flex-1 bg-bnm-bg border border-bnm-border rounded-xl py-3 items-center"
+                style={styles.quickButton}
                 onPress={() => handleQuickLogin("mentor")}
               >
-                <Text className="text-bnm-primary text-xs font-semibold">
+                <Text style={styles.quickButtonText}>
                   Mentor
                 </Text>
               </TouchableOpacity>
               <TouchableOpacity
-                className="flex-1 bg-bnm-bg border border-bnm-border rounded-xl py-3 items-center"
+                style={styles.quickButton}
                 onPress={() => handleQuickLogin("mentee")}
               >
-                <Text className="text-bnm-primary text-xs font-semibold">
+                <Text style={styles.quickButtonText}>
                   Mentee
                 </Text>
               </TouchableOpacity>
@@ -168,3 +170,145 @@ export default function LoginScreen() {
     </KeyboardAvoidingView>
   );
 }
+
+const styles = StyleSheet.create({
+  flex1: {
+    flex: 1,
+    backgroundColor: COLORS.bg,
+  },
+  header: {
+    backgroundColor: COLORS.primary,
+    paddingTop: 64,
+    paddingBottom: 40,
+    paddingHorizontal: 24,
+    alignItems: "center",
+  },
+  logoBox: {
+    width: 64,
+    height: 64,
+    borderRadius: 16,
+    backgroundColor: COLORS.gold,
+    alignItems: "center",
+    justifyContent: "center",
+    marginBottom: 16,
+  },
+  logoLetter: {
+    color: COLORS.white,
+    fontSize: 30,
+    fontWeight: "bold",
+  },
+  logoTitle: {
+    color: COLORS.white,
+    fontSize: 24,
+    fontWeight: "bold",
+    marginBottom: 4,
+  },
+  logoSubtitle: {
+    color: COLORS.white,
+    opacity: 0.7,
+    fontSize: 14,
+    textAlign: "center",
+  },
+  formContainer: {
+    flex: 1,
+    paddingHorizontal: 24,
+    paddingTop: 32,
+  },
+  welcomeTitle: {
+    color: COLORS.primary,
+    fontSize: 20,
+    fontWeight: "bold",
+    marginBottom: 4,
+  },
+  welcomeSubtitle: {
+    color: COLORS.secondary,
+    fontSize: 14,
+    marginBottom: 24,
+  },
+  fieldLabel: {
+    color: COLORS.secondary,
+    fontSize: 14,
+    fontWeight: "500",
+    marginBottom: 4,
+  },
+  input: {
+    backgroundColor: COLORS.white,
+    borderWidth: 1,
+    borderColor: COLORS.border,
+    borderRadius: 12,
+    paddingHorizontal: 16,
+    paddingVertical: 12,
+    color: COLORS.primary,
+    marginBottom: 16,
+  },
+  errorBox: {
+    backgroundColor: "#fef2f2",
+    borderWidth: 1,
+    borderColor: "#fecaca",
+    borderRadius: 12,
+    paddingHorizontal: 16,
+    paddingVertical: 12,
+    marginBottom: 16,
+  },
+  errorText: {
+    color: "#dc2626",
+    fontSize: 14,
+  },
+  loginButton: {
+    backgroundColor: COLORS.cta,
+    borderRadius: 12,
+    paddingVertical: 16,
+    alignItems: "center",
+    marginBottom: 16,
+  },
+  loginButtonText: {
+    color: COLORS.white,
+    fontWeight: "bold",
+    fontSize: 16,
+  },
+  registerRow: {
+    flexDirection: "row",
+    justifyContent: "center",
+    gap: 16,
+    marginBottom: 32,
+  },
+  linkText: {
+    color: COLORS.link,
+    fontSize: 14,
+  },
+  divider: {
+    color: COLORS.tertiary,
+    fontSize: 14,
+  },
+  quickSection: {
+    borderTopWidth: 1,
+    borderTopColor: COLORS.border,
+    paddingTop: 24,
+    marginBottom: 32,
+  },
+  quickLabel: {
+    color: COLORS.tertiary,
+    fontSize: 12,
+    textAlign: "center",
+    marginBottom: 12,
+    letterSpacing: 1,
+  },
+  quickRow: {
+    flexDirection: "row",
+    gap: 8,
+  },
+  quickButton: {
+    flex: 1,
+    backgroundColor: COLORS.bg,
+    borderWidth: 1,
+    borderColor: COLORS.border,
+    borderRadius: 12,
+    paddingVertical: 12,
+    alignItems: "center",
+  },
+  quickButtonText: {
+    color: COLORS.primary,
+    fontSize: 12,
+    fontWeight: "600",
+  },
+});
