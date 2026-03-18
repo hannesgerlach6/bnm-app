@@ -1,11 +1,13 @@
-import React, { useState } from "react";
+import React, { useState, useRef } from "react";
 import {
   View,
   Text,
+  Image,
   ScrollView,
   TouchableOpacity,
   TextInput,
   Alert,
+  Platform,
   StyleSheet,
 } from "react-native";
 import { useRouter } from "expo-router";
@@ -14,6 +16,7 @@ import { useData } from "../contexts/DataContext";
 import type { ContactPreference } from "../types";
 import { COLORS } from "../constants/Colors";
 import { Container } from "../components/Container";
+import { uploadAvatar } from "../lib/storage";
 
 const CONTACT_OPTIONS: { key: ContactPreference; label: string }[] = [
   { key: "whatsapp", label: "WhatsApp" },
@@ -35,8 +38,41 @@ export default function EditProfileScreen() {
     user?.contact_preference ?? "email"
   );
   const [isSaving, setIsSaving] = useState(false);
+  const [avatarPreview, setAvatarPreview] = useState<string | undefined>(user?.avatar_url);
+  const [isUploadingAvatar, setIsUploadingAvatar] = useState(false);
+
+  // Web-only: verstecktes file-input Element
+  const fileInputRef = useRef<HTMLInputElement | null>(null);
 
   if (!user) return null;
+
+  async function handleAvatarPickWeb(uri: string) {
+    if (!uri) return;
+    setIsUploadingAvatar(true);
+    setAvatarPreview(uri);
+    const publicUrl = await uploadAvatar(user.id, uri);
+    if (publicUrl) {
+      await updateUser(user.id, { avatar_url: publicUrl });
+      setAvatarPreview(publicUrl);
+    } else {
+      Alert.alert("Fehler", "Profilbild konnte nicht hochgeladen werden.");
+      setAvatarPreview(user.avatar_url);
+    }
+    setIsUploadingAvatar(false);
+  }
+
+  function handleAvatarPress() {
+    if (Platform.OS === 'web') {
+      // Web: verstecktes input[type=file] triggern
+      fileInputRef.current?.click();
+    } else {
+      // Native: expo-image-picker wäre nötig — Package noch nicht installiert
+      Alert.alert(
+        "Profilbild ändern",
+        "Bilderauswahl braucht expo-image-picker (npx expo install expo-image-picker)."
+      );
+    }
+  }
 
   function validate(): string | null {
     if (!name.trim()) return "Name darf nicht leer sein.";
@@ -80,6 +116,55 @@ export default function EditProfileScreen() {
         </View>
 
         <ScrollView style={styles.scrollView} contentContainerStyle={styles.content}>
+
+          {/* Profilbild */}
+          <View style={styles.avatarSection}>
+            {avatarPreview ? (
+              <Image
+                source={{ uri: avatarPreview }}
+                style={styles.avatarPreview}
+                resizeMode="cover"
+              />
+            ) : (
+              <View style={styles.avatarPlaceholder}>
+                <Text style={styles.avatarInitials}>
+                  {user.name
+                    .split(" ")
+                    .map((n) => n[0])
+                    .join("")
+                    .toUpperCase()
+                    .slice(0, 2)}
+                </Text>
+              </View>
+            )}
+            <TouchableOpacity
+              style={[styles.avatarButton, isUploadingAvatar && styles.avatarButtonDisabled]}
+              onPress={handleAvatarPress}
+              disabled={isUploadingAvatar}
+            >
+              <Text style={styles.avatarButtonText}>
+                {isUploadingAvatar ? "Wird hochgeladen..." : "Profilbild ändern"}
+              </Text>
+            </TouchableOpacity>
+          </View>
+
+          {/* Web: verstecktes file-input */}
+          {Platform.OS === 'web' && (
+            <input
+              ref={fileInputRef}
+              type="file"
+              accept="image/*"
+              style={{ display: 'none' }}
+              onChange={(e) => {
+                const file = e.target.files?.[0];
+                if (!file) return;
+                const objectUrl = URL.createObjectURL(file);
+                handleAvatarPickWeb(objectUrl);
+                // Input zurücksetzen damit dasselbe Bild nochmal gewählt werden kann
+                e.target.value = '';
+              }}
+            />
+          )}
 
           {/* Name */}
           <Text style={styles.fieldLabel}>Name</Text>
@@ -267,4 +352,40 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   cancelButtonText: { color: COLORS.secondary, fontWeight: "500", fontSize: 14 },
+  avatarSection: {
+    alignItems: "center",
+    marginBottom: 20,
+  },
+  avatarPreview: {
+    width: 72,
+    height: 72,
+    borderRadius: 36,
+    marginBottom: 10,
+    borderWidth: 2,
+    borderColor: COLORS.border,
+  },
+  avatarPlaceholder: {
+    width: 72,
+    height: 72,
+    borderRadius: 36,
+    backgroundColor: COLORS.gradientStart,
+    alignItems: "center",
+    justifyContent: "center",
+    marginBottom: 10,
+  },
+  avatarInitials: {
+    color: COLORS.gold,
+    fontSize: 26,
+    fontWeight: "700",
+  },
+  avatarButton: {
+    backgroundColor: COLORS.white,
+    borderWidth: 1,
+    borderColor: COLORS.border,
+    borderRadius: 5,
+    paddingHorizontal: 16,
+    paddingVertical: 7,
+  },
+  avatarButtonDisabled: { opacity: 0.5 },
+  avatarButtonText: { color: COLORS.primary, fontSize: 13, fontWeight: "500" },
 });

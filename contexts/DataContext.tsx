@@ -21,6 +21,8 @@ import type {
 } from "../types";
 import { supabase } from "../lib/supabase";
 import { useAuth } from "./AuthContext";
+import { checkReminders } from "../lib/reminders";
+import { showError } from "../lib/errorHandler";
 
 export interface DataContextValue {
   // Data
@@ -70,7 +72,7 @@ export interface DataContextValue {
   submitApplication: (data: Omit<MentorApplication, "id" | "status" | "submitted_at">) => Promise<void>;
 
   // User actions
-  updateUser: (userId: string, data: Partial<Pick<User, "name" | "city" | "age" | "phone" | "contact_preference">>) => Promise<void>;
+  updateUser: (userId: string, data: Partial<Pick<User, "name" | "city" | "age" | "phone" | "contact_preference" | "avatar_url">>) => Promise<void>;
 
   // Computed helpers
   getMentorshipsByMentorId: (mentorId: string) => Mentorship[];
@@ -307,8 +309,71 @@ export function DataProvider({ children }: { children: ReactNode }) {
         }));
         setMessages(msgs);
       }
+      // ─── Reminder-Check (client-seitig, wird später durch Cron ersetzt) ──────
+      if (authUser?.role === 'mentor' && mentorshipsRes.data && sessionsRes.data && notificationsRes.data) {
+        // Daten direkt aus den frischen Responses verwenden (State noch nicht gesetzt)
+        const freshMentorships: Mentorship[] = mentorshipsRes.data.map((row) => ({
+          id: row.id as string,
+          mentor_id: row.mentor_id as string,
+          mentee_id: row.mentee_id as string,
+          status: row.status as MentorshipStatus,
+          assigned_by: row.assigned_by as string,
+          assigned_at: row.assigned_at as string,
+          completed_at: (row.completed_at as string) ?? undefined,
+        }));
+
+        const stMapLocal: Record<string, SessionType> = {};
+        if (sessionTypesRes.data) {
+          sessionTypesRes.data.map(mapSessionType).forEach((st) => (stMapLocal[st.id] = st));
+        }
+
+        const freshSessions: Session[] = sessionsRes.data.map((row) => ({
+          id: row.id as string,
+          mentorship_id: row.mentorship_id as string,
+          session_type_id: row.session_type_id as string,
+          date: row.date as string,
+          is_online: row.is_online as boolean,
+          details: (row.details as string) ?? undefined,
+          documented_by: row.documented_by as string,
+          attempt_number: (row.attempt_number as number) ?? undefined,
+          duration_minutes: (row.duration_minutes as number) ?? undefined,
+          session_type: stMapLocal[row.session_type_id as string],
+        }));
+
+        const freshNotifications: Notification[] = notificationsRes.data.map(mapNotification);
+
+        const newReminders = checkReminders(
+          freshMentorships,
+          freshSessions,
+          freshNotifications,
+          authUser.id
+        );
+
+        if (newReminders.length > 0) {
+          const { data: insertedReminders } = await supabase
+            .from('notifications')
+            .insert(
+              newReminders.map((r) => ({
+                user_id: authUser.id,
+                type: r.type,
+                title: r.title,
+                body: r.body,
+                related_id: r.related_id ?? null,
+              }))
+            )
+            .select();
+
+          if (insertedReminders) {
+            setNotifications((prev) => [
+              ...prev,
+              ...insertedReminders.map(mapNotification),
+            ]);
+          }
+        }
+      }
     } catch (err) {
       console.error("DataContext loadAllData Fehler:", err);
+      showError("Daten konnten nicht geladen werden. Bitte prüfe deine Internetverbindung.");
     } finally {
       setIsLoading(false);
     }
@@ -881,7 +946,7 @@ export function DataProvider({ children }: { children: ReactNode }) {
   const updateUser = useCallback(
     async (
       userId: string,
-      data: Partial<Pick<User, "name" | "city" | "age" | "phone" | "contact_preference">>
+      data: Partial<Pick<User, "name" | "city" | "age" | "phone" | "contact_preference" | "avatar_url">>
     ) => {
       const { error } = await supabase
         .from("profiles")
@@ -890,6 +955,7 @@ export function DataProvider({ children }: { children: ReactNode }) {
 
       if (error) {
         console.error("updateUser Fehler:", error);
+        showError("Profil konnte nicht gespeichert werden.");
         return;
       }
 

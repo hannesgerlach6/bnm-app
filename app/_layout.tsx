@@ -7,6 +7,7 @@ import "react-native-reanimated";
 
 import { AuthProvider, useAuth } from "../contexts/AuthContext";
 import { DataProvider } from "../contexts/DataContext";
+import { LoadingScreen } from "../components/LoadingScreen";
 
 export { ErrorBoundary } from "expo-router";
 
@@ -30,11 +31,14 @@ const BNMTheme = {
 };
 
 function NavigationGuard() {
-  const { user } = useAuth();
+  const { user, isLoading } = useAuth();
   const segments = useSegments();
   const router = useRouter();
 
   useEffect(() => {
+    // Warten bis Auth-State geladen ist — sonst falscher Redirect
+    if (isLoading) return;
+
     const inAuthGroup = segments[0] === "(auth)";
 
     if (!user && !inAuthGroup) {
@@ -42,12 +46,13 @@ function NavigationGuard() {
     } else if (user && inAuthGroup) {
       router.replace("/(tabs)");
     }
-  }, [user, segments]);
+  }, [user, isLoading, segments]);
 
   return null;
 }
 
 function RootLayoutInner() {
+  const { isLoading: authLoading } = useAuth();
   const [loaded, error] = useFonts({
     SpaceMono: require("../assets/fonts/SpaceMono-Regular.ttf"),
   });
@@ -64,6 +69,11 @@ function RootLayoutInner() {
 
   if (!loaded) {
     return null;
+  }
+
+  // Auth-State wird noch geladen: Splash/Loading statt leerer Seite
+  if (authLoading) {
+    return <LoadingScreen />;
   }
 
   return (

@@ -1,0 +1,41 @@
+-- ============================================================
+-- BNM App – Supabase Cron / Edge Function: Erinnerungen
+-- Für spätere Implementierung als pg_cron-Job.
+--
+-- Voraussetzungen:
+--   1. pg_cron Extension in Supabase Dashboard aktivieren
+--      (Database → Extensions → pg_cron → Enable)
+--   2. Oder als Supabase Edge Function deployen (supabase functions deploy reminder-check)
+-- ============================================================
+
+-- Täglich um 09:00 UTC: Erinnerungen für Mentoren generieren,
+-- deren letzte Session > 3 Tage zurückliegt.
+-- Doppel-Erinnerungen werden durch den NOT EXISTS-Guard verhindert.
+
+-- SELECT cron.schedule('reminder-check', '0 9 * * *', $$
+--   INSERT INTO notifications (user_id, type, title, body)
+--   SELECT
+--     m.mentor_id,
+--     'reminder',
+--     'Erinnerung: Session dokumentieren',
+--     'Bitte dokumentiere deine letzte Session mit ' || p.name
+--   FROM mentorships m
+--   JOIN profiles p ON p.id = m.mentee_id
+--   WHERE m.status = 'active'
+--   -- Keine Session in den letzten 3 Tagen
+--   AND NOT EXISTS (
+--     SELECT 1 FROM sessions s
+--     WHERE s.mentorship_id = m.id
+--     AND s.created_at > NOW() - INTERVAL '3 days'
+--   )
+--   -- Noch keine Erinnerung in den letzten 2 Tagen gesendet
+--   AND NOT EXISTS (
+--     SELECT 1 FROM notifications n
+--     WHERE n.user_id = m.mentor_id
+--     AND n.type = 'reminder'
+--     AND n.created_at > NOW() - INTERVAL '2 days'
+--   );
+-- $$);
+
+-- Um den Job wieder zu entfernen:
+-- SELECT cron.unschedule('reminder-check');

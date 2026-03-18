@@ -2,6 +2,7 @@ import React, { useMemo } from "react";
 import {
   View,
   Text,
+  Image,
   ScrollView,
   TouchableOpacity,
   Alert,
@@ -106,9 +107,17 @@ export default function ProfileScreen() {
           <View style={styles.heroLogoPosition}>
             <BNMLogo size={40} showSubtitle={false} />
           </View>
-          <View style={styles.avatarCircle}>
-            <Text style={styles.avatarText}>{initials}</Text>
-          </View>
+          {user.avatar_url ? (
+            <Image
+              source={{ uri: user.avatar_url }}
+              style={styles.avatarImage}
+              resizeMode="cover"
+            />
+          ) : (
+            <View style={styles.avatarCircle}>
+              <Text style={styles.avatarText}>{initials}</Text>
+            </View>
+          )}
           <Text style={styles.userName}>{user.name}</Text>
 
           {/* Rollen-Badge */}
@@ -264,6 +273,14 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
     marginBottom: 10,
+  },
+  avatarImage: {
+    width: 64,
+    height: 64,
+    borderRadius: 32,
+    marginBottom: 10,
+    borderWidth: 2,
+    borderColor: COLORS.gold,
   },
   avatarText: { color: COLORS.white, fontSize: 22, fontWeight: "700" },
   userName: { fontSize: 18, fontWeight: "700", color: COLORS.white, marginBottom: 6 },
