@@ -4,13 +4,12 @@ import {
   Text,
   ScrollView,
   TouchableOpacity,
-  Alert,
-  Platform,
   StyleSheet,
 } from "react-native";
 import { useRouter, useLocalSearchParams } from "expo-router";
 import { useAuth } from "../contexts/AuthContext";
 import { useData } from "../contexts/DataContext";
+import { useConfirm, useAlert } from "../contexts/ModalContext";
 import type { User } from "../types";
 import { COLORS } from "../constants/Colors";
 import { sendMenteeAssignedNotification } from "../lib/emailService";
@@ -67,6 +66,8 @@ export default function AssignScreen() {
   const { user } = useAuth();
   const { users, mentorships, assignMentorship, getUnassignedMentees } = useData();
   const params = useLocalSearchParams<{ menteeId?: string }>();
+  const confirm = useConfirm();
+  const alert = useAlert();
 
   const isMentor = user?.role === "mentor";
   const isAdmin = user?.role === "admin" || user?.role === "office";
@@ -111,30 +112,18 @@ export default function AssignScreen() {
     const mentee = users.find((u) => u.id === selectedMenteeId);
     if (!mentor || !mentee) return;
 
+    const confirmTitle = isMentor ? "Mentee übernehmen" : "Zuweisung bestätigen";
     const confirmText = isMentor
       ? `Möchtest du ${mentee.name} als Mentee übernehmen?`
       : `${mentee.name} wird ${mentor.name} zugewiesen. Fortfahren?`;
 
-    const confirmed =
-      Platform.OS === "web"
-        ? window.confirm(confirmText)
-        : await new Promise<boolean>((resolve) =>
-            Alert.alert(
-              isMentor ? "Mentee übernehmen" : "Zuweisung bestätigen",
-              confirmText,
-              [
-                { text: "Abbrechen", onPress: () => resolve(false) },
-                { text: isMentor ? "Übernehmen" : "Zuweisen", onPress: () => resolve(true) },
-              ]
-            )
-          );
-
+    const confirmed = await confirm(confirmTitle, confirmText);
     if (!confirmed) return;
 
     await assignMentorship(selectedMenteeId, mentorId, user.id);
 
     if (mentor.email) {
-      sendMenteeAssignedNotification(
+      await sendMenteeAssignedNotification(
         mentor.name,
         mentor.email,
         mentee.name,
@@ -142,14 +131,8 @@ export default function AssignScreen() {
       );
     }
 
-    if (Platform.OS === "web") {
-      window.alert("Zuweisung erfolgreich!");
-      router.back();
-    } else {
-      Alert.alert("Erfolg", "Zuweisung erfolgreich!", [
-        { text: "OK", onPress: () => router.back() },
-      ]);
-    }
+    await alert("Zuweisung erfolgreich", "Die Zuweisung wurde gespeichert.", "success");
+    router.back();
   }
 
   if (!isAdmin && !isMentor) {

@@ -7,6 +7,7 @@ import "react-native-reanimated";
 
 import { AuthProvider, useAuth } from "../contexts/AuthContext";
 import { DataProvider } from "../contexts/DataContext";
+import { ModalProvider } from "../contexts/ModalContext";
 import { LoadingScreen } from "../components/LoadingScreen";
 
 export { ErrorBoundary } from "expo-router";
@@ -191,7 +192,9 @@ export default function RootLayout() {
   return (
     <AuthProvider>
       <DataProvider>
-        <RootLayoutInner />
+        <ModalProvider>
+          <RootLayoutInner />
+        </ModalProvider>
       </DataProvider>
     </AuthProvider>
   );

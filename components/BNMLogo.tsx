@@ -1,6 +1,5 @@
 import React from "react";
-import { View, Text, StyleSheet } from "react-native";
-import Svg, { Circle, Path } from "react-native-svg";
+import { View, Text, Image, StyleSheet } from "react-native";
 import { COLORS } from "../constants/Colors";
 
 interface BNMLogoProps {
@@ -14,53 +13,16 @@ export function BNMLogo({
   showSubtitle = false,
   color = COLORS.gradientStart,
 }: BNMLogoProps) {
-  const iconSize = size;
   const textSize = size * 0.22;
   const subSize = size * 0.14;
 
   return (
     <View style={styles.wrapper}>
-      <Svg width={iconSize} height={iconSize} viewBox="0 0 100 100">
-        {/* Linke Person — Kopf */}
-        <Circle cx="32" cy="22" r="10" fill={color} />
-        {/* Rechte Person — Kopf */}
-        <Circle cx="68" cy="22" r="10" fill={color} />
-
-        {/* Verbindungskurve — Infinity/Mentoring-Symbol */}
-        {/* Linke Person geht nach rechts unten, kreuzt, rechte Person geht nach links unten */}
-        <Path
-          d="M 22 38 C 22 58, 50 58, 50 48 C 50 38, 78 38, 78 58"
-          stroke={color}
-          strokeWidth="6"
-          strokeLinecap="round"
-          fill="none"
-        />
-        <Path
-          d="M 78 38 C 78 58, 50 58, 50 48 C 50 38, 22 38, 22 58"
-          stroke={color}
-          strokeWidth="6"
-          strokeLinecap="round"
-          fill="none"
-        />
-
-        {/* Linke Hand/Arm */}
-        <Path
-          d="M 22 38 Q 15 32, 20 26"
-          stroke={color}
-          strokeWidth="5"
-          strokeLinecap="round"
-          fill="none"
-        />
-        {/* Rechte Hand/Arm */}
-        <Path
-          d="M 78 38 Q 85 32, 80 26"
-          stroke={color}
-          strokeWidth="5"
-          strokeLinecap="round"
-          fill="none"
-        />
-      </Svg>
-
+      <Image
+        source={require("../assets/images/bnm-logo.png")}
+        style={{ width: size, height: size }}
+        resizeMode="contain"
+      />
       {showSubtitle && (
         <View style={styles.textContainer}>
           <Text style={[styles.title, { fontSize: textSize, color }]}>
