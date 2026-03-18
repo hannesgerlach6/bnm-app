@@ -10,7 +10,7 @@ import { supabase } from "./supabase";
 // Bis dahin: Alle Mails gehen an OVERRIDE_RECIPIENT (Admin-Adresse).
 // ============================================================
 
-const OVERRIDE_RECIPIENT = "admin@bnm-app.de"; // Anpassen auf echte Admin-E-Mail
+const OVERRIDE_RECIPIENT = "hasan.sevenler@partner.ki";
 
 export async function sendEmail(
   to: string,
