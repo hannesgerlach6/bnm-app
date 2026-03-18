@@ -392,7 +392,7 @@ const styles = StyleSheet.create({
   rankRow: {
     flexDirection: "row",
     alignItems: "center",
-    paddingVertical: 14,
+    paddingVertical: 12,
     gap: 12,
   },
   rankRowBorder: { borderBottomWidth: 1, borderBottomColor: COLORS.border },

@@ -97,8 +97,8 @@ const styles = StyleSheet.create({
 
   todayCard: {
     backgroundColor: COLORS.primary,
-    borderRadius: 16,
-    padding: 24,
+    borderRadius: 8,
+    padding: 14,
     marginBottom: 24,
   },
   todayHeader: { flexDirection: "row", alignItems: "center", marginBottom: 16 },
@@ -114,8 +114,8 @@ const styles = StyleSheet.create({
   todayQuelle: { color: COLORS.white, opacity: 0.7, fontSize: 13, marginBottom: 20 },
   shareButton: {
     backgroundColor: COLORS.gold,
-    borderRadius: 10,
-    paddingVertical: 12,
+    borderRadius: 5,
+    paddingVertical: 9,
     alignItems: "center",
   },
   shareButtonText: { color: COLORS.white, fontWeight: "bold", fontSize: 15 },
@@ -130,10 +130,10 @@ const styles = StyleSheet.create({
 
   hadithCard: {
     backgroundColor: COLORS.white,
-    borderRadius: 12,
+    borderRadius: 8,
     borderWidth: 1,
     borderColor: COLORS.border,
-    padding: 16,
+    padding: 14,
     marginBottom: 12,
   },
   hadithText: {

@@ -337,7 +337,7 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: "#fecaca",
     borderRadius: 5,
-    paddingVertical: 10,
+    paddingVertical: 9,
     alignItems: "center",
     marginBottom: 12,
   },

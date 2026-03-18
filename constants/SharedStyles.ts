@@ -1,5 +1,7 @@
-import { StyleSheet } from 'react-native';
+import { StyleSheet, Platform } from 'react-native';
 import { COLORS } from './Colors';
+
+const isWeb = Platform.OS === 'web';
 
 export const SHARED = StyleSheet.create({
   input: {
@@ -7,22 +9,21 @@ export const SHARED = StyleSheet.create({
     borderWidth: 1,
     borderColor: COLORS.border,
     borderRadius: 6,
-    paddingVertical: 10,
-    paddingHorizontal: 14,
+    paddingVertical: isWeb ? 8 : 10,
+    paddingHorizontal: 12,
     fontSize: 14,
     color: COLORS.primary,
-    height: 42,
   },
   textarea: {
     backgroundColor: COLORS.card,
     borderWidth: 1,
     borderColor: COLORS.border,
     borderRadius: 6,
-    paddingVertical: 10,
-    paddingHorizontal: 14,
+    paddingVertical: isWeb ? 8 : 10,
+    paddingHorizontal: 12,
     fontSize: 14,
     color: COLORS.primary,
-    height: 80,
+    height: 72,
     textAlignVertical: 'top' as const,
   },
   label: {
@@ -34,7 +35,7 @@ export const SHARED = StyleSheet.create({
   primaryButton: {
     backgroundColor: COLORS.gradientStart,
     borderRadius: 5,
-    paddingVertical: 10,
+    paddingVertical: isWeb ? 8 : 10,
     paddingHorizontal: 16,
     alignItems: 'center' as const,
   },
@@ -47,7 +48,7 @@ export const SHARED = StyleSheet.create({
     borderWidth: 1,
     borderColor: COLORS.gradientStart,
     borderRadius: 5,
-    paddingVertical: 10,
+    paddingVertical: isWeb ? 8 : 10,
     paddingHorizontal: 16,
     alignItems: 'center' as const,
   },
@@ -59,7 +60,7 @@ export const SHARED = StyleSheet.create({
   card: {
     backgroundColor: COLORS.card,
     borderRadius: 8,
-    padding: 16,
+    padding: 14,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.08,
@@ -69,7 +70,7 @@ export const SHARED = StyleSheet.create({
   goldCard: {
     backgroundColor: COLORS.card,
     borderRadius: 8,
-    padding: 16,
+    padding: 14,
     borderLeftWidth: 4,
     borderLeftColor: COLORS.gold,
     shadowColor: '#000',
@@ -79,12 +80,12 @@ export const SHARED = StyleSheet.create({
     elevation: 2,
   },
   fieldSpacing: {
-    marginBottom: 12,
+    marginBottom: 10,
   },
   sectionSpacing: {
-    marginBottom: 16,
+    marginBottom: 14,
   },
   screenPadding: {
-    padding: 20,
+    padding: 16,
   },
 });

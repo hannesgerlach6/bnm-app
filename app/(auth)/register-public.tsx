@@ -298,11 +298,10 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: COLORS.border,
     borderRadius: 6,
-    paddingHorizontal: 14,
-    paddingVertical: 10,
+    paddingHorizontal: 12,
+    paddingVertical: 8,
     color: COLORS.primary,
     fontSize: 14,
-    height: 42,
   },
   inputError: { borderColor: COLORS.error },
 

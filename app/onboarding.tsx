@@ -334,8 +334,8 @@ const styles = StyleSheet.create({
     backgroundColor: COLORS.white,
     borderWidth: 1,
     borderColor: COLORS.border,
-    borderRadius: 12,
-    paddingVertical: 12,
+    borderRadius: 8,
+    paddingVertical: 9,
     alignItems: "center",
   },
   statPillNumber: {
@@ -358,8 +358,8 @@ const styles = StyleSheet.create({
     backgroundColor: COLORS.white,
     borderWidth: 1,
     borderColor: COLORS.border,
-    borderRadius: 10,
-    paddingVertical: 10,
+    borderRadius: 8,
+    paddingVertical: 9,
     paddingHorizontal: 14,
     gap: 12,
   },
@@ -468,8 +468,8 @@ const styles = StyleSheet.create({
   },
   ctaButton: {
     backgroundColor: COLORS.primary,
-    borderRadius: 14,
-    paddingVertical: 16,
+    borderRadius: 5,
+    paddingVertical: 9,
     alignItems: "center",
   },
   ctaText: {

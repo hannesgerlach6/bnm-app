@@ -337,7 +337,7 @@ const styles = StyleSheet.create({
   accessText: { color: COLORS.primary, fontWeight: "600" },
   boldTitle: { color: COLORS.primary, fontWeight: "bold", fontSize: 18, marginBottom: 8 },
   centerSubText: { color: COLORS.secondary, textAlign: "center", fontSize: 14, marginBottom: 24 },
-  backButton: { backgroundColor: COLORS.primary, paddingHorizontal: 24, paddingVertical: 12, borderRadius: 12 },
+  backButton: { backgroundColor: COLORS.primary, paddingHorizontal: 24, paddingVertical: 9, borderRadius: 5 },
   backButtonText: { color: COLORS.white, fontWeight: "600" },
   page: { padding: 20 },
   sectionLabel: { fontSize: 11, fontWeight: "600", color: COLORS.tertiary, letterSpacing: 1, marginBottom: 10 },
@@ -432,6 +432,6 @@ const styles = StyleSheet.create({
     paddingTop: 8,
   },
   selectedIndicatorText: { color: COLORS.primary, fontSize: 12, fontWeight: "600" },
-  assignButton: { borderRadius: 6, paddingVertical: 10, alignItems: "center" },
+  assignButton: { borderRadius: 5, paddingVertical: 9, alignItems: "center" },
   assignButtonText: { fontWeight: "600", fontSize: 14 },
 });

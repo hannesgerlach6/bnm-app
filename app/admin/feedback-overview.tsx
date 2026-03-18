@@ -173,7 +173,7 @@ const styles = StyleSheet.create({
     backgroundColor: "#fef2f2",
     borderWidth: 1,
     borderColor: "#fecaca",
-    borderRadius: 12,
+    borderRadius: 8,
     padding: 14,
     marginBottom: 16,
     flexDirection: "row",
@@ -197,7 +197,7 @@ const styles = StyleSheet.create({
 
   filterCard: {
     backgroundColor: COLORS.white,
-    borderRadius: 12,
+    borderRadius: 8,
     borderWidth: 1,
     borderColor: COLORS.border,
     padding: 14,
@@ -213,7 +213,7 @@ const styles = StyleSheet.create({
 
   emptyCard: {
     backgroundColor: COLORS.white,
-    borderRadius: 12,
+    borderRadius: 8,
     borderWidth: 1,
     borderColor: COLORS.border,
     padding: 32,
@@ -223,10 +223,10 @@ const styles = StyleSheet.create({
 
   feedbackCard: {
     backgroundColor: COLORS.white,
-    borderRadius: 12,
+    borderRadius: 8,
     borderWidth: 1,
     borderColor: COLORS.border,
-    padding: 16,
+    padding: 14,
     marginBottom: 12,
   },
   feedbackCardNegative: {

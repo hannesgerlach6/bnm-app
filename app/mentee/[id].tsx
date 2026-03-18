@@ -324,10 +324,10 @@ const styles = StyleSheet.create({
   emptyText: { color: COLORS.tertiary, fontSize: 16 },
   profileCard: {
     backgroundColor: COLORS.white,
-    borderRadius: 16,
+    borderRadius: 8,
     borderWidth: 1,
     borderColor: COLORS.border,
-    padding: 24,
+    padding: 14,
     alignItems: "center",
     marginBottom: 20,
   },
@@ -355,7 +355,7 @@ const styles = StyleSheet.create({
   },
   card: {
     backgroundColor: COLORS.white,
-    borderRadius: 12,
+    borderRadius: 8,
     borderWidth: 1,
     borderColor: COLORS.border,
     overflow: "hidden",
@@ -463,8 +463,8 @@ const styles = StyleSheet.create({
     marginBottom: 20,
   },
   actionButton: {
-    borderRadius: 12,
-    paddingVertical: 14,
+    borderRadius: 5,
+    paddingVertical: 9,
     alignItems: "center",
   },
   actionButtonText: { color: COLORS.white, fontWeight: "700", fontSize: 15 },

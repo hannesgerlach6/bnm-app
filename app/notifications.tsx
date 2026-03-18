@@ -173,7 +173,7 @@ const styles = StyleSheet.create({
   emptyText: { color: COLORS.tertiary, fontSize: 14, textAlign: "center", lineHeight: 20 },
   notifCard: {
     backgroundColor: COLORS.white,
-    borderRadius: 12,
+    borderRadius: 8,
     borderWidth: 1,
     borderColor: COLORS.border,
     padding: 14,

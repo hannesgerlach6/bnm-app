@@ -251,7 +251,7 @@ const styles = StyleSheet.create({
 
   emptyCard: {
     backgroundColor: COLORS.white,
-    borderRadius: 12,
+    borderRadius: 8,
     borderWidth: 1,
     borderColor: COLORS.border,
     padding: 32,
@@ -261,10 +261,10 @@ const styles = StyleSheet.create({
 
   card: {
     backgroundColor: COLORS.white,
-    borderRadius: 12,
+    borderRadius: 8,
     borderWidth: 1,
     borderColor: COLORS.border,
-    padding: 16,
+    padding: 14,
     marginBottom: 16,
   },
   cardHeader: {
@@ -299,16 +299,16 @@ const styles = StyleSheet.create({
     backgroundColor: "#fef2f2",
     borderWidth: 1,
     borderColor: "#fecaca",
-    borderRadius: 10,
-    paddingVertical: 12,
+    borderRadius: 5,
+    paddingVertical: 9,
     alignItems: "center",
   },
   rejectButtonText: { color: "#dc2626", fontWeight: "600", fontSize: 14 },
   approveButton: {
     flex: 1,
     backgroundColor: COLORS.cta,
-    borderRadius: 10,
-    paddingVertical: 12,
+    borderRadius: 5,
+    paddingVertical: 9,
     alignItems: "center",
   },
   approveButtonText: { color: COLORS.white, fontWeight: "bold", fontSize: 14 },
