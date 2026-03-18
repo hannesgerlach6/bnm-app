@@ -32,6 +32,9 @@ export default function RegisterPublicScreen() {
   const [city, setCity] = useState("");
   const [age, setAge] = useState("");
   const [contactPref, setContactPref] = useState<ContactPreference | null>(null);
+  const [password, setPassword] = useState("");
+  const [passwordConfirm, setPasswordConfirm] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
 
   function validate(): boolean {
@@ -47,6 +50,10 @@ export default function RegisterPublicScreen() {
     if (!age.trim() || isNaN(ageNum) || ageNum < 12 || ageNum > 120)
       newErrors.age = "Bitte ein gültiges Alter eingeben (12–120).";
     if (!contactPref) newErrors.contactPref = "Bitte Kontaktpräferenz auswählen.";
+    if (!password.trim() || password.length < 8)
+      newErrors.password = "Mindestens 8 Zeichen.";
+    if (password !== passwordConfirm)
+      newErrors.passwordConfirm = "Passwörter stimmen nicht überein.";
 
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
@@ -57,36 +64,45 @@ export default function RegisterPublicScreen() {
     setIsSubmitting(true);
     try {
       const emailLower = email.trim().toLowerCase();
-      const contactLabel =
-        contactPref === "whatsapp" ? "WhatsApp" :
-        contactPref === "phone" ? "Telefon" :
-        contactPref === "telegram" ? "Telegram" :
-        contactPref === "email" ? "E-Mail" : "";
+      const fullName = `${firstName.trim()} ${lastName.trim()}`;
 
-      // Öffentliche Anmeldung: Als Mentee-Anmeldung via mentor_applications speichern
-      // (Das BNM-Team bearbeitet diese dann manuell)
-      // contact_preference wird in experience codiert, da das DB-Feld noch nicht existiert
-      const { error } = await supabase.from("mentor_applications").insert({
-        name: `${firstName.trim()} ${lastName.trim()}`,
+      // Account direkt erstellen via Supabase Auth
+      const { error } = await supabase.auth.signUp({
         email: emailLower,
-        phone: phone.trim() || "",
-        gender: gender,
-        city: city.trim(),
-        age: parseInt(age, 10),
-        experience: contactLabel ? `Kontakt: ${contactLabel}` : "",
-        motivation: "Anmeldung als neuer Muslim (öffentliches Formular)",
-        status: "pending",
+        password: password,
+        options: {
+          data: {
+            name: fullName,
+            role: "mentee",
+            gender: gender,
+            city: city.trim(),
+            age: parseInt(age, 10),
+          },
+        },
       });
 
       if (error) {
-        showError("Die Anmeldung konnte nicht übermittelt werden. Bitte versuche es erneut.");
+        if (error.message.includes("already registered") || error.message.includes("User already registered")) {
+          setErrors((prev) => ({ ...prev, email: "Diese E-Mail ist bereits registriert." }));
+        } else {
+          showError(error.message);
+        }
         setIsSubmitting(false);
         return;
       }
 
+      // Profil mit zusätzlichen Daten updaten (Telefon, Kontaktpräferenz)
+      const { data: { user: newUser } } = await supabase.auth.getUser();
+      if (newUser) {
+        await supabase.from("profiles").update({
+          phone: phone.trim() || "",
+          contact_preference: contactPref || "whatsapp",
+        }).eq("id", newUser.id);
+      }
+
       // E-Mail-Benachrichtigung an Admin
       await sendNewMenteeRegistrationNotification(
-        `${firstName.trim()} ${lastName.trim()}`,
+        fullName,
         emailLower,
         city.trim(),
         gender ?? "male"
@@ -107,18 +123,19 @@ export default function RegisterPublicScreen() {
           <View style={styles.successIconBox}>
             <Text style={styles.successIcon}>✓</Text>
           </View>
-          <Text style={styles.successTitle}>Erfolgreich angemeldet!</Text>
+          <Text style={styles.successTitle}>Willkommen bei BNM!</Text>
           <Text style={styles.successText}>
-            Deine Anmeldung wurde erfolgreich übermittelt. Das BNM-Team meldet sich bei dir.
+            Dein Account wurde erfolgreich erstellt. Du bist jetzt angemeldet.
           </Text>
           <Text style={styles.successSub}>
-            Wir prüfen deine Anfrage und weisen dir so schnell wie möglich einen passenden Mentor zu.
+            Das BNM-Team wird dir bald einen passenden Mentor zuweisen.
+            Du wirst benachrichtigt, sobald es soweit ist.
           </Text>
           <TouchableOpacity
             style={styles.backToLoginButton}
-            onPress={() => router.replace("/(auth)/login")}
+            onPress={() => router.replace("/(tabs)")}
           >
-            <Text style={styles.backToLoginText}>Zur Anmeldung</Text>
+            <Text style={styles.backToLoginText}>Zum Dashboard</Text>
           </TouchableOpacity>
         </View>
       </Container>
@@ -141,7 +158,7 @@ export default function RegisterPublicScreen() {
             <View style={styles.titleSection}>
               <Text style={styles.pageTitle}>Anmeldung als neuer Muslim</Text>
               <Text style={styles.pageSubtitle}>
-                Fülle das Formular aus – das BNM-Team meldet sich bei dir.
+                Erstelle deinen Account – wir weisen dir einen passenden Mentor zu.
               </Text>
             </View>
 
@@ -269,6 +286,40 @@ export default function RegisterPublicScreen() {
                   </TouchableOpacity>
                 ))}
               </View>
+            </FormField>
+
+            {/* Passwort */}
+            <FormField label="Passwort wählen *" error={errors.password}>
+              <View style={{ flexDirection: "row", alignItems: "center" }}>
+                <TextInput
+                  style={[styles.input, { flex: 1 }, errors.password ? styles.inputError : {}]}
+                  placeholder="Mindestens 8 Zeichen"
+                  placeholderTextColor={COLORS.tertiary}
+                  secureTextEntry={!showPassword}
+                  value={password}
+                  onChangeText={setPassword}
+                />
+                <TouchableOpacity
+                  style={{ paddingHorizontal: 10 }}
+                  onPress={() => setShowPassword(!showPassword)}
+                >
+                  <Text style={{ color: COLORS.secondary, fontSize: 13 }}>
+                    {showPassword ? "Verbergen" : "Zeigen"}
+                  </Text>
+                </TouchableOpacity>
+              </View>
+            </FormField>
+
+            {/* Passwort bestätigen */}
+            <FormField label="Passwort bestätigen *" error={errors.passwordConfirm}>
+              <TextInput
+                style={[styles.input, errors.passwordConfirm ? styles.inputError : {}]}
+                placeholder="Passwort wiederholen"
+                placeholderTextColor={COLORS.tertiary}
+                secureTextEntry={!showPassword}
+                value={passwordConfirm}
+                onChangeText={setPasswordConfirm}
+              />
             </FormField>
 
             {/* Hinweis */}
