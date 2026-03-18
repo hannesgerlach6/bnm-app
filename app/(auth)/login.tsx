@@ -14,6 +14,7 @@ import { useRouter } from "expo-router";
 import { useAuth } from "../../contexts/AuthContext";
 import type { UserRole } from "../../types";
 import { COLORS } from "../../constants/Colors";
+import { BNMLogo } from "../../components/BNMLogo";
 
 export default function LoginScreen() {
   const router = useRouter();
@@ -50,32 +51,23 @@ export default function LoginScreen() {
         contentContainerStyle={{ flexGrow: 1 }}
         keyboardShouldPersistTaps="handled"
       >
-        {/* Hero Header – dunkelblaues NGO-Design */}
+        {/* Hero Header */}
         <View style={styles.header}>
-          <View style={styles.logoBox}>
-            <Text style={styles.logoLetter}>B</Text>
-          </View>
+          <BNMLogo size={72} showSubtitle={false} />
           <Text style={styles.logoTitle}>BNM</Text>
-          <Text style={styles.logoSubtitle}>
-            Betreuung neuer Muslime
-          </Text>
-          {/* Gold-Linie als Trenner */}
+          <Text style={styles.logoSubtitle}>Betreuung neuer Muslime</Text>
           <View style={styles.goldDivider} />
         </View>
 
         {/* Login-Formular */}
         <View style={styles.formContainer}>
-          <Text style={styles.welcomeTitle}>
-            Willkommen
-          </Text>
+          <Text style={styles.welcomeTitle}>Willkommen</Text>
           <Text style={styles.welcomeSubtitle}>
             Melde dich an, um fortzufahren.
           </Text>
 
           {/* E-Mail */}
-          <Text style={styles.fieldLabel}>
-            E-Mail-Adresse
-          </Text>
+          <Text style={styles.fieldLabel}>E-Mail-Adresse</Text>
           <TextInput
             style={styles.input}
             placeholder="deine@email.de"
@@ -88,9 +80,7 @@ export default function LoginScreen() {
           />
 
           {/* Passwort */}
-          <Text style={styles.fieldLabel}>
-            Passwort
-          </Text>
+          <Text style={styles.fieldLabel}>Passwort</Text>
           <TextInput
             style={styles.input}
             placeholder="Passwort"
@@ -147,33 +137,25 @@ export default function LoginScreen() {
 
           {/* Test-Schnellzugang */}
           <View style={styles.quickSection}>
-            <Text style={styles.quickLabel}>
-              {"SCHNELLZUGANG (ENTWICKLUNG)"}
-            </Text>
+            <Text style={styles.quickLabel}>SCHNELLZUGANG (ENTWICKLUNG)</Text>
             <View style={styles.quickRow}>
               <TouchableOpacity
                 style={styles.quickButton}
                 onPress={() => handleQuickLogin("admin")}
               >
-                <Text style={styles.quickButtonText}>
-                  Admin
-                </Text>
+                <Text style={styles.quickButtonText}>Admin</Text>
               </TouchableOpacity>
               <TouchableOpacity
                 style={styles.quickButton}
                 onPress={() => handleQuickLogin("mentor")}
               >
-                <Text style={styles.quickButtonText}>
-                  Mentor
-                </Text>
+                <Text style={styles.quickButtonText}>Mentor</Text>
               </TouchableOpacity>
               <TouchableOpacity
                 style={styles.quickButton}
                 onPress={() => handleQuickLogin("mentee")}
               >
-                <Text style={styles.quickButtonText}>
-                  Mentee
-                </Text>
+                <Text style={styles.quickButtonText}>Mentee</Text>
               </TouchableOpacity>
             </View>
           </View>
@@ -190,85 +172,69 @@ const styles = StyleSheet.create({
   },
   header: {
     backgroundColor: COLORS.gradientStart,
-    paddingTop: 64,
-    paddingBottom: 40,
+    paddingTop: 52,
+    paddingBottom: 32,
     paddingHorizontal: 24,
     alignItems: "center",
   },
-  logoBox: {
-    width: 72,
-    height: 72,
-    borderRadius: 8,
-    backgroundColor: COLORS.gold,
-    alignItems: "center",
-    justifyContent: "center",
-    marginBottom: 16,
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.2,
-    shadowRadius: 8,
-    elevation: 4,
-  },
-  logoLetter: {
-    color: COLORS.white,
-    fontSize: 32,
-    fontWeight: "700",
-  },
   logoTitle: {
     color: COLORS.white,
-    fontSize: 32,
+    fontSize: 28,
     fontWeight: "700",
-    marginBottom: 6,
+    marginTop: 10,
+    marginBottom: 4,
+    letterSpacing: 3,
   },
   logoSubtitle: {
     color: COLORS.white,
     opacity: 0.75,
-    fontSize: 15,
+    fontSize: 13,
     textAlign: "center",
   },
   goldDivider: {
-    marginTop: 24,
-    width: 60,
+    marginTop: 18,
+    width: 48,
     height: 3,
     backgroundColor: COLORS.gold,
     borderRadius: 2,
   },
   formContainer: {
     flex: 1,
-    paddingHorizontal: 24,
-    paddingTop: 32,
+    paddingHorizontal: 20,
+    paddingTop: 24,
   },
   welcomeTitle: {
     color: COLORS.primary,
-    fontSize: 28,
+    fontSize: 24,
     fontWeight: "700",
-    marginBottom: 6,
+    marginBottom: 4,
   },
   welcomeSubtitle: {
     color: COLORS.secondary,
-    fontSize: 15,
-    marginBottom: 24,
+    fontSize: 14,
+    marginBottom: 20,
   },
   fieldLabel: {
     color: COLORS.secondary,
     fontSize: 13,
     fontWeight: "500",
-    marginBottom: 6,
+    marginBottom: 4,
   },
   input: {
     backgroundColor: COLORS.white,
     borderWidth: 1,
     borderColor: COLORS.border,
-    borderRadius: 5,
-    paddingHorizontal: 16,
-    paddingVertical: 12,
+    borderRadius: 6,
+    paddingHorizontal: 14,
+    paddingVertical: 10,
     color: COLORS.primary,
-    marginBottom: 16,
-    fontSize: 15,
+    marginBottom: 12,
+    fontSize: 14,
+    height: 42,
     shadowColor: "#000",
-    shadowOffset: { width: 0, height: 2 },
+    shadowOffset: { width: 0, height: 1 },
     shadowOpacity: 0.04,
-    shadowRadius: 4,
+    shadowRadius: 3,
     elevation: 1,
   },
   errorBox: {
@@ -276,21 +242,21 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: "#fecaca",
     borderRadius: 5,
-    paddingHorizontal: 16,
-    paddingVertical: 12,
-    marginBottom: 16,
+    paddingHorizontal: 14,
+    paddingVertical: 10,
+    marginBottom: 12,
   },
   errorText: {
     color: "#dc2626",
-    fontSize: 14,
+    fontSize: 13,
   },
   loginButton: {
     backgroundColor: COLORS.gradientStart,
     borderRadius: 5,
-    paddingVertical: 14,
-    paddingHorizontal: 20,
+    paddingVertical: 10,
+    paddingHorizontal: 16,
     alignItems: "center",
-    marginBottom: 16,
+    marginBottom: 12,
     shadowColor: "#000",
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.12,
@@ -299,49 +265,49 @@ const styles = StyleSheet.create({
   },
   loginButtonText: {
     color: COLORS.white,
-    fontWeight: "700",
-    fontSize: 16,
+    fontWeight: "600",
+    fontSize: 14,
   },
   registerRow: {
     flexDirection: "row",
     justifyContent: "center",
-    gap: 16,
-    marginBottom: 16,
+    gap: 12,
+    marginBottom: 12,
   },
   publicRegisterButton: {
     backgroundColor: "rgba(238,167,27,0.10)",
     borderWidth: 1,
     borderColor: COLORS.gold,
     borderRadius: 5,
-    paddingVertical: 12,
+    paddingVertical: 10,
     paddingHorizontal: 16,
     alignItems: "center",
-    marginBottom: 24,
+    marginBottom: 20,
   },
   publicRegisterText: {
     color: COLORS.primary,
-    fontSize: 14,
+    fontSize: 13,
     fontWeight: "600",
   },
   linkText: {
     color: COLORS.link,
-    fontSize: 14,
+    fontSize: 13,
   },
   divider: {
     color: COLORS.tertiary,
-    fontSize: 14,
+    fontSize: 13,
   },
   quickSection: {
     borderTopWidth: 1,
     borderTopColor: COLORS.border,
-    paddingTop: 20,
-    marginBottom: 32,
+    paddingTop: 16,
+    marginBottom: 28,
   },
   quickLabel: {
     color: COLORS.tertiary,
-    fontSize: 11,
+    fontSize: 10,
     textAlign: "center",
-    marginBottom: 10,
+    marginBottom: 8,
     letterSpacing: 1,
   },
   quickRow: {
@@ -354,7 +320,7 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: COLORS.border,
     borderRadius: 5,
-    paddingVertical: 10,
+    paddingVertical: 8,
     alignItems: "center",
   },
   quickButtonText: {

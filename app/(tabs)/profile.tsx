@@ -13,6 +13,7 @@ import { useData } from "../../contexts/DataContext";
 import type { UserRole } from "../../types";
 import { COLORS } from "../../constants/Colors";
 import { Container } from "../../components/Container";
+import { BNMLogo } from "../../components/BNMLogo";
 
 const ROLE_LABELS: Record<UserRole, string> = {
   admin: "Administrator",
@@ -100,6 +101,10 @@ export default function ProfileScreen() {
       <View style={styles.page}>
         {/* Hero-Header mit dunklem Blau */}
         <View style={styles.heroHeader}>
+          {/* BNM Logo oben rechts */}
+          <View style={styles.heroLogoPosition}>
+            <BNMLogo size={40} showSubtitle={false} />
+          </View>
           <View style={styles.avatarCircle}>
             <Text style={styles.avatarText}>{initials}</Text>
           </View>
@@ -230,30 +235,37 @@ function InfoRow({
 
 const styles = StyleSheet.create({
   scrollView: { flex: 1, backgroundColor: COLORS.bg },
-  page: { padding: 24 },
+  page: { padding: 20 },
   heroHeader: {
     backgroundColor: COLORS.gradientStart,
     borderRadius: 8,
-    padding: 28,
+    padding: 20,
     alignItems: "center",
-    marginBottom: 24,
+    marginBottom: 16,
     shadowColor: "#000",
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.12,
     shadowRadius: 8,
     elevation: 3,
+    position: "relative",
+  },
+  heroLogoPosition: {
+    position: "absolute",
+    top: 12,
+    right: 12,
+    opacity: 0.85,
   },
   avatarCircle: {
-    width: 80,
-    height: 80,
-    borderRadius: 40,
+    width: 64,
+    height: 64,
+    borderRadius: 32,
     backgroundColor: COLORS.gold,
     alignItems: "center",
     justifyContent: "center",
-    marginBottom: 16,
+    marginBottom: 10,
   },
-  avatarText: { color: COLORS.white, fontSize: 28, fontWeight: "700" },
-  userName: { fontSize: 22, fontWeight: "700", color: COLORS.white, marginBottom: 8 },
+  avatarText: { color: COLORS.white, fontSize: 22, fontWeight: "700" },
+  userName: { fontSize: 18, fontWeight: "700", color: COLORS.white, marginBottom: 6 },
   roleBadge: { paddingHorizontal: 12, paddingVertical: 4, borderRadius: 4 },
   roleBadgeText: { fontSize: 12, fontWeight: "600" },
   genderBadge: { marginTop: 8 },
@@ -280,9 +292,9 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
-    paddingVertical: 12,
+    paddingVertical: 10,
   },
-  infoLabel: { color: COLORS.secondary, fontSize: 14 },
+  infoLabel: { color: COLORS.secondary, fontSize: 13 },
   infoValue: {
     color: COLORS.primary,
     fontSize: 14,
@@ -295,11 +307,11 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "space-between",
     paddingHorizontal: 16,
-    paddingVertical: 14,
+    paddingVertical: 12,
     borderBottomWidth: 1,
     borderBottomColor: COLORS.border,
   },
-  menuItemText: { color: COLORS.primary, fontSize: 15 },
+  menuItemText: { color: COLORS.primary, fontSize: 14 },
   menuArrow: { color: COLORS.tertiary, fontSize: 18 },
   statsGrid: {
     flexDirection: "row",
@@ -325,9 +337,9 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: "#fecaca",
     borderRadius: 5,
-    paddingVertical: 14,
+    paddingVertical: 10,
     alignItems: "center",
-    marginBottom: 16,
+    marginBottom: 12,
   },
   logoutText: { color: "#dc2626", fontWeight: "600" },
   appInfo: { color: COLORS.tertiary, fontSize: 12, textAlign: "center" },

@@ -23,7 +23,6 @@ export default function RegisterPublicScreen() {
   const { users } = useData();
   const [step, setStep] = useState<Step>("form");
 
-  // Formular-Felder
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
   const [email, setEmail] = useState("");
@@ -54,7 +53,6 @@ export default function RegisterPublicScreen() {
 
   function handleSubmit() {
     if (!validate()) return;
-    // FIX 2: Duplikats-Check
     const emailLower = email.trim().toLowerCase();
     const exists = users.some((u) => u.email.toLowerCase() === emailLower);
     if (exists) {
@@ -164,9 +162,7 @@ export default function RegisterPublicScreen() {
                   style={[styles.pill, gender === "male" ? styles.pillActive : styles.pillInactive]}
                   onPress={() => setGender("male")}
                 >
-                  <Text
-                    style={gender === "male" ? styles.pillTextActive : styles.pillTextInactive}
-                  >
+                  <Text style={gender === "male" ? styles.pillTextActive : styles.pillTextInactive}>
                     Bruder
                   </Text>
                 </TouchableOpacity>
@@ -174,9 +170,7 @@ export default function RegisterPublicScreen() {
                   style={[styles.pill, gender === "female" ? styles.pillActiveFemale : styles.pillInactive]}
                   onPress={() => setGender("female")}
                 >
-                  <Text
-                    style={gender === "female" ? styles.pillTextActive : styles.pillTextInactive}
-                  >
+                  <Text style={gender === "female" ? styles.pillTextActive : styles.pillTextInactive}>
                     Schwester
                   </Text>
                 </TouchableOpacity>
@@ -285,36 +279,37 @@ function FormField({
 }
 
 const fieldStyles = StyleSheet.create({
-  container: { marginBottom: 16 },
-  label: { color: COLORS.secondary, fontSize: 14, fontWeight: "500", marginBottom: 6 },
+  container: { marginBottom: 12 },
+  label: { color: COLORS.secondary, fontSize: 13, fontWeight: "500", marginBottom: 4 },
   error: { color: COLORS.error, fontSize: 12, marginTop: 4 },
 });
 
 const styles = StyleSheet.create({
   flex1: { flex: 1, backgroundColor: COLORS.bg },
   scrollContent: { flexGrow: 1 },
-  page: { padding: 24, paddingBottom: 48 },
+  page: { padding: 20, paddingBottom: 40 },
 
-  titleSection: { marginBottom: 24 },
-  pageTitle: { fontSize: 22, fontWeight: "bold", color: COLORS.primary, marginBottom: 6 },
-  pageSubtitle: { color: COLORS.secondary, fontSize: 14 },
+  titleSection: { marginBottom: 16 },
+  pageTitle: { fontSize: 20, fontWeight: "bold", color: COLORS.primary, marginBottom: 4 },
+  pageSubtitle: { color: COLORS.secondary, fontSize: 13 },
 
   input: {
     backgroundColor: COLORS.white,
     borderWidth: 1,
     borderColor: COLORS.border,
-    borderRadius: 12,
-    paddingHorizontal: 16,
-    paddingVertical: 12,
+    borderRadius: 6,
+    paddingHorizontal: 14,
+    paddingVertical: 10,
     color: COLORS.primary,
     fontSize: 14,
+    height: 42,
   },
   inputError: { borderColor: COLORS.error },
 
   pillRow: { flexDirection: "row", flexWrap: "wrap", gap: 8 },
   pill: {
-    paddingHorizontal: 16,
-    paddingVertical: 10,
+    paddingHorizontal: 14,
+    paddingVertical: 8,
     borderRadius: 9999,
     borderWidth: 1,
   },
@@ -328,29 +323,29 @@ const styles = StyleSheet.create({
     backgroundColor: "#eff6ff",
     borderWidth: 1,
     borderColor: "#dbeafe",
-    borderRadius: 12,
-    padding: 14,
-    marginBottom: 24,
-    marginTop: 8,
+    borderRadius: 6,
+    padding: 12,
+    marginBottom: 16,
+    marginTop: 4,
   },
-  infoBoxText: { color: "#1e40af", fontSize: 13, lineHeight: 20 },
+  infoBoxText: { color: "#1e40af", fontSize: 13, lineHeight: 19 },
 
   submitButton: {
     backgroundColor: COLORS.cta,
-    borderRadius: 12,
-    paddingVertical: 16,
+    borderRadius: 5,
+    paddingVertical: 10,
     alignItems: "center",
-    marginBottom: 16,
+    marginBottom: 12,
   },
-  submitButtonText: { color: COLORS.white, fontWeight: "bold", fontSize: 16 },
+  submitButtonText: { color: COLORS.white, fontWeight: "600", fontSize: 14 },
 
   loginLinkRow: {
     flexDirection: "row",
     justifyContent: "center",
     alignItems: "center",
   },
-  loginLinkText: { color: COLORS.secondary, fontSize: 14 },
-  loginLink: { color: COLORS.link, fontSize: 14, fontWeight: "600" },
+  loginLinkText: { color: COLORS.secondary, fontSize: 13 },
+  loginLink: { color: COLORS.link, fontSize: 13, fontWeight: "600" },
 
   // Success Screen
   successContainer: {
@@ -358,45 +353,45 @@ const styles = StyleSheet.create({
     backgroundColor: COLORS.bg,
     alignItems: "center",
     justifyContent: "center",
-    padding: 32,
+    padding: 28,
   },
   successIconBox: {
-    width: 80,
-    height: 80,
-    borderRadius: 40,
+    width: 64,
+    height: 64,
+    borderRadius: 32,
     backgroundColor: COLORS.cta,
     alignItems: "center",
     justifyContent: "center",
-    marginBottom: 24,
+    marginBottom: 20,
   },
-  successIcon: { color: COLORS.white, fontSize: 36, fontWeight: "bold" },
+  successIcon: { color: COLORS.white, fontSize: 28, fontWeight: "bold" },
   successTitle: {
-    fontSize: 22,
+    fontSize: 20,
     fontWeight: "bold",
     color: COLORS.primary,
-    marginBottom: 12,
+    marginBottom: 10,
     textAlign: "center",
   },
   successText: {
     color: COLORS.secondary,
-    fontSize: 15,
+    fontSize: 14,
     textAlign: "center",
-    lineHeight: 22,
-    marginBottom: 12,
+    lineHeight: 20,
+    marginBottom: 10,
   },
   successSub: {
     color: COLORS.tertiary,
     fontSize: 13,
     textAlign: "center",
-    lineHeight: 20,
-    marginBottom: 32,
+    lineHeight: 19,
+    marginBottom: 28,
   },
   backToLoginButton: {
     backgroundColor: COLORS.primary,
-    borderRadius: 12,
-    paddingHorizontal: 32,
-    paddingVertical: 14,
+    borderRadius: 6,
+    paddingHorizontal: 28,
+    paddingVertical: 10,
     alignItems: "center",
   },
-  backToLoginText: { color: COLORS.white, fontWeight: "bold", fontSize: 15 },
+  backToLoginText: { color: COLORS.white, fontWeight: "600", fontSize: 14 },
 });

@@ -116,13 +116,13 @@ export default function FeedbackScreen() {
         <View style={styles.commentCard}>
           <Text style={styles.commentTitle}>Kommentar (optional)</Text>
           <TextInput
-            style={[styles.commentInput, { minHeight: 120 }]}
+            style={[styles.commentInput]}
             value={comment}
             onChangeText={setComment}
             placeholder="Dein Feedback zur Betreuung..."
             placeholderTextColor="#98A2B3"
             multiline
-            numberOfLines={5}
+            numberOfLines={4}
             textAlignVertical="top"
           />
         </View>
@@ -160,50 +160,52 @@ export default function FeedbackScreen() {
 
 const styles = StyleSheet.create({
   scrollView: { flex: 1, backgroundColor: COLORS.bg },
-  page: { padding: 24 },
+  page: { padding: 20 },
   headerCard: {
     backgroundColor: COLORS.primary,
-    borderRadius: 16,
-    padding: 20,
-    marginBottom: 24,
+    borderRadius: 8,
+    padding: 16,
+    marginBottom: 16,
     alignItems: "center",
   },
-  headerEmoji: { fontSize: 36, marginBottom: 8 },
-  headerTitle: { color: COLORS.white, fontWeight: "bold", fontSize: 20, textAlign: "center", marginBottom: 4 },
-  headerSub: { color: COLORS.white, opacity: 0.7, fontSize: 14, textAlign: "center" },
-  subText: { color: COLORS.secondary, textAlign: "center", marginBottom: 24 },
+  headerEmoji: { fontSize: 28, marginBottom: 6 },
+  headerTitle: { color: COLORS.white, fontWeight: "bold", fontSize: 17, textAlign: "center", marginBottom: 4 },
+  headerSub: { color: COLORS.white, opacity: 0.7, fontSize: 13, textAlign: "center" },
+  subText: { color: COLORS.secondary, textAlign: "center", marginBottom: 16, fontSize: 13 },
   ratingCard: {
     backgroundColor: COLORS.white,
-    borderRadius: 12,
-    borderWidth: 1,
-    borderColor: COLORS.border,
-    padding: 20,
-    marginBottom: 16,
-  },
-  ratingTitle: { fontWeight: "bold", color: COLORS.primary, textAlign: "center", marginBottom: 16 },
-  starsRow: { flexDirection: "row", justifyContent: "center", gap: 12 },
-  starButton: { padding: 4 },
-  starText: { fontSize: 36 },
-  ratingLabel: { color: COLORS.secondary, textAlign: "center", marginTop: 12, fontSize: 14 },
-  commentCard: {
-    backgroundColor: COLORS.white,
-    borderRadius: 12,
+    borderRadius: 8,
     borderWidth: 1,
     borderColor: COLORS.border,
     padding: 16,
-    marginBottom: 24,
+    marginBottom: 12,
   },
-  commentTitle: { fontWeight: "600", color: COLORS.primary, marginBottom: 8 },
+  ratingTitle: { fontWeight: "600", color: COLORS.primary, textAlign: "center", marginBottom: 12, fontSize: 14 },
+  starsRow: { flexDirection: "row", justifyContent: "center", gap: 10 },
+  starButton: { padding: 4 },
+  starText: { fontSize: 30 },
+  ratingLabel: { color: COLORS.secondary, textAlign: "center", marginTop: 10, fontSize: 13 },
+  commentCard: {
+    backgroundColor: COLORS.white,
+    borderRadius: 8,
+    borderWidth: 1,
+    borderColor: COLORS.border,
+    padding: 14,
+    marginBottom: 16,
+  },
+  commentTitle: { fontWeight: "600", color: COLORS.primary, marginBottom: 6, fontSize: 13 },
   commentInput: {
     borderWidth: 1,
     borderColor: COLORS.border,
-    borderRadius: 8,
+    borderRadius: 6,
     paddingHorizontal: 12,
-    paddingVertical: 12,
+    paddingVertical: 10,
     color: COLORS.primary,
+    fontSize: 14,
+    height: 80,
   },
-  submitButton: { borderRadius: 12, paddingVertical: 16, alignItems: "center", marginBottom: 12 },
-  submitButtonText: { fontWeight: "bold", fontSize: 16 },
-  skipButton: { paddingVertical: 12, alignItems: "center" },
-  skipText: { color: COLORS.tertiary, fontSize: 14 },
+  submitButton: { borderRadius: 6, paddingVertical: 10, alignItems: "center", marginBottom: 10 },
+  submitButtonText: { fontWeight: "600", fontSize: 14 },
+  skipButton: { paddingVertical: 10, alignItems: "center" },
+  skipText: { color: COLORS.tertiary, fontSize: 13 },
 });

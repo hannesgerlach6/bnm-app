@@ -7,6 +7,7 @@ import type { Mentorship } from "../../types";
 import { COLORS } from "../../constants/Colors";
 import { Container } from "../../components/Container";
 import { MOCK_HADITHE } from "../../data/mockData";
+import { BNMLogo } from "../../components/BNMLogo";
 
 export default function DashboardScreen() {
   const { user } = useAuth();
@@ -41,8 +42,13 @@ function AdminDashboard() {
   return (
     <ScrollView style={styles.scrollView}>
       <View style={styles.page}>
-        <Text style={styles.pageTitle}>Admin Dashboard</Text>
-        <Text style={styles.pageSubtitle}>Gesamtübersicht BNM-Programm</Text>
+        <View style={styles.headerRow}>
+          <BNMLogo size={36} showSubtitle={false} />
+          <View style={styles.headerTextGroup}>
+            <Text style={styles.pageTitle}>Admin Dashboard</Text>
+            <Text style={styles.pageSubtitle}>Gesamtübersicht BNM-Programm</Text>
+          </View>
+        </View>
 
         {/* KPI Karten – Reihe 1 */}
         <View style={styles.row3}>
@@ -51,7 +57,7 @@ function AdminDashboard() {
         </View>
 
         {/* KPI Karten – Reihe 2 */}
-        <View style={[styles.row3, { marginBottom: 24 }]}>
+        <View style={[styles.row3, { marginBottom: 16 }]}>
           <StatCard label="Mentoren" value={allMentors.length} color={COLORS.gradientStart} />
           <StatCard label="Mentees gesamt" value={allMentees.length} color={COLORS.gold} />
         </View>
@@ -204,7 +210,7 @@ function MentorDashboard() {
         </View>
 
         {/* Stats */}
-        <View style={[styles.row3, { marginBottom: 24 }]}>
+        <View style={[styles.row3, { marginBottom: 16 }]}>
           <StatCard label="Aktive Mentees" value={activeMentorships.length} color={COLORS.gradientStart} />
           <StatCard label="Abgeschlossen" value={completedMentorships.length} color={COLORS.cta} />
         </View>
@@ -212,7 +218,7 @@ function MentorDashboard() {
         {/* Aktive Betreuungen */}
         <Text style={styles.sectionTitle}>Meine aktiven Betreuungen</Text>
         {activeMentorships.length === 0 ? (
-          <View style={[styles.card, { padding: 32, alignItems: "center", marginBottom: 24 }]}>
+          <View style={[styles.card, { padding: 24, alignItems: "center", marginBottom: 16 }]}>
             <Text style={styles.emptyText}>Dir sind aktuell keine Mentees zugewiesen.</Text>
           </View>
         ) : (
@@ -326,7 +332,7 @@ function MenteeDashboard() {
         {/* Fortschritts-Übersicht */}
         {mentorship ? (
           <>
-            <View style={[styles.card, { marginBottom: 24 }]}>
+            <View style={[styles.card, { marginBottom: 16 }]}>
               <View style={styles.rowBetweenMb3}>
                 <Text style={styles.cardTitle}>Dein Fortschritt</Text>
                 <Text style={styles.goldBold}>
@@ -341,7 +347,7 @@ function MenteeDashboard() {
             </View>
 
             {/* Betreuungsdetails + Chat */}
-            <View style={[styles.row3, { marginBottom: 24 }]}>
+            <View style={[styles.row3, { marginBottom: 16 }]}>
               <TouchableOpacity
                 style={[styles.actionButton, { backgroundColor: COLORS.gradientStart }]}
                 onPress={() =>
@@ -362,7 +368,7 @@ function MenteeDashboard() {
 
             {/* 10-Schritte-Gamification */}
             <Text style={styles.sectionTitle}>Deine 10 Schritte</Text>
-            <View style={[styles.card, { padding: 0, overflow: "hidden", marginBottom: 24 }]}>
+            <View style={[styles.card, { padding: 0, overflow: "hidden", marginBottom: 16 }]}>
               {sortedSessionTypes.map((step, idx) => {
                 const isDone = completedStepIds.includes(step.id);
                 const isCurrent = !isDone && idx === completedStepIds.length;
@@ -555,16 +561,18 @@ function MonthlyChart({ mentorships }: { mentorships: Mentorship[] }) {
 
 const styles = StyleSheet.create({
   scrollView: { flex: 1, backgroundColor: COLORS.bg },
-  page: { padding: 24 },
-  pageTitle: { fontSize: 28, fontWeight: "700", color: COLORS.primary, marginBottom: 4 },
-  pageSubtitle: { color: COLORS.secondary, fontSize: 15, marginBottom: 24 },
-  sectionTitle: { fontSize: 20, fontWeight: "600", color: COLORS.primary, marginBottom: 12 },
-  row3: { flexDirection: "row", gap: 12, marginBottom: 12 },
+  page: { padding: 20 },
+  headerRow: { flexDirection: "row", alignItems: "center", gap: 12, marginBottom: 20 },
+  headerTextGroup: { flex: 1 },
+  pageTitle: { fontSize: 24, fontWeight: "700", color: COLORS.primary, marginBottom: 2 },
+  pageSubtitle: { color: COLORS.secondary, fontSize: 13 },
+  sectionTitle: { fontSize: 18, fontWeight: "600", color: COLORS.primary, marginBottom: 10 },
+  row3: { flexDirection: "row", gap: 10, marginBottom: 10 },
   card: {
     backgroundColor: COLORS.white,
     borderRadius: 8,
     padding: 16,
-    marginBottom: 24,
+    marginBottom: 16,
     shadowColor: "#000",
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.08,
@@ -593,7 +601,7 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: COLORS.white,
     borderRadius: 8,
-    padding: 16,
+    padding: 12,
     borderLeftWidth: 4,
     borderLeftColor: COLORS.gold,
     shadowColor: "#000",
@@ -602,8 +610,8 @@ const styles = StyleSheet.create({
     shadowRadius: 8,
     elevation: 2,
   },
-  statLabel: { color: COLORS.secondary, fontSize: 13, marginBottom: 4 },
-  statValue: { fontSize: 30, fontWeight: "700" },
+  statLabel: { color: COLORS.secondary, fontSize: 12, marginBottom: 2 },
+  statValue: { fontSize: 26, fontWeight: "700" },
   progressTrack: { height: 8, backgroundColor: COLORS.bg, borderRadius: 4, overflow: "hidden" },
   progressFill: { height: "100%", backgroundColor: COLORS.cta, borderRadius: 4 },
   amberBox: {
@@ -612,7 +620,7 @@ const styles = StyleSheet.create({
     borderColor: "#fde68a",
     borderRadius: 8,
     padding: 16,
-    marginBottom: 24,
+    marginBottom: 16,
   },
   amberTitle: { color: "#92400e", fontWeight: "600", marginBottom: 4 },
   amberRow: {
@@ -635,19 +643,19 @@ const styles = StyleSheet.create({
   actionButton: {
     flex: 1,
     borderRadius: 5,
-    paddingVertical: 14,
-    paddingHorizontal: 20,
+    paddingVertical: 10,
+    paddingHorizontal: 16,
     alignItems: "center",
-    marginBottom: 24,
+    marginBottom: 16,
   },
   actionButtonText: { color: COLORS.white, fontSize: 13, fontWeight: "600", textAlign: "center" },
   actionButtonGold: {
     flex: 1,
     borderRadius: 5,
-    paddingVertical: 14,
-    paddingHorizontal: 20,
+    paddingVertical: 10,
+    paddingHorizontal: 16,
     alignItems: "center",
-    marginBottom: 24,
+    marginBottom: 16,
     borderWidth: 1,
     borderColor: COLORS.gold,
     backgroundColor: "rgba(238,167,27,0.08)",
@@ -694,17 +702,17 @@ const styles = StyleSheet.create({
   greetingCard: {
     backgroundColor: COLORS.gradientStart,
     borderRadius: 8,
-    padding: 24,
-    marginBottom: 24,
+    padding: 16,
+    marginBottom: 16,
     shadowColor: "#000",
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.12,
     shadowRadius: 8,
     elevation: 3,
   },
-  greetingSmall: { color: COLORS.white, fontSize: 15, opacity: 0.75, marginBottom: 4 },
-  greetingName: { color: COLORS.white, fontSize: 28, fontWeight: "700" },
-  greetingMeta: { color: COLORS.white, opacity: 0.65, fontSize: 14, marginTop: 4 },
+  greetingSmall: { color: COLORS.white, fontSize: 13, opacity: 0.75, marginBottom: 2 },
+  greetingName: { color: COLORS.white, fontSize: 22, fontWeight: "700" },
+  greetingMeta: { color: COLORS.white, opacity: 0.65, fontSize: 13, marginTop: 2 },
   menteeCard: {
     backgroundColor: COLORS.white,
     borderRadius: 8,
@@ -769,8 +777,8 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: COLORS.gradientStart,
     borderRadius: 5,
-    paddingVertical: 14,
-    paddingHorizontal: 20,
+    paddingVertical: 10,
+    paddingHorizontal: 16,
     alignItems: "center",
   },
   secondaryButtonText: { color: COLORS.gradientStart, fontSize: 13, fontWeight: "600" },
@@ -804,7 +812,7 @@ const styles = StyleSheet.create({
     backgroundColor: COLORS.white,
     borderRadius: 8,
     padding: 16,
-    marginBottom: 24,
+    marginBottom: 16,
     shadowColor: "#000",
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.08,

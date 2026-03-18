@@ -71,7 +71,6 @@ export default function RegisterMenteeScreen() {
 
   function handleSubmit() {
     if (!validate()) return;
-    // FIX 2: Duplikats-Check
     const emailLower = form.email.trim().toLowerCase();
     const exists = users.some((u) => u.email.toLowerCase() === emailLower);
     if (exists) {
@@ -142,7 +141,7 @@ export default function RegisterMenteeScreen() {
 
           {/* Geschlecht */}
           <FieldLabel label="Ich bin" error={errors.gender} />
-          <View style={styles.rowGap3Mb4}>
+          <View style={styles.rowGap3Mb3}>
             {GENDER_OPTIONS.map((opt) => (
               <TouchableOpacity
                 key={opt.value}
@@ -243,7 +242,7 @@ function FieldLabel({
 }) {
   return (
     <View style={{ flexDirection: "row", justifyContent: "space-between", marginBottom: 4 }}>
-      <Text style={{ color: COLORS.secondary, fontSize: 14, fontWeight: "500" }}>{label}</Text>
+      <Text style={{ color: COLORS.secondary, fontSize: 13, fontWeight: "500" }}>{label}</Text>
       {error ? <Text style={{ color: "#ef4444", fontSize: 12 }}>{error}</Text> : null}
     </View>
   );
@@ -255,22 +254,24 @@ const styles = StyleSheet.create({
     backgroundColor: COLORS.bg,
   },
   container: {
-    paddingHorizontal: 24,
-    paddingTop: 24,
+    paddingHorizontal: 20,
+    paddingTop: 20,
   },
   intro: {
     color: COLORS.secondary,
-    fontSize: 14,
-    marginBottom: 24,
+    fontSize: 13,
+    marginBottom: 16,
   },
   input: {
     backgroundColor: COLORS.white,
     borderWidth: 1,
-    borderRadius: 12,
-    paddingHorizontal: 16,
-    paddingVertical: 12,
+    borderRadius: 6,
+    paddingHorizontal: 14,
+    paddingVertical: 10,
     color: COLORS.primary,
-    marginBottom: 16,
+    marginBottom: 12,
+    fontSize: 14,
+    height: 42,
   },
   inputNormal: {
     borderColor: COLORS.border,
@@ -278,15 +279,15 @@ const styles = StyleSheet.create({
   inputError: {
     borderColor: "#f87171",
   },
-  rowGap3Mb4: {
+  rowGap3Mb3: {
     flexDirection: "row",
-    gap: 12,
-    marginBottom: 16,
+    gap: 10,
+    marginBottom: 12,
   },
   toggleButton: {
     flex: 1,
-    paddingVertical: 12,
-    borderRadius: 12,
+    paddingVertical: 10,
+    borderRadius: 6,
     borderWidth: 1,
     alignItems: "center",
   },
@@ -301,20 +302,22 @@ const styles = StyleSheet.create({
   toggleTextActive: {
     color: COLORS.white,
     fontWeight: "500",
+    fontSize: 13,
   },
   toggleTextInactive: {
     color: COLORS.secondary,
     fontWeight: "500",
+    fontSize: 13,
   },
   chipRow: {
     flexDirection: "row",
     flexWrap: "wrap",
     gap: 8,
-    marginBottom: 24,
+    marginBottom: 16,
   },
   chip: {
-    paddingHorizontal: 16,
-    paddingVertical: 8,
+    paddingHorizontal: 14,
+    paddingVertical: 7,
     borderRadius: 9999,
     borderWidth: 1,
   },
@@ -327,7 +330,7 @@ const styles = StyleSheet.create({
     borderColor: COLORS.border,
   },
   chipText: {
-    fontSize: 14,
+    fontSize: 13,
     fontWeight: "500",
   },
   chipTextActive: {
@@ -338,13 +341,13 @@ const styles = StyleSheet.create({
   },
   submitButton: {
     backgroundColor: COLORS.cta,
-    borderRadius: 12,
-    paddingVertical: 16,
+    borderRadius: 5,
+    paddingVertical: 10,
     alignItems: "center",
   },
   submitButtonText: {
     color: COLORS.white,
-    fontWeight: "bold",
-    fontSize: 16,
+    fontWeight: "600",
+    fontSize: 14,
   },
 });
