@@ -13,7 +13,7 @@ import {
 import { useRouter } from "expo-router";
 import type { Gender, ContactPreference } from "../../types";
 import { COLORS } from "../../constants/Colors";
-import { useData } from "../../contexts/DataContext";
+import { supabase } from "../../lib/supabase";
 
 interface MenteeFormData {
   name: string;
@@ -39,7 +39,7 @@ const CONTACT_OPTIONS: { value: ContactPreference; label: string }[] = [
 
 export default function RegisterMenteeScreen() {
   const router = useRouter();
-  const { users } = useData();
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const [form, setForm] = useState<MenteeFormData>({
     name: "",
     email: "",
@@ -69,19 +69,60 @@ export default function RegisterMenteeScreen() {
     return Object.keys(newErrors).length === 0;
   }
 
-  function handleSubmit() {
+  async function handleSubmit() {
     if (!validate()) return;
-    const emailLower = form.email.trim().toLowerCase();
-    const exists = users.some((u) => u.email.toLowerCase() === emailLower);
-    if (exists) {
-      setErrors((prev) => ({ ...prev, email: "Diese E-Mail ist bereits registriert." }));
-      return;
+    setIsSubmitting(true);
+    try {
+      const emailLower = form.email.trim().toLowerCase();
+
+      // Duplikats-Check via Supabase
+      const { data: existing } = await supabase
+        .from("profiles")
+        .select("id")
+        .eq("email", emailLower)
+        .maybeSingle();
+
+      if (existing) {
+        setErrors((prev) => ({ ...prev, email: "Diese E-Mail ist bereits registriert." }));
+        setIsSubmitting(false);
+        return;
+      }
+
+      // Mentee-Registrierung: Direkt als Supabase Auth User anlegen
+      const { error } = await supabase.auth.signUp({
+        email: emailLower,
+        password: Math.random().toString(36).slice(-10) + "A1!", // Temp-Passwort, wird via E-Mail zurückgesetzt
+        options: {
+          data: {
+            name: form.name.trim(),
+            role: "mentee",
+            gender: form.gender,
+            city: form.city.trim(),
+            age: parseInt(form.age, 10),
+          },
+        },
+      });
+
+      if (error) {
+        if (error.message.includes("already registered") || error.message.includes("User already registered")) {
+          setErrors((prev) => ({ ...prev, email: "Diese E-Mail ist bereits registriert." }));
+        } else {
+          Alert.alert("Fehler", error.message);
+        }
+        setIsSubmitting(false);
+        return;
+      }
+
+      Alert.alert(
+        "Registrierung eingegangen",
+        "Vielen Dank! Deine Registrierung wurde eingereicht. Das BNM-Team wird sich bald bei dir melden.",
+        [{ text: "OK", onPress: () => router.replace("/(auth)/login") }]
+      );
+    } catch {
+      Alert.alert("Fehler", "Ein unerwarteter Fehler ist aufgetreten.");
+    } finally {
+      setIsSubmitting(false);
     }
-    Alert.alert(
-      "Registrierung eingegangen",
-      "Vielen Dank! Deine Registrierung wurde eingereicht. Das BNM-Team wird sich bald bei dir melden.",
-      [{ text: "OK", onPress: () => router.replace("/(auth)/login") }]
-    );
   }
 
   function update(field: keyof MenteeFormData, value: string) {
@@ -220,11 +261,12 @@ export default function RegisterMenteeScreen() {
 
           {/* Submit */}
           <TouchableOpacity
-            style={styles.submitButton}
+            style={[styles.submitButton, isSubmitting ? { opacity: 0.6 } : {}]}
             onPress={handleSubmit}
+            disabled={isSubmitting}
           >
             <Text style={styles.submitButtonText}>
-              Registrierung einreichen
+              {isSubmitting ? "Wird eingereicht..." : "Registrierung einreichen"}
             </Text>
           </TouchableOpacity>
         </View>

@@ -36,14 +36,20 @@ export default function LoginScreen() {
     }
   }
 
-  function handleQuickLogin(role: UserRole) {
+  async function handleQuickLogin(role: UserRole) {
     setErrorMsg("");
-    loginAs(role);
+    const result = await loginAs(role);
+    if (!result.success) {
+      setErrorMsg(result.error ?? "Anmeldung fehlgeschlagen.");
+    }
   }
 
-  function handleQuickOffice() {
+  async function handleQuickOffice() {
     setErrorMsg("");
-    loginAs("office");
+    const result = await loginAs("office");
+    if (!result.success) {
+      setErrorMsg(result.error ?? "Anmeldung fehlgeschlagen.");
+    }
   }
 
   return (

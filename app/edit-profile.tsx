@@ -46,7 +46,7 @@ export default function EditProfileScreen() {
     return null;
   }
 
-  function handleSave() {
+  async function handleSave() {
     const error = validate();
     if (error) {
       Alert.alert("Fehler", error);
@@ -54,21 +54,17 @@ export default function EditProfileScreen() {
     }
 
     setIsSaving(true);
-    // Mock-Save (würde in Supabase gespeichert)
-    updateUser(user.id, {
+    await updateUser(user.id, {
       name: name.trim(),
       city: city.trim(),
       age: parseInt(age, 10),
       phone: phone.trim() || undefined,
       contact_preference: contactPref,
     });
-
-    setTimeout(() => {
-      setIsSaving(false);
-      Alert.alert("Gespeichert", "Dein Profil wurde aktualisiert.", [
-        { text: "OK", onPress: () => router.back() },
-      ]);
-    }, 400);
+    setIsSaving(false);
+    Alert.alert("Gespeichert", "Dein Profil wurde aktualisiert.", [
+      { text: "OK", onPress: () => router.back() },
+    ]);
   }
 
   return (

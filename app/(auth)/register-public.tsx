@@ -14,14 +14,14 @@ import { useRouter } from "expo-router";
 import { COLORS } from "../../constants/Colors";
 import type { Gender, ContactPreference } from "../../types";
 import { Container } from "../../components/Container";
-import { useData } from "../../contexts/DataContext";
+import { supabase } from "../../lib/supabase";
 
 type Step = "form" | "success";
 
 export default function RegisterPublicScreen() {
   const router = useRouter();
-  const { users } = useData();
   const [step, setStep] = useState<Step>("form");
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
@@ -51,15 +51,52 @@ export default function RegisterPublicScreen() {
     return Object.keys(newErrors).length === 0;
   }
 
-  function handleSubmit() {
+  async function handleSubmit() {
     if (!validate()) return;
-    const emailLower = email.trim().toLowerCase();
-    const exists = users.some((u) => u.email.toLowerCase() === emailLower);
-    if (exists) {
-      setErrors((prev) => ({ ...prev, email: "Diese E-Mail ist bereits registriert." }));
-      return;
+    setIsSubmitting(true);
+    try {
+      const emailLower = email.trim().toLowerCase();
+
+      // Duplikats-Check via Supabase
+      const { data: existing } = await supabase
+        .from("profiles")
+        .select("id")
+        .eq("email", emailLower)
+        .maybeSingle();
+
+      if (existing) {
+        setErrors((prev) => ({ ...prev, email: "Diese E-Mail ist bereits registriert." }));
+        setIsSubmitting(false);
+        return;
+      }
+
+      // Öffentliche Anmeldung: Als mentee_registrations via mentor_applications speichern
+      // (Das BNM-Team bearbeitet diese dann manuell)
+      const { error } = await supabase.from("mentor_applications").insert({
+        name: `${firstName.trim()} ${lastName.trim()}`,
+        email: emailLower,
+        phone: phone.trim() || "",
+        gender: gender,
+        city: city.trim(),
+        age: parseInt(age, 10),
+        contact_preference: contactPref,
+        experience: "",
+        motivation: "Anmeldung als neuer Muslim (öffentliches Formular)",
+        status: "pending",
+      });
+
+      if (error) {
+        Alert.alert("Fehler", "Die Anmeldung konnte nicht übermittelt werden. Bitte versuche es erneut.");
+        setIsSubmitting(false);
+        return;
+      }
+
+      setStep("success");
+    } catch {
+      Alert.alert("Fehler", "Ein unerwarteter Fehler ist aufgetreten.");
+    } finally {
+      setIsSubmitting(false);
     }
-    setStep("success");
   }
 
   if (step === "success") {
@@ -242,8 +279,14 @@ export default function RegisterPublicScreen() {
             </View>
 
             {/* Submit */}
-            <TouchableOpacity style={styles.submitButton} onPress={handleSubmit}>
-              <Text style={styles.submitButtonText}>Anmeldung absenden</Text>
+            <TouchableOpacity
+              style={[styles.submitButton, isSubmitting ? { opacity: 0.6 } : {}]}
+              onPress={handleSubmit}
+              disabled={isSubmitting}
+            >
+              <Text style={styles.submitButtonText}>
+                {isSubmitting ? "Wird gesendet..." : "Anmeldung absenden"}
+              </Text>
             </TouchableOpacity>
 
             {/* Link zum Login */}

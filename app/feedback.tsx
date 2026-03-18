@@ -38,14 +38,12 @@ export default function FeedbackScreen() {
     }
 
     setIsSaving(true);
-    addFeedback({
+    await addFeedback({
       mentorship_id: params.mentorshipId,
       submitted_by: user.id,
       rating,
       comments: comment.trim() || undefined,
     });
-
-    await new Promise((resolve) => setTimeout(resolve, 400));
     setIsSaving(false);
 
     Alert.alert(

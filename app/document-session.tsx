@@ -216,7 +216,7 @@ export default function DocumentSessionScreen() {
       ? parseInt(durationMinutes.trim(), 10) || undefined
       : undefined;
 
-    addSession({
+    await addSession({
       mentorship_id: selectedMentorshipId,
       session_type_id: sessionTypeId,
       date: isoDate,
@@ -227,7 +227,6 @@ export default function DocumentSessionScreen() {
       duration_minutes: durationNum,
     });
 
-    await new Promise((resolve) => setTimeout(resolve, 400));
     setIsSaving(false);
     setForceNewSession(false);
     setAdditionalStepId("");

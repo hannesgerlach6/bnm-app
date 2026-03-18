@@ -13,7 +13,7 @@ import {
 import { useRouter } from "expo-router";
 import type { Gender, ContactPreference } from "../../types";
 import { COLORS } from "../../constants/Colors";
-import { useData } from "../../contexts/DataContext";
+import { supabase } from "../../lib/supabase";
 
 interface MentorFormData {
   name: string;
@@ -41,7 +41,7 @@ const CONTACT_OPTIONS: { value: ContactPreference; label: string }[] = [
 
 export default function RegisterMentorScreen() {
   const router = useRouter();
-  const { users } = useData();
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const [form, setForm] = useState<MentorFormData>({
     name: "",
     email: "",
@@ -74,19 +74,69 @@ export default function RegisterMentorScreen() {
     return Object.keys(newErrors).length === 0;
   }
 
-  function handleSubmit() {
+  async function handleSubmit() {
     if (!validate()) return;
-    const emailLower = form.email.trim().toLowerCase();
-    const exists = users.some((u) => u.email.toLowerCase() === emailLower);
-    if (exists) {
-      setErrors((prev) => ({ ...prev, email: "Diese E-Mail ist bereits registriert." }));
-      return;
+    setIsSubmitting(true);
+    try {
+      const emailLower = form.email.trim().toLowerCase();
+
+      // Duplikats-Check: Existiert diese E-Mail bereits in profiles?
+      const { data: existingProfile } = await supabase
+        .from("profiles")
+        .select("id")
+        .eq("email", emailLower)
+        .maybeSingle();
+
+      if (existingProfile) {
+        setErrors((prev) => ({ ...prev, email: "Diese E-Mail ist bereits registriert." }));
+        setIsSubmitting(false);
+        return;
+      }
+
+      // Prüfen ob bereits eine pending Bewerbung existiert
+      const { data: existingApp } = await supabase
+        .from("mentor_applications")
+        .select("id")
+        .eq("email", emailLower)
+        .eq("status", "pending")
+        .maybeSingle();
+
+      if (existingApp) {
+        setErrors((prev) => ({ ...prev, email: "Für diese E-Mail liegt bereits eine Bewerbung vor." }));
+        setIsSubmitting(false);
+        return;
+      }
+
+      // Mentor-Bewerbung in mentor_applications speichern
+      const { error } = await supabase.from("mentor_applications").insert({
+        name: form.name.trim(),
+        email: emailLower,
+        phone: form.phone.trim() || "",
+        gender: form.gender,
+        city: form.city.trim(),
+        age: parseInt(form.age, 10),
+        experience: form.experience.trim(),
+        motivation: form.motivation.trim(),
+        contact_preference: form.contact_preference,
+        status: "pending",
+      });
+
+      if (error) {
+        Alert.alert("Fehler", error.message);
+        setIsSubmitting(false);
+        return;
+      }
+
+      Alert.alert(
+        "Bewerbung eingegangen",
+        "Vielen Dank für deine Bewerbung als Mentor! Das BNM-Team wird deine Bewerbung prüfen und sich bei dir melden.",
+        [{ text: "OK", onPress: () => router.replace("/(auth)/login") }]
+      );
+    } catch {
+      Alert.alert("Fehler", "Ein unerwarteter Fehler ist aufgetreten.");
+    } finally {
+      setIsSubmitting(false);
     }
-    Alert.alert(
-      "Bewerbung eingegangen",
-      "Vielen Dank für deine Bewerbung als Mentor! Das BNM-Team wird deine Bewerbung prüfen und sich bei dir melden.",
-      [{ text: "OK", onPress: () => router.replace("/(auth)/login") }]
-    );
   }
 
   function update(field: keyof MentorFormData, value: string) {
@@ -259,11 +309,12 @@ export default function RegisterMentorScreen() {
 
           {/* Submit */}
           <TouchableOpacity
-            style={styles.submitButton}
+            style={[styles.submitButton, isSubmitting ? { opacity: 0.6 } : {}]}
             onPress={handleSubmit}
+            disabled={isSubmitting}
           >
             <Text style={styles.submitButtonText}>
-              Bewerbung einreichen
+              {isSubmitting ? "Wird eingereicht..." : "Bewerbung einreichen"}
             </Text>
           </TouchableOpacity>
         </View>

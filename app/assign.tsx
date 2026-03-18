@@ -122,8 +122,8 @@ export default function AssignScreen() {
         { text: "Abbrechen", style: "cancel" },
         {
           text: buttonText,
-          onPress: () => {
-            assignMentorship(selectedMenteeId, mentorId, user.id);
+          onPress: async () => {
+            await assignMentorship(selectedMenteeId, mentorId, user.id);
             Alert.alert("Erfolg", "Zuweisung erfolgreich!", [
               { text: "OK", onPress: () => router.back() },
             ]);
