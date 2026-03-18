@@ -41,6 +41,11 @@ export default function LoginScreen() {
     loginAs(role);
   }
 
+  function handleQuickOffice() {
+    setErrorMsg("");
+    loginAs("office");
+  }
+
   return (
     <KeyboardAvoidingView
       style={styles.flex1}
@@ -156,6 +161,12 @@ export default function LoginScreen() {
                 onPress={() => handleQuickLogin("mentee")}
               >
                 <Text style={styles.quickButtonText}>Mentee</Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={styles.quickButton}
+                onPress={handleQuickOffice}
+              >
+                <Text style={styles.quickButtonText}>Office</Text>
               </TouchableOpacity>
             </View>
           </View>

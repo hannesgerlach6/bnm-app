@@ -56,6 +56,7 @@ const tabStyles = StyleSheet.create({
 export default function TabLayout() {
   const { user } = useAuth();
   const isAdmin = user?.role === "admin";
+  const isAdminOrOffice = user?.role === "admin" || user?.role === "office";
 
   return (
     <Tabs
@@ -124,7 +125,7 @@ export default function TabLayout() {
         name="reports"
         options={{
           title: "Berichte",
-          href: isAdmin ? undefined : null,
+          href: isAdminOrOffice ? undefined : null,
           tabBarIcon: ({ color }) => (
             <SymbolView
               name={{

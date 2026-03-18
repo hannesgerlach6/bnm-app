@@ -367,7 +367,8 @@ export function DataProvider({ children }: { children: ReactNode }) {
   const getCompletedStepIds = useCallback(
     (mentorshipId: string) => {
       const msessions = sessions.filter((s) => s.mentorship_id === mentorshipId);
-      return msessions.map((s) => s.session_type_id);
+      // Eindeutige Step-IDs: ein Step gilt als abgeschlossen sobald mind. 1 Session existiert
+      return [...new Set(msessions.map((s) => s.session_type_id))];
     },
     [sessions]
   );

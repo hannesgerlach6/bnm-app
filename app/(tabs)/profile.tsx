@@ -17,6 +17,7 @@ import { BNMLogo } from "../../components/BNMLogo";
 
 const ROLE_LABELS: Record<UserRole, string> = {
   admin: "Administrator",
+  office: "Büro-Mitarbeiterin",
   mentor: "Mentor",
   mentee: "Mentee (Neuer Muslim)",
 };

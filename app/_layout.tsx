@@ -166,6 +166,12 @@ function RootLayoutInner() {
             headerShown: false,
           }}
         />
+        <Stack.Screen
+          name="donor-report"
+          options={{
+            headerShown: false,
+          }}
+        />
       </Stack>
     </ThemeProvider>
   );

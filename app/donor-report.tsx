@@ -1,0 +1,660 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
+import React, { useState, useMemo } from "react";
+import {
+  View,
+  Text,
+  ScrollView,
+  TouchableOpacity,
+  StyleSheet,
+  Platform,
+} from "react-native";
+import { useRouter } from "expo-router";
+import { useData } from "../contexts/DataContext";
+import { useAuth } from "../contexts/AuthContext";
+import { COLORS } from "../constants/Colors";
+
+const MONTHS = [
+  "Januar", "Februar", "März", "April", "Mai", "Juni",
+  "Juli", "August", "September", "Oktober", "November", "Dezember",
+];
+
+const QUARTERS = [
+  { label: "Q1 (Jan–Mrz)", short: "Q1", months: [0, 1, 2] },
+  { label: "Q2 (Apr–Jun)", short: "Q2", months: [3, 4, 5] },
+  { label: "Q3 (Jul–Sep)", short: "Q3", months: [6, 7, 8] },
+  { label: "Q4 (Okt–Dez)", short: "Q4", months: [9, 10, 11] },
+];
+
+type PeriodMode = "quarter" | "year";
+
+export default function DonorReportScreen() {
+  const router = useRouter();
+  const { user } = useAuth();
+  const { mentorships, sessions, sessionTypes, users, mentorOfMonthVisible } = useData();
+
+  const now = new Date();
+  const [periodMode, setPeriodMode] = useState<PeriodMode>("quarter");
+  const [selectedQuarter, setSelectedQuarter] = useState(Math.floor(now.getMonth() / 3));
+  const [selectedYear, setSelectedYear] = useState(now.getFullYear());
+
+  const years = [2024, 2025, 2026];
+
+  const isAdminOrOffice = user?.role === "admin" || user?.role === "office";
+
+  if (!isAdminOrOffice) {
+    return (
+      <View style={styles.centerContainer}>
+        <Text style={styles.accessText}>Nur für Admins und Office zugänglich.</Text>
+      </View>
+    );
+  }
+
+  const inPeriod = useMemo(() => {
+    return (dateStr: string): boolean => {
+      const d = new Date(dateStr);
+      const year = d.getFullYear();
+      const month = d.getMonth();
+      if (year !== selectedYear) return false;
+      if (periodMode === "quarter") return QUARTERS[selectedQuarter].months.includes(month);
+      return true;
+    };
+  }, [periodMode, selectedQuarter, selectedYear]);
+
+  const periodLabel = useMemo(() => {
+    if (periodMode === "quarter") {
+      return `BNM Spenderbericht ${QUARTERS[selectedQuarter].short} ${selectedYear}`;
+    }
+    return `BNM Spenderbericht Jahr ${selectedYear}`;
+  }, [periodMode, selectedQuarter, selectedYear]);
+
+  const kpis = useMemo(() => {
+    const totalMentorships = mentorships.filter((m) => inPeriod(m.assigned_at)).length;
+    const completedMentorships = mentorships.filter(
+      (m) => m.status === "completed" && m.completed_at && inPeriod(m.completed_at)
+    ).length;
+    const cancelledMentorships = mentorships.filter(
+      (m) => m.status === "cancelled" && m.completed_at && inPeriod(m.completed_at)
+    ).length;
+    const activeMentorships = mentorships.filter((m) => m.status === "active").length;
+    const mentorCount = users.filter((u) => u.role === "mentor").length;
+    const menteeCount = users.filter((u) => u.role === "mentee").length;
+    const totalSessions = sessions.filter((s) => inPeriod(s.date)).length;
+    const bnmBoxTypeId = sessionTypes.find((st) => st.name === "BNM-Box")?.id ?? "st-5";
+    const bnmBoxes = sessions.filter((s) => s.session_type_id === bnmBoxTypeId && inPeriod(s.date)).length;
+    const completionRate = totalMentorships > 0
+      ? Math.round((completedMentorships / totalMentorships) * 100)
+      : 0;
+    return {
+      totalMentorships,
+      completedMentorships,
+      cancelledMentorships,
+      activeMentorships,
+      mentorCount,
+      menteeCount,
+      totalSessions,
+      bnmBoxes,
+      completionRate,
+    };
+  }, [inPeriod, mentorships, sessions, sessionTypes, users]);
+
+  // Statusverteilung: aktiv, abgeschlossen, abgebrochen
+  const statusDistribution = useMemo(() => {
+    const active = mentorships.filter((m) => m.status === "active").length;
+    const completed = mentorships.filter((m) => m.status === "completed").length;
+    const cancelled = mentorships.filter((m) => m.status === "cancelled").length;
+    const total = active + completed + cancelled;
+    return {
+      active: { count: active, percent: total > 0 ? Math.round((active / total) * 100) : 0 },
+      completed: { count: completed, percent: total > 0 ? Math.round((completed / total) * 100) : 0 },
+      cancelled: { count: cancelled, percent: total > 0 ? Math.round((cancelled / total) * 100) : 0 },
+      total,
+    };
+  }, [mentorships]);
+
+  // Monatsbalken für den gewählten Zeitraum
+  const monthlyBarData = useMemo(() => {
+    const targetMonths =
+      periodMode === "quarter"
+        ? QUARTERS[selectedQuarter].months
+        : Array.from({ length: 12 }, (_, i) => i);
+    return targetMonths.map((mIdx) => {
+      const count = sessions.filter((s) => {
+        const d = new Date(s.date);
+        return d.getFullYear() === selectedYear && d.getMonth() === mIdx;
+      }).length;
+      return { label: MONTHS[mIdx].slice(0, 3), count };
+    });
+  }, [periodMode, selectedQuarter, selectedYear, sessions]);
+
+  const maxBarValue = Math.max(...monthlyBarData.map((d) => d.count), 1);
+
+  // Session-Verteilung nach Typ
+  const sessionDistribution = useMemo(() => {
+    return sessionTypes
+      .map((st) => ({
+        name: st.name,
+        count: sessions.filter((s) => s.session_type_id === st.id && inPeriod(s.date)).length,
+      }))
+      .filter((d) => d.count > 0)
+      .sort((a, b) => b.count - a.count);
+  }, [sessionTypes, sessions, inPeriod]);
+
+  const maxSessionCount = Math.max(...sessionDistribution.map((d) => d.count), 1);
+
+  // Mentor des Monats/Zeitraums
+  const mentorOfPeriod = useMemo(() => {
+    if (!mentorOfMonthVisible) return null;
+    const mentors = users.filter((u) => u.role === "mentor");
+    let best: { mentor: typeof mentors[0]; count: number } | null = null;
+    for (const mentor of mentors) {
+      const myMentorships = mentorships.filter((m) => m.mentor_id === mentor.id);
+      const myCount = sessions.filter(
+        (s) => myMentorships.some((m) => m.id === s.mentorship_id) && inPeriod(s.date)
+      ).length;
+      if (!best || myCount > best.count) {
+        best = { mentor, count: myCount };
+      }
+    }
+    return best && best.count > 0 ? best : null;
+  }, [inPeriod, users, mentorships, sessions, mentorOfMonthVisible]);
+
+  // Auto-generierter Zusammenfassungstext
+  const summaryText = useMemo(() => {
+    const pLabel =
+      periodMode === "quarter"
+        ? `${QUARTERS[selectedQuarter].short} ${selectedYear}`
+        : `Jahr ${selectedYear}`;
+    const completionStr =
+      kpis.totalMentorships > 0
+        ? ` ${kpis.completedMentorships} davon erfolgreich abgeschlossen (${kpis.completionRate}%).`
+        : "";
+    const boxStr =
+      kpis.bnmBoxes > 0
+        ? ` ${kpis.bnmBoxes} BNM-Box${kpis.bnmBoxes !== 1 ? "en" : ""} wurden übergeben.`
+        : "";
+    const sessionStr = ` Insgesamt wurden ${kpis.totalSessions} Session${kpis.totalSessions !== 1 ? "s" : ""} dokumentiert.`;
+    return `Im ${pLabel} wurden ${kpis.totalMentorships} neue Betreuung${kpis.totalMentorships !== 1 ? "en" : ""} gestartet.${completionStr}${sessionStr}${boxStr} Aktuell betreuen ${kpis.mentorCount} Mentor${kpis.mentorCount !== 1 ? "en" : ""} insgesamt ${kpis.menteeCount} Mentee${kpis.menteeCount !== 1 ? "s" : ""}.`;
+  }, [kpis, periodMode, selectedQuarter, selectedYear]);
+
+  return (
+    <View style={styles.flex1}>
+      <ScrollView style={styles.scrollView}>
+        {/* Header */}
+        <View style={styles.reportHeader}>
+          <TouchableOpacity style={styles.backButton} onPress={() => router.back()}>
+            <Text style={styles.backButtonText}>← Zurück</Text>
+          </TouchableOpacity>
+          <View style={styles.logoBadge}>
+            <Text style={styles.logoText}>BNM</Text>
+          </View>
+          <Text style={styles.reportTitle}>{periodLabel}</Text>
+          <Text style={styles.reportSubtitle}>Betreuung neuer Muslime · Spenderbericht</Text>
+          <View style={styles.goldLine} />
+        </View>
+
+        <View style={styles.page}>
+          {/* Zeitraum-Auswahl */}
+          <View style={styles.card}>
+            <Text style={styles.cardLabel}>ZEITRAUM</Text>
+            <View style={styles.modeRow}>
+              {(["quarter", "year"] as const).map((m) => (
+                <TouchableOpacity
+                  key={m}
+                  style={[styles.modeBtn, periodMode === m ? styles.modeBtnActive : styles.modeBtnInactive]}
+                  onPress={() => setPeriodMode(m)}
+                >
+                  <Text style={periodMode === m ? styles.modeBtnTextActive : styles.modeBtnTextInactive}>
+                    {m === "quarter" ? "Quartal" : "Jahr"}
+                  </Text>
+                </TouchableOpacity>
+              ))}
+            </View>
+            <View style={styles.yearRow}>
+              {years.map((y) => (
+                <TouchableOpacity
+                  key={y}
+                  style={[styles.yearBtn, selectedYear === y ? styles.yearBtnActive : styles.yearBtnInactive]}
+                  onPress={() => setSelectedYear(y)}
+                >
+                  <Text style={selectedYear === y ? styles.yearBtnTextActive : styles.yearBtnTextInactive}>
+                    {y}
+                  </Text>
+                </TouchableOpacity>
+              ))}
+            </View>
+            {periodMode === "quarter" && (
+              <View style={styles.quarterRow}>
+                {QUARTERS.map((q, idx) => (
+                  <TouchableOpacity
+                    key={q.short}
+                    style={[styles.quarterBtn, selectedQuarter === idx ? styles.quarterBtnActive : styles.quarterBtnInactive]}
+                    onPress={() => setSelectedQuarter(idx)}
+                  >
+                    <Text style={selectedQuarter === idx ? styles.quarterBtnTextActive : styles.quarterBtnTextInactive}>
+                      {q.short}
+                    </Text>
+                  </TouchableOpacity>
+                ))}
+              </View>
+            )}
+          </View>
+
+          {/* Übersichts-KPIs */}
+          <View style={styles.sectionHeader}>
+            <Text style={styles.sectionHeaderText}>Übersicht</Text>
+          </View>
+          <View style={styles.kpiGrid}>
+            <View style={styles.kpiCard}>
+              <Text style={styles.kpiValue}>{kpis.totalMentorships}</Text>
+              <Text style={styles.kpiLabel}>Neue{"\n"}Betreuungen</Text>
+            </View>
+            <View style={styles.kpiCard}>
+              <Text style={[styles.kpiValue, { color: COLORS.cta }]}>{kpis.completedMentorships}</Text>
+              <Text style={styles.kpiLabel}>Abschlüsse</Text>
+            </View>
+            <View style={styles.kpiCard}>
+              <Text style={[styles.kpiValue, { color: COLORS.gold }]}>{kpis.mentorCount}</Text>
+              <Text style={styles.kpiLabel}>Mentoren</Text>
+            </View>
+            <View style={styles.kpiCard}>
+              <Text style={[styles.kpiValue, { color: COLORS.gradientStart }]}>{kpis.menteeCount}</Text>
+              <Text style={styles.kpiLabel}>Mentees</Text>
+            </View>
+          </View>
+          <View style={styles.kpiRow2}>
+            <View style={[styles.kpiCard, { flex: 1 }]}>
+              <Text style={[styles.kpiValue, { color: COLORS.gradientStart }]}>{kpis.totalSessions}</Text>
+              <Text style={styles.kpiLabel}>Sessions gesamt</Text>
+            </View>
+            <View style={[styles.kpiCard, { flex: 1 }]}>
+              <Text style={[styles.kpiValue, { color: COLORS.gold }]}>{kpis.bnmBoxes}</Text>
+              <Text style={styles.kpiLabel}>BNM-Boxen übergeben</Text>
+            </View>
+            <View style={[styles.kpiCard, { flex: 1 }]}>
+              <Text style={[styles.kpiValue, { color: kpis.completionRate >= 50 ? COLORS.cta : COLORS.error }]}>
+                {kpis.completionRate}%
+              </Text>
+              <Text style={styles.kpiLabel}>Abschluss-{"\n"}quote</Text>
+            </View>
+          </View>
+
+          {/* Statusverteilung (View-basiertes Balken-Diagramm) */}
+          <View style={styles.sectionHeader}>
+            <Text style={styles.sectionHeaderText}>Betreuungsstatus – Gesamtübersicht</Text>
+          </View>
+          <View style={styles.chartCard}>
+            <View style={styles.statusBarRow}>
+              {/* Aktiv */}
+              <View style={styles.statusBarItem}>
+                <View style={styles.statusBarTrack}>
+                  <View
+                    style={[
+                      styles.statusBarFill,
+                      {
+                        height: `${statusDistribution.active.percent}%` as any,
+                        backgroundColor: COLORS.gold,
+                      },
+                    ]}
+                  />
+                </View>
+                <Text style={styles.statusBarValue}>{statusDistribution.active.count}</Text>
+                <Text style={styles.statusBarPercent}>{statusDistribution.active.percent}%</Text>
+                <Text style={styles.statusBarLabel}>Aktiv</Text>
+              </View>
+              {/* Abgeschlossen */}
+              <View style={styles.statusBarItem}>
+                <View style={styles.statusBarTrack}>
+                  <View
+                    style={[
+                      styles.statusBarFill,
+                      {
+                        height: `${statusDistribution.completed.percent}%` as any,
+                        backgroundColor: COLORS.cta,
+                      },
+                    ]}
+                  />
+                </View>
+                <Text style={styles.statusBarValue}>{statusDistribution.completed.count}</Text>
+                <Text style={styles.statusBarPercent}>{statusDistribution.completed.percent}%</Text>
+                <Text style={styles.statusBarLabel}>Abgeschl.</Text>
+              </View>
+              {/* Abgebrochen */}
+              <View style={styles.statusBarItem}>
+                <View style={styles.statusBarTrack}>
+                  <View
+                    style={[
+                      styles.statusBarFill,
+                      {
+                        height: `${Math.max(statusDistribution.cancelled.percent, 4)}%` as any,
+                        backgroundColor: COLORS.error,
+                      },
+                    ]}
+                  />
+                </View>
+                <Text style={styles.statusBarValue}>{statusDistribution.cancelled.count}</Text>
+                <Text style={styles.statusBarPercent}>{statusDistribution.cancelled.percent}%</Text>
+                <Text style={styles.statusBarLabel}>Abgebr.</Text>
+              </View>
+            </View>
+            <Text style={styles.chartSubNote}>Gesamt: {statusDistribution.total} Betreuungen</Text>
+          </View>
+
+          {/* Monatsvergleich Balkendiagramm */}
+          <View style={styles.sectionHeader}>
+            <Text style={styles.sectionHeaderText}>
+              Sessions{periodMode === "quarter" ? " nach Monat" : " pro Monat (Jahresübersicht)"}
+            </Text>
+          </View>
+          <View style={styles.chartCard}>
+            <View style={styles.barChartContainer}>
+              {monthlyBarData.map((bar) => {
+                const heightPct = maxBarValue > 0 ? (bar.count / maxBarValue) * 100 : 0;
+                return (
+                  <View key={bar.label} style={styles.barColumn}>
+                    <Text style={styles.barValueText}>{bar.count}</Text>
+                    <View style={styles.barTrack}>
+                      <View
+                        style={[
+                          styles.barFill,
+                          { height: (Math.max(heightPct, 4) + "%") as any },
+                        ]}
+                      />
+                    </View>
+                    <Text style={styles.barLabel}>{bar.label}</Text>
+                  </View>
+                );
+              })}
+            </View>
+          </View>
+
+          {/* Session-Verteilung (horizontale Balken) */}
+          {sessionDistribution.length > 0 && (
+            <>
+              <View style={styles.sectionHeader}>
+                <Text style={styles.sectionHeaderText}>Session-Verteilung</Text>
+              </View>
+              <View style={styles.card}>
+                {sessionDistribution.map((item) => {
+                  const widthPct = Math.max((item.count / maxSessionCount) * 100, 4);
+                  return (
+                    <View key={item.name} style={styles.hBarRow}>
+                      <Text style={styles.hBarLabel} numberOfLines={1}>{item.name}</Text>
+                      <View style={styles.hBarTrack}>
+                        <View
+                          style={[styles.hBarFill, { width: `${widthPct}%` as any }]}
+                        />
+                      </View>
+                      <Text style={styles.hBarCount}>{item.count}</Text>
+                    </View>
+                  );
+                })}
+              </View>
+            </>
+          )}
+
+          {/* Mentor des Zeitraums */}
+          {mentorOfPeriod && (
+            <>
+              <View style={styles.sectionHeader}>
+                <Text style={styles.sectionHeaderText}>Mentor des Zeitraums</Text>
+              </View>
+              <View style={styles.goldBox}>
+                <Text style={styles.goldStar}>★</Text>
+                <Text style={styles.goldMentorName}>{mentorOfPeriod.mentor.name}</Text>
+                <Text style={styles.goldMentorCity}>{mentorOfPeriod.mentor.city}</Text>
+                <Text style={styles.goldMentorSessions}>
+                  {mentorOfPeriod.count} Session{mentorOfPeriod.count !== 1 ? "s" : ""} in diesem Zeitraum
+                </Text>
+              </View>
+            </>
+          )}
+
+          {/* Zusammenfassung */}
+          <View style={styles.sectionHeader}>
+            <Text style={styles.sectionHeaderText}>Zusammenfassung</Text>
+          </View>
+          <View style={styles.summaryCard}>
+            <Text style={styles.summaryText}>{summaryText}</Text>
+          </View>
+
+          {/* Buttons */}
+          {Platform.OS === "web" && (
+            <TouchableOpacity
+              style={styles.printButton}
+              onPress={() => {
+                if (typeof window !== "undefined") {
+                  (window as Window).print();
+                }
+              }}
+            >
+              <Text style={styles.printButtonText}>🖨 Als PDF drucken</Text>
+            </TouchableOpacity>
+          )}
+
+          <TouchableOpacity style={styles.backBtn} onPress={() => router.back()}>
+            <Text style={styles.backBtnText}>← Zurück zu Berichten</Text>
+          </TouchableOpacity>
+        </View>
+      </ScrollView>
+    </View>
+  );
+}
+
+const styles = StyleSheet.create({
+  flex1: { flex: 1, backgroundColor: COLORS.bg },
+  scrollView: { flex: 1, backgroundColor: COLORS.bg },
+  centerContainer: { flex: 1, backgroundColor: COLORS.bg, alignItems: "center", justifyContent: "center", padding: 24 },
+  accessText: { color: COLORS.primary, fontWeight: "600" },
+
+  // Header
+  reportHeader: {
+    backgroundColor: COLORS.gradientStart,
+    paddingTop: 48,
+    paddingBottom: 28,
+    paddingHorizontal: 20,
+    alignItems: "center",
+  },
+  backButton: {
+    alignSelf: "flex-start",
+    marginBottom: 16,
+  },
+  backButtonText: { color: "rgba(255,255,255,0.75)", fontSize: 14 },
+  logoBadge: {
+    width: 56,
+    height: 56,
+    borderRadius: 28,
+    backgroundColor: COLORS.gold,
+    alignItems: "center",
+    justifyContent: "center",
+    marginBottom: 12,
+  },
+  logoText: { color: COLORS.white, fontWeight: "800", fontSize: 18, letterSpacing: 2 },
+  reportTitle: { color: COLORS.white, fontSize: 20, fontWeight: "700", textAlign: "center", marginBottom: 4 },
+  reportSubtitle: { color: "rgba(255,255,255,0.65)", fontSize: 13, textAlign: "center" },
+  goldLine: { marginTop: 16, width: 56, height: 3, backgroundColor: COLORS.gold, borderRadius: 2 },
+
+  page: { padding: 16 },
+
+  // Zeitraum
+  card: {
+    backgroundColor: COLORS.white,
+    borderRadius: 8,
+    padding: 14,
+    marginBottom: 16,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.07,
+    shadowRadius: 6,
+    elevation: 2,
+  },
+  cardLabel: { fontSize: 11, fontWeight: "600", color: COLORS.tertiary, letterSpacing: 1, marginBottom: 10 },
+  modeRow: { flexDirection: "row", gap: 8, marginBottom: 10 },
+  modeBtn: { flex: 1, paddingVertical: 8, borderRadius: 5, borderWidth: 1, alignItems: "center" },
+  modeBtnActive: { backgroundColor: COLORS.gradientStart, borderColor: COLORS.gradientStart },
+  modeBtnInactive: { backgroundColor: COLORS.bg, borderColor: COLORS.border },
+  modeBtnTextActive: { color: COLORS.white, fontWeight: "600", fontSize: 13 },
+  modeBtnTextInactive: { color: COLORS.secondary, fontSize: 13 },
+  yearRow: { flexDirection: "row", gap: 8, marginBottom: 10 },
+  yearBtn: { paddingHorizontal: 14, paddingVertical: 7, borderRadius: 5, borderWidth: 1 },
+  yearBtnActive: { backgroundColor: COLORS.gradientStart, borderColor: COLORS.gradientStart },
+  yearBtnInactive: { backgroundColor: COLORS.bg, borderColor: COLORS.border },
+  yearBtnTextActive: { color: COLORS.white, fontWeight: "600", fontSize: 13 },
+  yearBtnTextInactive: { color: COLORS.secondary, fontSize: 13 },
+  quarterRow: { flexDirection: "row", gap: 8 },
+  quarterBtn: { paddingHorizontal: 16, paddingVertical: 7, borderRadius: 5, borderWidth: 1 },
+  quarterBtnActive: { backgroundColor: COLORS.gold, borderColor: COLORS.gold },
+  quarterBtnInactive: { backgroundColor: COLORS.bg, borderColor: COLORS.border },
+  quarterBtnTextActive: { color: COLORS.white, fontWeight: "700", fontSize: 13 },
+  quarterBtnTextInactive: { color: COLORS.secondary, fontSize: 13 },
+
+  // Sektion-Header
+  sectionHeader: {
+    backgroundColor: COLORS.gradientStart,
+    borderRadius: 6,
+    paddingHorizontal: 12,
+    paddingVertical: 8,
+    marginBottom: 10,
+  },
+  sectionHeaderText: { color: COLORS.white, fontWeight: "700", fontSize: 13 },
+
+  // KPI Grid
+  kpiGrid: { flexDirection: "row", gap: 8, marginBottom: 8 },
+  kpiRow2: { flexDirection: "row", gap: 8, marginBottom: 16 },
+  kpiCard: {
+    flex: 1,
+    backgroundColor: COLORS.white,
+    borderRadius: 8,
+    padding: 10,
+    alignItems: "center",
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.06,
+    shadowRadius: 4,
+    elevation: 1,
+    borderTopWidth: 3,
+    borderTopColor: COLORS.gold,
+  },
+  kpiValue: { fontSize: 28, fontWeight: "800", color: COLORS.primary },
+  kpiLabel: { color: COLORS.secondary, fontSize: 11, textAlign: "center", marginTop: 2 },
+
+  // Chart Cards
+  chartCard: {
+    backgroundColor: COLORS.gradientStart,
+    borderRadius: 8,
+    padding: 16,
+    marginBottom: 16,
+  },
+  chartSubNote: { color: "rgba(255,255,255,0.5)", fontSize: 12, textAlign: "center", marginTop: 8 },
+
+  // Statusverteilung (3 vertikale Balken nebeneinander)
+  statusBarRow: {
+    flexDirection: "row",
+    justifyContent: "space-around",
+    alignItems: "flex-end",
+    gap: 16,
+    height: 140,
+  },
+  statusBarItem: { alignItems: "center", flex: 1 },
+  statusBarTrack: {
+    width: "60%",
+    height: 100,
+    backgroundColor: "rgba(255,255,255,0.12)",
+    borderRadius: 4,
+    overflow: "hidden",
+    justifyContent: "flex-end",
+    marginBottom: 4,
+  },
+  statusBarFill: { width: "100%", borderRadius: 4 },
+  statusBarValue: { color: COLORS.white, fontWeight: "700", fontSize: 16 },
+  statusBarPercent: { color: "rgba(255,255,255,0.7)", fontSize: 12 },
+  statusBarLabel: { color: "rgba(255,255,255,0.6)", fontSize: 11, marginTop: 2 },
+
+  // Monats-Balken
+  barChartContainer: {
+    flexDirection: "row",
+    alignItems: "flex-end",
+    gap: 6,
+    height: 120,
+    justifyContent: "space-around",
+  },
+  barColumn: { alignItems: "center", flex: 1 },
+  barValueText: { color: "rgba(255,255,255,0.8)", fontSize: 10, marginBottom: 3 },
+  barTrack: {
+    width: "100%",
+    backgroundColor: "rgba(255,255,255,0.15)",
+    borderRadius: 3,
+    overflow: "hidden",
+    height: 88,
+    justifyContent: "flex-end",
+  },
+  barFill: { width: "100%", backgroundColor: COLORS.gold, borderRadius: 3 },
+  barLabel: { color: "rgba(255,255,255,0.6)", fontSize: 10, marginTop: 3 },
+
+  // Horizontale Balken (Session-Verteilung)
+  hBarRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    marginBottom: 10,
+  },
+  hBarLabel: { color: COLORS.primary, fontSize: 12, fontWeight: "500", width: 100, marginRight: 8 },
+  hBarTrack: {
+    flex: 1,
+    height: 16,
+    backgroundColor: COLORS.bg,
+    borderRadius: 3,
+    overflow: "hidden",
+    marginRight: 8,
+  },
+  hBarFill: { height: "100%" as any, backgroundColor: COLORS.gradientStart, borderRadius: 3 },
+  hBarCount: { color: COLORS.primary, fontWeight: "700", fontSize: 13, minWidth: 24, textAlign: "right" },
+
+  // Gold Box (Mentor)
+  goldBox: {
+    backgroundColor: "rgba(238,167,27,0.08)",
+    borderWidth: 1,
+    borderColor: COLORS.gold,
+    borderRadius: 8,
+    padding: 16,
+    marginBottom: 16,
+    alignItems: "center",
+  },
+  goldStar: { color: COLORS.gold, fontSize: 32, marginBottom: 6 },
+  goldMentorName: { color: COLORS.primary, fontSize: 20, fontWeight: "700", marginBottom: 2 },
+  goldMentorCity: { color: COLORS.secondary, fontSize: 13, marginBottom: 4 },
+  goldMentorSessions: { color: COLORS.secondary, fontSize: 13 },
+
+  // Zusammenfassung
+  summaryCard: {
+    backgroundColor: COLORS.white,
+    borderRadius: 8,
+    padding: 14,
+    marginBottom: 16,
+    borderLeftWidth: 4,
+    borderLeftColor: COLORS.gold,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.06,
+    shadowRadius: 4,
+    elevation: 1,
+  },
+  summaryText: { color: COLORS.primary, fontSize: 14, lineHeight: 22 },
+
+  // Buttons
+  printButton: {
+    backgroundColor: COLORS.gradientStart,
+    borderRadius: 5,
+    paddingVertical: 9,
+    alignItems: "center",
+    marginBottom: 10,
+  },
+  printButtonText: { color: COLORS.white, fontWeight: "600", fontSize: 14 },
+  backBtn: {
+    borderWidth: 1,
+    borderColor: COLORS.border,
+    borderRadius: 5,
+    paddingVertical: 9,
+    alignItems: "center",
+    marginBottom: 28,
+  },
+  backBtnText: { color: COLORS.secondary, fontWeight: "600", fontSize: 13 },
+});

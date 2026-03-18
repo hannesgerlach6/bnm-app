@@ -67,6 +67,15 @@ export default function DocumentSessionScreen() {
   // FIX 9: BNM-Box Übergabe-Art
   const [bnmBoxDelivery, setBnmBoxDelivery] = useState<string>("");
 
+  // Feature: Dauer in Minuten
+  const [durationMinutes, setDurationMinutes] = useState<string>("");
+
+  // Feature: Weitere Session für allows_multiple Steps
+  const [forceNewSession, setForceNewSession] = useState<boolean>(false);
+
+  // Welcher allows_multiple Step soll zusätzlich dokumentiert werden
+  const [additionalStepId, setAdditionalStepId] = useState<string>("");
+
   const selectedMentorship = selectedMentorshipId
     ? getMentorshipById(selectedMentorshipId)
     : undefined;
@@ -78,7 +87,16 @@ export default function DocumentSessionScreen() {
   const sortedSessionTypes = [...sessionTypes].sort((a, b) => a.sort_order - b.sort_order);
 
   // Nächster sequenzieller Step (für Mentor-Modus)
+  // Ein Step gilt als abgeschlossen wenn er mind. 1 Session hat (getCompletedStepIds gibt eindeutige IDs zurück)
   const nextStep = sortedSessionTypes.find((st) => !completedStepIds.includes(st.id));
+
+  // Aktuell aktiver Step (auch für allows_multiple – wenn forceNewSession gesetzt)
+  // Letzter abgeschlossener Step wenn allows_multiple und forceNewSession
+  const lastCompletedAllowsMultipleStep = forceNewSession
+    ? sortedSessionTypes
+        .filter((st) => completedStepIds.includes(st.id) && st.allows_multiple)
+        .at(-1)
+    : undefined;
 
   // FIX 1: Nachbetreuungs-Modus wenn Mentorship completed
   const isCompleted = selectedMentorship?.status === "completed";
@@ -89,6 +107,10 @@ export default function DocumentSessionScreen() {
     ? sessionTypes.find((st) => st.id === adminSelectedTypeId)
     : isCompleted
     ? nachbetreuungType
+    : forceNewSession && additionalStepId
+    ? sessionTypes.find((st) => st.id === additionalStepId)
+    : forceNewSession && lastCompletedAllowsMultipleStep
+    ? lastCompletedAllowsMultipleStep
     : nextStep;
 
   // Ist es ein Erstkontakt-Step?
@@ -108,6 +130,23 @@ export default function DocumentSessionScreen() {
     ? allSessions.filter((s) => s.session_type_id === erstkontaktTypeId).length
     : 0;
 
+  // Anzahl bisheriger Sessions für den aktiven allows_multiple Step (Mentor-Modus)
+  const activeStepSessionCount = activeSessionType
+    ? allSessions.filter((s) => s.session_type_id === activeSessionType.id).length
+    : 0;
+
+  // Liste der abgeschlossenen allows_multiple Steps (für "Weitere Session" Button)
+  const completedAllowsMultipleSteps = sortedSessionTypes.filter(
+    (st) => st.allows_multiple && completedStepIds.includes(st.id)
+  );
+
+  // Zeige "Weitere Session hinzufügen"-Bereich nur für Mentor (nicht admin, nicht completed)
+  const showAddMoreSession =
+    !isAdmin &&
+    !isCompleted &&
+    completedAllowsMultipleSteps.length > 0 &&
+    !forceNewSession;
+
   async function handleSave() {
     if (!selectedMentorshipId || !user) return;
 
@@ -117,8 +156,8 @@ export default function DocumentSessionScreen() {
       return;
     }
 
-    // Mentor: kein nextStep bei aktiver Mentorship? Abbruch
-    if (!isAdmin && !isCompleted && !nextStep) {
+    // Mentor: kein nextStep bei aktiver Mentorship? Abbruch (außer bei weiterer Session)
+    if (!isAdmin && !isCompleted && !nextStep && !forceNewSession) {
       Alert.alert("Info", "Alle Steps für diese Betreuung sind bereits abgeschlossen.");
       return;
     }
@@ -132,6 +171,10 @@ export default function DocumentSessionScreen() {
       ? adminSelectedTypeId
       : isCompleted
       ? nachbetreuungType?.id ?? ""
+      : forceNewSession && additionalStepId
+      ? additionalStepId
+      : forceNewSession && lastCompletedAllowsMultipleStep
+      ? lastCompletedAllowsMultipleStep.id
       : nextStep?.id ?? "";
 
     if (!sessionTypeId) {
@@ -169,6 +212,10 @@ export default function DocumentSessionScreen() {
       ? parseInt(attemptNumber, 10) || undefined
       : undefined;
 
+    const durationNum = durationMinutes.trim()
+      ? parseInt(durationMinutes.trim(), 10) || undefined
+      : undefined;
+
     addSession({
       mentorship_id: selectedMentorshipId,
       session_type_id: sessionTypeId,
@@ -177,10 +224,14 @@ export default function DocumentSessionScreen() {
       details: finalDetails,
       documented_by: user.id,
       attempt_number: attemptNum,
+      duration_minutes: durationNum,
     });
 
     await new Promise((resolve) => setTimeout(resolve, 400));
     setIsSaving(false);
+    setForceNewSession(false);
+    setAdditionalStepId("");
+    setDurationMinutes("");
 
     const typeName = activeSessionType?.name ?? "Session";
     Alert.alert(
@@ -352,8 +403,8 @@ export default function DocumentSessionScreen() {
               </View>
             )}
 
-            {/* Formular anzeigen wenn: Nachbetreuung ODER aktiver NextStep ODER Admin hat Typ gewählt */}
-            {(isCompleted || nextStep || (isAdmin && adminSelectedTypeId)) && (
+            {/* Formular anzeigen wenn: Nachbetreuung ODER aktiver NextStep ODER Admin hat Typ gewählt ODER weitere Session */}
+            {(isCompleted || nextStep || (isAdmin && adminSelectedTypeId) || forceNewSession) && (
               <>
                 <Text style={styles.sectionLabel}>{"SESSION DOKUMENTIEREN"}</Text>
 
@@ -463,6 +514,20 @@ export default function DocumentSessionScreen() {
                   />
                 </View>
 
+                {/* Dauer in Minuten */}
+                <View style={styles.formCard}>
+                  <Text style={styles.formLabel}>Dauer (optional)</Text>
+                  <TextInput
+                    style={styles.textInput}
+                    value={durationMinutes}
+                    onChangeText={setDurationMinutes}
+                    placeholder="z.B. 45"
+                    placeholderTextColor="#98A2B3"
+                    keyboardType="number-pad"
+                  />
+                  <Text style={styles.attemptHint}>Dauer der Session in Minuten</Text>
+                </View>
+
                 {/* Speichern */}
                 <TouchableOpacity
                   style={[
@@ -480,13 +545,85 @@ export default function DocumentSessionScreen() {
             )}
 
             {/* Alle Steps abgeschlossen (nur für Mentor-Modus, aktiv) */}
-            {!isAdmin && !isCompleted && !nextStep && (
+            {!isAdmin && !isCompleted && !nextStep && !forceNewSession && (
               <View style={styles.completedBox}>
                 <Text style={styles.completedTitle}>Alle Steps abgeschlossen!</Text>
                 <Text style={styles.completedText}>
                   Alle Schritte wurden dokumentiert. Die Betreuung kann abgeschlossen werden.
                 </Text>
               </View>
+            )}
+
+            {/* Weitere Session hinzufügen (für allows_multiple Steps) */}
+            {showAddMoreSession && (
+              <View style={styles.moreSessionBox}>
+                <Text style={styles.moreSessionTitle}>Weitere Session dokumentieren</Text>
+                <Text style={styles.moreSessionSub}>
+                  Für folgende Schritte können weitere Sessions dokumentiert werden:
+                </Text>
+                <View style={styles.listCard}>
+                  {completedAllowsMultipleSteps.map((st, idx) => {
+                    const count = allSessions.filter((s) => s.session_type_id === st.id).length;
+                    return (
+                      <TouchableOpacity
+                        key={st.id}
+                        style={[
+                          styles.listItem,
+                          idx < completedAllowsMultipleSteps.length - 1 ? styles.listItemBorder : {},
+                          additionalStepId === st.id ? styles.listItemSelected : {},
+                        ]}
+                        onPress={() => setAdditionalStepId(st.id)}
+                      >
+                        <View
+                          style={[
+                            styles.radioCircle,
+                            additionalStepId === st.id ? styles.radioCircleActive : styles.radioCircleInactive,
+                          ]}
+                        >
+                          {additionalStepId === st.id && <View style={styles.radioDot} />}
+                        </View>
+                        <View style={{ flex: 1 }}>
+                          <Text style={styles.itemName}>{st.sort_order}. {st.name}</Text>
+                          <Text style={styles.itemSub}>{count} Session{count !== 1 ? "s" : ""} bisher</Text>
+                        </View>
+                      </TouchableOpacity>
+                    );
+                  })}
+                </View>
+                {additionalStepId ? (
+                  <TouchableOpacity
+                    style={styles.addMoreButton}
+                    onPress={() => setForceNewSession(true)}
+                  >
+                    <Text style={styles.addMoreButtonText}>
+                      Weitere Session für diesen Schritt →
+                    </Text>
+                  </TouchableOpacity>
+                ) : null}
+              </View>
+            )}
+
+            {/* forceNewSession: Step wählen und Formular anzeigen */}
+            {forceNewSession && (
+              <>
+                <View style={styles.amberBox}>
+                  <Text style={styles.amberLabel}>{"WEITERE SESSION"}</Text>
+                  <Text style={styles.amberStepName}>
+                    {additionalStepId
+                      ? sortedSessionTypes.find((st) => st.id === additionalStepId)?.name ?? ""
+                      : lastCompletedAllowsMultipleStep?.name ?? ""}
+                  </Text>
+                  <Text style={styles.amberDesc}>
+                    Session {activeStepSessionCount + 1} von unbegrenzt
+                  </Text>
+                </View>
+                <TouchableOpacity
+                  style={styles.cancelMoreButton}
+                  onPress={() => { setForceNewSession(false); setAdditionalStepId(""); }}
+                >
+                  <Text style={styles.cancelMoreButtonText}>Abbrechen</Text>
+                </TouchableOpacity>
+              </>
             )}
           </>
         )}
@@ -592,4 +729,31 @@ const styles = StyleSheet.create({
   },
   completedTitle: { color: "#15803d", fontWeight: "bold", fontSize: 15, marginBottom: 6 },
   completedText: { color: "#16a34a", fontSize: 13, textAlign: "center" },
+  moreSessionBox: {
+    backgroundColor: COLORS.white,
+    borderRadius: 8,
+    borderWidth: 1,
+    borderColor: COLORS.border,
+    padding: 14,
+    marginBottom: 16,
+  },
+  moreSessionTitle: { color: COLORS.primary, fontWeight: "700", fontSize: 14, marginBottom: 4 },
+  moreSessionSub: { color: COLORS.secondary, fontSize: 13, marginBottom: 12 },
+  addMoreButton: {
+    backgroundColor: COLORS.gradientStart,
+    borderRadius: 5,
+    paddingVertical: 9,
+    alignItems: "center",
+    marginTop: 10,
+  },
+  addMoreButtonText: { color: COLORS.white, fontWeight: "600", fontSize: 13 },
+  cancelMoreButton: {
+    borderWidth: 1,
+    borderColor: COLORS.error,
+    borderRadius: 5,
+    paddingVertical: 8,
+    alignItems: "center",
+    marginBottom: 12,
+  },
+  cancelMoreButtonText: { color: COLORS.error, fontWeight: "600", fontSize: 13 },
 });

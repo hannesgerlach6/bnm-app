@@ -8,6 +8,7 @@ import {
   Platform,
   StyleSheet,
 } from "react-native";
+import { useRouter } from "expo-router";
 import { useAuth } from "../../contexts/AuthContext";
 import { useData } from "../../contexts/DataContext";
 import { COLORS } from "../../constants/Colors";
@@ -32,6 +33,7 @@ function getQuarterIndex(month: number): number {
 }
 
 export default function ReportsScreen() {
+  const router = useRouter();
   const { user } = useAuth();
   const { mentorships, sessions, sessionTypes, users, mentorOfMonthVisible, toggleMentorOfMonth } = useData();
 
@@ -201,10 +203,13 @@ export default function ReportsScreen() {
     }
   }
 
-  if (user?.role !== "admin") {
+  const isOffice = user?.role === "office";
+  const isAdminOrOffice = user?.role === "admin" || isOffice;
+
+  if (!isAdminOrOffice) {
     return (
       <View style={styles.centerContainer}>
-        <Text style={styles.accessDeniedText}>Nur für Admins zugänglich.</Text>
+        <Text style={styles.accessDeniedText}>Nur für Admins und Office zugänglich.</Text>
       </View>
     );
   }
@@ -359,7 +364,7 @@ export default function ReportsScreen() {
                       <View
                         style={[
                           styles.barFill,
-                          { height: Math.max(heightPercent, 4) + "%" },
+                          { height: (Math.max(heightPercent, 4) + "%") as any },
                         ]}
                       />
                     </View>
@@ -392,17 +397,19 @@ export default function ReportsScreen() {
             )
           )}
 
-          {/* Mentor des Monats Toggle */}
-          <TouchableOpacity
-            style={styles.toggleMomButton}
-            onPress={toggleMentorOfMonth}
-          >
-            <Text style={styles.toggleMomText}>
-              {mentorOfMonthVisible
-                ? "Mentor des Monats ausblenden"
-                : "Mentor des Monats einblenden"}
-            </Text>
-          </TouchableOpacity>
+          {/* Mentor des Monats Toggle – nur für Admin */}
+          {!isOffice && (
+            <TouchableOpacity
+              style={styles.toggleMomButton}
+              onPress={toggleMentorOfMonth}
+            >
+              <Text style={styles.toggleMomText}>
+                {mentorOfMonthVisible
+                  ? "Mentor des Monats ausblenden"
+                  : "Mentor des Monats einblenden"}
+              </Text>
+            </TouchableOpacity>
+          )}
 
           {/* Export-Button – Primär */}
           <TouchableOpacity
@@ -414,15 +421,39 @@ export default function ReportsScreen() {
             </Text>
           </TouchableOpacity>
 
-          {/* Spender-Bericht – Sekundär (Outline) */}
+          {/* Spender-Bericht CSV – Sekundär (Outline) */}
           <TouchableOpacity
             style={styles.spendenButton}
             onPress={handleSpendenReport}
           >
             <Text style={styles.spendenButtonText}>
-              Spender-Bericht {selectedYear}
+              Spender-Bericht {selectedYear} (CSV)
             </Text>
           </TouchableOpacity>
+
+          {/* Spenderbericht visuell erstellen */}
+          <TouchableOpacity
+            style={styles.donorReportButton}
+            onPress={() => router.push("/donor-report" as never)}
+          >
+            <Text style={styles.donorReportButtonText}>
+              Visueller Spenderbericht →
+            </Text>
+          </TouchableOpacity>
+
+          {/* Bericht drucken (nur Web) */}
+          {Platform.OS === "web" && (
+            <TouchableOpacity
+              style={styles.printButton}
+              onPress={() => {
+                if (typeof window !== "undefined") {
+                  (window as Window).print();
+                }
+              }}
+            >
+              <Text style={styles.printButtonText}>🖨 Bericht drucken (PDF)</Text>
+            </TouchableOpacity>
+          )}
         </View>
       </ScrollView>
     </Container>
@@ -596,4 +627,23 @@ const styles = StyleSheet.create({
     marginBottom: 20,
   },
   spendenButtonText: { color: COLORS.gold, fontWeight: "700" },
+  donorReportButton: {
+    backgroundColor: COLORS.gold,
+    borderRadius: 5,
+    paddingVertical: 9,
+    paddingHorizontal: 16,
+    alignItems: "center",
+    marginBottom: 10,
+  },
+  donorReportButtonText: { color: COLORS.white, fontWeight: "700", fontSize: 14 },
+  printButton: {
+    borderWidth: 1,
+    borderColor: COLORS.secondary,
+    borderRadius: 5,
+    paddingVertical: 9,
+    paddingHorizontal: 16,
+    alignItems: "center",
+    marginBottom: 20,
+  },
+  printButtonText: { color: COLORS.secondary, fontWeight: "600", fontSize: 13 },
 });

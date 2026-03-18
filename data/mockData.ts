@@ -81,6 +81,18 @@ export const MOCK_USERS: User[] = [
     contact_preference: "whatsapp",
     created_at: "2024-03-01T10:00:00Z",
   },
+  {
+    id: "user-office-1",
+    email: "office@bnm.org",
+    role: "office",
+    gender: "female",
+    name: "Maryam Hassan",
+    phone: "+49 157 78901234",
+    city: "Berlin",
+    age: 31,
+    contact_preference: "email",
+    created_at: "2024-01-10T10:00:00Z",
+  },
 ];
 
 export const SESSION_TYPES: SessionType[] = [
@@ -104,6 +116,7 @@ export const SESSION_TYPES: SessionType[] = [
     sort_order: 3,
     is_default: true,
     description: "Erster telefonischer oder digitaler Kontakt",
+    allows_multiple: true,
   },
   {
     id: "st-4",
@@ -125,6 +138,7 @@ export const SESSION_TYPES: SessionType[] = [
     sort_order: 6,
     is_default: true,
     description: "Einführung in die Waschung (Wudu)",
+    allows_multiple: true,
   },
   {
     id: "st-7",
@@ -132,6 +146,7 @@ export const SESSION_TYPES: SessionType[] = [
     sort_order: 7,
     is_default: true,
     description: "Einführung in das Gebet (Salah)",
+    allows_multiple: true,
   },
   {
     id: "st-8",
@@ -139,6 +154,7 @@ export const SESSION_TYPES: SessionType[] = [
     sort_order: 8,
     is_default: true,
     description: "Lernen der 5 grundlegenden Suren",
+    allows_multiple: true,
   },
   {
     id: "st-9",
@@ -309,6 +325,7 @@ export const MOCK_CREDENTIALS: Record<
   { password: string; userId: string }
 > = {
   "admin@bnm.org": { password: "admin123", userId: "user-admin-1" },
+  "office@bnm.org": { password: "office123", userId: "user-office-1" },
   "mentor@bnm.org": { password: "mentor123", userId: "user-mentor-1" },
   "mentorin@bnm.org": { password: "mentor123", userId: "user-mentor-2" },
   "mentee@bnm.org": { password: "mentee123", userId: "user-mentee-1" },

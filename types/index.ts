@@ -1,4 +1,4 @@
-export type UserRole = "admin" | "mentor" | "mentee";
+export type UserRole = "admin" | "office" | "mentor" | "mentee";
 export type Gender = "male" | "female";
 export type MentorshipStatus = "active" | "completed" | "cancelled";
 export type ContactPreference = "phone" | "whatsapp" | "telegram" | "email";
@@ -36,6 +36,7 @@ export interface SessionType {
   sort_order: number;
   is_default: boolean;
   description: string;
+  allows_multiple?: boolean;
 }
 
 export interface Session {
@@ -47,6 +48,7 @@ export interface Session {
   details?: string;
   documented_by: string;
   attempt_number?: number;
+  duration_minutes?: number;
   session_type?: SessionType;
   mentorship?: Mentorship;
 }

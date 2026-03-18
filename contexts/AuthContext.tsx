@@ -41,6 +41,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const loginAs = useCallback((role: UserRole) => {
     const roleMap: Record<UserRole, string> = {
       admin: "user-admin-1",
+      office: "user-office-1",
       mentor: "user-mentor-1",
       mentee: "user-mentee-1",
     };
