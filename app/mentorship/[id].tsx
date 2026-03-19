@@ -255,12 +255,11 @@ export default function MentorshipDetailScreen() {
           <View style={styles.allDoneBanner}>
             <Text style={styles.allDoneBannerTitle}>✓ {t("mentorship.allStepsComplete")}</Text>
             <TouchableOpacity
-              style={[styles.allDoneButton, isUpdatingStatus ? { opacity: 0.5 } : {}]}
+              style={styles.allDoneButton}
               onPress={handleComplete}
-              disabled={isUpdatingStatus}
             >
               <Text style={styles.allDoneButtonText}>
-                {isUpdatingStatus ? "..." : t("mentorship.completeNow")}
+                {t("mentorship.completeNow")}
               </Text>
             </TouchableOpacity>
             <Text style={styles.allDoneBannerHint}>{t("mentorship.completeHint")}</Text>
