@@ -26,10 +26,10 @@ export default function EditProfileScreen() {
   const { updateUser } = useData();
 
   const CONTACT_OPTIONS: { key: ContactPreference; label: string }[] = [
-    { key: "whatsapp", label: "WhatsApp" },
-    { key: "phone", label: "Telefon" },
-    { key: "telegram", label: "Telegram" },
-    { key: "email", label: "E-Mail" },
+    { key: "whatsapp", label: t("contactPref.whatsapp") },
+    { key: "phone", label: t("contactPref.phone") },
+    { key: "telegram", label: t("contactPref.telegram") },
+    { key: "email", label: t("contactPref.email") },
   ];
 
   const [name, setName] = useState(user?.name ?? "");

@@ -299,10 +299,10 @@ export default function RegisterPublicScreen() {
               <View style={styles.pillRow}>
                 {(
                   [
-                    { key: "whatsapp", label: "WhatsApp" },
-                    { key: "phone", label: "Telefon" },
-                    { key: "email", label: "E-Mail" },
-                    { key: "telegram", label: "Telegram" },
+                    { key: "whatsapp", label: t("contactPref.whatsapp") },
+                    { key: "phone", label: t("contactPref.phone") },
+                    { key: "email", label: t("contactPref.email") },
+                    { key: "telegram", label: t("contactPref.telegram") },
                   ] as const
                 ).map((opt) => (
                   <TouchableOpacity

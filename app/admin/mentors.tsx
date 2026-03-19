@@ -183,7 +183,7 @@ export default function AdminMentorsScreen() {
                   </View>
                   <View style={styles.statChip}>
                     <Text style={[styles.statChipValue, { color: COLORS.gold }]}>{totalSessions}</Text>
-                    <Text style={styles.statChipLabel}>Sessions</Text>
+                    <Text style={styles.statChipLabel}>{t("common.sessions")}</Text>
                   </View>
                 </View>
               </TouchableOpacity>

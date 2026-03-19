@@ -16,17 +16,14 @@ import { COLORS } from "../../constants/Colors";
 import { Container } from "../../components/Container";
 import { useLanguage } from "../../contexts/LanguageContext";
 
-const MONTHS = [
-  "Januar", "Februar", "März", "April", "Mai", "Juni",
-  "Juli", "August", "September", "Oktober", "November", "Dezember",
-];
-
-const QUARTERS = [
-  { label: "Q1 (Jan–Mrz)", months: [0, 1, 2] },
-  { label: "Q2 (Apr–Jun)", months: [3, 4, 5] },
-  { label: "Q3 (Jul–Sep)", months: [6, 7, 8] },
-  { label: "Q4 (Okt–Dez)", months: [9, 10, 11] },
-];
+// MONTHS and QUARTERS are now built inside the component using t()
+// to support translations
+const QUARTER_MONTHS = [
+  { months: [0, 1, 2] },
+  { months: [3, 4, 5] },
+  { months: [6, 7, 8] },
+  { months: [9, 10, 11] },
+] as const;
 
 type PeriodMode = "month" | "quarter" | "year";
 
@@ -46,6 +43,22 @@ export default function ReportsScreen() {
     setRefreshing(false);
   }, [refreshData]);
 
+  // Translated month names
+  const MONTHS = [
+    t("reports.months.jan"), t("reports.months.feb"), t("reports.months.mar"),
+    t("reports.months.apr"), t("reports.months.may"), t("reports.months.jun"),
+    t("reports.months.jul"), t("reports.months.aug"), t("reports.months.sep"),
+    t("reports.months.oct"), t("reports.months.nov"), t("reports.months.dec"),
+  ];
+
+  // Translated quarter labels
+  const QUARTERS = [
+    { label: `Q1 (${t("reports.months.jan").slice(0,3)}–${t("reports.months.mar").slice(0,3)})`, months: QUARTER_MONTHS[0].months },
+    { label: `Q2 (${t("reports.months.apr").slice(0,3)}–${t("reports.months.jun").slice(0,3)})`, months: QUARTER_MONTHS[1].months },
+    { label: `Q3 (${t("reports.months.jul").slice(0,3)}–${t("reports.months.sep").slice(0,3)})`, months: QUARTER_MONTHS[2].months },
+    { label: `Q4 (${t("reports.months.oct").slice(0,3)}–${t("reports.months.dec").slice(0,3)})`, months: QUARTER_MONTHS[3].months },
+  ];
+
   const now = new Date();
   const [periodMode, setPeriodMode] = useState<PeriodMode>("month");
   const [selectedMonth, setSelectedMonth] = useState(now.getMonth());
@@ -61,7 +74,7 @@ export default function ReportsScreen() {
       const month = d.getMonth();
       if (year !== selectedYear) return false;
       if (periodMode === "month") return month === selectedMonth;
-      if (periodMode === "quarter") return QUARTERS[selectedQuarter].months.includes(month);
+      if (periodMode === "quarter") return (QUARTERS[selectedQuarter].months as readonly number[]).includes(month);
       return true;
     };
   }, [periodMode, selectedMonth, selectedQuarter, selectedYear]);
@@ -147,7 +160,7 @@ export default function ReportsScreen() {
   const periodLabel = useMemo(() => {
     if (periodMode === "month") return `${MONTHS[selectedMonth]} ${selectedYear}`;
     if (periodMode === "quarter") return `${QUARTERS[selectedQuarter].label} ${selectedYear}`;
-    return `Jahr ${selectedYear}`;
+    return `${t("reports.year")} ${selectedYear}`;
   }, [periodMode, selectedMonth, selectedQuarter, selectedYear]);
 
   function handleExport() {
@@ -198,9 +211,9 @@ export default function ReportsScreen() {
       URL.revokeObjectURL(url);
     } else {
       const report = monthlyData
-        .map((d) => `${d.month}: ${d.count} Sessions`)
+        .map((d) => `${d.month}: ${d.count} ${t("common.sessions")}`)
         .join("\n");
-      showSuccess(`${report}\n\nGesamt: ${total} Sessions`);
+      showSuccess(`${report}\n\n${t("reports.total")}: ${total} ${t("common.sessions")}`);
     }
   }
 
@@ -459,7 +472,7 @@ export default function ReportsScreen() {
               onPress={() => router.push("/admin/donor-report" as never)}
             >
               <Text style={styles.donorDashboardButtonText}>
-                Spender-Bericht Dashboard →
+                {t("reports.donorDashboard")}
               </Text>
             </TouchableOpacity>
           )}

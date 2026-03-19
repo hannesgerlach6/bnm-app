@@ -8,6 +8,7 @@ import {
 } from "react-native";
 import { useRouter, useLocalSearchParams } from "expo-router";
 import { useAuth } from "../contexts/AuthContext";
+import type { TranslationKeys } from "../lib/translations/de";
 import { useData } from "../contexts/DataContext";
 import { useConfirm, useAlert } from "../contexts/ModalContext";
 import { showError } from "../lib/errorHandler";
@@ -19,22 +20,22 @@ import { useLanguage } from "../contexts/LanguageContext";
 interface MatchScore {
   mentor: User;
   score: number;
-  reasons: string[];
+  reasonKeys: string[];
 }
 
 function calculateMatchScore(mentee: User, mentor: User): MatchScore {
   let score = 0;
-  const reasons: string[] = [];
+  const reasonKeys: string[] = [];
 
   if (mentor.gender !== mentee.gender) {
-    return { mentor, score: -1, reasons: ["Geschlecht stimmt nicht überein"] };
+    return { mentor, score: -1, reasonKeys: ["assign.reasonGenderMismatch"] };
   }
   score += 40;
-  reasons.push("Geschlecht passt");
+  reasonKeys.push("assign.reasonGenderMatch");
 
   if (mentor.city.toLowerCase() === mentee.city.toLowerCase()) {
     score += 35;
-    reasons.push("Gleiche Stadt");
+    reasonKeys.push("assign.reasonSameCity");
   } else {
     const regionMap: Record<string, string> = {
       berlin: "nordost", hamburg: "nordwest", bremen: "nordwest", hannover: "nordwest",
@@ -46,21 +47,21 @@ function calculateMatchScore(mentee: User, mentor: User): MatchScore {
     const menteeRegion = regionMap[mentee.city.toLowerCase()];
     if (mentorRegion && menteeRegion && mentorRegion === menteeRegion) {
       score += 15;
-      reasons.push("Gleiche Region");
+      reasonKeys.push("assign.reasonSameRegion");
     }
   }
 
   const ageDiff = Math.abs(mentor.age - mentee.age);
-  if (ageDiff <= 3) { score += 15; reasons.push("Sehr ähnliches Alter"); }
-  else if (ageDiff <= 7) { score += 10; reasons.push("Ähnliches Alter"); }
-  else if (ageDiff <= 12) { score += 5; reasons.push("Passende Altersgruppe"); }
+  if (ageDiff <= 3) { score += 15; reasonKeys.push("assign.reasonAgeSimilar"); }
+  else if (ageDiff <= 7) { score += 10; reasonKeys.push("assign.reasonAgeClose"); }
+  else if (ageDiff <= 12) { score += 5; reasonKeys.push("assign.reasonAgeGroup"); }
 
   if (mentor.contact_preference === mentee.contact_preference) {
     score += 10;
-    reasons.push("Gleiche Kontaktpräferenz");
+    reasonKeys.push("assign.reasonSameContact");
   }
 
-  return { mentor, score, reasons };
+  return { mentor, score, reasonKeys };
 }
 
 export default function AssignScreen() {
@@ -148,7 +149,7 @@ export default function AssignScreen() {
         router.back();
       }
     } catch (err) {
-      const msg = err instanceof Error ? err.message : "Unbekannter Fehler";
+      const msg = err instanceof Error ? err.message : t("assign.errorUnknown");
       showError(`Zuweisung fehlgeschlagen: ${msg}`);
     } finally {
       setIsAssigning(false);
@@ -305,9 +306,9 @@ export default function AssignScreen() {
                       </View>
 
                       <View style={styles.reasonsRow}>
-                        {match.reasons.map((reason) => (
-                          <View key={reason} style={styles.reasonChip}>
-                            <Text style={styles.reasonText}>✓ {reason}</Text>
+                        {match.reasonKeys.map((reasonKey) => (
+                          <View key={reasonKey} style={styles.reasonChip}>
+                            <Text style={styles.reasonText}>✓ {t(reasonKey as TranslationKeys)}</Text>
                           </View>
                         ))}
                       </View>

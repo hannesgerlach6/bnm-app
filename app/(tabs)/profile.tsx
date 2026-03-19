@@ -20,19 +20,7 @@ import { COLORS } from "../../constants/Colors";
 import { Container } from "../../components/Container";
 import { BNMLogo } from "../../components/BNMLogo";
 
-const CONTACT_LABELS: Record<string, string> = {
-  whatsapp: "WhatsApp",
-  phone: "Telefon",
-  telegram: "Telegram",
-  email: "E-Mail",
-};
-
-const CONTACT_LABELS_I18N: Record<string, string> = {
-  whatsapp: "WhatsApp",
-  phone: "Telefon / Phone",
-  telegram: "Telegram",
-  email: "E-Mail",
-};
+// Contact labels are now resolved via t() inside the component
 
 export default function ProfileScreen() {
   const router = useRouter();
@@ -51,10 +39,24 @@ export default function ProfileScreen() {
   }, [refreshData]);
 
   const ROLE_LABELS: Record<UserRole, string> = {
-    admin: "Administrator",
-    office: "Büro-Mitarbeiterin",
-    mentor: "Mentor",
-    mentee: "Mentee (Neuer Muslim)",
+    admin: t("profile.roleAdmin"),
+    office: t("profile.roleOffice"),
+    mentor: t("profile.roleMentor"),
+    mentee: t("profile.roleMentee"),
+  };
+
+  const CONTACT_LABELS: Record<string, string> = {
+    whatsapp: t("contactPref.whatsapp"),
+    phone: t("contactPref.phone"),
+    telegram: t("contactPref.telegram"),
+    email: t("contactPref.email"),
+  };
+
+  const CONTACT_LABELS_I18N: Record<string, string> = {
+    whatsapp: t("contactPref.whatsapp"),
+    phone: t("contactPref.phone"),
+    telegram: t("contactPref.telegram"),
+    email: t("contactPref.email"),
   };
 
   // Kontaktinfo des Mentorship-Partners

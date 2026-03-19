@@ -11,6 +11,7 @@ import {
 import { showSuccess, showConfirm } from "../lib/errorHandler";
 import { useRouter } from "expo-router";
 import { useAuth } from "../contexts/AuthContext";
+import { useData } from "../contexts/DataContext";
 import { useLanguage, type Language } from "../contexts/LanguageContext";
 import { COLORS } from "../constants/Colors";
 import { Container } from "../components/Container";
@@ -24,15 +25,18 @@ const LANGUAGES: { key: Language; label: string; native: string }[] = [
 
 export default function SettingsScreen() {
   const router = useRouter();
+  const { user } = useAuth();
   const { logout } = useAuth();
   const { language, setLanguage, t } = useLanguage();
+  const { mentorOfMonthVisible, toggleMentorOfMonth } = useData();
 
   const [pushEnabled, setPushEnabled] = useState(true);
+  const isAdminOrOffice = user?.role === "admin" || user?.role === "office";
 
   async function handleDeleteAccount() {
     const ok = await showConfirm(t("settings.deleteTitle"), t("settings.deleteConfirm"));
     if (ok) {
-      showSuccess("Dein Konto wurde erfolgreich gelöscht.", logout);
+      showSuccess(t("settings.accountDeleted"), logout);
     }
   }
 
@@ -78,6 +82,27 @@ export default function SettingsScreen() {
               />
             </View>
           </View>
+
+          {/* Sektion: Admin-Einstellungen */}
+          {isAdminOrOffice && (
+            <>
+              <Text style={styles.sectionLabel}>{t("settings.title")}</Text>
+              <View style={styles.card}>
+                <View style={styles.toggleRow}>
+                  <View style={styles.toggleInfo}>
+                    <Text style={styles.toggleTitle}>{t("settings.showMentorOfMonth")}</Text>
+                    <Text style={styles.toggleSubtitle}>{t("settings.mentorOfMonthDesc")}</Text>
+                  </View>
+                  <Switch
+                    value={mentorOfMonthVisible}
+                    onValueChange={toggleMentorOfMonth}
+                    trackColor={{ false: COLORS.border, true: COLORS.gold }}
+                    thumbColor={COLORS.white}
+                  />
+                </View>
+              </View>
+            </>
+          )}
 
           {/* Sektion: Sprache */}
           <Text style={styles.sectionLabel}>{t("settings.language")}</Text>

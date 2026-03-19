@@ -347,7 +347,7 @@ function AdminMenteesView() {
 
                 {mentorship ? (
                   <>
-                    <Text style={styles.mentorLabel}>Mentor: {mentorship.mentor?.name}</Text>
+                    <Text style={styles.mentorLabel}>{t("mentees.mentor")}: {mentorship.mentor?.name}</Text>
                     <View style={styles.progressRow}>
                       <View style={styles.progressTrack}>
                         <View
@@ -503,7 +503,7 @@ function MentorMenteeCard({ mentorship }: { mentorship: Mentorship }) {
           <View style={[styles.progressFill, { width: `${progress}%` as any }]} />
         </View>
         <Text style={styles.progressText}>
-          {completedStepIds.length}/{sessionTypes.length} Steps
+          {completedStepIds.length}/{sessionTypes.length} {t("mentees.steps")}
         </Text>
       </View>
 
@@ -606,7 +606,7 @@ function MenteeProgressView() {
     >
       <View style={styles.page}>
         <Text style={styles.pageTitle}>{t("mentees.myProgress")}</Text>
-        <Text style={styles.pageSubtitle}>Mentor: {mentorship.mentor?.name}</Text>
+        <Text style={styles.pageSubtitle}>{t("mentees.mentor")}: {mentorship.mentor?.name}</Text>
 
         {/* Gesamtfortschritt – dunkle Hero-Card */}
         <View style={styles.progressHeaderCard}>

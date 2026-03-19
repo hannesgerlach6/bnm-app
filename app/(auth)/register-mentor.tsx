@@ -121,10 +121,10 @@ export default function RegisterMentorScreen() {
   ];
 
   const contactOptions: { value: ContactPreference; label: string }[] = [
-    { value: "whatsapp", label: "WhatsApp" },
-    { value: "phone", label: "Telefon" },
-    { value: "telegram", label: "Telegram" },
-    { value: "email", label: "E-Mail" },
+    { value: "whatsapp", label: t("contactPref.whatsapp") },
+    { value: "phone", label: t("contactPref.phone") },
+    { value: "telegram", label: t("contactPref.telegram") },
+    { value: "email", label: t("contactPref.email") },
   ];
 
   if (submitted) {

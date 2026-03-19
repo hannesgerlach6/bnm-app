@@ -136,7 +136,7 @@ export default function ApplicationsScreen() {
 
     // Zugangsdaten per E-Mail senden statt im Alert anzeigen
     await sendCredentialsEmail(app.email, app.name, tempPassword);
-    showSuccess("Account erstellt. Zugangsdaten wurden per E-Mail an den Mentee gesendet.");
+    showSuccess(t("applications.accountCreated"));
   }
 
   async function handleRejectMenteeRegistration(app: MentorApplication) {

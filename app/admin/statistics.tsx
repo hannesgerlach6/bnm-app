@@ -91,7 +91,7 @@ function StatisticsContent() {
     // Städte-Verteilung (Top 5) – alle User
     const cityMap: Record<string, number> = {};
     allMentees.forEach((u) => {
-      const c = u.city || "Unbekannt";
+      const c = u.city || t("common.unknown");
       cityMap[c] = (cityMap[c] ?? 0) + 1;
     });
     const topCities = Object.entries(cityMap)

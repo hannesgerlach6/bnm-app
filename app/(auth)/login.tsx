@@ -69,7 +69,7 @@ export default function LoginScreen() {
         <View style={styles.header}>
           <BNMLogo size={72} showSubtitle={false} />
           <Text style={styles.logoTitle}>BNM</Text>
-          <Text style={styles.logoSubtitle}>Betreuung neuer Muslime</Text>
+          <Text style={styles.logoSubtitle}>{t("login.appSubtitle")}</Text>
           <View style={styles.goldDivider} />
         </View>
 

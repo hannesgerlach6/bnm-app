@@ -146,6 +146,11 @@ const tr: Record<TranslationKeys, string> = {
   "common.success": "Başarılı",
   "common.loading": "Yükleniyor...",
   "common.noData": "Veri mevcut değil.",
+  "common.ok": "Tamam",
+  "common.sessions": "Oturumlar",
+  "common.mentor": "Mentor",
+  "common.unknown": "Bilinmiyor",
+  "common.errorPrefix": "Hata: {0}",
 
   // Sessions
   "sessions.document": "Oturumu Belgele",
@@ -1084,6 +1089,115 @@ const tr: Record<TranslationKeys, string> = {
   "menteeProgress.confirmText": "\"{0}\" tamamlandı olarak işaretlensin mi?",
   "menteeProgress.unconfirmTitle": "İşareti kaldır",
   "menteeProgress.unconfirmText": "\"{0}\" için işaret kaldırılsın mı?",
+
+
+  // Login
+  "login.appSubtitle": "Yeni Müslümanlara Rehberlik",
+
+  // Contact preference labels (for chips)
+  "contactPref.phone": "Telefon",
+  "contactPref.whatsapp": "WhatsApp",
+  "contactPref.telegram": "Telegram",
+  "contactPref.email": "E-posta",
+
+  // Chats – relative time
+  "chats.yesterday": "Dün",
+
+  // Reports – months
+  "reports.months.jan": "Ocak",
+  "reports.months.feb": "Şubat",
+  "reports.months.mar": "Mart",
+  "reports.months.apr": "Nisan",
+  "reports.months.may": "Mayıs",
+  "reports.months.jun": "Haziran",
+  "reports.months.jul": "Temmuz",
+  "reports.months.aug": "Ağustos",
+  "reports.months.sep": "Eylül",
+  "reports.months.oct": "Ekim",
+  "reports.months.nov": "Kasım",
+  "reports.months.dec": "Aralık",
+
+  // Reports – donor dashboard button
+  "reports.donorDashboard": "Bağışçı Rapor Paneli →",
+
+  // Assign – match reasons
+  "assign.reasonGenderMatch": "Cinsiyet uyuşuyor",
+  "assign.reasonGenderMismatch": "Cinsiyet uyuşmuyor",
+  "assign.reasonSameCity": "Aynı şehir",
+  "assign.reasonSameRegion": "Aynı bölge",
+  "assign.reasonAgeSimilar": "Çok yakın yaş",
+  "assign.reasonAgeClose": "Benzer yaş",
+  "assign.reasonAgeGroup": "Uyumlu yaş grubu",
+  "assign.reasonSameContact": "Aynı iletişim tercihi",
+  "assign.errorUnknown": "Bilinmeyen hata",
+
+  // Profile – role labels
+  "profile.roleAdmin": "Yönetici",
+  "profile.roleOffice": "Ofis Personeli",
+  "profile.roleMentor": "Mentor",
+  "profile.roleMentee": "Danışan (Yeni Müslüman)",
+
+  // Mentees screen
+  "mentees.mentor": "Mentor",
+  "mentees.steps": "Adımlar",
+
+  // Document session – error messages
+  "docSession.errorUpdate": "Oturum güncellenemedi: {0}",
+  "docSession.errorSave": "Oturum kaydedilemedi: {0}",
+  "docSession.errorDelete": "Oturum silinemedi: {0}",
+
+  // Reports – extra
+  "reports.total": "Toplam",
+
+  // Reports – short month names (for chart labels)
+  "reports.months.jan.short": "Oca",
+  "reports.months.feb.short": "Şub",
+  "reports.months.mar.short": "Mar",
+  "reports.months.apr.short": "Nis",
+  "reports.months.may.short": "May",
+  "reports.months.jun.short": "Haz",
+  "reports.months.jul.short": "Tem",
+  "reports.months.aug.short": "Ağu",
+  "reports.months.sep.short": "Eyl",
+  "reports.months.oct.short": "Eki",
+  "reports.months.nov.short": "Kas",
+  "reports.months.dec.short": "Ara",
+
+  // Reports – period labels
+  "reports.allPeriods": "Tüm Dönemler",
+
+  // Donor Dashboard – additional
+  "donorDashboard.periodSection": "DÖNEM",
+  "donorDashboard.totalMentees": "Toplam: {0} Öğrenci",
+
+  // Applications – account created
+  "applications.accountCreated": "Hesap oluşturuldu. Giriş bilgileri e-posta ile mentee'ye gönderildi.",
+
+  // Settings – account deleted
+  "settings.accountDeleted": "Hesabınız başarıyla silindi.",
+
+  // Chat – send error
+  "chat.sendError": "Mesaj gönderilemedi.",
+
+  // Motivation / Günün Hadisi
+  "motivation.title": "Günün Motivasyonu",
+  "motivation.next": "Sonraki Hadis",
+  "motivation.source": "Kaynak",
+
+  // Settings – Ayın Mentoru
+  "settings.showMentorOfMonth": "Ayın Mentorunu Göster",
+  "settings.mentorOfMonthDesc": "Lider tablosunda ve yönetici panosunda ödülü gösterir.",
+
+  // Erken Uyarılar
+  "earlyWarning.title": "Erken Uyarılar",
+  "earlyWarning.negativeFeedback": "Olumsuz geri bildirim",
+  "earlyWarning.discrepancy": "Tutarsızlık",
+  "earlyWarning.inactive": "Mentor inaktif",
+  "earlyWarning.noWarnings": "Uyarı yok",
+  "earlyWarning.daysAgo": "{0} gün önce",
+
+  // Admin Dashboard – Ayın Mentoru Kartı
+  "dashboard.currentMentorOfMonth": "Mevcut Ayın Mentoru",
 };
 
 export default tr;

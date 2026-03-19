@@ -146,6 +146,11 @@ const ar: Record<TranslationKeys, string> = {
   "common.success": "نجاح",
   "common.loading": "جار التحميل...",
   "common.noData": "لا توجد بيانات متاحة.",
+  "common.ok": "حسناً",
+  "common.sessions": "الجلسات",
+  "common.mentor": "المرشد",
+  "common.unknown": "غير معروف",
+  "common.errorPrefix": "خطأ: {0}",
 
   // Sessions
   "sessions.document": "توثيق الجلسة",
@@ -1084,6 +1089,115 @@ const ar: Record<TranslationKeys, string> = {
   "menteeProgress.confirmText": "هل تريد وضع علامة منجز على \"{0}\"؟",
   "menteeProgress.unconfirmTitle": "إزالة العلامة",
   "menteeProgress.unconfirmText": "هل تريد إزالة العلامة عن \"{0}\"؟",
+
+
+  // Login
+  "login.appSubtitle": "رعاية المسلمين الجدد",
+
+  // Contact preference labels (for chips)
+  "contactPref.phone": "الهاتف",
+  "contactPref.whatsapp": "واتساب",
+  "contactPref.telegram": "تيليغرام",
+  "contactPref.email": "البريد الإلكتروني",
+
+  // Chats – relative time
+  "chats.yesterday": "أمس",
+
+  // Reports – months
+  "reports.months.jan": "يناير",
+  "reports.months.feb": "فبراير",
+  "reports.months.mar": "مارس",
+  "reports.months.apr": "أبريل",
+  "reports.months.may": "مايو",
+  "reports.months.jun": "يونيو",
+  "reports.months.jul": "يوليو",
+  "reports.months.aug": "أغسطس",
+  "reports.months.sep": "سبتمبر",
+  "reports.months.oct": "أكتوبر",
+  "reports.months.nov": "نوفمبر",
+  "reports.months.dec": "ديسمبر",
+
+  // Reports – donor dashboard button
+  "reports.donorDashboard": "لوحة تقارير المانحين ←",
+
+  // Assign – match reasons
+  "assign.reasonGenderMatch": "الجنس مطابق",
+  "assign.reasonGenderMismatch": "الجنس غير متطابق",
+  "assign.reasonSameCity": "نفس المدينة",
+  "assign.reasonSameRegion": "نفس المنطقة",
+  "assign.reasonAgeSimilar": "عمر متقارب جداً",
+  "assign.reasonAgeClose": "عمر متقارب",
+  "assign.reasonAgeGroup": "فئة عمرية متوافقة",
+  "assign.reasonSameContact": "نفس تفضيل التواصل",
+  "assign.errorUnknown": "خطأ غير معروف",
+
+  // Profile – role labels
+  "profile.roleAdmin": "المسؤول",
+  "profile.roleOffice": "موظف المكتب",
+  "profile.roleMentor": "المرشد",
+  "profile.roleMentee": "المتعلم (مسلم جديد)",
+
+  // Mentees screen
+  "mentees.mentor": "المرشد",
+  "mentees.steps": "الخطوات",
+
+  // Document session – error messages
+  "docSession.errorUpdate": "تعذّر تحديث الجلسة: {0}",
+  "docSession.errorSave": "تعذّر حفظ الجلسة: {0}",
+  "docSession.errorDelete": "تعذّر حذف الجلسة: {0}",
+
+  // Reports – extra
+  "reports.total": "الإجمالي",
+
+  // Reports – short month names (for chart labels)
+  "reports.months.jan.short": "يناير",
+  "reports.months.feb.short": "فبراير",
+  "reports.months.mar.short": "مارس",
+  "reports.months.apr.short": "أبريل",
+  "reports.months.may.short": "مايو",
+  "reports.months.jun.short": "يونيو",
+  "reports.months.jul.short": "يوليو",
+  "reports.months.aug.short": "أغسطس",
+  "reports.months.sep.short": "سبتمبر",
+  "reports.months.oct.short": "أكتوبر",
+  "reports.months.nov.short": "نوفمبر",
+  "reports.months.dec.short": "ديسمبر",
+
+  // Reports – period labels
+  "reports.allPeriods": "جميع الفترات",
+
+  // Donor Dashboard – additional
+  "donorDashboard.periodSection": "الفترة الزمنية",
+  "donorDashboard.totalMentees": "الإجمالي: {0} متعلّم",
+
+  // Applications – account created
+  "applications.accountCreated": "تم إنشاء الحساب. تم إرسال بيانات تسجيل الدخول إلى المتعلّم عبر البريد الإلكتروني.",
+
+  // Settings – account deleted
+  "settings.accountDeleted": "تم حذف حسابك بنجاح.",
+
+  // Chat – send error
+  "chat.sendError": "تعذّر إرسال الرسالة.",
+
+  // Motivation / حديث اليوم
+  "motivation.title": "دافع اليوم",
+  "motivation.next": "الحديث التالي",
+  "motivation.source": "المصدر",
+
+  // Settings – مرشد الشهر
+  "settings.showMentorOfMonth": "إظهار مرشد الشهر",
+  "settings.mentorOfMonthDesc": "يعرض الجائزة على لوحة الترتيب ولوحة الإدارة.",
+
+  // التحذيرات المبكرة
+  "earlyWarning.title": "التحذيرات المبكرة",
+  "earlyWarning.negativeFeedback": "تقييم سلبي",
+  "earlyWarning.discrepancy": "تناقض",
+  "earlyWarning.inactive": "المرشد غير نشط",
+  "earlyWarning.noWarnings": "لا توجد تحذيرات",
+  "earlyWarning.daysAgo": "منذ {0} أيام",
+
+  // Admin Dashboard – بطاقة مرشد الشهر
+  "dashboard.currentMentorOfMonth": "مرشد الشهر الحالي",
 };
 
 export default ar;

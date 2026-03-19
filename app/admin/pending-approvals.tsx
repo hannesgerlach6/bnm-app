@@ -58,8 +58,8 @@ export default function PendingApprovalsScreen() {
       await approveMentorship(mentorshipId);
       showSuccess(t("pendingApprovals.approveSuccess"));
     } catch (err) {
-      const msg = err instanceof Error ? err.message : "Unbekannter Fehler";
-      showError(`Fehler: ${msg}`);
+      const msg = err instanceof Error ? err.message : t("assign.errorUnknown");
+      showError(t("common.errorPrefix").replace("{0}", msg));
     }
   }
 
@@ -79,8 +79,8 @@ export default function PendingApprovalsScreen() {
       await rejectMentorship(mentorshipId);
       showSuccess(t("pendingApprovals.rejectSuccess"));
     } catch (err) {
-      const msg = err instanceof Error ? err.message : "Unbekannter Fehler";
-      showError(`Fehler: ${msg}`);
+      const msg = err instanceof Error ? err.message : t("assign.errorUnknown");
+      showError(t("common.errorPrefix").replace("{0}", msg));
     }
   }
 

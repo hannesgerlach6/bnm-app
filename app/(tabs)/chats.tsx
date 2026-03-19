@@ -14,7 +14,7 @@ import { COLORS } from "../../constants/Colors";
 import { Container } from "../../components/Container";
 import { useLanguage } from "../../contexts/LanguageContext";
 
-function formatTime(dateStr: string): string {
+function formatTime(dateStr: string, yesterday: string): string {
   const d = new Date(dateStr);
   const now = new Date();
   const diffMs = now.getTime() - d.getTime();
@@ -22,7 +22,7 @@ function formatTime(dateStr: string): string {
   if (diffDays === 0) {
     return d.toLocaleTimeString("de-DE", { hour: "2-digit", minute: "2-digit" });
   }
-  if (diffDays === 1) return "Gestern";
+  if (diffDays === 1) return yesterday;
   if (diffDays < 7) return `${diffDays}d`;
   return d.toLocaleDateString("de-DE", { day: "2-digit", month: "2-digit" });
 }
@@ -168,7 +168,7 @@ export default function ChatsScreen() {
                         </Text>
                         {lastMsg && (
                           <Text style={styles.chatTime}>
-                            {formatTime(lastMsg.created_at)}
+                            {formatTime(lastMsg.created_at, t("chats.yesterday"))}
                           </Text>
                         )}
                       </View>

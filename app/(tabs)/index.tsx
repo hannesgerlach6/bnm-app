@@ -7,7 +7,6 @@ import { useLanguage } from "../../contexts/LanguageContext";
 import type { Mentorship } from "../../types";
 import { COLORS } from "../../constants/Colors";
 import { Container } from "../../components/Container";
-import { MOCK_HADITHE } from "../../data/mockData";
 import { BNMLogo } from "../../components/BNMLogo";
 import { showConfirm } from "../../lib/errorHandler";
 
@@ -30,6 +29,9 @@ function AdminDashboard({ showSystemSettings = true }: { showSystemSettings?: bo
     mentorships,
     sessions,
     sessionTypes,
+    feedback,
+    hadithe,
+    mentorOfMonthVisible,
     getCompletedStepIds,
     getUnassignedMentees,
     getPendingApplicationsCount,
@@ -78,6 +80,81 @@ function AdminDashboard({ showSystemSettings = true }: { showSystemSettings?: bo
       .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
       .slice(0, 5);
   }, [sessions]);
+
+  // Frühwarnungen berechnen
+  const earlyWarnings = useMemo(() => {
+    const warnings: { type: "feedback" | "discrepancy" | "inactive"; label: string; mentorshipId?: string; date?: Date }[] = [];
+
+    // Negatives Feedback (Rating ≤ 2)
+    for (const f of feedback) {
+      if (f.rating <= 2) {
+        const ms = mentorships.find((m) => m.id === f.mentorship_id);
+        warnings.push({
+          type: "feedback",
+          label: ms ? `${ms.mentee?.name ?? "?"} → ${ms.mentor?.name ?? "?"}` : f.mentorship_id,
+          mentorshipId: f.mentorship_id,
+          date: new Date(f.created_at),
+        });
+      }
+    }
+
+    // Diskrepanzen: Mentee bestätigt, Mentor nicht dokumentiert
+    for (const m of mentorships) {
+      if (m.status !== "active") continue;
+      const confirmed = m.mentee_confirmed_steps ?? [];
+      const documented = sessions.filter((s) => s.mentorship_id === m.id).map((s) => s.session_type_id);
+      const hasDiscrepancy = confirmed.some((stepId) => !documented.includes(stepId));
+      if (hasDiscrepancy) {
+        warnings.push({
+          type: "discrepancy",
+          label: `${m.mentee?.name ?? "?"} → ${m.mentor?.name ?? "?"}`,
+          mentorshipId: m.id,
+        });
+      }
+    }
+
+    // Inaktive Mentoren: >7 Tage keine Session bei aktiver Betreuung
+    const now = Date.now();
+    const sevenDays = 7 * 24 * 60 * 60 * 1000;
+    for (const m of mentorships) {
+      if (m.status !== "active") continue;
+      const mentorSessions = sessions.filter((s) => s.mentorship_id === m.id);
+      let isInactive = false;
+      let lastDate: Date | undefined;
+      if (mentorSessions.length === 0) {
+        isInactive = now - new Date(m.assigned_at).getTime() > sevenDays;
+        lastDate = new Date(m.assigned_at);
+      } else {
+        const last = [...mentorSessions].sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())[0];
+        isInactive = now - new Date(last.date).getTime() > sevenDays;
+        lastDate = new Date(last.date);
+      }
+      if (isInactive) {
+        warnings.push({
+          type: "inactive",
+          label: `${m.mentor?.name ?? "?"} → ${m.mentee?.name ?? "?"}`,
+          mentorshipId: m.id,
+          date: lastDate,
+        });
+      }
+    }
+
+    return warnings;
+  }, [feedback, mentorships, sessions]);
+
+  // Mentor des Monats (höchster Score aller aktiven Mentoren)
+  const topMentor = useMemo(() => {
+    const mentors = users.filter((u) => u.role === "mentor");
+    if (mentors.length === 0) return null;
+    const scored = mentors.map((mentor) => {
+      const myMs = mentorships.filter((m) => m.mentor_id === mentor.id);
+      const completedCount = myMs.filter((m) => m.status === "completed").length;
+      const sessionCount = sessions.filter((s) => myMs.some((m) => m.id === s.mentorship_id)).length;
+      const score = completedCount * 10 + sessionCount * 3;
+      return { mentor, score, completedCount, sessionCount };
+    }).sort((a, b) => b.score - a.score);
+    return scored[0].score > 0 ? scored[0] : null;
+  }, [users, mentorships, sessions]);
 
   return (
     <ScrollView
@@ -172,6 +249,78 @@ function AdminDashboard({ showSystemSettings = true }: { showSystemSettings?: bo
           <StatCard label={t("dashboard.mentors")} value={allMentors.length} color={COLORS.gradientStart} />
           <StatCard label={t("dashboard.totalMentees")} value={allMentees.length} color={COLORS.gold} />
         </View>
+
+        {/* Frühwarnungen */}
+        {earlyWarnings.length > 0 && (
+          <View style={styles.warningBox}>
+            <View style={styles.warningHeader}>
+              <Text style={styles.warningTitle}>{t("earlyWarning.title")}</Text>
+              <View style={styles.warningBadge}>
+                <Text style={styles.warningBadgeText}>{earlyWarnings.length}</Text>
+              </View>
+            </View>
+            {earlyWarnings.slice(0, 5).map((w, idx) => {
+              const daysDiff = w.date ? Math.floor((Date.now() - w.date.getTime()) / 86400000) : undefined;
+              const typeLabel = w.type === "feedback"
+                ? t("earlyWarning.negativeFeedback")
+                : w.type === "discrepancy"
+                ? t("earlyWarning.discrepancy")
+                : t("earlyWarning.inactive");
+              return (
+                <TouchableOpacity
+                  key={idx}
+                  style={[styles.warningRow, idx < Math.min(earlyWarnings.length, 5) - 1 && styles.warningRowBorder]}
+                  onPress={() => {
+                    if (w.mentorshipId) {
+                      router.push({ pathname: "/mentorship/[id]", params: { id: w.mentorshipId } });
+                    }
+                  }}
+                >
+                  <View style={styles.warningDot} />
+                  <View style={{ flex: 1 }}>
+                    <Text style={styles.warningLabel}>{typeLabel}</Text>
+                    <Text style={styles.warningName}>{w.label}</Text>
+                  </View>
+                  {daysDiff !== undefined && (
+                    <Text style={styles.warningDays}>
+                      {t("earlyWarning.daysAgo").replace("{0}", String(daysDiff))}
+                    </Text>
+                  )}
+                  <Text style={styles.warningArrow}>›</Text>
+                </TouchableOpacity>
+              );
+            })}
+          </View>
+        )}
+
+        {/* Mentor des Monats (Admin-Sicht) */}
+        {mentorOfMonthVisible && topMentor && (
+          <TouchableOpacity
+            style={styles.momAdminCard}
+            onPress={() => router.push({ pathname: "/mentor/[id]", params: { id: topMentor.mentor.id } })}
+          >
+            <View style={styles.momAdminHeader}>
+              <Text style={styles.momAdminStar}>★</Text>
+              <Text style={styles.momAdminTitle}>{t("dashboard.currentMentorOfMonth")}</Text>
+            </View>
+            <Text style={styles.momAdminName}>{topMentor.mentor.name}</Text>
+            <View style={styles.momAdminStatsRow}>
+              <View style={styles.momAdminStat}>
+                <Text style={styles.momAdminStatValue}>{topMentor.score}</Text>
+                <Text style={styles.momAdminStatLabel}>{t("leaderboard.points")}</Text>
+              </View>
+              <View style={styles.momAdminStat}>
+                <Text style={styles.momAdminStatValue}>{topMentor.completedCount}</Text>
+                <Text style={styles.momAdminStatLabel}>{t("leaderboard.completions")}</Text>
+              </View>
+              <View style={styles.momAdminStat}>
+                <Text style={styles.momAdminStatValue}>{topMentor.sessionCount}</Text>
+                <Text style={styles.momAdminStatLabel}>{t("leaderboard.sessions")}</Text>
+              </View>
+            </View>
+            <Text style={styles.momAdminArrow}>Profil ansehen ›</Text>
+          </TouchableOpacity>
+        )}
 
         {/* Nicht zugewiesene Mentees */}
         {unassignedMentees.length > 0 && (
@@ -584,9 +733,10 @@ function MenteeDashboard() {
   const { user } = useAuth();
   const router = useRouter();
   const { t } = useLanguage();
-  const { getMentorshipByMenteeId, getCompletedStepIds, sessionTypes, refreshData, getUnreadMessagesCount, confirmStepAsMentee, unconfirmStepAsMentee } = useData();
+  const { getMentorshipByMenteeId, getCompletedStepIds, sessionTypes, hadithe, refreshData, getUnreadMessagesCount, confirmStepAsMentee, unconfirmStepAsMentee } = useData();
   const [refreshing, setRefreshing] = useState(false);
   const [confirmingStep, setConfirmingStep] = useState<string | null>(null);
+  const [hadithOffset, setHadithOffset] = useState(0);
   const onRefresh = useCallback(async () => {
     setRefreshing(true);
     await refreshData();
@@ -625,6 +775,40 @@ function MenteeDashboard() {
       refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor={COLORS.gold} />}
     >
       <View style={styles.page}>
+        {/* Motivation des Tages */}
+        {(() => {
+          const source = hadithe.length > 0 ? hadithe : null;
+          if (!source) return null;
+          const today = new Date();
+          const dayOfYear = Math.floor(
+            (today.getTime() - new Date(today.getFullYear(), 0, 0).getTime()) / 86400000
+          );
+          const baseIdx = dayOfYear % source.length;
+          const idx = (baseIdx + hadithOffset) % source.length;
+          const hadith = source[idx];
+          return (
+            <View style={styles.motivationCard}>
+              <View style={styles.motivationHeader}>
+                <Text style={styles.motivationStar}>★</Text>
+                <Text style={styles.motivationTitle}>{t("motivation.title")}</Text>
+              </View>
+              {hadith.text_ar ? (
+                <Text style={styles.motivationArabic}>{hadith.text_ar}</Text>
+              ) : null}
+              <Text style={styles.motivationText}>"{hadith.text_de}"</Text>
+              {hadith.source ? (
+                <Text style={styles.motivationSource}>{t("motivation.source")}: {hadith.source}</Text>
+              ) : null}
+              <TouchableOpacity
+                style={styles.motivationNextBtn}
+                onPress={() => setHadithOffset((prev) => prev + 1)}
+              >
+                <Text style={styles.motivationNextText}>{t("motivation.next")}</Text>
+              </TouchableOpacity>
+            </View>
+          );
+        })()}
+
         {/* Begrüssung – Hero */}
         <View style={styles.greetingCard}>
           <Text style={styles.greetingSmall}>{t("dashboard.salam")}</Text>
@@ -822,30 +1006,17 @@ function MenteeDashboard() {
               })}
             </View>
 
-            {/* Hadithe-Card */}
-            {(() => {
-              const today = new Date();
-              const dayOfYear = Math.floor(
-                (today.getTime() - new Date(today.getFullYear(), 0, 0).getTime()) / 86400000
-              );
-              const hadith = MOCK_HADITHE[dayOfYear % MOCK_HADITHE.length];
-              return (
-                <TouchableOpacity
-                  style={styles.hadithCard}
-                  onPress={() => router.push("/hadithe")}
-                >
-                  <View style={styles.hadithCardHeader}>
-                    <Text style={styles.hadithStar}>★</Text>
-                    <Text style={styles.hadithCardLabel}>{t("dashboard.hadithOfDay")}</Text>
-                  </View>
-                  <Text style={styles.hadithCardText} numberOfLines={3}>
-                    "{hadith.text}"
-                  </Text>
-                  <Text style={styles.hadithCardQuelle}>— {hadith.quelle}</Text>
-                  <Text style={styles.hadithCardLink}>{t("dashboard.viewAllHadithe")}</Text>
-                </TouchableOpacity>
-              );
-            })()}
+            {/* Hadithe-Link */}
+            <TouchableOpacity
+              style={styles.hadithCard}
+              onPress={() => router.push("/hadithe")}
+            >
+              <View style={styles.hadithCardHeader}>
+                <Text style={styles.hadithStar}>★</Text>
+                <Text style={styles.hadithCardLabel}>{t("dashboard.hadithOfDay")}</Text>
+              </View>
+              <Text style={styles.hadithCardLink}>{t("dashboard.viewAllHadithe")}</Text>
+            </TouchableOpacity>
           </>
         ) : (
           <View style={[styles.card, { padding: 32, alignItems: "center" }]}>
@@ -1405,4 +1576,107 @@ const styles = StyleSheet.create({
   activityTitle: { color: COLORS.primary, fontSize: 13, fontWeight: "500" },
   activitySub: { color: COLORS.tertiary, fontSize: 11, marginTop: 1 },
   activityDate: { color: COLORS.tertiary, fontSize: 11, flexShrink: 0 },
+
+  // Frühwarnungen Widget
+  warningBox: {
+    backgroundColor: "#fff1f2",
+    borderWidth: 1,
+    borderColor: "#fecdd3",
+    borderLeftWidth: 4,
+    borderLeftColor: "#ef4444",
+    borderRadius: 8,
+    padding: 14,
+    marginBottom: 14,
+  },
+  warningHeader: { flexDirection: "row", alignItems: "center", marginBottom: 10, gap: 8 },
+  warningTitle: { fontWeight: "700", color: "#991b1b", fontSize: 14, flex: 1 },
+  warningBadge: {
+    backgroundColor: "#ef4444",
+    borderRadius: 10,
+    minWidth: 22,
+    height: 22,
+    alignItems: "center",
+    justifyContent: "center",
+    paddingHorizontal: 6,
+  },
+  warningBadgeText: { color: COLORS.white, fontSize: 12, fontWeight: "700" },
+  warningRow: { flexDirection: "row", alignItems: "center", paddingVertical: 8, gap: 8 },
+  warningRowBorder: { borderBottomWidth: 1, borderBottomColor: "#fecdd3" },
+  warningDot: { width: 8, height: 8, borderRadius: 4, backgroundColor: "#ef4444", flexShrink: 0 },
+  warningLabel: { color: "#ef4444", fontSize: 11, fontWeight: "600" },
+  warningName: { color: "#7f1d1d", fontSize: 13, fontWeight: "500", marginTop: 1 },
+  warningDays: { color: "#b91c1c", fontSize: 11, flexShrink: 0 },
+  warningArrow: { color: "#b91c1c", fontSize: 16, marginLeft: 4 },
+
+  // Mentor des Monats Card (Admin)
+  momAdminCard: {
+    backgroundColor: "rgba(238,167,27,0.08)",
+    borderWidth: 1,
+    borderColor: "rgba(238,167,27,0.4)",
+    borderLeftWidth: 4,
+    borderLeftColor: COLORS.gold,
+    borderRadius: 8,
+    padding: 16,
+    marginBottom: 14,
+  },
+  momAdminHeader: { flexDirection: "row", alignItems: "center", marginBottom: 6 },
+  momAdminStar: { color: COLORS.gold, fontSize: 18, marginRight: 8 },
+  momAdminTitle: { fontWeight: "700", color: COLORS.secondary, fontSize: 12, letterSpacing: 0.5 },
+  momAdminName: { fontSize: 20, fontWeight: "700", color: COLORS.primary, marginBottom: 12 },
+  momAdminStatsRow: { flexDirection: "row", gap: 10, marginBottom: 10 },
+  momAdminStat: {
+    flex: 1,
+    backgroundColor: COLORS.white,
+    borderRadius: 6,
+    padding: 8,
+    alignItems: "center",
+    borderWidth: 1,
+    borderColor: "rgba(238,167,27,0.3)",
+  },
+  momAdminStatValue: { fontSize: 18, fontWeight: "700", color: COLORS.gold },
+  momAdminStatLabel: { color: COLORS.secondary, fontSize: 10, marginTop: 2 },
+  momAdminArrow: { color: COLORS.link, fontSize: 13, fontWeight: "600" },
+
+  // Motivationscard (Mentee)
+  motivationCard: {
+    backgroundColor: "#0A3A5A",
+    borderWidth: 2,
+    borderColor: "#EEA71B",
+    borderRadius: 10,
+    padding: 16,
+    marginBottom: 16,
+  },
+  motivationHeader: { flexDirection: "row", alignItems: "center", marginBottom: 10 },
+  motivationStar: { color: "#EEA71B", fontSize: 18, marginRight: 8 },
+  motivationTitle: { fontWeight: "700", color: "#EEA71B", fontSize: 14 },
+  motivationArabic: {
+    color: COLORS.white,
+    fontSize: 18,
+    textAlign: "right",
+    lineHeight: 28,
+    marginBottom: 10,
+    fontWeight: "500",
+  },
+  motivationText: {
+    color: COLORS.white,
+    fontSize: 13,
+    lineHeight: 20,
+    fontStyle: "italic",
+    marginBottom: 8,
+  },
+  motivationSource: {
+    color: "rgba(255,255,255,0.55)",
+    fontSize: 11,
+    marginBottom: 12,
+  },
+  motivationNextBtn: {
+    alignSelf: "flex-start",
+    backgroundColor: "rgba(238,167,27,0.15)",
+    borderWidth: 1,
+    borderColor: "#EEA71B",
+    borderRadius: 5,
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+  },
+  motivationNextText: { color: "#EEA71B", fontSize: 12, fontWeight: "600" },
 });

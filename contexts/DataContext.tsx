@@ -31,6 +31,13 @@ import {
 } from "../lib/emailService";
 import { sendLocalNotification } from "../lib/notificationService";
 
+export interface Hadith {
+  id: string;
+  text_de: string;
+  text_ar?: string;
+  source?: string;
+}
+
 export interface DataContextValue {
   // Data
   users: User[];
@@ -41,6 +48,10 @@ export interface DataContextValue {
   messages: Message[];
   applications: MentorApplication[];
   notifications: Notification[];
+  hadithe: Hadith[];
+
+  // App Settings
+  getSetting: (key: string) => string | undefined;
 
   // Mentor des Monats Sichtbarkeit
   mentorOfMonthVisible: boolean;
@@ -174,6 +185,8 @@ export function DataProvider({ children }: { children: ReactNode }) {
   const [applications, setApplications] = useState<MentorApplication[]>([]);
   const [notifications, setNotifications] = useState<Notification[]>([]);
   const [mentorOfMonthVisible, setMentorOfMonthVisible] = useState<boolean>(true);
+  const [hadithe, setHadithe] = useState<Hadith[]>([]);
+  const [appSettings, setAppSettings] = useState<Record<string, string>>({});
   const [isLoading, setIsLoading] = useState(true);
 
   const realtimeChannelRef = useRef<ReturnType<typeof supabase.channel> | null>(null);
@@ -226,6 +239,7 @@ export function DataProvider({ children }: { children: ReactNode }) {
         applicationsRes,
         settingsRes,
         messagesRes,
+        haditheRes,
       ] = await Promise.all([
         supabase.from("profiles").select("*"),
         supabase.from("mentorships").select("*"),
@@ -236,6 +250,7 @@ export function DataProvider({ children }: { children: ReactNode }) {
         supabase.from("mentor_applications").select("*"),
         supabase.from("app_settings").select("*"),
         supabase.from("messages").select("*"),
+        supabase.from("hadithe").select("*"),
       ]);
 
       // Profiles
@@ -342,6 +357,15 @@ export function DataProvider({ children }: { children: ReactNode }) {
         setApplications(apps);
       }
 
+      // App Settings: alle Settings in Map speichern
+      if (settingsRes.data) {
+        const settingsMap: Record<string, string> = {};
+        for (const row of settingsRes.data) {
+          settingsMap[row.key as string] = row.value as string;
+        }
+        setAppSettings(settingsMap);
+      }
+
       // App Settings: mentor_of_month_visible
       if (settingsRes.data) {
         const setting = settingsRes.data.find((s) => s.key === "mentor_of_month_visible");
@@ -369,6 +393,18 @@ export function DataProvider({ children }: { children: ReactNode }) {
           }));
         setMessages(msgs);
       }
+
+      // Hadithe
+      if (haditheRes.data) {
+        const hs: Hadith[] = haditheRes.data.map((row) => ({
+          id: row.id as string,
+          text_de: (row.text_de as string) ?? "",
+          text_ar: (row.text_ar as string) ?? undefined,
+          source: (row.source as string) ?? undefined,
+        }));
+        setHadithe(hs);
+      }
+
       // ─── Reminder-Check (client-seitig, wird später durch Cron ersetzt) ──────
       if (authUser?.role === 'mentor' && mentorshipsRes.data && sessionsRes.data && notificationsRes.data) {
         // Daten direkt aus den frischen Responses verwenden (State noch nicht gesetzt)
@@ -1130,6 +1166,7 @@ export function DataProvider({ children }: { children: ReactNode }) {
   const toggleMentorOfMonth = useCallback(async () => {
     const newValue = !mentorOfMonthVisible;
     setMentorOfMonthVisible(newValue); // Optimistic
+    setAppSettings((prev) => ({ ...prev, mentor_of_month_visible: newValue ? "true" : "false" }));
 
     const { error } = await supabase
       .from("app_settings")
@@ -1138,8 +1175,13 @@ export function DataProvider({ children }: { children: ReactNode }) {
 
     if (error) {
       setMentorOfMonthVisible(!newValue); // Rollback
+      setAppSettings((prev) => ({ ...prev, mentor_of_month_visible: !newValue ? "true" : "false" }));
     }
   }, [mentorOfMonthVisible]);
+
+  const getSetting = useCallback((key: string): string | undefined => {
+    return appSettings[key];
+  }, [appSettings]);
 
   // ─── addUser (für Admin: neuen Mentee ohne Auth anlegen) ──────────────────────
 
@@ -1652,6 +1694,8 @@ export function DataProvider({ children }: { children: ReactNode }) {
         messages,
         applications,
         notifications,
+        hadithe,
+        getSetting,
         mentorOfMonthVisible,
         toggleMentorOfMonth,
         addUser,

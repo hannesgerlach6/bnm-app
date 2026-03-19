@@ -214,8 +214,8 @@ export default function DocumentSessionScreen() {
         setDurationMinutes("");
         showSuccess(t("docSession.historyUpdateSuccess").replace("{0}", typeName));
       } catch (err) {
-        const msg = err instanceof Error ? err.message : "Unbekannter Fehler";
-        showError(`Session konnte nicht aktualisiert werden: ${msg}`);
+        const msg = err instanceof Error ? err.message : t("assign.errorUnknown");
+        showError(t("docSession.errorUpdate").replace("{0}", msg));
       } finally {
         setIsSaving(false);
       }
@@ -275,8 +275,8 @@ export default function DocumentSessionScreen() {
       const typeName = activeSessionType?.name ?? "Session";
       showSuccess(t("docSession.successMsg").replace("{0}", typeName), () => router.back());
     } catch (err) {
-      const msg = err instanceof Error ? err.message : "Unbekannter Fehler";
-      showError(`Session konnte nicht gespeichert werden: ${msg}`);
+      const msg = err instanceof Error ? err.message : t("assign.errorUnknown");
+      showError(t("docSession.errorSave").replace("{0}", msg));
     } finally {
       setIsSaving(false);
     }
@@ -630,8 +630,8 @@ export default function DocumentSessionScreen() {
                           await deleteSession(editingSessionId);
                           showSuccess(t("sessionEdit.deleted"), () => router.back());
                         } catch (err) {
-                          const msg = err instanceof Error ? err.message : "Fehler";
-                          showError(`Session konnte nicht gelöscht werden: ${msg}`);
+                          const msg = err instanceof Error ? err.message : t("assign.errorUnknown");
+                          showError(t("docSession.errorDelete").replace("{0}", msg));
                         }
                       }}
                     >

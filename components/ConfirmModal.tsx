@@ -7,6 +7,7 @@ import {
   Pressable,
 } from "react-native";
 import { COLORS } from "../constants/Colors";
+import { useLanguage } from "../contexts/LanguageContext";
 
 export type ModalType = "confirm" | "info" | "success" | "error";
 
@@ -52,6 +53,7 @@ export function ConfirmModal({
   onConfirm,
   onCancel,
 }: ConfirmModalProps) {
+  const { t } = useLanguage();
   if (!visible) return null;
 
   const isConfirm = type === "confirm";
@@ -72,7 +74,7 @@ export function ConfirmModal({
               onPress={onCancel}
               activeOpacity={0.7}
             >
-              <Text style={styles.cancelButtonText}>Abbrechen</Text>
+              <Text style={styles.cancelButtonText}>{t("common.cancel")}</Text>
             </TouchableOpacity>
           )}
           <TouchableOpacity
@@ -86,7 +88,7 @@ export function ConfirmModal({
             activeOpacity={0.7}
           >
             <Text style={styles.confirmButtonText}>
-              {isConfirm ? "Bestätigen" : "OK"}
+              {isConfirm ? t("common.confirm") : t("common.ok")}
             </Text>
           </TouchableOpacity>
         </View>

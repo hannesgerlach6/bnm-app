@@ -52,7 +52,7 @@ export default function ChatScreen() {
       }, 100);
     } catch {
       setInputText(content); // Text wiederherstellen bei Fehler
-      showError("Nachricht konnte nicht gesendet werden.");
+      showError(t("chat.sendError"));
     }
   }
 

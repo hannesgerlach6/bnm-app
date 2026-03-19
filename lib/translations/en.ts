@@ -146,6 +146,11 @@ const en: Record<TranslationKeys, string> = {
   "common.success": "Success",
   "common.loading": "Loading...",
   "common.noData": "No data available.",
+  "common.ok": "OK",
+  "common.sessions": "Sessions",
+  "common.mentor": "Mentor",
+  "common.unknown": "Unknown",
+  "common.errorPrefix": "Error: {0}",
 
   // Sessions
   "sessions.document": "Document Session",
@@ -1084,6 +1089,115 @@ const en: Record<TranslationKeys, string> = {
   "menteeProgress.confirmText": "Mark \"{0}\" as done?",
   "menteeProgress.unconfirmTitle": "Remove mark",
   "menteeProgress.unconfirmText": "Remove mark for \"{0}\"?",
+
+
+  // Login
+  "login.appSubtitle": "Care for New Muslims",
+
+  // Contact preference labels (for chips)
+  "contactPref.phone": "Phone",
+  "contactPref.whatsapp": "WhatsApp",
+  "contactPref.telegram": "Telegram",
+  "contactPref.email": "Email",
+
+  // Chats – relative time
+  "chats.yesterday": "Yesterday",
+
+  // Reports – months
+  "reports.months.jan": "January",
+  "reports.months.feb": "February",
+  "reports.months.mar": "March",
+  "reports.months.apr": "April",
+  "reports.months.may": "May",
+  "reports.months.jun": "June",
+  "reports.months.jul": "July",
+  "reports.months.aug": "August",
+  "reports.months.sep": "September",
+  "reports.months.oct": "October",
+  "reports.months.nov": "November",
+  "reports.months.dec": "December",
+
+  // Reports – donor dashboard button
+  "reports.donorDashboard": "Donor Report Dashboard →",
+
+  // Assign – match reasons
+  "assign.reasonGenderMatch": "Gender matches",
+  "assign.reasonGenderMismatch": "Gender does not match",
+  "assign.reasonSameCity": "Same city",
+  "assign.reasonSameRegion": "Same region",
+  "assign.reasonAgeSimilar": "Very similar age",
+  "assign.reasonAgeClose": "Similar age",
+  "assign.reasonAgeGroup": "Compatible age group",
+  "assign.reasonSameContact": "Same contact preference",
+  "assign.errorUnknown": "Unknown error",
+
+  // Profile – role labels
+  "profile.roleAdmin": "Administrator",
+  "profile.roleOffice": "Office Staff",
+  "profile.roleMentor": "Mentor",
+  "profile.roleMentee": "Mentee (New Muslim)",
+
+  // Mentees screen
+  "mentees.mentor": "Mentor",
+  "mentees.steps": "Steps",
+
+  // Document session – error messages
+  "docSession.errorUpdate": "Could not update session: {0}",
+  "docSession.errorSave": "Could not save session: {0}",
+  "docSession.errorDelete": "Could not delete session: {0}",
+
+  // Reports – extra
+  "reports.total": "Total",
+
+  // Reports – short month names (for chart labels)
+  "reports.months.jan.short": "Jan",
+  "reports.months.feb.short": "Feb",
+  "reports.months.mar.short": "Mar",
+  "reports.months.apr.short": "Apr",
+  "reports.months.may.short": "May",
+  "reports.months.jun.short": "Jun",
+  "reports.months.jul.short": "Jul",
+  "reports.months.aug.short": "Aug",
+  "reports.months.sep.short": "Sep",
+  "reports.months.oct.short": "Oct",
+  "reports.months.nov.short": "Nov",
+  "reports.months.dec.short": "Dec",
+
+  // Reports – period labels
+  "reports.allPeriods": "All Periods",
+
+  // Donor Dashboard – additional
+  "donorDashboard.periodSection": "PERIOD",
+  "donorDashboard.totalMentees": "Total: {0} Mentees",
+
+  // Applications – account created
+  "applications.accountCreated": "Account created. Login credentials have been sent to the mentee by email.",
+
+  // Settings – account deleted
+  "settings.accountDeleted": "Your account has been successfully deleted.",
+
+  // Chat – send error
+  "chat.sendError": "Could not send message.",
+
+  // Motivation / Hadith of the Day
+  "motivation.title": "Motivation of the Day",
+  "motivation.next": "Next Hadith",
+  "motivation.source": "Source",
+
+  // Settings – Mentor of the Month
+  "settings.showMentorOfMonth": "Show Mentor of the Month",
+  "settings.mentorOfMonthDesc": "Displays the award on the leaderboard and admin dashboard.",
+
+  // Early Warnings
+  "earlyWarning.title": "Early Warnings",
+  "earlyWarning.negativeFeedback": "Negative feedback",
+  "earlyWarning.discrepancy": "Discrepancy",
+  "earlyWarning.inactive": "Mentor inactive",
+  "earlyWarning.noWarnings": "No warnings",
+  "earlyWarning.daysAgo": "{0} days ago",
+
+  // Admin Dashboard – Mentor of the Month Card
+  "dashboard.currentMentorOfMonth": "Current Mentor of the Month",
 };
 
 export default en;

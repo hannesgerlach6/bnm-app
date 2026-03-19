@@ -17,12 +17,7 @@ import { showSuccess } from "../../lib/errorHandler";
 
 // ─── Konstanten ──────────────────────────────────────────────────────────────
 
-const MONTHS_DE = [
-  "Januar", "Februar", "März", "April", "Mai", "Juni",
-  "Juli", "August", "September", "Oktober", "November", "Dezember",
-];
-
-const MONTHS_SHORT = ["Jan", "Feb", "Mrz", "Apr", "Mai", "Jun", "Jul", "Aug", "Sep", "Okt", "Nov", "Dez"];
+// MONTHS_DE and MONTHS_SHORT are now built inside the component using t()
 
 const QUARTERS = [
   { label: "Q1", months: [0, 1, 2] },
@@ -49,18 +44,7 @@ const SESSION_COLORS = [
 type PeriodMode = "all" | "month" | "quarter" | "year";
 
 // ─── Hilfsfunktionen ─────────────────────────────────────────────────────────
-
-function formatPeriodLabel(
-  mode: PeriodMode,
-  year: number,
-  month: number,
-  quarter: number
-): string {
-  if (mode === "all") return "Gesamtzeitraum";
-  if (mode === "month") return `${MONTHS_DE[month]} ${year}`;
-  if (mode === "quarter") return `${QUARTERS[quarter].label} ${year}`;
-  return `Jahr ${year}`;
-}
+// formatPeriodLabel is defined inside the component to access t()
 
 // ─── Diagramm-Komponenten ────────────────────────────────────────────────────
 
@@ -330,6 +314,36 @@ export default function AdminDonorReportScreen() {
   const [selectedMonth, setSelectedMonth] = useState(now.getMonth());
   const [selectedQuarter, setSelectedQuarter] = useState(Math.floor(now.getMonth() / 3));
 
+  // Translated short month names (Jan–Dec) — memoized so useMemo deps stay stable
+  const MONTHS_SHORT = useMemo(() => [
+    t("reports.months.jan.short"), t("reports.months.feb.short"), t("reports.months.mar.short"),
+    t("reports.months.apr.short"), t("reports.months.may.short"), t("reports.months.jun.short"),
+    t("reports.months.jul.short"), t("reports.months.aug.short"), t("reports.months.sep.short"),
+    t("reports.months.oct.short"), t("reports.months.nov.short"), t("reports.months.dec.short"),
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  ], [t]);
+
+  // Translated full month names (for period label in "month" mode)
+  const MONTHS_LONG = useMemo(() => [
+    t("reports.months.jan"), t("reports.months.feb"), t("reports.months.mar"),
+    t("reports.months.apr"), t("reports.months.may"), t("reports.months.jun"),
+    t("reports.months.jul"), t("reports.months.aug"), t("reports.months.sep"),
+    t("reports.months.oct"), t("reports.months.nov"), t("reports.months.dec"),
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  ], [t]);
+
+  function formatPeriodLabel(
+    mode: PeriodMode,
+    year: number,
+    month: number,
+    quarter: number
+  ): string {
+    if (mode === "all") return t("reports.allPeriods");
+    if (mode === "month") return `${MONTHS_LONG[month]} ${year}`;
+    if (mode === "quarter") return `${QUARTERS[quarter].label} ${year}`;
+    return `${t("donorDashboard.periodYear")} ${year}`;
+  }
+
   const isAdminOrOffice = user?.role === "admin" || user?.role === "office";
 
   // Zeitraum-Filterfunktion
@@ -398,7 +412,7 @@ export default function AdminDonorReportScreen() {
         color3: COLORS.error,
       };
     });
-  }, [periodMode, selectedYear, selectedMonth, selectedQuarter, mentorships]);
+  }, [periodMode, selectedYear, selectedMonth, selectedQuarter, mentorships, MONTHS_SHORT]);
 
   // ── Diagramm 2: Session-Verteilung ──
   const sessionDistribution = useMemo(() => {
@@ -460,7 +474,7 @@ export default function AdminDonorReportScreen() {
       cumulative = count;
       return { label, value: cumulative };
     });
-  }, [periodMode, selectedYear, selectedMonth, selectedQuarter, mentorships]);
+  }, [periodMode, selectedYear, selectedMonth, selectedQuarter, mentorships, MONTHS_SHORT]);
 
   // ── Diagramm 4: Regionale Verteilung ──
   const regionalData = useMemo(() => {
@@ -468,7 +482,7 @@ export default function AdminDonorReportScreen() {
     for (const m of mentorships) {
       if (!inPeriod(m.assigned_at)) continue;
       const mentee = users.find((u) => u.id === m.mentee_id);
-      const city = mentee?.city?.trim() || "Unbekannt";
+      const city = mentee?.city?.trim() || t("common.unknown");
       cityMap.set(city, (cityMap.get(city) ?? 0) + 1);
     }
     return [...cityMap.entries()]
@@ -582,7 +596,7 @@ export default function AdminDonorReportScreen() {
         <View style={styles.page}>
           {/* ── Zeitraum-Filter ── */}
           <View style={styles.card}>
-            <Text style={styles.sectionLabel}>ZEITRAUM</Text>
+            <Text style={styles.sectionLabel}>{t("donorDashboard.periodSection")}</Text>
 
             {/* Modi */}
             <View style={styles.modeRow}>
@@ -780,7 +794,7 @@ export default function AdminDonorReportScreen() {
               <>
                 <LineChart data={growthData} height={120} />
                 <Text style={styles.chartFootNote}>
-                  Gesamt: {growthData[growthData.length - 1]?.value ?? 0} Mentees
+                  {t("donorDashboard.totalMentees").replace("{0}", String(growthData[growthData.length - 1]?.value ?? 0))}
                 </Text>
               </>
             )}

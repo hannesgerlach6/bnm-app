@@ -52,8 +52,8 @@ export default function FeedbackScreen() {
     // E-Mail-Benachrichtigung an Admin
     if (mentorship) {
       sendNewFeedbackNotification(
-        mentorship.mentor?.name ?? "Unbekannt",
-        mentorship.mentee?.name ?? "Unbekannt",
+        mentorship.mentor?.name ?? t("common.unknown"),
+        mentorship.mentee?.name ?? t("common.unknown"),
         rating,
         comment.trim() || undefined
       );
