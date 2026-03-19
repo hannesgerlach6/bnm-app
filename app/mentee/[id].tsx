@@ -115,7 +115,7 @@ export default function MenteeDetailScreen() {
             </View>
             <Text style={[styles.profileName, { color: themeColors.text }]}>{mentee.name}</Text>
             <Text style={[styles.profileSub, { color: themeColors.textSecondary }]}>
-              {mentee.city} · {mentee.age} Jahre ·{" "}
+              {mentee.city} · {mentee.age} {t("common.yearsOld")} ·{" "}
               {mentee.gender === "male" ? t("menteeDetail.brother") : t("menteeDetail.sister")}
             </Text>
             <View style={[styles.statusBadge, { backgroundColor: statusBg }]}>

@@ -57,12 +57,12 @@ export default function AdminMentorsScreen() {
 
   function handleExportCsv() {
     try {
-      const header = "Name,E-Mail,Stadt,Alter,Geschlecht,Aktive Betreuungen,Abgeschlossene";
+      const header = t("adminMentors.csvHeaderRow");
       const rows = allMentors.map((mentor) => {
         const myMentorships = mentorships.filter((m) => m.mentor_id === mentor.id);
         const active = myMentorships.filter((m) => m.status === "active").length;
         const completed = myMentorships.filter((m) => m.status === "completed").length;
-        const gender = mentor.gender === "male" ? "Bruder" : "Schwester";
+        const gender = mentor.gender === "male" ? t("adminMentors.csvGenderBrother") : t("adminMentors.csvGenderSister");
         return `"${mentor.name}","${mentor.email}","${mentor.city}",${mentor.age},"${gender}",${active},${completed}`;
       }).join("\n");
       const csvContent = `${header}\n${rows}`;

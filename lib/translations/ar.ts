@@ -8,9 +8,8 @@ const ar: Record<TranslationKeys, string> = {
   "login.password": "كلمة المرور",
   "login.submit": "تسجيل الدخول",
   "login.forgotPassword": "نسيت كلمة المرور؟",
-  "login.registerMentee": "تسجيل المتعلم",
   "login.registerMentor": "التقدم كمرشد",
-  "login.publicRegister": "جديد في الإسلام؟ سجل هنا ←",
+  "login.publicRegister": "سجل الآن ←",
   "login.quickAccess": "وصول سريع (تطوير)",
   "login.errorEmpty": "يرجى إدخال البريد الإلكتروني وكلمة المرور.",
   "login.errorInvalid": "البريد الإلكتروني أو كلمة المرور غير صحيحة.",
@@ -752,6 +751,38 @@ const ar: Record<TranslationKeys, string> = {
   "qa.allCategories": "الكل",
   "qa.noResults": "لم يُعثر على نتائج.",
   "qa.for": "لـ",
+  "qa.frequentQuestions": "أسئلة متكررة",
+  "qa.forMentees": "الأسئلة للمتدربين",
+  "qa.manage": "إدارة الأسئلة",
+  "qa.addNew": "إضافة سؤال جديد",
+  "qa.question": "السؤال",
+  "qa.questionPlaceholder": "سؤالك...",
+  "qa.answer": "الإجابة",
+  "qa.answerPlaceholder": "إجابتك...",
+  "qa.category": "الفئة",
+  "qa.tags": "الوسوم (مفصولة بفاصلة)",
+  "qa.tagsPlaceholder": "مثل: صلاة، فريضة",
+  "qa.published": "منشور",
+  "qa.unpublished": "غير منشور",
+  "qa.save": "حفظ",
+  "qa.saving": "جارٍ الحفظ...",
+  "qa.cancel": "إلغاء",
+  "qa.edit": "تعديل",
+  "qa.delete": "حذف",
+  "qa.deleteTitle": "حذف السؤال",
+  "qa.deleteText": "هل تريد حذف هذا السؤال؟",
+  "qa.deleteSuccess": "تم حذف السؤال.",
+  "qa.saveSuccess": "تم حفظ السؤال.",
+  "qa.errorQuestion": "يرجى إدخال سؤال.",
+  "qa.errorAnswer": "يرجى إدخال إجابة.",
+  "qa.loadError": "تعذر تحميل الأسئلة.",
+  "qa.accessDenied": "متاح فقط للمشرفين والمكتب.",
+  "qa.totalEntries": "{0} إدخالات",
+  "qa.publishToggle": "تبديل النشر",
+  "qa.unpublishedBadge": "غير منشور",
+  "qa.back": "رجوع",
+  "qa.addTitle": "إنشاء سؤال جديد",
+  "qa.editTitle": "تعديل السؤال",
 
   // Reset Password
   "resetPassword.title": "تعيين كلمة مرور جديدة",
@@ -1074,6 +1105,57 @@ const ar: Record<TranslationKeys, string> = {
   "feedback.cancellationTitle": "ملاحظات الإلغاء",
   "feedback.cancellationHelp": "ملاحظاتك تساعدنا على تحسين البرنامج.",
 
+  // لوحة الترتيب – تسميات الميداليات
+  "leaderboard.medalGold": "ذهب",
+  "leaderboard.medalSilver": "فضة",
+  "leaderboard.medalBronze": "برونز",
+
+  // عرض العمر
+  "common.yearsOld": "سنة",
+
+  // بادئة خطأ التعيين
+  "assign.errorAssignment": "فشل التعيين: {0}",
+
+  // التقارير – تصدير CSV (رسالة الجوال)
+  "reports.csvExportSuccess": "تم إنشاء تقرير \"{0}\" بصيغة CSV.\n\nللتنزيل المحلي يلزم expo-sharing (ما بعد الإطلاق).",
+
+  // التقارير – CSV التبرعات
+  "reports.csvMonthColumn": "الشهر",
+  "reports.csvSessionsColumn": "الجلسات",
+  "reports.csvTotalRow": "الإجمالي {0}",
+
+  // تصدير CSV المتدربين
+  "mentees.csvHeaderRow": "الاسم,البريد الإلكتروني,المدينة,العمر,الجنس,الحالة,المرشد,التقدم",
+  "mentees.csvStatusActive": "نشط",
+  "mentees.csvStatusCompleted": "مكتمل",
+  "mentees.csvStatusCancelled": "ملغى",
+  "mentees.csvStatusOpen": "مفتوح",
+  "mentees.csvGenderBrother": "أخ",
+  "mentees.csvGenderSister": "أخت",
+  "mentees.sessionCountOne": "جلسة {0} موثقة",
+  "mentees.sessionCountMany": "{0} جلسات موثقة",
+
+  // تصدير CSV المرشدين (الإدارة)
+  "adminMentors.csvHeaderRow": "الاسم,البريد الإلكتروني,المدينة,العمر,الجنس,الإرشادات النشطة,المكتملة",
+  "adminMentors.csvGenderBrother": "أخ",
+  "adminMentors.csvGenderSister": "أخت",
+
+  // تقرير المتبرع CSV
+  "donorReport.csvTitle": "تقرير متبرعي BNM",
+  "donorReport.csvKpisSection": "المؤشرات",
+  "donorReport.csvKpisHeader": "الفترة,الإرشادات النشطة,التسجيلات الجديدة,المكتملة,صناديق BNM,المرشدون النشطون",
+  "donorReport.csvRegionalSection": "التوزيع الإقليمي",
+  "donorReport.csvRegionalHeader": "المدينة,الإرشادات",
+  "donorReport.csvSessionsSection": "توزيع الجلسات",
+  "donorReport.csvSessionsHeader": "نوع الجلسة,العدد",
+  "donorReport.csvMobileSuccess": "تم إنشاء CSV ({0})\n\nللتنزيل المحلي: expo-sharing (ما بعد الإطلاق).",
+
+  // التقارير – عنوان CSV الرئيسي
+  "reports.csvKpiHeader": "الفترة,إرشادات جديدة,أول تواصل,أول لقاء,صناديق BNM,الجلسات,الإتمام,الإلغاءات,جلسات الوضوء,جلسات الصلاة,جلسات القرآن,المتابعة",
+
+  // تعديل المستخدم – تسمية القسم
+  "editUser.profileDataLabel": "بيانات الملف الشخصي",
+
   // تقدم المتدرب (نظام التحقق)
   "menteeProgress.title": "تقدمي",
   "menteeProgress.completed": "تم التأكيد من المرشد",
@@ -1208,6 +1290,26 @@ const ar: Record<TranslationKeys, string> = {
   // بانر الملاحظات للمُتَدرِّب
   "feedbackBanner.title": "يرجى تقديم ملاحظاتك حول الإرشاد",
   "feedbackBanner.button": "أرسل ملاحظاتك الآن",
+
+  // الأحاديث – حالة فارغة
+  "hadithe.empty": "لا توجد أحاديث متاحة",
+
+  // DatePicker – أسماء الأشهر (الجوال)
+  "datePicker.month.1": "يناير",
+  "datePicker.month.2": "فبراير",
+  "datePicker.month.3": "مارس",
+  "datePicker.month.4": "أبريل",
+  "datePicker.month.5": "مايو",
+  "datePicker.month.6": "يونيو",
+  "datePicker.month.7": "يوليو",
+  "datePicker.month.8": "أغسطس",
+  "datePicker.month.9": "سبتمبر",
+  "datePicker.month.10": "أكتوبر",
+  "datePicker.month.11": "نوفمبر",
+  "datePicker.month.12": "ديسمبر",
+  "datePicker.labelDay": "يوم",
+  "datePicker.labelMonth": "شهر",
+  "datePicker.labelYear": "سنة",
 };
 
 export default ar;

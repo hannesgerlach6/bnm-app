@@ -387,7 +387,7 @@ function ApplicationCard({
         <View style={{ flex: 1 }}>
           <Text style={[styles.applicantName, { color: themeColors.text }]}>{application.name}</Text>
           <Text style={[styles.applicantSub, { color: themeColors.textTertiary }]}>
-            {application.city} · {genderLabel} · {application.age} Jahre
+            {application.city} · {genderLabel} · {application.age} {t("common.yearsOld")}
           </Text>
         </View>
         <View style={[styles.statusBadge, { backgroundColor: statusBg }]}>

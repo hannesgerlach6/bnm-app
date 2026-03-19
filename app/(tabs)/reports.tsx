@@ -172,7 +172,7 @@ export default function ReportsScreen() {
   }, [periodMode, selectedMonth, selectedQuarter, selectedYear]);
 
   function handleExport() {
-    const header = "Zeitraum,Neue Betreuungen,Erstkontakte,Ersttreffen,BNM-Boxen,Sessions,Abschlüsse,Abbrüche,Wudu-Sessions,Salah-Sessions,Koran-Sessions,Nachbetreuungen";
+    const header = t("reports.csvKpiHeader");
     const row = [
       `"${periodLabel}"`,
       kpis.totalAssigned,
@@ -200,15 +200,15 @@ export default function ReportsScreen() {
       document.body.removeChild(link);
       URL.revokeObjectURL(url);
     } else {
-      showSuccess(`Der Bericht für "${periodLabel}" wurde als CSV generiert.\n\nFür nativen Download wird expo-sharing benötigt (Post-Launch).`);
+      showSuccess(t("reports.csvExportSuccess").replace("{0}", periodLabel));
     }
   }
 
   function handleSpendenReport() {
-    const header = "Monat,Sessions";
+    const header = `${t("reports.csvMonthColumn")},${t("reports.csvSessionsColumn")}`;
     const rows = monthlyData.map((d) => `"${d.month} ${selectedYear}",${d.count}`).join("\n");
     const total = monthlyData.reduce((s, d) => s + d.count, 0);
-    const sumRow = `"GESAMT ${selectedYear}",${total}`;
+    const sumRow = `"${t("reports.csvTotalRow").replace("{0}", String(selectedYear))}",${total}`;
     const csvContent = `${header}\n${rows}\n${sumRow}`;
 
     if (Platform.OS === "web") {

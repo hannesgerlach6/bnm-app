@@ -470,6 +470,18 @@ function AdminDashboard({ showSystemSettings = true }: { showSystemSettings?: bo
           <Text style={[styles.applicationsArrow, { color: themeColors.textTertiary }]}>›</Text>
         </TouchableOpacity>
 
+        {/* Q&A verwalten */}
+        <TouchableOpacity
+          style={[styles.applicationsButton, { backgroundColor: themeColors.card }]}
+          onPress={() => router.push("/admin/qa-management" as never)}
+        >
+          <View style={styles.applicationsButtonContent}>
+            <Text style={[styles.applicationsButtonText, { color: themeColors.text }]}>{t("qa.manage")}</Text>
+            <Text style={[styles.applicationsButtonSub, { color: themeColors.textTertiary }]}>{t("qa.subtitle")}</Text>
+          </View>
+          <Text style={[styles.applicationsArrow, { color: themeColors.textTertiary }]}>›</Text>
+        </TouchableOpacity>
+
         {/* Letzte Aktivitäten */}
         <View style={[styles.card, { backgroundColor: themeColors.card }]}>
           <Text style={[styles.cardTitle, { color: themeColors.text }]}>{t("dashboard.recentActivity")}</Text>
@@ -727,6 +739,18 @@ function MentorDashboard() {
           </View>
           <Text style={[styles.goldBoxText, { color: themeColors.textSecondary }]}>{t("dashboard.mentorOfMonthText")}</Text>
         </View>
+
+        {/* Q&A für Mentees */}
+        <TouchableOpacity
+          style={[styles.applicationsButton, { backgroundColor: themeColors.card, marginTop: 4 }]}
+          onPress={() => router.push("/qa" as never)}
+        >
+          <View style={styles.applicationsButtonContent}>
+            <Text style={[styles.applicationsButtonText, { color: themeColors.text }]}>{t("qa.forMentees")}</Text>
+            <Text style={[styles.applicationsButtonSub, { color: themeColors.textTertiary }]}>{t("qa.subtitle")}</Text>
+          </View>
+          <Text style={[styles.applicationsArrow, { color: themeColors.textTertiary }]}>›</Text>
+        </TouchableOpacity>
       </View>
     </ScrollView>
   );
@@ -1043,6 +1067,18 @@ function MenteeDashboard() {
                 <Text style={styles.hadithCardLabel}>{t("dashboard.hadithOfDay")}</Text>
               </View>
               <Text style={styles.hadithCardLink}>{t("dashboard.viewAllHadithe")}</Text>
+            </TouchableOpacity>
+
+            {/* Häufige Fragen */}
+            <TouchableOpacity
+              style={[styles.applicationsButton, { backgroundColor: themeColors.card, marginTop: 4 }]}
+              onPress={() => router.push("/qa" as never)}
+            >
+              <View style={styles.applicationsButtonContent}>
+                <Text style={[styles.applicationsButtonText, { color: themeColors.text }]}>{t("qa.frequentQuestions")}</Text>
+                <Text style={[styles.applicationsButtonSub, { color: themeColors.textTertiary }]}>{t("qa.subtitle")}</Text>
+              </View>
+              <Text style={[styles.applicationsArrow, { color: themeColors.textTertiary }]}>›</Text>
             </TouchableOpacity>
           </>
         ) : (

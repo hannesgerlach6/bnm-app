@@ -140,18 +140,20 @@ export default function LoginScreen() {
             )}
           </TouchableOpacity>
 
-          {/* Registrierungs-Links */}
+          {/* Registrierungs-CTA */}
+          <TouchableOpacity
+            style={styles.publicRegisterButton}
+            onPress={() => router.push("/(auth)/register-public")}
+          >
+            <Text style={styles.publicRegisterText}>{t("login.publicRegister")}</Text>
+          </TouchableOpacity>
+
+          {/* Mentor-Bewerbung */}
           <View style={styles.registerRow}>
-            <TouchableOpacity
-              onPress={() => router.push("/(auth)/register-public")}
-            >
-              <Text style={[styles.linkText, { color: themeColors.link }]}>{t("login.publicRegister")}</Text>
-            </TouchableOpacity>
-            <Text style={[styles.divider, { color: themeColors.textTertiary }]}>|</Text>
             <TouchableOpacity
               onPress={() => router.push("/(auth)/register-mentor")}
             >
-              <Text style={[styles.linkText, { color: themeColors.link }]}>{t("login.registerMentor")}</Text>
+              <Text style={[styles.linkText, { color: themeColors.textTertiary }]}>{t("login.registerMentor")}</Text>
             </TouchableOpacity>
           </View>
 

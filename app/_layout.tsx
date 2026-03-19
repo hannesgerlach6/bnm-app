@@ -311,6 +311,18 @@ function RootLayoutInner() {
             headerShown: false,
           }}
         />
+        <Stack.Screen
+          name="qa"
+          options={{
+            headerShown: false,
+          }}
+        />
+        <Stack.Screen
+          name="admin/qa-management"
+          options={{
+            headerShown: false,
+          }}
+        />
       </Stack>
     </NavigationThemeProvider>
   );

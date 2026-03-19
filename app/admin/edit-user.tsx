@@ -170,7 +170,7 @@ function EditUserForm({ userId }: { userId: string }) {
           </View>
 
           {/* Formular */}
-          <Text style={[styles.sectionLabel, { color: themeColors.textTertiary }]}>PROFILDATEN</Text>
+          <Text style={[styles.sectionLabel, { color: themeColors.textTertiary }]}>{t("editUser.profileDataLabel")}</Text>
 
           <FormField label={t("editUser.name")} error={errors.name}>
             <TextInput

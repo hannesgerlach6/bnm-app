@@ -152,7 +152,7 @@ export default function AssignScreen() {
       }
     } catch (err) {
       const msg = err instanceof Error ? err.message : t("assign.errorUnknown");
-      showError(`Zuweisung fehlgeschlagen: ${msg}`);
+      showError(t("assign.errorAssignment").replace("{0}", msg));
     } finally {
       setIsAssigning(false);
     }

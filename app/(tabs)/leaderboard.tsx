@@ -27,7 +27,6 @@ interface MentorScore {
 }
 
 const MEDAL_COLORS = ["#EEA71B", "#9CA3AF", "#CD7F32"] as const;
-const MEDAL_LABELS = ["Gold", "Silber", "Bronze"] as const;
 const MEDAL_EMOJIS = ["🥇", "🥈", "🥉"] as const;
 
 type GenderFilter = "all" | "male" | "female";
@@ -279,7 +278,7 @@ export default function LeaderboardScreen() {
                         )}
                         {isTop3 && (
                           <View style={[styles.medalChip, { backgroundColor: medalColor }]}>
-                            <Text style={styles.medalChipText}>{MEDAL_LABELS[index]}</Text>
+                            <Text style={styles.medalChipText}>{[t("leaderboard.medalGold"), t("leaderboard.medalSilver"), t("leaderboard.medalBronze")][index]}</Text>
                           </View>
                         )}
                       </View>

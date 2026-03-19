@@ -39,6 +39,18 @@ export interface Hadith {
   source?: string;
 }
 
+export interface QAEntry {
+  id: string;
+  question: string;
+  answer: string;
+  category: string;
+  tags: string[];
+  is_published: boolean;
+  created_by?: string;
+  created_at: string;
+  updated_at: string;
+}
+
 export interface DataContextValue {
   // Data
   users: User[];
@@ -50,6 +62,7 @@ export interface DataContextValue {
   applications: MentorApplication[];
   notifications: Notification[];
   hadithe: Hadith[];
+  qaEntries: QAEntry[];
 
   // App Settings
   getSetting: (key: string) => string | undefined;
@@ -107,6 +120,12 @@ export interface DataContextValue {
   // Mentee step confirmation
   confirmStepAsMentee: (mentorshipId: string, sessionTypeId: string) => Promise<void>;
   unconfirmStepAsMentee: (mentorshipId: string, sessionTypeId: string) => Promise<void>;
+
+  // Q&A actions
+  loadQAEntries: () => Promise<void>;
+  addQAEntry: (entry: Omit<QAEntry, "id" | "created_at" | "updated_at">) => Promise<void>;
+  updateQAEntry: (id: string, data: Partial<Omit<QAEntry, "id" | "created_at" | "updated_at">>) => Promise<void>;
+  deleteQAEntry: (id: string) => Promise<void>;
 
   // Computed helpers
   getMentorshipsByMentorId: (mentorId: string) => Mentorship[];
@@ -187,6 +206,7 @@ export function DataProvider({ children }: { children: ReactNode }) {
   const [notifications, setNotifications] = useState<Notification[]>([]);
   const [mentorOfMonthVisible, setMentorOfMonthVisible] = useState<boolean>(true);
   const [hadithe, setHadithe] = useState<Hadith[]>([]);
+  const [qaEntries, setQAEntries] = useState<QAEntry[]>([]);
   const [appSettings, setAppSettings] = useState<Record<string, string>>({});
   const [isLoading, setIsLoading] = useState(true);
 
@@ -241,6 +261,7 @@ export function DataProvider({ children }: { children: ReactNode }) {
         settingsRes,
         messagesRes,
         haditheRes,
+        qaEntriesRes,
       ] = await Promise.all([
         supabase.from("profiles").select("*"),
         supabase.from("mentorships").select("*"),
@@ -252,6 +273,7 @@ export function DataProvider({ children }: { children: ReactNode }) {
         supabase.from("app_settings").select("*"),
         supabase.from("messages").select("*"),
         supabase.from("hadithe").select("*"),
+        supabase.from("qa_entries").select("*").order("created_at", { ascending: true }),
       ]);
 
       // Profiles
@@ -404,6 +426,22 @@ export function DataProvider({ children }: { children: ReactNode }) {
           source: (row.source as string) ?? undefined,
         }));
         setHadithe(hs);
+      }
+
+      // Q&A Einträge
+      if (qaEntriesRes.data) {
+        const entries: QAEntry[] = qaEntriesRes.data.map((row) => ({
+          id: row.id as string,
+          question: row.question as string,
+          answer: row.answer as string,
+          category: (row.category as string) ?? "allgemein",
+          tags: (row.tags as string[]) ?? [],
+          is_published: (row.is_published as boolean) ?? true,
+          created_by: (row.created_by as string) ?? undefined,
+          created_at: row.created_at as string,
+          updated_at: row.updated_at as string,
+        }));
+        setQAEntries(entries);
       }
 
       // ─── Reminder-Check (client-seitig, wird später durch Cron ersetzt) ──────
@@ -1585,6 +1623,86 @@ export function DataProvider({ children }: { children: ReactNode }) {
     );
   }, [mentorships]);
 
+  // ─── Q&A Actions ──────────────────────────────────────────────────────────────
+
+  const loadQAEntries = useCallback(async () => {
+    const { data, error } = await supabase.from("qa_entries").select("*").order("created_at", { ascending: true });
+    if (error || !data) return;
+    const entries: QAEntry[] = data.map((row) => ({
+      id: row.id as string,
+      question: row.question as string,
+      answer: row.answer as string,
+      category: (row.category as string) ?? "allgemein",
+      tags: (row.tags as string[]) ?? [],
+      is_published: (row.is_published as boolean) ?? true,
+      created_by: (row.created_by as string) ?? undefined,
+      created_at: row.created_at as string,
+      updated_at: row.updated_at as string,
+    }));
+    setQAEntries(entries);
+  }, []);
+
+  const addQAEntry = useCallback(
+    async (entry: Omit<QAEntry, "id" | "created_at" | "updated_at">) => {
+      const { data, error } = await supabase
+        .from("qa_entries")
+        .insert({
+          question: entry.question,
+          answer: entry.answer,
+          category: entry.category,
+          tags: entry.tags ?? [],
+          is_published: entry.is_published,
+          created_by: entry.created_by ?? null,
+        })
+        .select()
+        .single();
+
+      if (error || !data) {
+        throw new Error(error?.message ?? "Q&A-Eintrag konnte nicht gespeichert werden");
+      }
+
+      const newEntry: QAEntry = {
+        id: data.id,
+        question: data.question,
+        answer: data.answer,
+        category: data.category ?? "allgemein",
+        tags: data.tags ?? [],
+        is_published: data.is_published ?? true,
+        created_by: data.created_by ?? undefined,
+        created_at: data.created_at,
+        updated_at: data.updated_at,
+      };
+      setQAEntries((prev) => [...prev, newEntry]);
+    },
+    []
+  );
+
+  const updateQAEntry = useCallback(
+    async (id: string, data: Partial<Omit<QAEntry, "id" | "created_at" | "updated_at">>) => {
+      const { error } = await supabase
+        .from("qa_entries")
+        .update({ ...data, updated_at: new Date().toISOString() })
+        .eq("id", id);
+
+      if (error) {
+        throw new Error(error.message);
+      }
+
+      setQAEntries((prev) =>
+        prev.map((e) => (e.id === id ? { ...e, ...data, updated_at: new Date().toISOString() } : e))
+      );
+    },
+    []
+  );
+
+  const deleteQAEntry = useCallback(async (id: string) => {
+    const { error } = await supabase.from("qa_entries").delete().eq("id", id);
+    if (error) {
+      throw new Error(error.message);
+    }
+    setQAEntries((prev) => prev.filter((e) => e.id !== id));
+  }, []);
+
   // ─── refreshData ──────────────────────────────────────────────────────────────
 
   // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -1705,6 +1823,11 @@ export function DataProvider({ children }: { children: ReactNode }) {
         applications,
         notifications,
         hadithe,
+        qaEntries,
+        loadQAEntries,
+        addQAEntry,
+        updateQAEntry,
+        deleteQAEntry,
         getSetting,
         mentorOfMonthVisible,
         toggleMentorOfMonth,

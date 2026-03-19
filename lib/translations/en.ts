@@ -8,9 +8,8 @@ const en: Record<TranslationKeys, string> = {
   "login.password": "Password",
   "login.submit": "Sign In",
   "login.forgotPassword": "Forgot password?",
-  "login.registerMentee": "Register Mentee",
   "login.registerMentor": "Apply as Mentor",
-  "login.publicRegister": "New to Islam? Register here →",
+  "login.publicRegister": "Register now →",
   "login.quickAccess": "QUICK ACCESS (DEV)",
   "login.errorEmpty": "Please enter your email and password.",
   "login.errorInvalid": "Email or password is incorrect.",
@@ -752,6 +751,38 @@ const en: Record<TranslationKeys, string> = {
   "qa.allCategories": "All",
   "qa.noResults": "No results found.",
   "qa.for": "for",
+  "qa.frequentQuestions": "Frequently Asked Questions",
+  "qa.forMentees": "Q&A for Mentees",
+  "qa.manage": "Manage Q&A",
+  "qa.addNew": "Add New Question",
+  "qa.question": "Question",
+  "qa.questionPlaceholder": "Your question...",
+  "qa.answer": "Answer",
+  "qa.answerPlaceholder": "Your answer...",
+  "qa.category": "Category",
+  "qa.tags": "Tags (comma-separated)",
+  "qa.tagsPlaceholder": "e.g. prayer, obligation",
+  "qa.published": "Published",
+  "qa.unpublished": "Unpublished",
+  "qa.save": "Save",
+  "qa.saving": "Saving...",
+  "qa.cancel": "Cancel",
+  "qa.edit": "Edit",
+  "qa.delete": "Delete",
+  "qa.deleteTitle": "Delete Question",
+  "qa.deleteText": "Really delete this question?",
+  "qa.deleteSuccess": "Question deleted.",
+  "qa.saveSuccess": "Question saved.",
+  "qa.errorQuestion": "Please enter a question.",
+  "qa.errorAnswer": "Please enter an answer.",
+  "qa.loadError": "Could not load Q&A.",
+  "qa.accessDenied": "Only accessible to Admins and Office.",
+  "qa.totalEntries": "{0} entries",
+  "qa.publishToggle": "Toggle publication",
+  "qa.unpublishedBadge": "Unpublished",
+  "qa.back": "Back",
+  "qa.addTitle": "Create New Question",
+  "qa.editTitle": "Edit Question",
 
   // Reset Password
   "resetPassword.title": "Set New Password",
@@ -1208,6 +1239,77 @@ const en: Record<TranslationKeys, string> = {
   // Feedback Banner for Mentee
   "feedbackBanner.title": "Please give feedback on your mentorship",
   "feedbackBanner.button": "Give Feedback Now",
+
+  // Leaderboard – medal labels
+  "leaderboard.medalGold": "Gold",
+  "leaderboard.medalSilver": "Silver",
+  "leaderboard.medalBronze": "Bronze",
+
+  // Age display
+  "common.yearsOld": "years",
+
+  // Assignment error prefix
+  "assign.errorAssignment": "Assignment failed: {0}",
+
+  // Reports – CSV export (mobile message)
+  "reports.csvExportSuccess": "The report for \"{0}\" was generated as CSV.\n\nFor native download expo-sharing is required (post-launch).",
+
+  // Reports – donation CSV
+  "reports.csvMonthColumn": "Month",
+  "reports.csvSessionsColumn": "Sessions",
+  "reports.csvTotalRow": "TOTAL {0}",
+
+  // Mentees CSV export
+  "mentees.csvHeaderRow": "Name,E-Mail,City,Age,Gender,Status,Mentor,Progress",
+  "mentees.csvStatusActive": "Active",
+  "mentees.csvStatusCompleted": "Completed",
+  "mentees.csvStatusCancelled": "Cancelled",
+  "mentees.csvStatusOpen": "Open",
+  "mentees.csvGenderBrother": "Brother",
+  "mentees.csvGenderSister": "Sister",
+  "mentees.sessionCountOne": "{0} session documented",
+  "mentees.sessionCountMany": "{0} sessions documented",
+
+  // Admin mentors CSV export
+  "adminMentors.csvHeaderRow": "Name,E-Mail,City,Age,Gender,Active Mentorships,Completed",
+  "adminMentors.csvGenderBrother": "Brother",
+  "adminMentors.csvGenderSister": "Sister",
+
+  // Donor report CSV
+  "donorReport.csvTitle": "BNM Donor Report",
+  "donorReport.csvKpisSection": "KEY FIGURES",
+  "donorReport.csvKpisHeader": "Period,Active Mentorships,New Registrations,Completed,BNM Boxes,Active Mentors",
+  "donorReport.csvRegionalSection": "REGIONAL DISTRIBUTION",
+  "donorReport.csvRegionalHeader": "City,Mentorships",
+  "donorReport.csvSessionsSection": "SESSION DISTRIBUTION",
+  "donorReport.csvSessionsHeader": "Session Type,Count",
+  "donorReport.csvMobileSuccess": "CSV generated ({0})\n\nFor native download: expo-sharing (post-launch).",
+
+  // Reports – main KPI CSV header
+  "reports.csvKpiHeader": "Period,New Mentorships,First Contacts,First Meetings,BNM Boxes,Sessions,Completions,Cancellations,Wudu Sessions,Salah Sessions,Quran Sessions,Follow-up",
+
+  // Edit user – section label
+  "editUser.profileDataLabel": "PROFILE DATA",
+
+  // Hadiths – empty state
+  "hadithe.empty": "No hadiths available",
+
+  // DatePicker – month names (Mobile)
+  "datePicker.month.1": "January",
+  "datePicker.month.2": "February",
+  "datePicker.month.3": "March",
+  "datePicker.month.4": "April",
+  "datePicker.month.5": "May",
+  "datePicker.month.6": "June",
+  "datePicker.month.7": "July",
+  "datePicker.month.8": "August",
+  "datePicker.month.9": "September",
+  "datePicker.month.10": "October",
+  "datePicker.month.11": "November",
+  "datePicker.month.12": "December",
+  "datePicker.labelDay": "Day",
+  "datePicker.labelMonth": "Month",
+  "datePicker.labelYear": "Year",
 };
 
 export default en;

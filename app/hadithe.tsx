@@ -5,11 +5,12 @@ import {
   ScrollView,
   TouchableOpacity,
   StyleSheet,
+  ActivityIndicator,
 } from "react-native";
 import { showSuccess } from "../lib/errorHandler";
 import { useRouter } from "expo-router";
 import { COLORS } from "../constants/Colors";
-import { MOCK_HADITHE } from "../data/mockData";
+import { useData } from "../contexts/DataContext";
 import { useLanguage } from "../contexts/LanguageContext";
 import { useThemeColors } from "../contexts/ThemeContext";
 
@@ -17,19 +18,20 @@ export default function HaditheScreen() {
   const router = useRouter();
   const { t } = useLanguage();
   const themeColors = useThemeColors();
+  const { hadithe, isLoading } = useData();
 
   // "Hadith des Tages" basierend auf aktuellem Datum (modulo Anzahl)
   const today = new Date();
   const dayOfYear = Math.floor(
     (today.getTime() - new Date(today.getFullYear(), 0, 0).getTime()) / 86400000
   );
-  const todayHadithIndex = dayOfYear % MOCK_HADITHE.length;
-  const todayHadith = MOCK_HADITHE[todayHadithIndex];
+  const todayHadithIndex = hadithe.length > 0 ? dayOfYear % hadithe.length : 0;
+  const todayHadith = hadithe.length > 0 ? hadithe[todayHadithIndex] : null;
 
   // Alle anderen Hadithe (außer dem heutigen)
   const otherHadithe = useMemo(() => {
-    return MOCK_HADITHE.filter((_, idx) => idx !== todayHadithIndex);
-  }, [todayHadithIndex]);
+    return hadithe.filter((_, idx) => idx !== todayHadithIndex);
+  }, [hadithe, todayHadithIndex]);
 
   function handleShare(text: string, quelle: string) {
     showSuccess(`"${text}"\n\n— ${quelle}\n\n(${t("hadithe.shareNotice")})`);
@@ -49,38 +51,64 @@ export default function HaditheScreen() {
           {t("hadithe.subtitle")}
         </Text>
 
-        {/* Hadith des Tages */}
-        <View style={styles.todayCard}>
-          <View style={styles.todayHeader}>
-            <Text style={styles.todayStar}>★</Text>
-            <Text style={styles.todayLabel}>{t("hadithe.todayLabel")}</Text>
+        {/* Ladezustand */}
+        {isLoading && (
+          <View style={styles.loadingContainer}>
+            <ActivityIndicator size="large" color={COLORS.primary} />
           </View>
-          <Text style={styles.todayText}>"{todayHadith.text}"</Text>
-          <Text style={styles.todayQuelle}>— {todayHadith.quelle}</Text>
-          <TouchableOpacity
-            style={styles.shareButton}
-            onPress={() => handleShare(todayHadith.text, todayHadith.quelle)}
-          >
-            <Text style={styles.shareButtonText}>{t("hadithe.share")}</Text>
-          </TouchableOpacity>
-        </View>
+        )}
+
+        {/* Keine Daten */}
+        {!isLoading && hadithe.length === 0 && (
+          <View style={[styles.emptyContainer, { backgroundColor: themeColors.card, borderColor: themeColors.border }]}>
+            <Text style={[styles.emptyText, { color: themeColors.textSecondary }]}>
+              {t("hadithe.empty")}
+            </Text>
+          </View>
+        )}
+
+        {/* Hadith des Tages */}
+        {!isLoading && todayHadith && (
+          <View style={styles.todayCard}>
+            <View style={styles.todayHeader}>
+              <Text style={styles.todayStar}>★</Text>
+              <Text style={styles.todayLabel}>{t("hadithe.todayLabel")}</Text>
+            </View>
+            <Text style={styles.todayText}>"{todayHadith.text_de}"</Text>
+            {todayHadith.source && (
+              <Text style={styles.todayQuelle}>— {todayHadith.source}</Text>
+            )}
+            <TouchableOpacity
+              style={styles.shareButton}
+              onPress={() => handleShare(todayHadith.text_de, todayHadith.source ?? "")}
+            >
+              <Text style={styles.shareButtonText}>{t("hadithe.share")}</Text>
+            </TouchableOpacity>
+          </View>
+        )}
 
         {/* Weitere Hadithe */}
-        <Text style={[styles.sectionLabel, { color: themeColors.textTertiary }]}>{t("hadithe.moreHadithe")}</Text>
-        {otherHadithe.map((hadith, idx) => (
-          <View key={idx} style={[styles.hadithCard, { backgroundColor: themeColors.card, borderColor: themeColors.border }]}>
-            <Text style={[styles.hadithText, { color: themeColors.text }]}>"{hadith.text}"</Text>
-            <View style={[styles.hadithFooter, { borderTopColor: themeColors.border }]}>
-              <Text style={[styles.hadithQuelle, { color: themeColors.textTertiary }]}>— {hadith.quelle}</Text>
-              <TouchableOpacity
-                style={[styles.hadithShareButton, { backgroundColor: themeColors.background, borderColor: themeColors.border }]}
-                onPress={() => handleShare(hadith.text, hadith.quelle)}
-              >
-                <Text style={[styles.hadithShareText, { color: themeColors.textSecondary }]}>{t("hadithe.share")}</Text>
-              </TouchableOpacity>
-            </View>
-          </View>
-        ))}
+        {!isLoading && otherHadithe.length > 0 && (
+          <>
+            <Text style={[styles.sectionLabel, { color: themeColors.textTertiary }]}>{t("hadithe.moreHadithe")}</Text>
+            {otherHadithe.map((hadith) => (
+              <View key={hadith.id} style={[styles.hadithCard, { backgroundColor: themeColors.card, borderColor: themeColors.border }]}>
+                <Text style={[styles.hadithText, { color: themeColors.text }]}>"{hadith.text_de}"</Text>
+                <View style={[styles.hadithFooter, { borderTopColor: themeColors.border }]}>
+                  <Text style={[styles.hadithQuelle, { color: themeColors.textTertiary }]}>
+                    {hadith.source ? `— ${hadith.source}` : ""}
+                  </Text>
+                  <TouchableOpacity
+                    style={[styles.hadithShareButton, { backgroundColor: themeColors.background, borderColor: themeColors.border }]}
+                    onPress={() => handleShare(hadith.text_de, hadith.source ?? "")}
+                  >
+                    <Text style={[styles.hadithShareText, { color: themeColors.textSecondary }]}>{t("hadithe.share")}</Text>
+                  </TouchableOpacity>
+                </View>
+              </View>
+            ))}
+          </>
+        )}
       </View>
     </ScrollView>
   );
@@ -94,6 +122,23 @@ const styles = StyleSheet.create({
   backText: { fontWeight: "600", fontSize: 16 },
   pageTitle: { fontSize: 24, fontWeight: "bold", marginBottom: 4 },
   pageSubtitle: { fontSize: 14, marginBottom: 24 },
+
+  loadingContainer: {
+    alignItems: "center",
+    paddingVertical: 48,
+  },
+
+  emptyContainer: {
+    borderRadius: 8,
+    borderWidth: 1,
+    padding: 24,
+    alignItems: "center",
+    marginBottom: 16,
+  },
+  emptyText: {
+    fontSize: 14,
+    textAlign: "center",
+  },
 
   todayCard: {
     backgroundColor: COLORS.primary,
@@ -146,7 +191,7 @@ const styles = StyleSheet.create({
     borderTopWidth: 1,
     paddingTop: 10,
   },
-  hadithQuelle: { fontSize: 12 },
+  hadithQuelle: { fontSize: 12, flex: 1 },
   hadithShareButton: {
     borderWidth: 1,
     borderRadius: 8,

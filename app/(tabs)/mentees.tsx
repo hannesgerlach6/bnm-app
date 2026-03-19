@@ -55,20 +55,20 @@ function AdminMenteesView() {
 
   function handleExportCsv() {
     try {
-      const header = "Name,E-Mail,Stadt,Alter,Geschlecht,Status,Mentor,Fortschritt";
+      const header = t("mentees.csvHeaderRow");
       const rows = allMentees.map((mentee) => {
         const mentorship = mentorships.find((m) => m.mentee_id === mentee.id);
         const status = mentorship
-          ? mentorship.status === "active" ? "Aktiv"
-          : mentorship.status === "completed" ? "Abgeschlossen"
-          : "Abgebrochen"
-          : "Offen";
+          ? mentorship.status === "active" ? t("mentees.csvStatusActive")
+          : mentorship.status === "completed" ? t("mentees.csvStatusCompleted")
+          : t("mentees.csvStatusCancelled")
+          : t("mentees.csvStatusOpen");
         const mentorName = mentorship?.mentor?.name ?? "";
         const completedSteps = mentorship ? getCompletedStepIds(mentorship.id).length : 0;
         const progress = sessionTypes.length > 0
           ? `${completedSteps}/${sessionTypes.length}`
           : "0/0";
-        const gender = mentee.gender === "male" ? "Bruder" : "Schwester";
+        const gender = mentee.gender === "male" ? t("mentees.csvGenderBrother") : t("mentees.csvGenderSister");
         return `"${mentee.name}","${mentee.email}","${mentee.city}",${mentee.age},"${gender}","${status}","${mentorName}","${progress}"`;
       }).join("\n");
       const csvContent = `${header}\n${rows}`;
@@ -535,7 +535,9 @@ function MentorMenteeCard({ mentorship }: { mentorship: Mentorship }) {
       {/* Session-Anzahl + Aktionen */}
       <View style={[styles.cardFooter, { borderTopColor: themeColors.border }]}>
         <Text style={[styles.sessionCount, { color: themeColors.textTertiary }]}>
-          {sessions.length} Session{sessions.length !== 1 ? "s" : ""} {t("mentees.documented")}
+          {sessions.length !== 1
+            ? t("mentees.sessionCountMany").replace("{0}", String(sessions.length))
+            : t("mentees.sessionCountOne").replace("{0}", String(sessions.length))}
         </Text>
         {mentorship.status === "active" && (
           <TouchableOpacity

@@ -6,9 +6,8 @@ const de = {
   "login.password": "Passwort",
   "login.submit": "Anmelden",
   "login.forgotPassword": "Passwort vergessen?",
-  "login.registerMentee": "Mentee registrieren",
   "login.registerMentor": "Als Mentor bewerben",
-  "login.publicRegister": "Neu beim Islam? Hier anmelden →",
+  "login.publicRegister": "Jetzt registrieren →",
   "login.quickAccess": "SCHNELLZUGANG (ENTWICKLUNG)",
   "login.errorEmpty": "Bitte E-Mail und Passwort eingeben.",
   "login.errorInvalid": "E-Mail oder Passwort ist falsch.",
@@ -750,6 +749,38 @@ const de = {
   "qa.allCategories": "Alle",
   "qa.noResults": "Keine Ergebnisse gefunden.",
   "qa.for": "für",
+  "qa.frequentQuestions": "Häufige Fragen",
+  "qa.forMentees": "Q&A für Mentees",
+  "qa.manage": "Q&A verwalten",
+  "qa.addNew": "Neue Frage hinzufügen",
+  "qa.question": "Frage",
+  "qa.questionPlaceholder": "Deine Frage...",
+  "qa.answer": "Antwort",
+  "qa.answerPlaceholder": "Deine Antwort...",
+  "qa.category": "Kategorie",
+  "qa.tags": "Tags (kommagetrennt)",
+  "qa.tagsPlaceholder": "z.B. gebet, pflicht",
+  "qa.published": "Veröffentlicht",
+  "qa.unpublished": "Unveröffentlicht",
+  "qa.save": "Speichern",
+  "qa.saving": "Wird gespeichert...",
+  "qa.cancel": "Abbrechen",
+  "qa.edit": "Bearbeiten",
+  "qa.delete": "Löschen",
+  "qa.deleteTitle": "Frage löschen",
+  "qa.deleteText": "Diese Frage wirklich löschen?",
+  "qa.deleteSuccess": "Frage wurde gelöscht.",
+  "qa.saveSuccess": "Frage wurde gespeichert.",
+  "qa.errorQuestion": "Bitte eine Frage eingeben.",
+  "qa.errorAnswer": "Bitte eine Antwort eingeben.",
+  "qa.loadError": "Q&A konnte nicht geladen werden.",
+  "qa.accessDenied": "Nur für Admins und Office zugänglich.",
+  "qa.totalEntries": "{0} Einträge",
+  "qa.publishToggle": "Veröffentlichung umschalten",
+  "qa.unpublishedBadge": "Unveröffentlicht",
+  "qa.back": "Zurück",
+  "qa.addTitle": "Neue Frage erstellen",
+  "qa.editTitle": "Frage bearbeiten",
 
   // Reset Password
   "resetPassword.title": "Neues Passwort setzen",
@@ -1208,6 +1239,77 @@ const de = {
   // Feedback-Banner für Mentee
   "feedbackBanner.title": "Bitte gib Feedback zu deiner Betreuung",
   "feedbackBanner.button": "Jetzt Feedback geben",
+
+  // Leaderboard – Medaillen-Labels
+  "leaderboard.medalGold": "Gold",
+  "leaderboard.medalSilver": "Silber",
+  "leaderboard.medalBronze": "Bronze",
+
+  // Alter-Anzeige
+  "common.yearsOld": "Jahre",
+
+  // Fehlerprefix Zuweisung
+  "assign.errorAssignment": "Zuweisung fehlgeschlagen: {0}",
+
+  // Reports – CSV-Export (Mobile-Meldung)
+  "reports.csvExportSuccess": "Der Bericht für \"{0}\" wurde als CSV generiert.\n\nFür nativen Download wird expo-sharing benötigt (Post-Launch).",
+
+  // Reports – Spenden-CSV
+  "reports.csvMonthColumn": "Monat",
+  "reports.csvSessionsColumn": "Sessions",
+  "reports.csvTotalRow": "GESAMT {0}",
+
+  // Mentees-CSV Export
+  "mentees.csvHeaderRow": "Name,E-Mail,Stadt,Alter,Geschlecht,Status,Mentor,Fortschritt",
+  "mentees.csvStatusActive": "Aktiv",
+  "mentees.csvStatusCompleted": "Abgeschlossen",
+  "mentees.csvStatusCancelled": "Abgebrochen",
+  "mentees.csvStatusOpen": "Offen",
+  "mentees.csvGenderBrother": "Bruder",
+  "mentees.csvGenderSister": "Schwester",
+  "mentees.sessionCountOne": "{0} Session dokumentiert",
+  "mentees.sessionCountMany": "{0} Sessions dokumentiert",
+
+  // Admin-Mentoren-CSV Export
+  "adminMentors.csvHeaderRow": "Name,E-Mail,Stadt,Alter,Geschlecht,Aktive Betreuungen,Abgeschlossene",
+  "adminMentors.csvGenderBrother": "Bruder",
+  "adminMentors.csvGenderSister": "Schwester",
+
+  // Donor-Report CSV
+  "donorReport.csvTitle": "BNM Spender-Bericht",
+  "donorReport.csvKpisSection": "KENNZAHLEN",
+  "donorReport.csvKpisHeader": "Zeitraum,Aktive Betreuungen,Neue Registrierungen,Abgeschlossen,BNM-Boxen,Aktive Mentoren",
+  "donorReport.csvRegionalSection": "REGIONALE VERTEILUNG",
+  "donorReport.csvRegionalHeader": "Stadt,Betreuungen",
+  "donorReport.csvSessionsSection": "SESSION-VERTEILUNG",
+  "donorReport.csvSessionsHeader": "Session-Typ,Anzahl",
+  "donorReport.csvMobileSuccess": "CSV generiert ({0})\n\nFür nativen Download: expo-sharing (Post-Launch).",
+
+  // Reports – Hauptbericht-CSV-Header
+  "reports.csvKpiHeader": "Zeitraum,Neue Betreuungen,Erstkontakte,Ersttreffen,BNM-Boxen,Sessions,Abschlüsse,Abbrüche,Wudu-Sessions,Salah-Sessions,Koran-Sessions,Nachbetreuungen",
+
+  // Edit User – Abschnittsbeschriftung
+  "editUser.profileDataLabel": "PROFILDATEN",
+
+  // Hadithe – Leer-Zustand
+  "hadithe.empty": "Keine Hadithe vorhanden",
+
+  // DatePicker – Monatsnamen (Mobile)
+  "datePicker.month.1": "Januar",
+  "datePicker.month.2": "Februar",
+  "datePicker.month.3": "März",
+  "datePicker.month.4": "April",
+  "datePicker.month.5": "Mai",
+  "datePicker.month.6": "Juni",
+  "datePicker.month.7": "Juli",
+  "datePicker.month.8": "August",
+  "datePicker.month.9": "September",
+  "datePicker.month.10": "Oktober",
+  "datePicker.month.11": "November",
+  "datePicker.month.12": "Dezember",
+  "datePicker.labelDay": "Tag",
+  "datePicker.labelMonth": "Monat",
+  "datePicker.labelYear": "Jahr",
 } as const;
 
 export default de;

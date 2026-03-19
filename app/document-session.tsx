@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import {
   View,
   Text,
@@ -7,6 +7,7 @@ import {
   TextInput,
   StyleSheet,
   Platform,
+  FlatList,
 } from "react-native";
 import { showError, showSuccess, showConfirm } from "../lib/errorHandler";
 import { useRouter, useLocalSearchParams } from "expo-router";
@@ -56,6 +57,62 @@ export default function DocumentSessionScreen() {
   // Datum im ISO-Format JJJJ-MM-TT (heute vorbelegt)
   const todayIso = new Date().toISOString().split("T")[0];
   const [date, setDate] = useState<string>(todayIso);
+
+  // Mobile DatePicker State
+  const todayObj = new Date();
+  const currentYear = todayObj.getFullYear();
+  const YEAR_OPTIONS = [currentYear, currentYear - 1, currentYear - 2];
+
+  // Hilfsfunktion: ISO-String in Tag/Monat/Jahr aufteilen
+  function parseDateParts(iso: string): { day: number; month: number; year: number } {
+    const parts = iso.split("-");
+    if (parts.length === 3) {
+      return {
+        year: parseInt(parts[0], 10),
+        month: parseInt(parts[1], 10),
+        day: parseInt(parts[2], 10),
+      };
+    }
+    return { year: currentYear, month: todayObj.getMonth() + 1, day: todayObj.getDate() };
+  }
+
+  const [pickerDay, setPickerDay] = useState<number>(() => parseDateParts(todayIso).day);
+  const [pickerMonth, setPickerMonth] = useState<number>(() => parseDateParts(todayIso).month);
+  const [pickerYear, setPickerYear] = useState<number>(() => parseDateParts(todayIso).year);
+  // Welche Spalte ist gerade offen: "day" | "month" | "year" | null
+  const [openPickerCol, setOpenPickerCol] = useState<"day" | "month" | "year" | null>(null);
+
+  // Maximale Tageszahl für gewählten Monat/Jahr
+  function maxDayForMonth(month: number, year: number): number {
+    return new Date(year, month, 0).getDate();
+  }
+
+  // Prüfen ob das gewählte Datum in der Zukunft liegt
+  function isPickerDateFuture(day: number, month: number, year: number): boolean {
+    const chosen = new Date(year, month - 1, day);
+    const today = new Date();
+    today.setHours(23, 59, 59, 999);
+    return chosen > today;
+  }
+
+  // ISO-String aus Picker-Werten zusammenbauen und in den date-State schreiben
+  const applyPickerDate = useCallback((day: number, month: number, year: number) => {
+    const clampedDay = Math.min(day, maxDayForMonth(month, year));
+    const mm = String(month).padStart(2, "0");
+    const dd = String(clampedDay).padStart(2, "0");
+    setDate(`${year}-${mm}-${dd}`);
+  }, []);
+
+  // Picker-State mit date-State synchronisieren (z.B. wenn Edit-Mode befüllt)
+  useEffect(() => {
+    if (Platform.OS !== "web" && date) {
+      const parts = parseDateParts(date);
+      setPickerDay(parts.day);
+      setPickerMonth(parts.month);
+      setPickerYear(parts.year);
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [date]);
   const [isOnline, setIsOnline] = useState<boolean>(false);
   const [details, setDetails] = useState<string>("");
   const [isSaving, setIsSaving] = useState(false);
@@ -522,15 +579,170 @@ export default function DocumentSessionScreen() {
                       } as React.CSSProperties}
                     />
                   ) : (
-                    <TextInput
-                      style={[styles.textInput, { borderColor: themeColors.border, color: themeColors.text }]}
-                      value={date}
-                      onChangeText={setDate}
-                      placeholder={t("docSession.datePlaceholder")}
-                      placeholderTextColor={themeColors.textTertiary}
-                      keyboardType="numbers-and-punctuation"
-                      maxLength={10}
-                    />
+                    <>
+                      {/* 3-Spalten Mobile DatePicker */}
+                      <View style={styles.datePickerRow}>
+                        {/* Tag */}
+                        <TouchableOpacity
+                          style={[styles.datePickerCol, { borderColor: themeColors.border, backgroundColor: themeColors.background }]}
+                          onPress={() => setOpenPickerCol(openPickerCol === "day" ? null : "day")}
+                        >
+                          <Text style={[styles.datePickerColLabel, { color: themeColors.textTertiary }]}>
+                            {t("datePicker.labelDay")}
+                          </Text>
+                          <Text style={[styles.datePickerColValue, { color: themeColors.text }]}>
+                            {String(pickerDay).padStart(2, "0")}
+                          </Text>
+                        </TouchableOpacity>
+
+                        {/* Monat */}
+                        <TouchableOpacity
+                          style={[styles.datePickerCol, styles.datePickerColMiddle, { borderColor: themeColors.border, backgroundColor: themeColors.background }]}
+                          onPress={() => setOpenPickerCol(openPickerCol === "month" ? null : "month")}
+                        >
+                          <Text style={[styles.datePickerColLabel, { color: themeColors.textTertiary }]}>
+                            {t("datePicker.labelMonth")}
+                          </Text>
+                          <Text style={[styles.datePickerColValue, { color: themeColors.text }]}>
+                            {t(`datePicker.month.${pickerMonth}` as Parameters<typeof t>[0])}
+                          </Text>
+                        </TouchableOpacity>
+
+                        {/* Jahr */}
+                        <TouchableOpacity
+                          style={[styles.datePickerCol, { borderColor: themeColors.border, backgroundColor: themeColors.background }]}
+                          onPress={() => setOpenPickerCol(openPickerCol === "year" ? null : "year")}
+                        >
+                          <Text style={[styles.datePickerColLabel, { color: themeColors.textTertiary }]}>
+                            {t("datePicker.labelYear")}
+                          </Text>
+                          <Text style={[styles.datePickerColValue, { color: themeColors.text }]}>
+                            {pickerYear}
+                          </Text>
+                        </TouchableOpacity>
+                      </View>
+
+                      {/* Dropdown für Tag */}
+                      {openPickerCol === "day" && (
+                        <View style={[styles.datePickerDropdown, { backgroundColor: themeColors.card, borderColor: themeColors.border }]}>
+                          <FlatList
+                            data={Array.from({ length: maxDayForMonth(pickerMonth, pickerYear) }, (_, i) => i + 1)}
+                            keyExtractor={(item) => String(item)}
+                            style={styles.datePickerList}
+                            renderItem={({ item }) => {
+                              const isFuture = isPickerDateFuture(item, pickerMonth, pickerYear);
+                              const isSelected = item === pickerDay;
+                              return (
+                                <TouchableOpacity
+                                  style={[
+                                    styles.datePickerItem,
+                                    isSelected && styles.datePickerItemSelected,
+                                    { borderBottomColor: themeColors.border },
+                                  ]}
+                                  onPress={() => {
+                                    if (isFuture) return;
+                                    setPickerDay(item);
+                                    applyPickerDate(item, pickerMonth, pickerYear);
+                                    setOpenPickerCol(null);
+                                  }}
+                                  disabled={isFuture}
+                                >
+                                  <Text style={[
+                                    styles.datePickerItemText,
+                                    { color: isFuture ? themeColors.textTertiary : isSelected ? COLORS.primary : themeColors.text },
+                                    isSelected && styles.datePickerItemTextSelected,
+                                  ]}>
+                                    {String(item).padStart(2, "0")}
+                                  </Text>
+                                </TouchableOpacity>
+                              );
+                            }}
+                          />
+                        </View>
+                      )}
+
+                      {/* Dropdown für Monat */}
+                      {openPickerCol === "month" && (
+                        <View style={[styles.datePickerDropdown, { backgroundColor: themeColors.card, borderColor: themeColors.border }]}>
+                          <FlatList
+                            data={Array.from({ length: 12 }, (_, i) => i + 1)}
+                            keyExtractor={(item) => String(item)}
+                            style={styles.datePickerList}
+                            renderItem={({ item }) => {
+                              const isFuture = isPickerDateFuture(pickerDay, item, pickerYear);
+                              const isSelected = item === pickerMonth;
+                              return (
+                                <TouchableOpacity
+                                  style={[
+                                    styles.datePickerItem,
+                                    isSelected && styles.datePickerItemSelected,
+                                    { borderBottomColor: themeColors.border },
+                                  ]}
+                                  onPress={() => {
+                                    if (isFuture) return;
+                                    const clampedDay = Math.min(pickerDay, maxDayForMonth(item, pickerYear));
+                                    setPickerMonth(item);
+                                    setPickerDay(clampedDay);
+                                    applyPickerDate(clampedDay, item, pickerYear);
+                                    setOpenPickerCol(null);
+                                  }}
+                                  disabled={isFuture}
+                                >
+                                  <Text style={[
+                                    styles.datePickerItemText,
+                                    { color: isFuture ? themeColors.textTertiary : isSelected ? COLORS.primary : themeColors.text },
+                                    isSelected && styles.datePickerItemTextSelected,
+                                  ]}>
+                                    {t(`datePicker.month.${item}` as Parameters<typeof t>[0])}
+                                  </Text>
+                                </TouchableOpacity>
+                              );
+                            }}
+                          />
+                        </View>
+                      )}
+
+                      {/* Dropdown für Jahr */}
+                      {openPickerCol === "year" && (
+                        <View style={[styles.datePickerDropdown, { backgroundColor: themeColors.card, borderColor: themeColors.border }]}>
+                          <FlatList
+                            data={YEAR_OPTIONS}
+                            keyExtractor={(item) => String(item)}
+                            style={styles.datePickerList}
+                            renderItem={({ item }) => {
+                              const isFuture = isPickerDateFuture(pickerDay, pickerMonth, item);
+                              const isSelected = item === pickerYear;
+                              return (
+                                <TouchableOpacity
+                                  style={[
+                                    styles.datePickerItem,
+                                    isSelected && styles.datePickerItemSelected,
+                                    { borderBottomColor: themeColors.border },
+                                  ]}
+                                  onPress={() => {
+                                    if (isFuture) return;
+                                    const clampedDay = Math.min(pickerDay, maxDayForMonth(pickerMonth, item));
+                                    setPickerYear(item);
+                                    setPickerDay(clampedDay);
+                                    applyPickerDate(clampedDay, pickerMonth, item);
+                                    setOpenPickerCol(null);
+                                  }}
+                                  disabled={isFuture}
+                                >
+                                  <Text style={[
+                                    styles.datePickerItemText,
+                                    { color: isFuture ? themeColors.textTertiary : isSelected ? COLORS.primary : themeColors.text },
+                                    isSelected && styles.datePickerItemTextSelected,
+                                  ]}>
+                                    {item}
+                                  </Text>
+                                </TouchableOpacity>
+                              );
+                            }}
+                          />
+                        </View>
+                      )}
+                    </>
                   )}
                 </View>
 
@@ -990,4 +1202,56 @@ const styles = StyleSheet.create({
     borderWidth: 1,
   },
   historyEditText: { fontSize: 12, fontWeight: "500" },
+
+  // Mobile DatePicker
+  datePickerRow: {
+    flexDirection: "row",
+    gap: 0,
+  },
+  datePickerCol: {
+    flex: 1,
+    borderWidth: 1,
+    borderRadius: 6,
+    paddingHorizontal: 10,
+    paddingVertical: 8,
+    alignItems: "center",
+  },
+  datePickerColMiddle: {
+    marginHorizontal: 6,
+    flex: 2,
+  },
+  datePickerColLabel: {
+    fontSize: 10,
+    fontWeight: "600",
+    letterSpacing: 0.5,
+    marginBottom: 2,
+  },
+  datePickerColValue: {
+    fontSize: 15,
+    fontWeight: "600",
+  },
+  datePickerDropdown: {
+    marginTop: 6,
+    borderRadius: 8,
+    borderWidth: 1,
+    overflow: "hidden",
+    maxHeight: 200,
+  },
+  datePickerList: {
+    maxHeight: 200,
+  },
+  datePickerItem: {
+    paddingHorizontal: 16,
+    paddingVertical: 10,
+    borderBottomWidth: 1,
+  },
+  datePickerItemSelected: {
+    backgroundColor: "rgba(10, 58, 90, 0.08)",
+  },
+  datePickerItemText: {
+    fontSize: 14,
+  },
+  datePickerItemTextSelected: {
+    fontWeight: "700",
+  },
 });

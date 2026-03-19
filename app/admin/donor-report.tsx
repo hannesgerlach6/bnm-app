@@ -512,7 +512,7 @@ export default function AdminDonorReportScreen() {
   // ── Export: CSV ──
   function handleExportCSV() {
     const pLabel = formatPeriodLabel(periodMode, selectedYear, selectedMonth, selectedQuarter);
-    const header = "Zeitraum,Aktive Betreuungen,Neue Registrierungen,Abgeschlossen,BNM-Boxen,Aktive Mentoren";
+    const header = t("donorReport.csvKpisHeader");
     const row = [
       `"${pLabel}"`,
       kpis.activeMentorships,
@@ -526,19 +526,19 @@ export default function AdminDonorReportScreen() {
     const sessionRows = sessionDistribution.items.map((d) => `"${d.label}",${d.value}`).join("\n");
 
     const csvContent = [
-      "BNM Spender-Bericht",
+      t("donorReport.csvTitle"),
       `"${pLabel}"`,
       "",
-      "KENNZAHLEN",
+      t("donorReport.csvKpisSection"),
       header,
       row,
       "",
-      "REGIONALE VERTEILUNG",
-      "Stadt,Betreuungen",
+      t("donorReport.csvRegionalSection"),
+      t("donorReport.csvRegionalHeader"),
       regionalRows,
       "",
-      "SESSION-VERTEILUNG",
-      "Session-Typ,Anzahl",
+      t("donorReport.csvSessionsSection"),
+      t("donorReport.csvSessionsHeader"),
       sessionRows,
     ].join("\n");
 
@@ -554,7 +554,7 @@ export default function AdminDonorReportScreen() {
       URL.revokeObjectURL(url);
       showSuccess(t("donorDashboard.exportCSV") + " ✓");
     } else {
-      showSuccess(`CSV generiert (${pLabel})\n\nFür nativen Download: expo-sharing (Post-Launch).`);
+      showSuccess(t("donorReport.csvMobileSuccess").replace("{0}", pLabel));
     }
   }
 

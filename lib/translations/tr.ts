@@ -8,9 +8,8 @@ const tr: Record<TranslationKeys, string> = {
   "login.password": "Şifre",
   "login.submit": "Giriş Yap",
   "login.forgotPassword": "Şifreni mi unuttun?",
-  "login.registerMentee": "Danışan Kaydı",
   "login.registerMentor": "Mentor Başvurusu",
-  "login.publicRegister": "İslam'da yeni misiniz? Kayıt olun →",
+  "login.publicRegister": "Şimdi kayıt ol →",
   "login.quickAccess": "HIZLI ERİŞİM (GELİŞTİRME)",
   "login.errorEmpty": "Lütfen e-posta ve şifrenizi girin.",
   "login.errorInvalid": "E-posta veya şifre yanlış.",
@@ -752,6 +751,38 @@ const tr: Record<TranslationKeys, string> = {
   "qa.allCategories": "Tümü",
   "qa.noResults": "Sonuç bulunamadı.",
   "qa.for": "için",
+  "qa.frequentQuestions": "Sık Sorulan Sorular",
+  "qa.forMentees": "Danışanlar için S&C",
+  "qa.manage": "S&C Yönet",
+  "qa.addNew": "Yeni Soru Ekle",
+  "qa.question": "Soru",
+  "qa.questionPlaceholder": "Sorunuz...",
+  "qa.answer": "Cevap",
+  "qa.answerPlaceholder": "Cevabınız...",
+  "qa.category": "Kategori",
+  "qa.tags": "Etiketler (virgülle ayrılmış)",
+  "qa.tagsPlaceholder": "örn. namaz, farz",
+  "qa.published": "Yayınlandı",
+  "qa.unpublished": "Yayınlanmadı",
+  "qa.save": "Kaydet",
+  "qa.saving": "Kaydediliyor...",
+  "qa.cancel": "İptal",
+  "qa.edit": "Düzenle",
+  "qa.delete": "Sil",
+  "qa.deleteTitle": "Soruyu Sil",
+  "qa.deleteText": "Bu soru gerçekten silinsin mi?",
+  "qa.deleteSuccess": "Soru silindi.",
+  "qa.saveSuccess": "Soru kaydedildi.",
+  "qa.errorQuestion": "Lütfen bir soru girin.",
+  "qa.errorAnswer": "Lütfen bir cevap girin.",
+  "qa.loadError": "S&C yüklenemedi.",
+  "qa.accessDenied": "Yalnızca Admin ve Ofis erişebilir.",
+  "qa.totalEntries": "{0} giriş",
+  "qa.publishToggle": "Yayını değiştir",
+  "qa.unpublishedBadge": "Yayınlanmadı",
+  "qa.back": "Geri",
+  "qa.addTitle": "Yeni Soru Oluştur",
+  "qa.editTitle": "Soruyu Düzenle",
 
   // Reset Password
   "resetPassword.title": "Yeni Şifre Belirle",
@@ -1074,6 +1105,57 @@ const tr: Record<TranslationKeys, string> = {
   "feedback.cancellationTitle": "İptal geri bildirimi",
   "feedback.cancellationHelp": "Geri bildirimin programı geliştirmemize yardımcı oluyor.",
 
+  // Liderlik tablosu – madalya etiketleri
+  "leaderboard.medalGold": "Altın",
+  "leaderboard.medalSilver": "Gümüş",
+  "leaderboard.medalBronze": "Bronz",
+
+  // Yaş gösterimi
+  "common.yearsOld": "Yaşında",
+
+  // Atama hata öneki
+  "assign.errorAssignment": "Atama başarısız: {0}",
+
+  // Raporlar – CSV dışa aktarma (mobil mesaj)
+  "reports.csvExportSuccess": "\"{0}\" için rapor CSV olarak oluşturuldu.\n\nYerel indirme için expo-sharing gerekli (lansmansonrası).",
+
+  // Raporlar – bağış CSV
+  "reports.csvMonthColumn": "Ay",
+  "reports.csvSessionsColumn": "Oturumlar",
+  "reports.csvTotalRow": "TOPLAM {0}",
+
+  // Mentee CSV dışa aktarma
+  "mentees.csvHeaderRow": "Ad,E-posta,Şehir,Yaş,Cinsiyet,Durum,Mentor,İlerleme",
+  "mentees.csvStatusActive": "Aktif",
+  "mentees.csvStatusCompleted": "Tamamlandı",
+  "mentees.csvStatusCancelled": "İptal Edildi",
+  "mentees.csvStatusOpen": "Açık",
+  "mentees.csvGenderBrother": "Kardeş",
+  "mentees.csvGenderSister": "Kız Kardeş",
+  "mentees.sessionCountOne": "{0} oturum belgelendi",
+  "mentees.sessionCountMany": "{0} oturum belgelendi",
+
+  // Admin mentor CSV dışa aktarma
+  "adminMentors.csvHeaderRow": "Ad,E-posta,Şehir,Yaş,Cinsiyet,Aktif Danışmanlıklar,Tamamlanan",
+  "adminMentors.csvGenderBrother": "Kardeş",
+  "adminMentors.csvGenderSister": "Kız Kardeş",
+
+  // Bağışçı raporu CSV
+  "donorReport.csvTitle": "BNM Bağışçı Raporu",
+  "donorReport.csvKpisSection": "GÖSTERGELER",
+  "donorReport.csvKpisHeader": "Dönem,Aktif Danışmanlıklar,Yeni Kayıtlar,Tamamlanan,BNM Kutuları,Aktif Mentorlar",
+  "donorReport.csvRegionalSection": "BÖLGESEL DAĞILIM",
+  "donorReport.csvRegionalHeader": "Şehir,Danışmanlıklar",
+  "donorReport.csvSessionsSection": "OTURUM DAĞILIMI",
+  "donorReport.csvSessionsHeader": "Oturum Türü,Sayı",
+  "donorReport.csvMobileSuccess": "CSV oluşturuldu ({0})\n\nYerel indirme için: expo-sharing (lansmansonrası).",
+
+  // Raporlar – ana KPI CSV başlığı
+  "reports.csvKpiHeader": "Dönem,Yeni Danışmanlıklar,İlk Temaslar,İlk Görüşmeler,BNM Kutuları,Oturumlar,Tamamlamalar,İptal Edilenler,Abdest Oturumları,Namaz Oturumları,Kuran Oturumları,Takip",
+
+  // Kullanıcı düzenleme – bölüm etiketi
+  "editUser.profileDataLabel": "PROFİL VERİLERİ",
+
   // Mentee ilerleme (onay sistemi)
   "menteeProgress.title": "Benim İlerlemem",
   "menteeProgress.completed": "Mentor tarafından onaylandı",
@@ -1208,6 +1290,26 @@ const tr: Record<TranslationKeys, string> = {
   // Geri Bildirim Pankartı (Mentee için)
   "feedbackBanner.title": "Lütfen mentorluk hakkında geri bildirim verin",
   "feedbackBanner.button": "Şimdi Geri Bildirim Ver",
+
+  // Hadisler – boş durum
+  "hadithe.empty": "Mevcut hadis yok",
+
+  // DatePicker – ay adları (Mobil)
+  "datePicker.month.1": "Ocak",
+  "datePicker.month.2": "Şubat",
+  "datePicker.month.3": "Mart",
+  "datePicker.month.4": "Nisan",
+  "datePicker.month.5": "Mayıs",
+  "datePicker.month.6": "Haziran",
+  "datePicker.month.7": "Temmuz",
+  "datePicker.month.8": "Ağustos",
+  "datePicker.month.9": "Eylül",
+  "datePicker.month.10": "Ekim",
+  "datePicker.month.11": "Kasım",
+  "datePicker.month.12": "Aralık",
+  "datePicker.labelDay": "Gün",
+  "datePicker.labelMonth": "Ay",
+  "datePicker.labelYear": "Yıl",
 };
 
 export default tr;

@@ -98,7 +98,7 @@ export default function MentorDetailScreen() {
             </View>
             <Text style={[styles.profileName, { color: themeColors.text }]}>{mentor.name}</Text>
             <Text style={[styles.profileSub, { color: themeColors.textSecondary }]}>
-              {mentor.city} · {mentor.age} Jahre ·{" "}
+              {mentor.city} · {mentor.age} {t("common.yearsOld")} ·{" "}
               {mentor.gender === "male" ? t("mentorDetail.brother") : t("mentorDetail.sister")}
             </Text>
             {rank > 0 && (
