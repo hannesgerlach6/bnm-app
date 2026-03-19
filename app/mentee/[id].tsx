@@ -78,17 +78,17 @@ export default function MenteeDetailScreen() {
 
   const statusBg = mentorship
     ? mentorship.status === "active"
-      ? "#dcfce7"
+      ? "#F5F5F7"
       : mentorship.status === "completed"
-      ? "#dbeafe"
+      ? "#dcfce7"
       : "#fee2e2"
     : "#fef3c7";
 
   const statusColor = mentorship
     ? mentorship.status === "active"
-      ? "#15803d"
+      ? "#475467"
       : mentorship.status === "completed"
-      ? "#1d4ed8"
+      ? "#15803d"
       : "#b91c1c"
     : "#b45309";
 

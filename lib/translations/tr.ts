@@ -1198,6 +1198,16 @@ const tr: Record<TranslationKeys, string> = {
 
   // Admin Dashboard – Ayın Mentoru Kartı
   "dashboard.currentMentorOfMonth": "Mevcut Ayın Mentoru",
+
+  // Reports – Yeni KPI'lar (Wudu/Namaz/Kuran/Sonraki Destek)
+  "reports.wuduSessions": "Abdest Oturumları",
+  "reports.salahSessions": "Namaz Oturumları",
+  "reports.koranSessions": "Kuran Oturumları",
+  "reports.nachbetreuungSessions": "Sonraki Destek Oturumları",
+
+  // Geri Bildirim Pankartı (Mentee için)
+  "feedbackBanner.title": "Lütfen mentorluk hakkında geri bildirim verin",
+  "feedbackBanner.button": "Şimdi Geri Bildirim Ver",
 };
 
 export default tr;

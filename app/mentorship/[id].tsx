@@ -53,9 +53,11 @@ export default function MentorshipDetailScreen() {
   const currentNotes = mentorship?.notes ?? "";
   const displayNotes = notesText !== null ? notesText : currentNotes;
 
-  const canWriteNotes = user && (user.role === "mentor" && mentorship?.mentor_id === user.id)
-    || user?.role === "admin"
-    || user?.role === "office";
+  const canWriteNotes = !!user && (
+    (user.role === "mentor" && mentorship?.mentor_id === user.id)
+    || user.role === "admin"
+    || user.role === "office"
+  );
 
   async function handleSaveNotes() {
     if (!mentorship) return;
@@ -170,15 +172,15 @@ export default function MentorshipDetailScreen() {
 
   const statusBg =
     mentorship.status === "active"
-      ? "#dcfce7"
+      ? "#F5F5F7"
       : mentorship.status === "completed"
-      ? "#dbeafe"
+      ? "#dcfce7"
       : "#fee2e2";
   const statusTextColor =
     mentorship.status === "active"
-      ? "#15803d"
+      ? "#475467"
       : mentorship.status === "completed"
-      ? "#1d4ed8"
+      ? "#15803d"
       : "#b91c1c";
   const statusLabel =
     mentorship.status === "active"

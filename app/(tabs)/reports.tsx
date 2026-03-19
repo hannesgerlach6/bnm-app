@@ -91,7 +91,13 @@ export default function ReportsScreen() {
     const completions = mentorships.filter((m) => m.status === "completed" && m.completed_at && inPeriod(m.completed_at)).length;
     const cancellations = mentorships.filter((m) => m.status === "cancelled" && m.completed_at && inPeriod(m.completed_at)).length;
 
-    return { totalAssigned, firstContacts, firstMeetings, bnmBoxes, totalSessions, completions, cancellations };
+    // Wudu / Salah / Koran / Nachbetreuung
+    const wuduSessions = sessions.filter((s) => s.session_type?.name === "Wudu-Session" && inPeriod(s.date)).length;
+    const salahSessions = sessions.filter((s) => s.session_type?.name === "Salah-Session" && inPeriod(s.date)).length;
+    const koranSessions = sessions.filter((s) => s.session_type?.name === "Koran-Session" && inPeriod(s.date)).length;
+    const nachbetreuungSessions = sessions.filter((s) => s.session_type?.name === "Nachbetreuung" && inPeriod(s.date)).length;
+
+    return { totalAssigned, firstContacts, firstMeetings, bnmBoxes, totalSessions, completions, cancellations, wuduSessions, salahSessions, koranSessions, nachbetreuungSessions };
   }, [inPeriod, mentorships, sessions, sessionTypes]);
 
   const mentorOfMonth = useMemo(() => {
@@ -164,7 +170,7 @@ export default function ReportsScreen() {
   }, [periodMode, selectedMonth, selectedQuarter, selectedYear]);
 
   function handleExport() {
-    const header = "Zeitraum,Neue Betreuungen,Erstkontakte,Ersttreffen,BNM-Boxen,Sessions,Abschlüsse,Abbrüche";
+    const header = "Zeitraum,Neue Betreuungen,Erstkontakte,Ersttreffen,BNM-Boxen,Sessions,Abschlüsse,Abbrüche,Wudu-Sessions,Salah-Sessions,Koran-Sessions,Nachbetreuungen";
     const row = [
       `"${periodLabel}"`,
       kpis.totalAssigned,
@@ -174,6 +180,10 @@ export default function ReportsScreen() {
       kpis.totalSessions,
       kpis.completions,
       kpis.cancellations,
+      kpis.wuduSessions,
+      kpis.salahSessions,
+      kpis.koranSessions,
+      kpis.nachbetreuungSessions,
     ].join(",");
     const csvContent = `${header}\n${row}`;
 
@@ -360,9 +370,17 @@ export default function ReportsScreen() {
             <KpiCard label={t("reports.firstContacts")} value={kpis.firstContacts} color={COLORS.gold} />
             <KpiCard label={t("reports.firstMeetings")} value={kpis.firstMeetings} color={COLORS.gold} />
           </View>
-          <View style={[styles.kpiRow, { marginBottom: 16 }]}>
+          <View style={styles.kpiRow}>
             <KpiCard label={t("reports.bnmBoxes")} value={kpis.bnmBoxes} color={COLORS.secondary} />
             <KpiCard label={t("reports.completions")} value={kpis.completions} color={COLORS.cta} />
+          </View>
+          <View style={styles.kpiRow}>
+            <KpiCard label={t("reports.wuduSessions")} value={kpis.wuduSessions} color={COLORS.gradientStart} />
+            <KpiCard label={t("reports.salahSessions")} value={kpis.salahSessions} color={COLORS.gradientStart} />
+          </View>
+          <View style={[styles.kpiRow, { marginBottom: 16 }]}>
+            <KpiCard label={t("reports.koranSessions")} value={kpis.koranSessions} color={COLORS.gold} />
+            <KpiCard label={t("reports.nachbetreuungSessions")} value={kpis.nachbetreuungSessions} color={COLORS.gold} />
           </View>
 
           {/* Abbrüche */}

@@ -52,13 +52,6 @@ export default function ProfileScreen() {
     email: t("contactPref.email"),
   };
 
-  const CONTACT_LABELS_I18N: Record<string, string> = {
-    whatsapp: t("contactPref.whatsapp"),
-    phone: t("contactPref.phone"),
-    telegram: t("contactPref.telegram"),
-    email: t("contactPref.email"),
-  };
-
   // Kontaktinfo des Mentorship-Partners
   const partnerContact = useMemo(() => {
     if (!user) return null;
@@ -276,7 +269,7 @@ export default function ProfileScreen() {
             ) : null}
             <InfoRow
               label={t("profile.partnerContact")}
-              value={CONTACT_LABELS_I18N[partnerContact.person.contact_preference] ?? partnerContact.person.contact_preference}
+              value={CONTACT_LABELS[partnerContact.person.contact_preference] ?? partnerContact.person.contact_preference}
               isLast
             />
             <TouchableOpacity

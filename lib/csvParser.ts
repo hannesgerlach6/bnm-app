@@ -166,6 +166,11 @@ export function validateMenteeRow(row: CSVRow, existingEmails: string[]): Valida
   };
 }
 
+export function validateMentorRow(row: CSVRow, existingEmails: string[]): ValidationResult {
+  // Gleiche Pflichtfelder wie Mentee — Erfahrung ist optional
+  return validateMenteeRow(row, existingEmails);
+}
+
 export function parseMenteeRow(row: CSVRow): ParsedMentee {
   return {
     name: row["Name"]?.trim() || "",

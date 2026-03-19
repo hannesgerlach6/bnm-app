@@ -1198,6 +1198,16 @@ const ar: Record<TranslationKeys, string> = {
 
   // Admin Dashboard – بطاقة مرشد الشهر
   "dashboard.currentMentorOfMonth": "مرشد الشهر الحالي",
+
+  // التقارير – مؤشرات KPI جديدة (وضوء / صلاة / قرآن / متابعة)
+  "reports.wuduSessions": "جلسات الوضوء",
+  "reports.salahSessions": "جلسات الصلاة",
+  "reports.koranSessions": "جلسات القرآن",
+  "reports.nachbetreuungSessions": "جلسات المتابعة",
+
+  // بانر الملاحظات للمُتَدرِّب
+  "feedbackBanner.title": "يرجى تقديم ملاحظاتك حول الإرشاد",
+  "feedbackBanner.button": "أرسل ملاحظاتك الآن",
 };
 
 export default ar;

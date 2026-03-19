@@ -18,8 +18,8 @@ export default function StatisticsScreen() {
   const { t } = useLanguage();
   const { users, mentorships, sessions, feedback, sessionTypes } = useData();
 
-  // Nur Admin
-  if (!user || user.role !== "admin") {
+  // Nur Admin oder Office
+  if (!user || (user.role !== "admin" && user.role !== "office")) {
     return (
       <View style={styles.center}>
         <Text style={styles.denied}>{t("statistics.accessDenied")}</Text>

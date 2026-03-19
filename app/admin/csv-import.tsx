@@ -19,6 +19,7 @@ import { sendCredentialsEmail } from "../../lib/emailService";
 import {
   parseCSV,
   validateMenteeRow,
+  validateMentorRow,
   parseMenteeRow,
   parseMentorRow,
   getMenteeCSVTemplate,
@@ -118,7 +119,10 @@ export default function CSVImportScreen() {
       const existingEmails = users.map((u) => u.email.toLowerCase());
 
       const preview: PreviewRow[] = rows.map((row, idx) => {
-        const validation = validateMenteeRow(row, existingEmails);
+        const validation =
+          activeTab === "mentors"
+            ? validateMentorRow(row, existingEmails)
+            : validateMenteeRow(row, existingEmails);
         const isDuplicate = validation.warnings.some((w) =>
           w.includes("bereits vorhanden")
         );
@@ -127,7 +131,7 @@ export default function CSVImportScreen() {
         if (!validation.valid) status = "error";
         else if (isDuplicate) status = "duplicate";
 
-        const parsed = parseMenteeRow(row);
+        const parsed = activeTab === "mentors" ? parseMentorRow(row) : parseMenteeRow(row);
 
         return {
           index: idx + 1,
@@ -145,7 +149,7 @@ export default function CSVImportScreen() {
 
       setPreviewRows(preview);
     },
-    [users]
+    [users, activeTab]
   );
 
   // ─── Tab wechseln ───────────────────────────────────────────────────────────

@@ -1198,6 +1198,16 @@ const en: Record<TranslationKeys, string> = {
 
   // Admin Dashboard – Mentor of the Month Card
   "dashboard.currentMentorOfMonth": "Current Mentor of the Month",
+
+  // Reports – New KPIs (Wudu/Salah/Koran/Follow-up)
+  "reports.wuduSessions": "Wudu Sessions",
+  "reports.salahSessions": "Salah Sessions",
+  "reports.koranSessions": "Koran Sessions",
+  "reports.nachbetreuungSessions": "Follow-up Sessions",
+
+  // Feedback Banner for Mentee
+  "feedbackBanner.title": "Please give feedback on your mentorship",
+  "feedbackBanner.button": "Give Feedback Now",
 };
 
 export default en;

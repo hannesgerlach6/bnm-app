@@ -71,13 +71,15 @@ export default function SessionTypesScreen() {
     setShowAddForm(false);
   }
 
-  if (user?.role !== "admin") {
+  if (user?.role !== "admin" && user?.role !== "office") {
     return (
       <View style={styles.centerContainer}>
         <Text style={styles.accessText}>{t("sessionTypes.accessDenied")}</Text>
       </View>
     );
   }
+
+  const isAdminRole = user?.role === "admin";
 
   return (
     <ScrollView style={styles.scrollView}>
@@ -127,45 +129,47 @@ export default function SessionTypesScreen() {
                 ) : null}
               </View>
 
-              {/* Aktionen */}
-              <View style={styles.actionsRow}>
-                {/* Hoch */}
-                <TouchableOpacity
-                  style={[styles.arrowButton, idx === 0 ? { opacity: 0.3 } : {}]}
-                  onPress={() => moveUp(idx)}
-                  disabled={idx === 0}
-                >
-                  <Text style={styles.arrowText}>▲</Text>
-                </TouchableOpacity>
-
-                {/* Runter */}
-                <TouchableOpacity
-                  style={[
-                    styles.arrowButton,
-                    idx === sortedTypes.length - 1 ? { opacity: 0.3 } : {},
-                  ]}
-                  onPress={() => moveDown(idx)}
-                  disabled={idx === sortedTypes.length - 1}
-                >
-                  <Text style={styles.arrowText}>▼</Text>
-                </TouchableOpacity>
-
-                {/* Löschen (nur custom) */}
-                {!st.is_default && (
+              {/* Aktionen (nur Admin) */}
+              {isAdminRole && (
+                <View style={styles.actionsRow}>
+                  {/* Hoch */}
                   <TouchableOpacity
-                    style={styles.deleteButton}
-                    onPress={() => handleDelete(st)}
+                    style={[styles.arrowButton, idx === 0 ? { opacity: 0.3 } : {}]}
+                    onPress={() => moveUp(idx)}
+                    disabled={idx === 0}
                   >
-                    <Text style={styles.deleteButtonText}>✕</Text>
+                    <Text style={styles.arrowText}>▲</Text>
                   </TouchableOpacity>
-                )}
-              </View>
+
+                  {/* Runter */}
+                  <TouchableOpacity
+                    style={[
+                      styles.arrowButton,
+                      idx === sortedTypes.length - 1 ? { opacity: 0.3 } : {},
+                    ]}
+                    onPress={() => moveDown(idx)}
+                    disabled={idx === sortedTypes.length - 1}
+                  >
+                    <Text style={styles.arrowText}>▼</Text>
+                  </TouchableOpacity>
+
+                  {/* Löschen (nur custom) */}
+                  {!st.is_default && (
+                    <TouchableOpacity
+                      style={styles.deleteButton}
+                      onPress={() => handleDelete(st)}
+                    >
+                      <Text style={styles.deleteButtonText}>✕</Text>
+                    </TouchableOpacity>
+                  )}
+                </View>
+              )}
             </View>
           ))}
         </View>
 
-        {/* Neuen Typ hinzufügen */}
-        {showAddForm ? (
+        {/* Neuen Typ hinzufügen (nur Admin) */}
+        {isAdminRole && showAddForm ? (
           <View style={styles.addFormCard}>
             <Text style={styles.addFormTitle}>{t("sessionTypes.addTitle")}</Text>
 
@@ -206,14 +210,14 @@ export default function SessionTypesScreen() {
               </TouchableOpacity>
             </View>
           </View>
-        ) : (
+        ) : isAdminRole ? (
           <TouchableOpacity
             style={styles.primaryButton}
             onPress={() => setShowAddForm(true)}
           >
             <Text style={styles.primaryButtonText}>{t("sessionTypes.addNew")}</Text>
           </TouchableOpacity>
-        )}
+        ) : null}
       </View>
     </ScrollView>
   );

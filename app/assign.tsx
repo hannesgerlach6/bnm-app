@@ -227,7 +227,7 @@ export default function AssignScreen() {
                 <Text style={styles.itemName}>{mentee.name}</Text>
                 <Text style={styles.itemSub}>
                   {mentee.city} · {mentee.age} J. ·{" "}
-                  {mentee.gender === "male" ? t("assign.brother") : t("register.sister")}
+                  {mentee.gender === "male" ? t("assign.brother") : t("assign.sister")}
                 </Text>
               </View>
             </TouchableOpacity>

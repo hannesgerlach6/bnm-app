@@ -28,6 +28,7 @@ import {
   sendMentorshipStatusChangeNotification,
   sendCredentialsEmail,
   sendMenteeAssignedNotification,
+  sendFeedbackRequestEmail,
 } from "../lib/emailService";
 import { sendLocalNotification } from "../lib/notificationService";
 
@@ -906,6 +907,15 @@ export function DataProvider({ children }: { children: ReactNode }) {
               m.mentee?.name ?? "Unbekannt",
               status as "completed" | "cancelled"
             );
+            // E-Mail an Mentee bei Abschluss mit Feedback-Aufforderung
+            if (status === "completed" && m.mentee?.email) {
+              sendFeedbackRequestEmail(
+                m.mentee.email,
+                m.mentee.name ?? "Mentee",
+                m.mentor?.name ?? "Mentor",
+                mentorshipId
+              );
+            }
           }
         }
 

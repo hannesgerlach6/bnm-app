@@ -1198,6 +1198,16 @@ const de = {
 
   // Admin Dashboard – Mentor des Monats Card
   "dashboard.currentMentorOfMonth": "Aktueller Mentor des Monats",
+
+  // Reports – Neue KPIs (Wudu/Salah/Koran/Nachbetreuung)
+  "reports.wuduSessions": "Wudu-Sessions",
+  "reports.salahSessions": "Salah-Sessions",
+  "reports.koranSessions": "Koran-Sessions",
+  "reports.nachbetreuungSessions": "Nachbetreuungen",
+
+  // Feedback-Banner für Mentee
+  "feedbackBanner.title": "Bitte gib Feedback zu deiner Betreuung",
+  "feedbackBanner.button": "Jetzt Feedback geben",
 } as const;
 
 export default de;

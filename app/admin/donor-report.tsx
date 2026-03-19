@@ -380,8 +380,12 @@ export default function AdminDonorReportScreen() {
         u.role === "mentor" &&
         mentorships.some((m) => m.mentor_id === u.id && m.status === "active")
     ).length;
+    const wuduSessions = sessions.filter((s) => s.session_type?.name === "Wudu-Session" && inPeriod(s.date)).length;
+    const salahSessions = sessions.filter((s) => s.session_type?.name === "Salah-Session" && inPeriod(s.date)).length;
+    const koranSessions = sessions.filter((s) => s.session_type?.name === "Koran-Session" && inPeriod(s.date)).length;
+    const nachbetreuungSessions = sessions.filter((s) => s.session_type?.name === "Nachbetreuung" && inPeriod(s.date)).length;
 
-    return { activeMentorships, newRegistrations, completedInPeriod, bnmBoxes, activeMentors };
+    return { activeMentorships, newRegistrations, completedInPeriod, bnmBoxes, activeMentors, wuduSessions, salahSessions, koranSessions, nachbetreuungSessions };
   }, [inPeriod, mentorships, sessions, sessionTypes, users]);
 
   // ── Diagramm 1: Betreuungen pro Monat (gestapelt: aktiv / abgeschlossen / abgebrochen) ──
@@ -729,13 +733,41 @@ export default function AdminDonorReportScreen() {
               accent={COLORS.gold}
             />
           </View>
-          <View style={[styles.kpiGrid, { marginBottom: 20 }]}>
+          <View style={styles.kpiGrid}>
             <KpiCard
               label={t("donorDashboard.activeMentors")}
               value={kpis.activeMentors}
               color={COLORS.link}
               accent={COLORS.link}
               fullWidth
+            />
+          </View>
+          <View style={styles.kpiGrid}>
+            <KpiCard
+              label={t("reports.wuduSessions")}
+              value={kpis.wuduSessions}
+              color={COLORS.gradientStart}
+              accent={COLORS.gradientStart}
+            />
+            <KpiCard
+              label={t("reports.salahSessions")}
+              value={kpis.salahSessions}
+              color={COLORS.gradientStart}
+              accent={COLORS.gradientStart}
+            />
+          </View>
+          <View style={[styles.kpiGrid, { marginBottom: 20 }]}>
+            <KpiCard
+              label={t("reports.koranSessions")}
+              value={kpis.koranSessions}
+              color={COLORS.gold}
+              accent={COLORS.gold}
+            />
+            <KpiCard
+              label={t("reports.nachbetreuungSessions")}
+              value={kpis.nachbetreuungSessions}
+              color={COLORS.gold}
+              accent={COLORS.gold}
             />
           </View>
 

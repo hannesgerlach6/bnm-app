@@ -158,3 +158,21 @@ export async function sendMentorshipStatusChangeNotification(
   `.trim();
   return sendEmail(adminEmail, subject, body);
 }
+
+export async function sendFeedbackRequestEmail(
+  menteeEmail: string,
+  menteeName: string,
+  mentorName: string,
+  mentorshipId: string
+) {
+  const subject = `[BNM] Bitte gib Feedback zu deiner Betreuung`;
+  const body = `
+<p>Salam Aleikum ${menteeName},</p>
+<p>deine Betreuung mit <strong>${mentorName}</strong> wurde erfolgreich abgeschlossen. Wir würden uns sehr freuen, wenn du kurz dein Feedback teilst — das hilft uns, das BNM-Programm weiter zu verbessern.</p>
+<p>Bitte öffne die BNM-App und gib dein Feedback zur Betreuung (ID: ${mentorshipId}) ab.</p>
+<p>Barakallahu fik</p>
+<p>Das BNM-Team</p>
+<hr><p style="color:#98A2B3;font-size:12px">BNM – Betreuung neuer Muslime</p>
+  `.trim();
+  return sendEmail(menteeEmail, subject, body);
+}

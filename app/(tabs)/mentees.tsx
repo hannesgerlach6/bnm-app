@@ -292,17 +292,17 @@ function AdminMenteesView() {
             const statusBg =
               mentorship
                 ? mentorship.status === "active"
-                  ? "#dcfce7"
+                  ? "#F5F5F7"
                   : mentorship.status === "completed"
-                  ? "#dbeafe"
+                  ? "#dcfce7"
                   : "#fee2e2"
                 : "#fef3c7";
             const statusColor =
               mentorship
                 ? mentorship.status === "active"
-                  ? "#15803d"
+                  ? "#475467"
                   : mentorship.status === "completed"
-                  ? "#1d4ed8"
+                  ? "#15803d"
                   : "#b91c1c"
                 : "#b45309";
             const statusLabel =
@@ -483,13 +483,13 @@ function MentorMenteeCard({ mentorship }: { mentorship: Mentorship }) {
         <View
           style={[
             styles.statusBadge,
-            { backgroundColor: mentorship.status === "active" ? "#dcfce7" : "#f3f4f6" },
+            { backgroundColor: mentorship.status === "active" ? "#F5F5F7" : "#dcfce7" },
           ]}
         >
           <Text
             style={[
               styles.statusText,
-              { color: mentorship.status === "active" ? "#15803d" : "#4b5563" },
+              { color: mentorship.status === "active" ? "#475467" : "#15803d" },
             ]}
           >
             {mentorship.status === "active" ? t("mentees.active") : t("mentees.completedStatus")}

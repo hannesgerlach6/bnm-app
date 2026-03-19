@@ -88,6 +88,10 @@ export default function DonorReportScreen() {
     const completionRate = totalMentorships > 0
       ? Math.round((completedMentorships / totalMentorships) * 100)
       : 0;
+    const wuduSessions = sessions.filter((s) => s.session_type?.name === "Wudu-Session" && inPeriod(s.date)).length;
+    const salahSessions = sessions.filter((s) => s.session_type?.name === "Salah-Session" && inPeriod(s.date)).length;
+    const koranSessions = sessions.filter((s) => s.session_type?.name === "Koran-Session" && inPeriod(s.date)).length;
+    const nachbetreuungSessions = sessions.filter((s) => s.session_type?.name === "Nachbetreuung" && inPeriod(s.date)).length;
     return {
       totalMentorships,
       completedMentorships,
@@ -98,6 +102,10 @@ export default function DonorReportScreen() {
       totalSessions,
       bnmBoxes,
       completionRate,
+      wuduSessions,
+      salahSessions,
+      koranSessions,
+      nachbetreuungSessions,
     };
   }, [inPeriod, mentorships, sessions, sessionTypes, users]);
 
@@ -279,6 +287,26 @@ export default function DonorReportScreen() {
                 {kpis.completionRate}%
               </Text>
               <Text style={styles.kpiLabel}>{t("donorReport.completionRate")}</Text>
+            </View>
+          </View>
+
+          {/* Wudu / Salah / Koran / Nachbetreuung KPIs */}
+          <View style={styles.kpiGrid}>
+            <View style={styles.kpiCard}>
+              <Text style={[styles.kpiValue, { color: COLORS.gradientStart }]}>{kpis.wuduSessions}</Text>
+              <Text style={styles.kpiLabel}>{t("reports.wuduSessions")}</Text>
+            </View>
+            <View style={styles.kpiCard}>
+              <Text style={[styles.kpiValue, { color: COLORS.gradientStart }]}>{kpis.salahSessions}</Text>
+              <Text style={styles.kpiLabel}>{t("reports.salahSessions")}</Text>
+            </View>
+            <View style={styles.kpiCard}>
+              <Text style={[styles.kpiValue, { color: COLORS.gold }]}>{kpis.koranSessions}</Text>
+              <Text style={styles.kpiLabel}>{t("reports.koranSessions")}</Text>
+            </View>
+            <View style={styles.kpiCard}>
+              <Text style={[styles.kpiValue, { color: COLORS.gold }]}>{kpis.nachbetreuungSessions}</Text>
+              <Text style={styles.kpiLabel}>{t("reports.nachbetreuungSessions")}</Text>
             </View>
           </View>
 
