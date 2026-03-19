@@ -1303,6 +1303,30 @@ const de = {
   // Hadithe – Leer-Zustand
   "hadithe.empty": "Keine Hadithe vorhanden",
 
+  // Hadithe-Verwaltung (Admin)
+  "haditheMgmt.title": "Hadithe verwalten",
+  "haditheMgmt.addNew": "Neuer Hadith",
+  "haditheMgmt.csvImport": "CSV Import",
+  "haditheMgmt.textAr": "Arabischer Text",
+  "haditheMgmt.textDe": "Deutsche Übersetzung",
+  "haditheMgmt.source": "Quelle / Referenz",
+  "haditheMgmt.sortOrder": "Sortierung",
+  "haditheMgmt.save": "Speichern",
+  "haditheMgmt.cancel": "Abbrechen",
+  "haditheMgmt.edit": "Bearbeiten",
+  "haditheMgmt.delete": "Löschen",
+  "haditheMgmt.confirmDelete": "Diesen Hadith wirklich löschen?",
+  "haditheMgmt.importPreview": "Import-Vorschau",
+  "haditheMgmt.importButton": "Jetzt importieren",
+  "haditheMgmt.csvFormat": "Format: Arabisch;Deutsch;Quelle (Semikolon-getrennt)",
+  "haditheMgmt.imported": "{0} Hadithe erfolgreich importiert",
+  "haditheMgmt.errorTextDe": "Deutsche Übersetzung ist erforderlich.",
+  "haditheMgmt.moveUp": "Nach oben",
+  "haditheMgmt.moveDown": "Nach unten",
+  "haditheMgmt.empty": "Noch keine Hadithe vorhanden.",
+  "haditheMgmt.noFile": "Keine Datei ausgewählt.",
+  "haditheMgmt.csvEmpty": "Die CSV-Datei enthält keine gültigen Einträge.",
+
   // DatePicker – Monatsnamen (Mobile)
   "datePicker.month.1": "Januar",
   "datePicker.month.2": "Februar",

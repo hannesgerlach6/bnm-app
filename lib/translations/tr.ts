@@ -1303,6 +1303,30 @@ const tr: Record<TranslationKeys, string> = {
   // Hadisler – boş durum
   "hadithe.empty": "Mevcut hadis yok",
 
+  // Hadis Yönetimi (Admin)
+  "haditheMgmt.title": "Hadisleri Yönet",
+  "haditheMgmt.addNew": "Yeni Hadis",
+  "haditheMgmt.csvImport": "CSV İçe Aktar",
+  "haditheMgmt.textAr": "Arapça Metin",
+  "haditheMgmt.textDe": "Almanca Çeviri",
+  "haditheMgmt.source": "Kaynak / Referans",
+  "haditheMgmt.sortOrder": "Sıralama",
+  "haditheMgmt.save": "Kaydet",
+  "haditheMgmt.cancel": "İptal",
+  "haditheMgmt.edit": "Düzenle",
+  "haditheMgmt.delete": "Sil",
+  "haditheMgmt.confirmDelete": "Bu hadisi silmek istediğinizden emin misiniz?",
+  "haditheMgmt.importPreview": "İçe Aktarma Önizlemesi",
+  "haditheMgmt.importButton": "Şimdi İçe Aktar",
+  "haditheMgmt.csvFormat": "Format: Arapça;Almanca;Kaynak (noktalı virgülle ayrılmış)",
+  "haditheMgmt.imported": "{0} hadis başarıyla içe aktarıldı",
+  "haditheMgmt.errorTextDe": "Almanca çeviri zorunludur.",
+  "haditheMgmt.moveUp": "Yukarı Taşı",
+  "haditheMgmt.moveDown": "Aşağı Taşı",
+  "haditheMgmt.empty": "Henüz hadis yok.",
+  "haditheMgmt.noFile": "Dosya seçilmedi.",
+  "haditheMgmt.csvEmpty": "CSV dosyasında geçerli kayıt yok.",
+
   // DatePicker – ay adları (Mobil)
   "datePicker.month.1": "Ocak",
   "datePicker.month.2": "Şubat",

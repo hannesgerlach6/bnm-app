@@ -1303,6 +1303,30 @@ const en: Record<TranslationKeys, string> = {
   // Hadiths – empty state
   "hadithe.empty": "No hadiths available",
 
+  // Hadith Management (Admin)
+  "haditheMgmt.title": "Manage Hadiths",
+  "haditheMgmt.addNew": "New Hadith",
+  "haditheMgmt.csvImport": "CSV Import",
+  "haditheMgmt.textAr": "Arabic Text",
+  "haditheMgmt.textDe": "German Translation",
+  "haditheMgmt.source": "Source / Reference",
+  "haditheMgmt.sortOrder": "Sort Order",
+  "haditheMgmt.save": "Save",
+  "haditheMgmt.cancel": "Cancel",
+  "haditheMgmt.edit": "Edit",
+  "haditheMgmt.delete": "Delete",
+  "haditheMgmt.confirmDelete": "Really delete this hadith?",
+  "haditheMgmt.importPreview": "Import Preview",
+  "haditheMgmt.importButton": "Import Now",
+  "haditheMgmt.csvFormat": "Format: Arabic;German;Source (semicolon-separated)",
+  "haditheMgmt.imported": "{0} hadiths successfully imported",
+  "haditheMgmt.errorTextDe": "German translation is required.",
+  "haditheMgmt.moveUp": "Move Up",
+  "haditheMgmt.moveDown": "Move Down",
+  "haditheMgmt.empty": "No hadiths yet.",
+  "haditheMgmt.noFile": "No file selected.",
+  "haditheMgmt.csvEmpty": "The CSV file contains no valid entries.",
+
   // DatePicker – month names (Mobile)
   "datePicker.month.1": "January",
   "datePicker.month.2": "February",

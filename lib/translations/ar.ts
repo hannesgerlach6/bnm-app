@@ -1303,6 +1303,30 @@ const ar: Record<TranslationKeys, string> = {
   // الأحاديث – حالة فارغة
   "hadithe.empty": "لا توجد أحاديث متاحة",
 
+  // إدارة الأحاديث (المشرف)
+  "haditheMgmt.title": "إدارة الأحاديث",
+  "haditheMgmt.addNew": "حديث جديد",
+  "haditheMgmt.csvImport": "استيراد CSV",
+  "haditheMgmt.textAr": "النص العربي",
+  "haditheMgmt.textDe": "الترجمة الألمانية",
+  "haditheMgmt.source": "المصدر / المرجع",
+  "haditheMgmt.sortOrder": "الترتيب",
+  "haditheMgmt.save": "حفظ",
+  "haditheMgmt.cancel": "إلغاء",
+  "haditheMgmt.edit": "تعديل",
+  "haditheMgmt.delete": "حذف",
+  "haditheMgmt.confirmDelete": "هل تريد حذف هذا الحديث؟",
+  "haditheMgmt.importPreview": "معاينة الاستيراد",
+  "haditheMgmt.importButton": "استيراد الآن",
+  "haditheMgmt.csvFormat": "التنسيق: عربي;ألماني;مصدر (مفصول بفاصلة منقوطة)",
+  "haditheMgmt.imported": "تم استيراد {0} حديث بنجاح",
+  "haditheMgmt.errorTextDe": "الترجمة الألمانية مطلوبة.",
+  "haditheMgmt.moveUp": "تحريك لأعلى",
+  "haditheMgmt.moveDown": "تحريك لأسفل",
+  "haditheMgmt.empty": "لا توجد أحاديث بعد.",
+  "haditheMgmt.noFile": "لم يتم اختيار ملف.",
+  "haditheMgmt.csvEmpty": "لا توجد إدخالات صالحة في ملف CSV.",
+
   // DatePicker – أسماء الأشهر (الجوال)
   "datePicker.month.1": "يناير",
   "datePicker.month.2": "فبراير",

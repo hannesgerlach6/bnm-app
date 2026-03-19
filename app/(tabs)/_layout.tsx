@@ -36,7 +36,7 @@ function ChatTabIcon({ color }: { color: string }) {
   return (
     <View style={tabStyles.chatIconWrapper}>
       <SymbolView
-        name={{ ios: "message.fill", android: "chat", web: "chat" }}
+        name={"message.fill" as any}
         tintColor={color}
         size={24}
       />
@@ -117,7 +117,7 @@ export default function TabLayout() {
           headerRight: () => <BellButton />,
           tabBarIcon: ({ color }) => (
             <SymbolView
-              name={{ ios: "house.fill", android: "home", web: "home" }}
+              name={"house.fill" as any}
               tintColor={color}
               size={24}
             />
@@ -130,11 +130,7 @@ export default function TabLayout() {
           title: t("tabs.mentees"),
           tabBarIcon: ({ color }) => (
             <SymbolView
-              name={{
-                ios: "person.2.fill",
-                android: "group",
-                web: "group",
-              }}
+              name={"person.2.fill" as any}
               tintColor={color}
               size={24}
             />
@@ -156,11 +152,7 @@ export default function TabLayout() {
           href: showLeaderboard ? undefined : null,
           tabBarIcon: ({ color }) => (
             <SymbolView
-              name={{
-                ios: "trophy.fill",
-                android: "emoji_events",
-                web: "emoji_events",
-              }}
+              name={"trophy.fill" as any}
               tintColor={color}
               size={24}
             />
@@ -174,11 +166,7 @@ export default function TabLayout() {
           href: isAdminOrOffice ? undefined : null,
           tabBarIcon: ({ color }) => (
             <SymbolView
-              name={{
-                ios: "chart.bar.fill",
-                android: "bar_chart",
-                web: "bar_chart",
-              }}
+              name={"chart.bar.fill" as any}
               tintColor={color}
               size={24}
             />
@@ -191,11 +179,7 @@ export default function TabLayout() {
           title: t("tabs.profile"),
           tabBarIcon: ({ color }) => (
             <SymbolView
-              name={{
-                ios: "person.circle.fill",
-                android: "account_circle",
-                web: "account_circle",
-              }}
+              name={"person.circle.fill" as any}
               tintColor={color}
               size={24}
             />

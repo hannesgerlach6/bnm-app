@@ -37,6 +37,7 @@ export interface Hadith {
   text_de: string;
   text_ar?: string;
   source?: string;
+  sort_order?: number;
 }
 
 export interface QAEntry {
@@ -120,6 +121,13 @@ export interface DataContextValue {
   // Mentee step confirmation
   confirmStepAsMentee: (mentorshipId: string, sessionTypeId: string) => Promise<void>;
   unconfirmStepAsMentee: (mentorshipId: string, sessionTypeId: string) => Promise<void>;
+
+  // Hadith actions
+  addHadith: (text_ar: string, text_de: string, source: string) => Promise<void>;
+  updateHadith: (id: string, updates: Partial<Hadith>) => Promise<void>;
+  deleteHadith: (id: string) => Promise<void>;
+  reorderHadithe: (id: string, direction: "up" | "down") => Promise<void>;
+  bulkInsertHadithe: (items: Array<{ text_ar: string; text_de: string; source: string }>) => Promise<number>;
 
   // Q&A actions
   loadQAEntries: () => Promise<void>;
@@ -273,7 +281,7 @@ export function DataProvider({ children }: { children: ReactNode }) {
         supabase.from("mentor_applications").select("*"),
         supabase.from("app_settings").select("*"),
         supabase.from("messages").select("*"),
-        supabase.from("hadithe").select("*"),
+        supabase.from("hadithe").select("*").order("sort_order", { ascending: true }),
         supabase.from("qa_entries").select("*").order("created_at", { ascending: true }),
       ]);
 
@@ -425,6 +433,7 @@ export function DataProvider({ children }: { children: ReactNode }) {
           text_de: (row.text_de as string) ?? "",
           text_ar: (row.text_ar as string) ?? undefined,
           source: (row.source as string) ?? undefined,
+          sort_order: (row.sort_order as number) ?? 0,
         }));
         setHadithe(hs);
       }
@@ -1624,6 +1633,108 @@ export function DataProvider({ children }: { children: ReactNode }) {
     );
   }, [mentorships]);
 
+  // ─── Hadith Actions ───────────────────────────────────────────────────────────
+
+  const addHadith = useCallback(async (text_ar: string, text_de: string, source: string) => {
+    const maxOrder = hadithe.length > 0
+      ? Math.max(...hadithe.map((h) => h.sort_order ?? 0))
+      : 0;
+    const { data, error } = await supabase
+      .from("hadithe")
+      .insert({ text_ar: text_ar || null, text_de, source: source || null, sort_order: maxOrder + 1 })
+      .select()
+      .single();
+
+    if (error || !data) {
+      throw new Error(error?.message ?? "Hadith konnte nicht gespeichert werden");
+    }
+
+    const newH: Hadith = {
+      id: data.id as string,
+      text_de: (data.text_de as string) ?? "",
+      text_ar: (data.text_ar as string) ?? undefined,
+      source: (data.source as string) ?? undefined,
+      sort_order: (data.sort_order as number) ?? maxOrder + 1,
+    };
+    setHadithe((prev) => [...prev, newH]);
+  }, [hadithe]);
+
+  const updateHadith = useCallback(async (id: string, updates: Partial<Hadith>) => {
+    const { error } = await supabase
+      .from("hadithe")
+      .update(updates)
+      .eq("id", id);
+
+    if (error) {
+      throw new Error(error.message);
+    }
+
+    setHadithe((prev) => prev.map((h) => (h.id === id ? { ...h, ...updates } : h)));
+  }, []);
+
+  const deleteHadith = useCallback(async (id: string) => {
+    const { error } = await supabase.from("hadithe").delete().eq("id", id);
+
+    if (error) {
+      throw new Error(error.message);
+    }
+
+    setHadithe((prev) => prev.filter((h) => h.id !== id));
+  }, []);
+
+  const reorderHadithe = useCallback(async (id: string, direction: "up" | "down") => {
+    const sorted = [...hadithe].sort((a, b) => (a.sort_order ?? 0) - (b.sort_order ?? 0));
+    const idx = sorted.findIndex((h) => h.id === id);
+    if (idx === -1) return;
+    if (direction === "up" && idx === 0) return;
+    if (direction === "down" && idx === sorted.length - 1) return;
+
+    const swapIdx = direction === "up" ? idx - 1 : idx + 1;
+    const aOrder = sorted[idx].sort_order ?? idx;
+    const bOrder = sorted[swapIdx].sort_order ?? swapIdx;
+
+    const updated = [...sorted];
+    updated[idx] = { ...updated[idx], sort_order: bOrder };
+    updated[swapIdx] = { ...updated[swapIdx], sort_order: aOrder };
+
+    // Optimistic update
+    setHadithe(updated);
+
+    await Promise.all([
+      supabase.from("hadithe").update({ sort_order: bOrder }).eq("id", updated[idx].id),
+      supabase.from("hadithe").update({ sort_order: aOrder }).eq("id", updated[swapIdx].id),
+    ]);
+  }, [hadithe]);
+
+  const bulkInsertHadithe = useCallback(async (items: Array<{ text_ar: string; text_de: string; source: string }>) => {
+    const maxOrder = hadithe.length > 0
+      ? Math.max(...hadithe.map((h) => h.sort_order ?? 0))
+      : 0;
+
+    const rows = items.map((item, i) => ({
+      text_ar: item.text_ar || null,
+      text_de: item.text_de,
+      source: item.source || null,
+      sort_order: maxOrder + i + 1,
+    }));
+
+    const { data, error } = await supabase.from("hadithe").insert(rows).select();
+
+    if (error || !data) {
+      throw new Error(error?.message ?? "Import fehlgeschlagen");
+    }
+
+    const newHs: Hadith[] = data.map((row) => ({
+      id: row.id as string,
+      text_de: (row.text_de as string) ?? "",
+      text_ar: (row.text_ar as string) ?? undefined,
+      source: (row.source as string) ?? undefined,
+      sort_order: (row.sort_order as number) ?? 0,
+    }));
+    setHadithe((prev) => [...prev, ...newHs]);
+    return data.length;
+  }, [hadithe]);
+
   // ─── Q&A Actions ──────────────────────────────────────────────────────────────
 
   const loadQAEntries = useCallback(async () => {
@@ -1824,6 +1935,11 @@ export function DataProvider({ children }: { children: ReactNode }) {
         applications,
         notifications,
         hadithe,
+        addHadith,
+        updateHadith,
+        deleteHadith,
+        reorderHadithe,
+        bulkInsertHadithe,
         qaEntries,
         loadQAEntries,
         addQAEntry,

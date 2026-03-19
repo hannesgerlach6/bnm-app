@@ -323,6 +323,12 @@ function RootLayoutInner() {
             headerShown: false,
           }}
         />
+        <Stack.Screen
+          name="admin/hadithe-management"
+          options={{
+            headerShown: false,
+          }}
+        />
       </Stack>
     </NavigationThemeProvider>
   );

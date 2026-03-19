@@ -482,6 +482,22 @@ function AdminDashboard({ showSystemSettings = true }: { showSystemSettings?: bo
           <Text style={[styles.applicationsArrow, { color: themeColors.textTertiary }]}>›</Text>
         </TouchableOpacity>
 
+        {/* Hadithe verwalten (nur Admin) */}
+        {showSystemSettings && (
+          <TouchableOpacity
+            style={[styles.applicationsButton, { backgroundColor: themeColors.card }]}
+            onPress={() => router.push("/admin/hadithe-management" as never)}
+          >
+            <View style={styles.applicationsButtonContent}>
+              <Text style={[styles.applicationsButtonText, { color: themeColors.text }]}>{t("haditheMgmt.title")}</Text>
+              <Text style={[styles.applicationsButtonSub, { color: themeColors.textTertiary }]}>
+                {hadithe.length} {hadithe.length === 1 ? "Hadith" : "Hadithe"}
+              </Text>
+            </View>
+            <Text style={[styles.applicationsArrow, { color: themeColors.textTertiary }]}>›</Text>
+          </TouchableOpacity>
+        )}
+
         {/* Letzte Aktivitäten */}
         <View style={[styles.card, { backgroundColor: themeColors.card }]}>
           <Text style={[styles.cardTitle, { color: themeColors.text }]}>{t("dashboard.recentActivity")}</Text>
