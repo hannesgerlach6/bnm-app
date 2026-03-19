@@ -20,10 +20,14 @@ import type {
   Notification,
 } from "../types";
 import { supabase } from "../lib/supabase";
+import { supabaseAnon } from "../lib/supabaseAnon";
 import { useAuth } from "./AuthContext";
 import { checkReminders } from "../lib/reminders";
 import { showError, showSuccess } from "../lib/errorHandler";
-import { sendMentorshipStatusChangeNotification } from "../lib/emailService";
+import {
+  sendMentorshipStatusChangeNotification,
+  sendCredentialsEmail,
+} from "../lib/emailService";
 
 export interface DataContextValue {
   // Data
@@ -379,8 +383,7 @@ export function DataProvider({ children }: { children: ReactNode }) {
           }
         }
       }
-    } catch (err) {
-      console.error("DataContext loadAllData Fehler:", err);
+    } catch {
       showError("Daten konnten nicht geladen werden. Bitte prüfe deine Internetverbindung.");
     } finally {
       setIsLoading(false);
@@ -527,7 +530,6 @@ export function DataProvider({ children }: { children: ReactNode }) {
         .single();
 
       if (error || !data) {
-        console.error("assignMentorship Fehler:", error);
         throw new Error(error?.message ?? "Zuweisung fehlgeschlagen");
       }
 
@@ -616,7 +618,6 @@ export function DataProvider({ children }: { children: ReactNode }) {
         .eq("id", mentorshipId);
 
       if (error) {
-        console.error("updateMentorshipStatus Fehler:", error);
         throw new Error(error.message);
       }
 
@@ -639,7 +640,7 @@ export function DataProvider({ children }: { children: ReactNode }) {
           const m = prev.find((ms) => ms.id === mentorshipId);
           if (m) {
             sendMentorshipStatusChangeNotification(
-              "admin@bnm-app.de",
+              authUser?.email ?? "",
               m.mentor?.name ?? "Unbekannt",
               m.mentee?.name ?? "Unbekannt",
               status as "completed" | "cancelled"
@@ -650,7 +651,7 @@ export function DataProvider({ children }: { children: ReactNode }) {
         return updated;
       });
     },
-    []
+    [authUser]
   );
 
   // ─── Session Actions ──────────────────────────────────────────────────────────
@@ -673,7 +674,6 @@ export function DataProvider({ children }: { children: ReactNode }) {
         .single();
 
       if (error || !data) {
-        console.error("addSession Fehler:", error);
         throw new Error(error?.message ?? "Session konnte nicht gespeichert werden");
       }
 
@@ -712,7 +712,6 @@ export function DataProvider({ children }: { children: ReactNode }) {
         .single();
 
       if (error || !data) {
-        console.error("addSessionType Fehler:", error);
         return;
       }
 
@@ -743,7 +742,6 @@ export function DataProvider({ children }: { children: ReactNode }) {
       .eq("id", id);
 
     if (error) {
-      console.error("deleteSessionType Fehler:", error);
       return;
     }
 
@@ -766,7 +764,6 @@ export function DataProvider({ children }: { children: ReactNode }) {
         .single();
 
       if (error || !data) {
-        console.error("addFeedback Fehler:", error);
         return;
       }
 
@@ -801,7 +798,6 @@ export function DataProvider({ children }: { children: ReactNode }) {
       .eq("key", "mentor_of_month_visible");
 
     if (error) {
-      console.error("toggleMentorOfMonth Fehler:", error);
       setMentorOfMonthVisible(!newValue); // Rollback
     }
   }, [mentorOfMonthVisible]);
@@ -815,7 +811,8 @@ export function DataProvider({ children }: { children: ReactNode }) {
       // Diese Funktion ist daher nur funktional wenn der aufrufende User Admin-Rechte hat
       // und via Admin API (Server-Side) aufgerufen wird.
       // Für den Client-Flow: approveApplication() legt den User via signUp an.
-      console.warn("addUser: Direktes Profil-Insert ohne Auth-User nicht möglich mit Anon Key.");
+      // Direktes Profil-Insert ohne Auth-User nicht möglich mit Anon Key.
+      // Account-Erstellung erfolgt über approveApplication().
     },
     []
   );
@@ -835,7 +832,6 @@ export function DataProvider({ children }: { children: ReactNode }) {
         .single();
 
       if (error || !data) {
-        console.error("sendMessage Fehler:", error);
         throw new Error(error?.message ?? "Nachricht konnte nicht gesendet werden");
       }
 
@@ -868,7 +864,6 @@ export function DataProvider({ children }: { children: ReactNode }) {
       .eq("id", notificationId);
 
     if (error) {
-      console.error("markAsRead Fehler:", error);
       return;
     }
 
@@ -888,7 +883,6 @@ export function DataProvider({ children }: { children: ReactNode }) {
       .is("read_at", null);
 
     if (error) {
-      console.error("markAllAsRead Fehler:", error);
       return;
     }
 
@@ -911,6 +905,12 @@ export function DataProvider({ children }: { children: ReactNode }) {
       const isMenteeRegistration = app.motivation === "Anmeldung als neuer Muslim (öffentliches Formular)";
 
       if (!isMenteeRegistration) {
+        // Race-Condition-Schutz: Status auf "processing" setzen
+        await supabase
+          .from("mentor_applications")
+          .update({ status: "processing" })
+          .eq("id", applicationId);
+
         // Admin-Session sichern BEVOR signUp aufgerufen wird
         // signUp loggt automatisch den neuen User ein → Admin-Session geht verloren
         const { data: adminSession } = await supabase.auth.getSession();
@@ -918,15 +918,7 @@ export function DataProvider({ children }: { children: ReactNode }) {
         // Mentor: Zufälliges temporäres Passwort
         const tempPassword = "BNM-" + Math.floor(100000 + Math.random() * 900000);
 
-        // Separaten Client ohne Session-Persistenz verwenden
-        const { createClient } = await import("@supabase/supabase-js");
-        const anonClient = createClient(
-          "https://jbuvnmjlvebzknbmzryb.supabase.co",
-          "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImpidXZubWpsdmViemtuYm16cnliIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzM4MjYyNTIsImV4cCI6MjA4OTQwMjI1Mn0.VKYa75wnPJ435ICu_NQSzwyQUcaWAXVKoaLlP7uSucg",
-          { auth: { persistSession: false, autoRefreshToken: false } }
-        );
-
-        const { data: signUpData, error: signUpError } = await anonClient.auth.signUp({
+        const { data: signUpData, error: signUpError } = await supabaseAnon.auth.signUp({
           email: app.email,
           password: tempPassword,
           options: {
@@ -953,6 +945,11 @@ export function DataProvider({ children }: { children: ReactNode }) {
             !signUpError.message.includes("already registered") &&
             !signUpError.message.includes("User already registered")
           ) {
+            // Bei Fehler: Status zurück auf "pending" setzen
+            await supabase
+              .from("mentor_applications")
+              .update({ status: "pending" })
+              .eq("id", applicationId);
             showError(`Fehler beim Erstellen des Accounts: ${signUpError.message}`);
             return;
           }
@@ -974,9 +971,9 @@ export function DataProvider({ children }: { children: ReactNode }) {
           }
         }
 
-        showSuccess(
-          `Mentor-Account erstellt!\n\nE-Mail: ${app.email}\nPasswort: ${tempPassword}\n\nBitte diese Zugangsdaten dem Mentor mitteilen.`
-        );
+        // Zugangsdaten per E-Mail senden statt im Alert anzeigen
+        await sendCredentialsEmail(app.email, app.name, tempPassword);
+        showSuccess("Account erstellt. Zugangsdaten wurden per E-Mail an den Mentor gesendet.");
       }
 
       // Status auf approved setzen (erst nach erfolgreichem signUp)
@@ -990,7 +987,6 @@ export function DataProvider({ children }: { children: ReactNode }) {
         .eq("id", applicationId);
 
       if (error) {
-        console.error("approveApplication Fehler:", error);
         showError("Fehler beim Aktualisieren der Bewerbung.");
         return;
       }
@@ -1016,7 +1012,6 @@ export function DataProvider({ children }: { children: ReactNode }) {
         .eq("id", applicationId);
 
       if (error) {
-        console.error("rejectApplication Fehler:", error);
         return;
       }
 
@@ -1049,7 +1044,6 @@ export function DataProvider({ children }: { children: ReactNode }) {
         .single();
 
       if (error || !inserted) {
-        console.error("submitApplication Fehler:", error);
         return;
       }
 
@@ -1089,7 +1083,6 @@ export function DataProvider({ children }: { children: ReactNode }) {
         .eq("id", userId);
 
       if (error) {
-        console.error("updateUser Fehler:", error);
         showError("Profil konnte nicht gespeichert werden.");
         return;
       }

@@ -36,13 +36,15 @@ async function loadProfile(userId: string): Promise<User | null> {
   };
 }
 
-// Dev-Shortcut Credentials
-const DEV_CREDENTIALS: Record<UserRole, { email: string; password: string }> = {
-  admin: { email: "admin@bnm.org", password: "admin123" },
-  office: { email: "office@bnm.org", password: "office123" },
-  mentor: { email: "mentor@bnm.org", password: "mentor123" },
-  mentee: { email: "mentee@bnm.org", password: "mentee123" },
-};
+// Dev-Shortcut Credentials — nur in Development verwendet
+const DEV_CREDENTIALS: Record<UserRole, { email: string; password: string }> = __DEV__
+  ? {
+      admin: { email: "admin@bnm.org", password: "admin123" },
+      office: { email: "office@bnm.org", password: "office123" },
+      mentor: { email: "mentor@bnm.org", password: "mentor123" },
+      mentee: { email: "mentee@bnm.org", password: "mentee123" },
+    }
+  : ({} as Record<UserRole, { email: string; password: string }>);
 
 /**
  * Erstellt Test-User in Supabase Auth (einmalig aufrufen).
@@ -140,11 +142,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   /**
    * Dev-Shortcut: Als bestimmte Rolle einloggen.
-   * Verwendet die hinterlegten Test-Credentials.
-   * Gibt eine Fehlermeldung zurück wenn der User nicht existiert.
+   * Nur in Development verfügbar (__DEV__ === true).
    */
   const loginAs = useCallback(
     async (role: UserRole): Promise<{ success: boolean; error?: string }> => {
+      if (!__DEV__) {
+        return { success: false, error: "Schnellzugang nur in Development verfügbar." };
+      }
+
       const creds = DEV_CREDENTIALS[role];
       if (!creds) return { success: false, error: "Unbekannte Rolle" };
 

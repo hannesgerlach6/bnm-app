@@ -15,6 +15,8 @@ import type { MentorApplication } from "../../types";
 import { COLORS } from "../../constants/Colors";
 import { Container } from "../../components/Container";
 import { supabase } from "../../lib/supabase";
+import { supabaseAnon } from "../../lib/supabaseAnon";
+import { sendCredentialsEmail } from "../../lib/emailService";
 import { useLanguage } from "../../contexts/LanguageContext";
 
 // Öffentliche Anmeldungen sind in mentor_applications mit diesem Motivation-Marker gespeichert
@@ -95,15 +97,7 @@ export default function ApplicationsScreen() {
     // Admin-Session sichern (signUp loggt sonst den Admin aus!)
     const { data: adminSession } = await supabase.auth.getSession();
 
-    // Separaten Client verwenden um Admin-Session nicht zu zerstören
-    const { createClient } = await import("@supabase/supabase-js");
-    const anonClient = createClient(
-      "https://jbuvnmjlvebzknbmzryb.supabase.co",
-      "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImpidXZubWpsdmViemtuYm16cnliIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzM4MjYyNTIsImV4cCI6MjA4OTQwMjI1Mn0.VKYa75wnPJ435ICu_NQSzwyQUcaWAXVKoaLlP7uSucg",
-      { auth: { persistSession: false, autoRefreshToken: false } }
-    );
-
-    const { error: signUpError } = await anonClient.auth.signUp({
+    const { error: signUpError } = await supabaseAnon.auth.signUp({
       email: app.email,
       password: tempPassword,
       options: {
@@ -140,7 +134,9 @@ export default function ApplicationsScreen() {
     // Anmeldung als approved markieren
     await approveApplication(app.id);
 
-    showSuccess(t("applications.tempPassword").replace("{0}", tempPassword).replace("{1}", app.name));
+    // Zugangsdaten per E-Mail senden statt im Alert anzeigen
+    await sendCredentialsEmail(app.email, app.name, tempPassword);
+    showSuccess("Account erstellt. Zugangsdaten wurden per E-Mail an den Mentee gesendet.");
   }
 
   async function handleRejectMenteeRegistration(app: MentorApplication) {

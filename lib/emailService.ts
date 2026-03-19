@@ -1,61 +1,53 @@
 import { supabase } from "./supabase";
 
 // ============================================================
-// E-Mail Service — Resend API + email_queue als Backup/Log
+// E-Mail Service — schreibt ausschließlich in die email_queue.
 //
-// Alle Mails gehen aktuell an OVERRIDE_RECIPIENT.
-// Wenn Kunden-Resend-Account da: RESEND_API_KEY + FROM_EMAIL ändern.
+// Der tatsächliche Versand erfolgt serverseitig über eine
+// Supabase Edge Function (siehe supabase/resend-edge-function.ts).
+// Der Resend API-Key darf NIEMALS im Client-Code stehen.
 // ============================================================
 
-const RESEND_API_KEY = "re_6mXaja3u_DF424Shzf42tKVP1Zk2qeyRo";
-const FROM_EMAIL = "BNM <onboarding@resend.dev>"; // Später: "BNM <noreply@bnm-domain.de>"
 const OVERRIDE_RECIPIENT = "hasan.sevenler@partner.ki";
-
-async function sendViaResend(
-  to: string,
-  subject: string,
-  html: string
-): Promise<boolean> {
-  try {
-    const recipient = OVERRIDE_RECIPIENT || to;
-    const res = await fetch("https://api.resend.com/emails", {
-      method: "POST",
-      headers: {
-        Authorization: `Bearer ${RESEND_API_KEY}`,
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        from: FROM_EMAIL,
-        to: [recipient],
-        subject,
-        html,
-      }),
-    });
-    return res.ok;
-  } catch {
-    return false;
-  }
-}
 
 export async function sendEmail(
   to: string,
   subject: string,
   body: string
 ): Promise<boolean> {
-  // 1. Resend versuchen
-  const sent = await sendViaResend(to, subject, body);
-
-  // 2. In Queue loggen (Backup + Audit-Trail)
-  await supabase.from("email_queue").insert({
+  const { error } = await supabase.from("email_queue").insert({
     to_email: to,
     subject,
     body,
     override_to: OVERRIDE_RECIPIENT,
-    status: sent ? "sent" : "failed",
-    sent_at: sent ? new Date().toISOString() : null,
+    status: "pending",
+    sent_at: null,
   });
 
-  return sent;
+  return !error;
+}
+
+// ─── Zugangsdaten-E-Mail ─────────────────────────────────────────────────────
+
+export async function sendCredentialsEmail(
+  email: string,
+  name: string,
+  tempPassword: string
+): Promise<boolean> {
+  const subject = "[BNM] Deine Zugangsdaten";
+  const body = `
+<p>Salam Aleikum ${name},</p>
+<p>dein BNM-Account wurde erstellt. Hier sind deine Zugangsdaten:</p>
+<ul>
+  <li><strong>E-Mail:</strong> ${email}</li>
+  <li><strong>Temporäres Passwort:</strong> ${tempPassword}</li>
+</ul>
+<p>Bitte ändere dein Passwort nach dem ersten Login.</p>
+<p>Barakallahu fik</p>
+<p>Das BNM-Team</p>
+<hr><p style="color:#98A2B3;font-size:12px">BNM – Betreuung neuer Muslime</p>
+  `.trim();
+  return sendEmail(email, subject, body);
 }
 
 // ─── Vordefinierte E-Mail-Templates ─────────────────────────────────────────

@@ -153,36 +153,38 @@ export default function LoginScreen() {
             </TouchableOpacity>
           </View>
 
-          {/* Test-Schnellzugang */}
-          <View style={styles.quickSection}>
-            <Text style={styles.quickLabel}>{t("login.quickAccess")}</Text>
-            <View style={styles.quickRow}>
-              <TouchableOpacity
-                style={styles.quickButton}
-                onPress={() => handleQuickLogin("admin")}
-              >
-                <Text style={styles.quickButtonText}>Admin</Text>
-              </TouchableOpacity>
-              <TouchableOpacity
-                style={styles.quickButton}
-                onPress={() => handleQuickLogin("mentor")}
-              >
-                <Text style={styles.quickButtonText}>Mentor</Text>
-              </TouchableOpacity>
-              <TouchableOpacity
-                style={styles.quickButton}
-                onPress={() => handleQuickLogin("mentee")}
-              >
-                <Text style={styles.quickButtonText}>Mentee</Text>
-              </TouchableOpacity>
-              <TouchableOpacity
-                style={styles.quickButton}
-                onPress={handleQuickOffice}
-              >
-                <Text style={styles.quickButtonText}>Office</Text>
-              </TouchableOpacity>
+          {/* Test-Schnellzugang — nur in Development */}
+          {__DEV__ && (
+            <View style={styles.quickSection}>
+              <Text style={styles.quickLabel}>{t("login.quickAccess")}</Text>
+              <View style={styles.quickRow}>
+                <TouchableOpacity
+                  style={styles.quickButton}
+                  onPress={() => handleQuickLogin("admin")}
+                >
+                  <Text style={styles.quickButtonText}>Admin</Text>
+                </TouchableOpacity>
+                <TouchableOpacity
+                  style={styles.quickButton}
+                  onPress={() => handleQuickLogin("mentor")}
+                >
+                  <Text style={styles.quickButtonText}>Mentor</Text>
+                </TouchableOpacity>
+                <TouchableOpacity
+                  style={styles.quickButton}
+                  onPress={() => handleQuickLogin("mentee")}
+                >
+                  <Text style={styles.quickButtonText}>Mentee</Text>
+                </TouchableOpacity>
+                <TouchableOpacity
+                  style={styles.quickButton}
+                  onPress={handleQuickOffice}
+                >
+                  <Text style={styles.quickButtonText}>Office</Text>
+                </TouchableOpacity>
+              </View>
             </View>
-          </View>
+          )}
         </View>
       </ScrollView>
     </KeyboardAvoidingView>
