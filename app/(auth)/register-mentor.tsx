@@ -23,6 +23,7 @@ interface MentorFormData {
   email: string;
   gender: Gender | "";
   city: string;
+  plz: string;
   age: string;
   phone: string;
   contact_preference: ContactPreference | "";
@@ -41,6 +42,7 @@ export default function RegisterMentorScreen() {
     email: "",
     gender: "",
     city: "",
+    plz: "",
     age: "",
     phone: "",
     contact_preference: "",
@@ -81,6 +83,7 @@ export default function RegisterMentorScreen() {
         phone: form.phone.trim() || "",
         gender: form.gender,
         city: form.city.trim(),
+        plz: form.plz.trim(),
         age: parseInt(form.age, 10),
         experience: form.experience.trim(),
         motivation: form.motivation.trim(),
@@ -230,6 +233,18 @@ export default function RegisterMentorScreen() {
             placeholderTextColor={themeColors.textTertiary}
             value={form.city}
             onChangeText={(v) => update("city", v)}
+          />
+
+          {/* Postleitzahl */}
+          <FieldLabel label={t("register.plz")} />
+          <TextInput
+            style={[styles.input, { backgroundColor: themeColors.card, color: themeColors.text, borderColor: themeColors.border }]}
+            placeholder={t("register.plzPlaceholder")}
+            placeholderTextColor={themeColors.textTertiary}
+            keyboardType="number-pad"
+            maxLength={5}
+            value={form.plz}
+            onChangeText={(v) => update("plz", v)}
           />
 
           {/* Alter */}

@@ -36,6 +36,7 @@ export default function EditProfileScreen() {
 
   const [name, setName] = useState(user?.name ?? "");
   const [city, setCity] = useState(user?.city ?? "");
+  const [plz, setPlz] = useState(user?.plz ?? "");
   const [age, setAge] = useState(String(user?.age ?? ""));
   const [phone, setPhone] = useState(user?.phone ?? "");
   const [contactPref, setContactPref] = useState<ContactPreference>(
@@ -97,6 +98,7 @@ export default function EditProfileScreen() {
     await updateUser(safeUser.id, {
       name: name.trim(),
       city: city.trim(),
+      plz: plz.trim(),
       age: parseInt(age, 10),
       phone: phone.trim() || undefined,
       contact_preference: contactPref,
@@ -188,6 +190,18 @@ export default function EditProfileScreen() {
             placeholder={t("editProfile.cityPlaceholder")}
             placeholderTextColor={themeColors.textTertiary}
             autoCapitalize="words"
+          />
+
+          {/* Postleitzahl */}
+          <Text style={[styles.fieldLabel, { color: themeColors.textSecondary }]}>{t("profile.plz")}</Text>
+          <TextInput
+            style={[styles.input, { backgroundColor: themeColors.card, color: themeColors.text, borderColor: themeColors.border }]}
+            value={plz}
+            onChangeText={setPlz}
+            placeholder={t("register.plzPlaceholder")}
+            placeholderTextColor={themeColors.textTertiary}
+            keyboardType="number-pad"
+            maxLength={5}
           />
 
           {/* Alter */}

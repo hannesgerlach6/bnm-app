@@ -195,6 +195,11 @@ const ar: Record<TranslationKeys, string> = {
   "settings.footer": "BNM – رعاية المسلمين الجدد · الإصدار 1.0.0",
 
   // Register Public
+  "register.plz": "الرمز البريدي",
+  "register.plzPlaceholder": "مثال: 10115",
+  "register.errorPlz": "يرجى إدخال رمز بريدي صحيح (4–5 أرقام).",
+  "profile.plz": "الرمز البريدي",
+
   "register.title": "التسجيل كمسلم جديد",
   "register.subtitle": "أنشئ حسابك – سنعيّن لك مرشداً مناسباً.",
   "register.firstName": "الاسم الأول *",
@@ -1212,6 +1217,10 @@ const ar: Record<TranslationKeys, string> = {
   "assign.reasonAgeGroup": "فئة عمرية متوافقة",
   "assign.reasonSameContact": "نفس تفضيل التواصل",
   "assign.errorUnknown": "خطأ غير معروف",
+  "assign.distanceAway": "{0} كم",
+  "assign.veryClose": "قريب جداً (أقل من 5 كم)",
+  "assign.close": "قريب (أقل من 15 كم)",
+  "assign.inRadius": "ضمن النطاق (أقل من 25 كم)",
 
   // Profile – role labels
   "profile.roleAdmin": "المسؤول",

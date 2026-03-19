@@ -193,6 +193,11 @@ const de = {
   "settings.footer": "BNM – Betreuung neuer Muslime · Version 1.0.0",
 
   // Register Public
+  "register.plz": "Postleitzahl",
+  "register.plzPlaceholder": "z.B. 10115",
+  "register.errorPlz": "Bitte eine gültige Postleitzahl eingeben (4–5 Ziffern).",
+  "profile.plz": "Postleitzahl",
+
   "register.title": "Anmeldung als neuer Muslim",
   "register.subtitle": "Erstelle deinen Account – wir weisen dir einen passenden Mentor zu.",
   "register.firstName": "Vorname *",
@@ -1161,6 +1166,10 @@ const de = {
   "assign.reasonAgeGroup": "Passende Altersgruppe",
   "assign.reasonSameContact": "Gleiche Kontaktpräferenz",
   "assign.errorUnknown": "Unbekannter Fehler",
+  "assign.distanceAway": "{0} km entfernt",
+  "assign.veryClose": "Sehr nah (unter 5 km)",
+  "assign.close": "Nah (unter 15 km)",
+  "assign.inRadius": "Im Radius (unter 25 km)",
 
   // Profile – role labels
   "profile.roleAdmin": "Administrator",

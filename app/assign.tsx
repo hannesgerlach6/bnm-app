@@ -17,38 +17,68 @@ import { COLORS } from "../constants/Colors";
 import { sendMenteeAssignedNotification } from "../lib/emailService";
 import { useLanguage } from "../contexts/LanguageContext";
 import { useThemeColors } from "../contexts/ThemeContext";
+import { getCoordinatesForPLZ, haversineDistance } from "../lib/plzCoordinates";
 
 interface MatchScore {
   mentor: User;
   score: number;
   reasonKeys: string[];
+  distanceKm: number | null;
 }
 
 function calculateMatchScore(mentee: User, mentor: User): MatchScore {
   let score = 0;
   const reasonKeys: string[] = [];
+  let distanceKm: number | null = null;
 
   if (mentor.gender !== mentee.gender) {
-    return { mentor, score: -1, reasonKeys: ["assign.reasonGenderMismatch"] };
+    return { mentor, score: -1, reasonKeys: ["assign.reasonGenderMismatch"], distanceKm: null };
   }
   score += 40;
   reasonKeys.push("assign.reasonGenderMatch");
 
-  if (mentor.city.toLowerCase() === mentee.city.toLowerCase()) {
-    score += 35;
-    reasonKeys.push("assign.reasonSameCity");
+  // PLZ-basiertes Distanz-Matching
+  const mentorCoords = getCoordinatesForPLZ(mentor.plz);
+  const menteeCoords = getCoordinatesForPLZ(mentee.plz);
+
+  if (mentorCoords && menteeCoords) {
+    const distance = haversineDistance(
+      mentorCoords.lat, mentorCoords.lng,
+      menteeCoords.lat, menteeCoords.lng
+    );
+    distanceKm = Math.round(distance);
+
+    if (distance <= 5) {
+      score += 40;
+      reasonKeys.push("assign.veryClose");
+    } else if (distance <= 15) {
+      score += 30;
+      reasonKeys.push("assign.close");
+    } else if (distance <= 25) {
+      score += 20;
+      reasonKeys.push("assign.inRadius");
+    } else if (distance <= 50) {
+      score += 10;
+    }
+    // Über 50km: kein Bonus
   } else {
-    const regionMap: Record<string, string> = {
-      berlin: "nordost", hamburg: "nordwest", bremen: "nordwest", hannover: "nordwest",
-      köln: "west", düsseldorf: "west", dortmund: "west", essen: "west",
-      frankfurt: "mitte", wiesbaden: "mitte", münchen: "süd", nürnberg: "süd",
-      stuttgart: "süd", leipzig: "nordost", dresden: "nordost",
-    };
-    const mentorRegion = regionMap[mentor.city.toLowerCase()];
-    const menteeRegion = regionMap[mentee.city.toLowerCase()];
-    if (mentorRegion && menteeRegion && mentorRegion === menteeRegion) {
-      score += 15;
-      reasonKeys.push("assign.reasonSameRegion");
+    // Fallback: Stadt-Vergleich
+    if (mentor.city.toLowerCase() === mentee.city.toLowerCase()) {
+      score += 35;
+      reasonKeys.push("assign.reasonSameCity");
+    } else {
+      const regionMap: Record<string, string> = {
+        berlin: "nordost", hamburg: "nordwest", bremen: "nordwest", hannover: "nordwest",
+        köln: "west", düsseldorf: "west", dortmund: "west", essen: "west",
+        frankfurt: "mitte", wiesbaden: "mitte", münchen: "süd", nürnberg: "süd",
+        stuttgart: "süd", leipzig: "nordost", dresden: "nordost",
+      };
+      const mentorRegion = regionMap[mentor.city.toLowerCase()];
+      const menteeRegion = regionMap[mentee.city.toLowerCase()];
+      if (mentorRegion && menteeRegion && mentorRegion === menteeRegion) {
+        score += 15;
+        reasonKeys.push("assign.reasonSameRegion");
+      }
     }
   }
 
@@ -62,7 +92,7 @@ function calculateMatchScore(mentee: User, mentor: User): MatchScore {
     reasonKeys.push("assign.reasonSameContact");
   }
 
-  return { mentor, score, reasonKeys };
+  return { mentor, score, reasonKeys, distanceKm };
 }
 
 export default function AssignScreen() {
@@ -107,7 +137,7 @@ export default function AssignScreen() {
       .sort((a, b) => b.score - a.score);
   }, [selectedMentee, users, isMentor]);
 
-  const maxPossibleScore = 100;
+  const maxPossibleScore = 105;
 
   async function handleAssign() {
     if (!user) return;
@@ -286,7 +316,9 @@ export default function AssignScreen() {
                           )}
                           <Text style={[styles.mentorName, { color: themeColors.text }]}>{match.mentor.name}</Text>
                           <Text style={[styles.mentorSub, { color: themeColors.textTertiary }]}>
-                            {match.mentor.city} · {match.mentor.age} J. ·{" "}
+                            {match.mentor.city}
+                            {match.distanceKm !== null ? ` · ${t("assign.distanceAway").replace("{0}", String(match.distanceKm))}` : ""}
+                            {" · "}{match.mentor.age} J. ·{" "}
                             {t("assign.activeMentorships")
                               .replace("{0}", String(activeMenteeCount))
                               .replace("{1}", activeMenteeCount === 1 ? t("assign.mentorship") : t("assign.mentorships"))}

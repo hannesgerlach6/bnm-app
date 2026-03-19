@@ -12,6 +12,7 @@ export interface User {
   name: string;
   phone?: string;
   city: string;
+  plz: string;
   age: number;
   contact_preference: ContactPreference;
   avatar_url?: string;

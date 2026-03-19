@@ -195,6 +195,11 @@ const tr: Record<TranslationKeys, string> = {
   "settings.footer": "BNM – Yeni Müslümanlar İçin Rehberlik · Sürüm 1.0.0",
 
   // Register Public
+  "register.plz": "Posta Kodu",
+  "register.plzPlaceholder": "örn. 10115",
+  "register.errorPlz": "Lütfen geçerli bir posta kodu girin (4–5 rakam).",
+  "profile.plz": "Posta Kodu",
+
   "register.title": "Yeni Müslüman Kaydı",
   "register.subtitle": "Hesabını oluştur – sana uygun bir mentor atayacağız.",
   "register.firstName": "Adı *",
@@ -1212,6 +1217,10 @@ const tr: Record<TranslationKeys, string> = {
   "assign.reasonAgeGroup": "Uyumlu yaş grubu",
   "assign.reasonSameContact": "Aynı iletişim tercihi",
   "assign.errorUnknown": "Bilinmeyen hata",
+  "assign.distanceAway": "{0} km uzaklıkta",
+  "assign.veryClose": "Çok yakın (5 km'den az)",
+  "assign.close": "Yakın (15 km'den az)",
+  "assign.inRadius": "Yarıçap içinde (25 km'den az)",
 
   // Profile – role labels
   "profile.roleAdmin": "Yönetici",

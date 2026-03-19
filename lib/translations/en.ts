@@ -195,6 +195,11 @@ const en: Record<TranslationKeys, string> = {
   "settings.footer": "BNM – Guidance for New Muslims · Version 1.0.0",
 
   // Register Public
+  "register.plz": "Postal Code",
+  "register.plzPlaceholder": "e.g. 10115",
+  "register.errorPlz": "Please enter a valid postal code (4–5 digits).",
+  "profile.plz": "Postal Code",
+
   "register.title": "Register as a New Muslim",
   "register.subtitle": "Create your account – we will assign a suitable mentor to you.",
   "register.firstName": "First Name *",
@@ -1161,6 +1166,10 @@ const en: Record<TranslationKeys, string> = {
   "assign.reasonAgeGroup": "Compatible age group",
   "assign.reasonSameContact": "Same contact preference",
   "assign.errorUnknown": "Unknown error",
+  "assign.distanceAway": "{0} km away",
+  "assign.veryClose": "Very close (under 5 km)",
+  "assign.close": "Close (under 15 km)",
+  "assign.inRadius": "Within radius (under 25 km)",
 
   // Profile – role labels
   "profile.roleAdmin": "Administrator",

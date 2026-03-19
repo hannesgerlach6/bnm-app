@@ -30,10 +30,12 @@ async function loadProfile(userId: string): Promise<User | null> {
     name: data.name,
     phone: data.phone ?? undefined,
     city: data.city ?? "",
+    plz: data.plz ?? "",
     age: data.age ?? 0,
     contact_preference: data.contact_preference ?? "whatsapp",
     avatar_url: data.avatar_url ?? undefined,
     created_at: data.created_at,
+    is_active: data.is_active ?? true,
   };
 }
 

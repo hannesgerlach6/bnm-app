@@ -47,6 +47,7 @@ export default function RegisterPublicScreen() {
   const [phone, setPhone] = useState("");
   const [gender, setGender] = useState<Gender | null>(null);
   const [city, setCity] = useState("");
+  const [plz, setPlz] = useState("");
   const [age, setAge] = useState("");
   const [contactPref, setContactPref] = useState<ContactPreference | null>(null);
   const [password, setPassword] = useState("");
@@ -63,6 +64,8 @@ export default function RegisterPublicScreen() {
       newErrors.email = t("register.errorEmail");
     if (!gender) newErrors.gender = t("register.errorGender");
     if (!city.trim()) newErrors.city = t("register.errorCity");
+    if (!plz.trim() || !/^\d{4,5}$/.test(plz.trim()))
+      newErrors.plz = t("register.errorPlz");
     const ageNum = parseInt(age, 10);
     if (!age.trim() || isNaN(ageNum) || ageNum < 12 || ageNum > 120)
       newErrors.age = t("register.errorAge");
@@ -114,6 +117,7 @@ export default function RegisterPublicScreen() {
             role: "mentee",
             gender: gender,
             city: city.trim(),
+            plz: plz.trim(),
             age: parseInt(age, 10),
             phone: phone.trim() || "",
             contact_preference: contactPref || "whatsapp",
@@ -139,6 +143,7 @@ export default function RegisterPublicScreen() {
         await supabase.from("profiles").update({
           phone: phone.trim() || "",
           contact_preference: contactPref || "whatsapp",
+          plz: plz.trim(),
         }).eq("id", newUserId);
       }
 
@@ -281,6 +286,19 @@ export default function RegisterPublicScreen() {
                 placeholderTextColor={themeColors.textTertiary}
                 value={city}
                 onChangeText={setCity}
+              />
+            </FormField>
+
+            {/* Postleitzahl */}
+            <FormField label={t("register.plz")} error={errors.plz}>
+              <TextInput
+                style={[styles.input, { backgroundColor: themeColors.card, color: themeColors.text }, errors.plz ? styles.inputError : { borderColor: themeColors.border }]}
+                placeholder={t("register.plzPlaceholder")}
+                placeholderTextColor={themeColors.textTertiary}
+                keyboardType="numeric"
+                maxLength={5}
+                value={plz}
+                onChangeText={setPlz}
               />
             </FormField>
 
