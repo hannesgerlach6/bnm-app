@@ -6,12 +6,13 @@ import {
   TouchableOpacity,
   StyleSheet,
 } from "react-native";
-import { showConfirm, showError } from "../../lib/errorHandler";
+import { showConfirm, showError, showSuccess } from "../../lib/errorHandler";
 import { useRouter, useLocalSearchParams } from "expo-router";
 import { useAuth } from "../../contexts/AuthContext";
 import { useData } from "../../contexts/DataContext";
 import { COLORS } from "../../constants/Colors";
 import { useLanguage } from "../../contexts/LanguageContext";
+import { supabase } from "../../lib/supabase";
 
 export default function MentorshipDetailScreen() {
   const router = useRouter();
@@ -65,9 +66,19 @@ export default function MentorshipDetailScreen() {
     setIsUpdatingStatus(true);
     try {
       await updateMentorshipStatus(mentorshipId, "completed");
-      router.push({ pathname: "/feedback", params: { mentorshipId: mentorshipId } });
+      // Notification an Mentee senden dass Feedback gewünscht wird
+      if (mentorship?.mentee_id) {
+        await supabase.from("notifications").insert({
+          user_id: mentorship?.mentee_id,
+          type: "feedback",
+          title: t("mentorship.feedbackRequestTitle"),
+          body: t("mentorship.feedbackRequestBody"),
+          related_id: mentorshipId,
+        });
+      }
+      showSuccess(t("mentorship.completeSuccess"), () => router.back());
     } catch {
-      showError("Fehler beim Abschließen der Betreuung.");
+      showError(t("mentorship.completeError"));
     } finally {
       setIsUpdatingStatus(false);
     }
@@ -79,9 +90,18 @@ export default function MentorshipDetailScreen() {
     setIsUpdatingStatus(true);
     try {
       await updateMentorshipStatus(mentorshipId, "cancelled");
-      router.push({ pathname: "/feedback", params: { mentorshipId: mentorshipId } });
+      if (mentorship?.mentee_id) {
+        await supabase.from("notifications").insert({
+          user_id: mentorship?.mentee_id,
+          type: "feedback",
+          title: t("mentorship.feedbackRequestTitle"),
+          body: t("mentorship.feedbackRequestBody"),
+          related_id: mentorshipId,
+        });
+      }
+      showSuccess(t("mentorship.cancelSuccess"), () => router.back());
     } catch {
-      showError("Fehler beim Abbrechen der Betreuung.");
+      showError(t("mentorship.cancelError"));
     } finally {
       setIsUpdatingStatus(false);
     }

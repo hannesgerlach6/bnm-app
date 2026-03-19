@@ -21,6 +21,8 @@ const TYPE_CONFIG: Record<
   reminder: { icon: "⏰", bg: "#fef3c7", color: "#b45309" },
   progress: { icon: "✅", bg: "#dcfce7", color: "#15803d" },
   message: { icon: "💬", bg: "#f3e8ff", color: "#7e22ce" },
+  feedback: { icon: "⭐", bg: "#fef3c7", color: "#b45309" },
+  system: { icon: "ℹ️", bg: "#f3f4f6", color: "#4b5563" },
 };
 
 export default function NotificationsScreen() {
@@ -52,6 +54,11 @@ export default function NotificationsScreen() {
 
   function handlePress(notification: Notification) {
     markAsRead(notification.id);
+    if (notification.type === "feedback" && notification.related_id) {
+      router.push({ pathname: "/feedback", params: { mentorshipId: notification.related_id } });
+    } else if (notification.type === "assignment" && notification.related_id) {
+      router.push({ pathname: "/mentorship/[id]", params: { id: notification.related_id } });
+    }
   }
 
   return (

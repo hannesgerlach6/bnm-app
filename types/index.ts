@@ -97,7 +97,7 @@ export interface AuthContextValue {
   logout: () => void;
 }
 
-export type NotificationType = "assignment" | "reminder" | "progress" | "message";
+export type NotificationType = "assignment" | "reminder" | "progress" | "message" | "feedback" | "system";
 
 export interface Notification {
   id: string;
