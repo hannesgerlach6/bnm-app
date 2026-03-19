@@ -15,10 +15,12 @@ import { useData } from "../../contexts/DataContext";
 import { showError, showConfirm } from "../../lib/errorHandler";
 import { COLORS } from "../../constants/Colors";
 import { useLanguage } from "../../contexts/LanguageContext";
+import { useThemeColors } from "../../contexts/ThemeContext";
 
 export default function ChatScreen() {
   const { user } = useAuth();
   const { t } = useLanguage();
+  const themeColors = useThemeColors();
   const {
     getMessagesByMentorshipId,
     getMentorshipById,
@@ -88,15 +90,15 @@ export default function ChatScreen() {
 
   return (
     <KeyboardAvoidingView
-      style={styles.flex1}
+      style={[styles.flex1, { backgroundColor: themeColors.background }]}
       behavior={Platform.OS === "ios" ? "padding" : "height"}
       keyboardVerticalOffset={90}
     >
       {/* Chat-Header-Info */}
       {mentorship && (
-        <View style={styles.chatHeader}>
-          <Text style={styles.chatHeaderName}>{chatPartnerName}</Text>
-          <Text style={styles.chatHeaderSub}>
+        <View style={[styles.chatHeader, { backgroundColor: themeColors.card, borderBottomColor: themeColors.border }]}>
+          <Text style={[styles.chatHeaderName, { color: themeColors.text }]}>{chatPartnerName}</Text>
+          <Text style={[styles.chatHeaderSub, { color: themeColors.textTertiary }]}>
             {t("chat.mentorship")} · {statusLabel}
           </Text>
         </View>
@@ -113,7 +115,7 @@ export default function ChatScreen() {
       >
         {messages.length === 0 ? (
           <View style={styles.emptyMessages}>
-            <Text style={styles.emptyText}>
+            <Text style={[styles.emptyText, { color: themeColors.textTertiary }]}>
               {t("chat.noMessages")}
             </Text>
           </View>
@@ -138,7 +140,7 @@ export default function ChatScreen() {
                 ]}
               >
                 {!isOwn && (
-                  <Text style={styles.senderName}>{sender.name}</Text>
+                  <Text style={[styles.senderName, { color: themeColors.textTertiary }]}>{sender.name}</Text>
                 )}
                 <TouchableOpacity
                   activeOpacity={0.8}
@@ -148,13 +150,15 @@ export default function ChatScreen() {
                   <View
                     style={[
                       styles.messageBubble,
-                      isOwn ? styles.ownBubble : styles.otherBubble,
+                      isOwn
+                        ? styles.ownBubble
+                        : [styles.otherBubble, { backgroundColor: themeColors.card, borderColor: themeColors.border }],
                     ]}
                   >
                     <Text
                       style={[
                         styles.messageText,
-                        isOwn ? { color: COLORS.white } : { color: COLORS.primary },
+                        isOwn ? { color: COLORS.white } : { color: themeColors.text },
                       ]}
                     >
                       {msg.content}
@@ -164,6 +168,7 @@ export default function ChatScreen() {
                 <Text
                   style={[
                     styles.timeText,
+                    { color: themeColors.textTertiary },
                     isOwn ? { textAlign: "right", marginRight: 4 } : { marginLeft: 4 },
                   ]}
                 >
@@ -178,20 +183,20 @@ export default function ChatScreen() {
       </ScrollView>
 
       {/* Input-Bereich */}
-      <View style={styles.inputContainer}>
+      <View style={[styles.inputContainer, { backgroundColor: themeColors.card, borderTopColor: themeColors.border }]}>
         <TextInput
-          style={styles.textInput}
+          style={[styles.textInput, { backgroundColor: themeColors.background, borderColor: themeColors.border, color: themeColors.text }]}
           value={inputText}
           onChangeText={setInputText}
           placeholder={t("chat.placeholder")}
-          placeholderTextColor="#98A2B3"
+          placeholderTextColor={themeColors.textTertiary}
           multiline
           returnKeyType="default"
         />
         <TouchableOpacity
           style={[
             styles.sendButton,
-            { backgroundColor: inputText.trim() ? COLORS.primary : COLORS.border },
+            { backgroundColor: inputText.trim() ? COLORS.primary : themeColors.border },
           ]}
           onPress={handleSend}
           disabled={!inputText.trim()}
@@ -204,38 +209,32 @@ export default function ChatScreen() {
 }
 
 const styles = StyleSheet.create({
-  flex1: { flex: 1, backgroundColor: COLORS.bg },
+  flex1: { flex: 1 },
   chatHeader: {
-    backgroundColor: COLORS.white,
     borderBottomWidth: 1,
-    borderBottomColor: COLORS.border,
     paddingHorizontal: 16,
     paddingVertical: 12,
   },
-  chatHeaderName: { fontWeight: "600", color: COLORS.primary, textAlign: "center" },
-  chatHeaderSub: { color: COLORS.tertiary, fontSize: 12, textAlign: "center" },
+  chatHeaderName: { fontWeight: "600", textAlign: "center" },
+  chatHeaderSub: { fontSize: 12, textAlign: "center" },
   messagesScroll: { flex: 1 },
   emptyMessages: { flex: 1, alignItems: "center", justifyContent: "center", paddingVertical: 64 },
-  emptyText: { color: COLORS.tertiary, textAlign: "center", fontSize: 14 },
+  emptyText: { textAlign: "center", fontSize: 14 },
   messageBubbleWrapper: { marginBottom: 12, maxWidth: "80%" },
-  senderName: { color: COLORS.tertiary, fontSize: 12, marginBottom: 4, marginLeft: 4 },
+  senderName: { fontSize: 12, marginBottom: 4, marginLeft: 4 },
   messageBubble: { paddingHorizontal: 16, paddingVertical: 12, borderRadius: 16 },
   ownBubble: {
     backgroundColor: COLORS.primary,
     borderTopRightRadius: 4,
   },
   otherBubble: {
-    backgroundColor: COLORS.white,
     borderWidth: 1,
-    borderColor: COLORS.border,
     borderTopLeftRadius: 4,
   },
   messageText: { fontSize: 14, lineHeight: 20 },
-  timeText: { color: COLORS.tertiary, fontSize: 12, marginTop: 4 },
+  timeText: { fontSize: 12, marginTop: 4 },
   inputContainer: {
-    backgroundColor: COLORS.white,
     borderTopWidth: 1,
-    borderTopColor: COLORS.border,
     paddingHorizontal: 14,
     paddingVertical: 10,
     flexDirection: "row",
@@ -244,13 +243,10 @@ const styles = StyleSheet.create({
   },
   textInput: {
     flex: 1,
-    backgroundColor: COLORS.bg,
     borderWidth: 1,
-    borderColor: COLORS.border,
     borderRadius: 8,
     paddingHorizontal: 12,
     paddingVertical: 9,
-    color: COLORS.primary,
     fontSize: 14,
     maxHeight: 100,
     minHeight: 38,

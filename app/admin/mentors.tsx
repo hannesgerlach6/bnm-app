@@ -16,11 +16,13 @@ import { COLORS } from "../../constants/Colors";
 import { useAuth } from "../../contexts/AuthContext";
 import { showError, showSuccess } from "../../lib/errorHandler";
 import { SkeletonList } from "../../components/Skeleton";
+import { useThemeColors } from "../../contexts/ThemeContext";
 
 export default function AdminMentorsScreen() {
   const router = useRouter();
   const { t } = useLanguage();
   const { user } = useAuth();
+  const themeColors = useThemeColors();
   const { users, mentorships, sessions, refreshData, isLoading } = useData();
   const [search, setSearch] = useState("");
   const [refreshing, setRefreshing] = useState(false);
@@ -34,8 +36,8 @@ export default function AdminMentorsScreen() {
   // Nur Admin/Office
   if (!user || (user.role !== "admin" && user.role !== "office")) {
     return (
-      <View style={styles.center}>
-        <Text style={styles.accessDenied}>{t("applications.accessDenied")}</Text>
+      <View style={[styles.center, { backgroundColor: themeColors.background }]}>
+        <Text style={[styles.accessDenied, { color: themeColors.error }]}>{t("applications.accessDenied")}</Text>
       </View>
     );
   }
@@ -85,37 +87,37 @@ export default function AdminMentorsScreen() {
 
   return (
     <ScrollView
-      style={styles.scrollView}
+      style={[styles.scrollView, { backgroundColor: themeColors.background }]}
       refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor={COLORS.gold} />}
     >
       <View style={styles.page}>
         {/* Header */}
         <View style={styles.headerRow}>
           <TouchableOpacity onPress={() => router.back()} style={styles.backBtn}>
-            <Text style={styles.backBtnText}>‹</Text>
+            <Text style={[styles.backBtnText, { color: themeColors.text }]}>‹</Text>
           </TouchableOpacity>
           <View style={{ flex: 1 }}>
-            <Text style={styles.pageTitle}>{t("adminMentors.title")}</Text>
-            <Text style={styles.pageSubtitle}>
+            <Text style={[styles.pageTitle, { color: themeColors.text }]}>{t("adminMentors.title")}</Text>
+            <Text style={[styles.pageSubtitle, { color: themeColors.textSecondary }]}>
               {filtered.length} {t("adminMentors.mentors")}
             </Text>
           </View>
           <TouchableOpacity
-            style={styles.csvButton}
+            style={[styles.csvButton, { backgroundColor: themeColors.background, borderColor: themeColors.border }]}
             onPress={() => router.push("/admin/csv-import")}
           >
-            <Text style={styles.csvButtonText}>{t("csvImport.tabMentors")}</Text>
+            <Text style={[styles.csvButtonText, { color: themeColors.text }]}>{t("csvImport.tabMentors")}</Text>
           </TouchableOpacity>
-          <TouchableOpacity style={styles.csvButton} onPress={handleExportCsv}>
-            <Text style={styles.csvButtonText}>{t("csv.export")}</Text>
+          <TouchableOpacity style={[styles.csvButton, { backgroundColor: themeColors.background, borderColor: themeColors.border }]} onPress={handleExportCsv}>
+            <Text style={[styles.csvButtonText, { color: themeColors.text }]}>{t("csv.export")}</Text>
           </TouchableOpacity>
         </View>
 
         {/* Suchfeld */}
         <TextInput
-          style={styles.searchInput}
+          style={[styles.searchInput, { backgroundColor: themeColors.card, borderColor: themeColors.border, color: themeColors.text }]}
           placeholder={t("adminMentors.search")}
-          placeholderTextColor={COLORS.tertiary}
+          placeholderTextColor={themeColors.textTertiary}
           value={search}
           onChangeText={setSearch}
         />
@@ -124,8 +126,8 @@ export default function AdminMentorsScreen() {
         {isLoading ? (
           <SkeletonList count={4} />
         ) : filtered.length === 0 ? (
-          <View style={styles.emptyCard}>
-            <Text style={styles.emptyText}>{t("adminMentors.noMentors")}</Text>
+          <View style={[styles.emptyCard, { backgroundColor: themeColors.card }]}>
+            <Text style={[styles.emptyText, { color: themeColors.textTertiary }]}>{t("adminMentors.noMentors")}</Text>
           </View>
         ) : (
           filtered.map((mentor) => {
@@ -146,7 +148,7 @@ export default function AdminMentorsScreen() {
             return (
               <TouchableOpacity
                 key={mentor.id}
-                style={styles.mentorCard}
+                style={[styles.mentorCard, { backgroundColor: themeColors.card }]}
                 onPress={() =>
                   router.push({ pathname: "/mentor/[id]", params: { id: mentor.id } })
                 }
@@ -157,33 +159,33 @@ export default function AdminMentorsScreen() {
                   </View>
                   <View style={{ flex: 1 }}>
                     <View style={{ flexDirection: "row", alignItems: "center", gap: 6 }}>
-                      <Text style={styles.mentorName}>{mentor.name}</Text>
+                      <Text style={[styles.mentorName, { color: themeColors.text }]}>{mentor.name}</Text>
                       {mentor.is_active === false && (
                         <View style={styles.blockedBadge}>
                           <Text style={styles.blockedBadgeText}>{t("editUser.blocked")}</Text>
                         </View>
                       )}
                     </View>
-                    <Text style={styles.mentorMeta}>
+                    <Text style={[styles.mentorMeta, { color: themeColors.textTertiary }]}>
                       {mentor.city} · {mentor.age} J. · {mentor.gender === "male" ? t("dashboard.brother") : t("dashboard.sister")}
                     </Text>
                   </View>
-                  <Text style={styles.arrow}>›</Text>
+                  <Text style={[styles.arrow, { color: themeColors.textTertiary }]}>›</Text>
                 </View>
 
                 {/* Stats-Zeile */}
                 <View style={styles.statsRow}>
-                  <View style={styles.statChip}>
+                  <View style={[styles.statChip, { backgroundColor: themeColors.background }]}>
                     <Text style={[styles.statChipValue, { color: COLORS.gradientStart }]}>{active}</Text>
-                    <Text style={styles.statChipLabel}>{t("adminMentors.activeMentorships")}</Text>
+                    <Text style={[styles.statChipLabel, { color: themeColors.textTertiary }]}>{t("adminMentors.activeMentorships")}</Text>
                   </View>
-                  <View style={styles.statChip}>
+                  <View style={[styles.statChip, { backgroundColor: themeColors.background }]}>
                     <Text style={[styles.statChipValue, { color: COLORS.cta }]}>{completed}</Text>
-                    <Text style={styles.statChipLabel}>{t("adminMentors.completedMentorships")}</Text>
+                    <Text style={[styles.statChipLabel, { color: themeColors.textTertiary }]}>{t("adminMentors.completedMentorships")}</Text>
                   </View>
-                  <View style={styles.statChip}>
+                  <View style={[styles.statChip, { backgroundColor: themeColors.background }]}>
                     <Text style={[styles.statChipValue, { color: COLORS.gold }]}>{totalSessions}</Text>
-                    <Text style={styles.statChipLabel}>{t("common.sessions")}</Text>
+                    <Text style={[styles.statChipLabel, { color: themeColors.textTertiary }]}>{t("common.sessions")}</Text>
                   </View>
                 </View>
               </TouchableOpacity>
@@ -196,35 +198,30 @@ export default function AdminMentorsScreen() {
 }
 
 const styles = StyleSheet.create({
-  scrollView: { flex: 1, backgroundColor: COLORS.bg },
+  scrollView: { flex: 1 },
   page: { padding: 20 },
   center: { flex: 1, alignItems: "center", justifyContent: "center", padding: 32 },
-  accessDenied: { color: COLORS.error, textAlign: "center" },
+  accessDenied: { textAlign: "center" },
   headerRow: { flexDirection: "row", alignItems: "center", gap: 12, marginBottom: 16 },
   backBtn: { width: 36, height: 36, alignItems: "center", justifyContent: "center" },
-  backBtnText: { fontSize: 24, color: COLORS.primary, fontWeight: "300" },
-  pageTitle: { fontSize: 20, fontWeight: "700", color: COLORS.primary },
-  pageSubtitle: { color: COLORS.secondary, fontSize: 13 },
+  backBtnText: { fontSize: 24, fontWeight: "300" },
+  pageTitle: { fontSize: 20, fontWeight: "700" },
+  pageSubtitle: { fontSize: 13 },
   searchInput: {
-    backgroundColor: COLORS.white,
     borderRadius: 8,
     borderWidth: 1,
-    borderColor: COLORS.border,
     paddingHorizontal: 14,
     paddingVertical: 10,
     fontSize: 14,
-    color: COLORS.primary,
     marginBottom: 16,
   },
   emptyCard: {
-    backgroundColor: COLORS.white,
     borderRadius: 8,
     padding: 32,
     alignItems: "center",
   },
-  emptyText: { color: COLORS.tertiary, fontSize: 14 },
+  emptyText: { fontSize: 14 },
   mentorCard: {
-    backgroundColor: COLORS.white,
     borderRadius: 8,
     padding: 14,
     marginBottom: 10,
@@ -246,28 +243,25 @@ const styles = StyleSheet.create({
     justifyContent: "center",
   },
   avatarText: { color: COLORS.white, fontWeight: "700", fontSize: 15 },
-  mentorName: { fontWeight: "700", color: COLORS.primary, fontSize: 15 },
-  mentorMeta: { color: COLORS.tertiary, fontSize: 12, marginTop: 2 },
-  arrow: { color: COLORS.tertiary, fontSize: 20 },
+  mentorName: { fontWeight: "700", fontSize: 15 },
+  mentorMeta: { fontSize: 12, marginTop: 2 },
+  arrow: { fontSize: 20 },
   statsRow: { flexDirection: "row", gap: 8 },
   statChip: {
     flex: 1,
-    backgroundColor: COLORS.bg,
     borderRadius: 6,
     padding: 8,
     alignItems: "center",
   },
   statChipValue: { fontSize: 18, fontWeight: "700" },
-  statChipLabel: { color: COLORS.tertiary, fontSize: 10, marginTop: 2, textAlign: "center" },
+  statChipLabel: { fontSize: 10, marginTop: 2, textAlign: "center" },
   csvButton: {
-    backgroundColor: COLORS.bg,
     borderWidth: 1,
-    borderColor: COLORS.border,
     borderRadius: 6,
     paddingHorizontal: 10,
     paddingVertical: 6,
   },
-  csvButtonText: { color: COLORS.primary, fontSize: 12, fontWeight: "600" },
+  csvButtonText: { fontSize: 12, fontWeight: "600" },
   blockedBadge: {
     backgroundColor: "#fee2e2",
     borderRadius: 4,

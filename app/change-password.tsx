@@ -12,10 +12,12 @@ import { useRouter } from "expo-router";
 import { COLORS } from "../constants/Colors";
 import { Container } from "../components/Container";
 import { useLanguage } from "../contexts/LanguageContext";
+import { useThemeColors } from "../contexts/ThemeContext";
 
 export default function ChangePasswordScreen() {
   const router = useRouter();
   const { t } = useLanguage();
+  const themeColors = useThemeColors();
 
   const [oldPassword, setOldPassword] = useState("");
   const [newPassword, setNewPassword] = useState("");
@@ -58,13 +60,13 @@ export default function ChangePasswordScreen() {
 
   return (
     <Container>
-      <View style={styles.root}>
+      <View style={[styles.root, { backgroundColor: themeColors.background }]}>
         {/* Header */}
-        <View style={styles.header}>
+        <View style={[styles.header, { backgroundColor: themeColors.card, borderBottomColor: themeColors.border }]}>
           <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
-            <Text style={styles.backText}>{t("changePassword.back")}</Text>
+            <Text style={[styles.backText, { color: themeColors.text }]}>{t("changePassword.back")}</Text>
           </TouchableOpacity>
-          <Text style={styles.headerTitle}>{t("changePassword.title")}</Text>
+          <Text style={[styles.headerTitle, { color: themeColors.text }]}>{t("changePassword.title")}</Text>
           <View style={styles.headerRight} />
         </View>
 
@@ -77,14 +79,14 @@ export default function ChangePasswordScreen() {
           </View>
 
           {/* Aktuelles Passwort */}
-          <Text style={styles.fieldLabel}>{t("changePassword.currentPassword")}</Text>
-          <View style={styles.inputRow}>
+          <Text style={[styles.fieldLabel, { color: themeColors.textSecondary }]}>{t("changePassword.currentPassword")}</Text>
+          <View style={[styles.inputRow, { backgroundColor: themeColors.card, borderColor: themeColors.border }]}>
             <TextInput
-              style={styles.inputFlex}
+              style={[styles.inputFlex, { color: themeColors.text }]}
               value={oldPassword}
               onChangeText={setOldPassword}
               placeholder={t("changePassword.currentPassword")}
-              placeholderTextColor={COLORS.tertiary}
+              placeholderTextColor={themeColors.textTertiary}
               secureTextEntry={!showOld}
               autoCapitalize="none"
               autoCorrect={false}
@@ -98,14 +100,14 @@ export default function ChangePasswordScreen() {
           </View>
 
           {/* Neues Passwort */}
-          <Text style={styles.fieldLabel}>{t("changePassword.newPassword")}</Text>
-          <View style={styles.inputRow}>
+          <Text style={[styles.fieldLabel, { color: themeColors.textSecondary }]}>{t("changePassword.newPassword")}</Text>
+          <View style={[styles.inputRow, { backgroundColor: themeColors.card, borderColor: themeColors.border }]}>
             <TextInput
-              style={styles.inputFlex}
+              style={[styles.inputFlex, { color: themeColors.text }]}
               value={newPassword}
               onChangeText={setNewPassword}
               placeholder={t("changePassword.passwordPlaceholder")}
-              placeholderTextColor={COLORS.tertiary}
+              placeholderTextColor={themeColors.textTertiary}
               secureTextEntry={!showNew}
               autoCapitalize="none"
               autoCorrect={false}
@@ -121,7 +123,7 @@ export default function ChangePasswordScreen() {
           {/* Passwortstärke */}
           {newPasswordStrength && (
             <View style={styles.strengthRow}>
-              <View style={styles.strengthTrack}>
+              <View style={[styles.strengthTrack, { backgroundColor: themeColors.background, borderColor: themeColors.border }]}>
                 <View
                   style={[
                     styles.strengthFill,
@@ -144,14 +146,14 @@ export default function ChangePasswordScreen() {
           )}
 
           {/* Passwort bestätigen */}
-          <Text style={[styles.fieldLabel, { marginTop: 8 }]}>{t("changePassword.confirmPassword")}</Text>
-          <View style={styles.inputRow}>
+          <Text style={[styles.fieldLabel, { marginTop: 8, color: themeColors.textSecondary }]}>{t("changePassword.confirmPassword")}</Text>
+          <View style={[styles.inputRow, { backgroundColor: themeColors.card, borderColor: themeColors.border }]}>
             <TextInput
-              style={styles.inputFlex}
+              style={[styles.inputFlex, { color: themeColors.text }]}
               value={confirmPassword}
               onChangeText={setConfirmPassword}
               placeholder={t("changePassword.confirmPlaceholder")}
-              placeholderTextColor={COLORS.tertiary}
+              placeholderTextColor={themeColors.textTertiary}
               secureTextEntry={!showConfirm}
               autoCapitalize="none"
               autoCorrect={false}
@@ -179,11 +181,11 @@ export default function ChangePasswordScreen() {
           )}
 
           {/* Sicherheitshinweis */}
-          <View style={styles.tipCard}>
-            <Text style={styles.tipTitle}>{t("changePassword.tipsTitle")}</Text>
-            <Text style={styles.tipText}>{t("changePassword.tip1")}</Text>
-            <Text style={styles.tipText}>{t("changePassword.tip2")}</Text>
-            <Text style={styles.tipText}>{t("changePassword.tip3")}</Text>
+          <View style={[styles.tipCard, { backgroundColor: themeColors.card, borderColor: themeColors.border }]}>
+            <Text style={[styles.tipTitle, { color: themeColors.text }]}>{t("changePassword.tipsTitle")}</Text>
+            <Text style={[styles.tipText, { color: themeColors.textSecondary }]}>{t("changePassword.tip1")}</Text>
+            <Text style={[styles.tipText, { color: themeColors.textSecondary }]}>{t("changePassword.tip2")}</Text>
+            <Text style={[styles.tipText, { color: themeColors.textSecondary }]}>{t("changePassword.tip3")}</Text>
           </View>
 
           {/* Speichern */}
@@ -197,8 +199,8 @@ export default function ChangePasswordScreen() {
             </Text>
           </TouchableOpacity>
 
-          <TouchableOpacity style={styles.cancelButton} onPress={() => router.back()}>
-            <Text style={styles.cancelButtonText}>{t("changePassword.cancel")}</Text>
+          <TouchableOpacity style={[styles.cancelButton, { backgroundColor: themeColors.background, borderColor: themeColors.border }]} onPress={() => router.back()}>
+            <Text style={[styles.cancelButtonText, { color: themeColors.textSecondary }]}>{t("changePassword.cancel")}</Text>
           </TouchableOpacity>
 
         </ScrollView>
@@ -208,20 +210,18 @@ export default function ChangePasswordScreen() {
 }
 
 const styles = StyleSheet.create({
-  root: { flex: 1, backgroundColor: COLORS.bg },
+  root: { flex: 1 },
   header: {
     flexDirection: "row",
     alignItems: "center",
     paddingHorizontal: 16,
     paddingTop: 56,
     paddingBottom: 16,
-    backgroundColor: COLORS.white,
     borderBottomWidth: 1,
-    borderBottomColor: COLORS.border,
   },
   backButton: { flex: 1 },
-  backText: { color: COLORS.primary, fontSize: 16, fontWeight: "500" },
-  headerTitle: { fontWeight: "bold", color: COLORS.primary, fontSize: 16 },
+  backText: { fontSize: 16, fontWeight: "500" },
+  headerTitle: { fontWeight: "bold", fontSize: 16 },
   headerRight: { flex: 1 },
   scrollView: { flex: 1 },
   content: { padding: 16, paddingBottom: 40 },
@@ -235,7 +235,6 @@ const styles = StyleSheet.create({
   },
   infoText: { color: "#1e40af", fontSize: 13 },
   fieldLabel: {
-    color: COLORS.secondary,
     fontSize: 13,
     fontWeight: "500",
     marginBottom: 4,
@@ -243,9 +242,7 @@ const styles = StyleSheet.create({
   inputRow: {
     flexDirection: "row",
     alignItems: "center",
-    backgroundColor: COLORS.white,
     borderWidth: 1,
-    borderColor: COLORS.border,
     borderRadius: 6,
     marginBottom: 10,
     overflow: "hidden",
@@ -254,7 +251,6 @@ const styles = StyleSheet.create({
     flex: 1,
     paddingHorizontal: 12,
     paddingVertical: 8,
-    color: COLORS.primary,
     fontSize: 14,
   },
   eyeButton: {
@@ -271,26 +267,22 @@ const styles = StyleSheet.create({
   strengthTrack: {
     flex: 1,
     height: 6,
-    backgroundColor: COLORS.bg,
     borderRadius: 9999,
     overflow: "hidden",
     borderWidth: 1,
-    borderColor: COLORS.border,
   },
   strengthFill: { height: "100%", borderRadius: 9999 },
   strengthLabel: { fontSize: 12, fontWeight: "600", minWidth: 50 },
   matchText: { fontSize: 13, fontWeight: "500", marginBottom: 16 },
   tipCard: {
-    backgroundColor: COLORS.white,
     borderWidth: 1,
-    borderColor: COLORS.border,
     borderRadius: 8,
     padding: 12,
     marginTop: 6,
     marginBottom: 16,
   },
-  tipTitle: { fontWeight: "700", color: COLORS.primary, fontSize: 12, marginBottom: 6 },
-  tipText: { color: COLORS.secondary, fontSize: 12, lineHeight: 18 },
+  tipTitle: { fontWeight: "700", fontSize: 12, marginBottom: 6 },
+  tipText: { fontSize: 12, lineHeight: 18 },
   saveButton: {
     backgroundColor: COLORS.cta,
     borderRadius: 5,
@@ -301,12 +293,10 @@ const styles = StyleSheet.create({
   saveButtonDisabled: { opacity: 0.6 },
   saveButtonText: { color: COLORS.white, fontWeight: "600", fontSize: 14 },
   cancelButton: {
-    backgroundColor: COLORS.bg,
     borderWidth: 1,
-    borderColor: COLORS.border,
     borderRadius: 5,
     paddingVertical: 9,
     alignItems: "center",
   },
-  cancelButtonText: { color: COLORS.secondary, fontWeight: "500", fontSize: 14 },
+  cancelButtonText: { fontWeight: "500", fontSize: 14 },
 });

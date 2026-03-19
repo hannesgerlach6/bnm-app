@@ -16,6 +16,7 @@ import type { User } from "../types";
 import { COLORS } from "../constants/Colors";
 import { sendMenteeAssignedNotification } from "../lib/emailService";
 import { useLanguage } from "../contexts/LanguageContext";
+import { useThemeColors } from "../contexts/ThemeContext";
 
 interface MatchScore {
   mentor: User;
@@ -68,6 +69,7 @@ export default function AssignScreen() {
   const router = useRouter();
   const { user } = useAuth();
   const { t } = useLanguage();
+  const themeColors = useThemeColors();
   const { users, mentorships, assignMentorship, getUnassignedMentees } = useData();
   const params = useLocalSearchParams<{ menteeId?: string }>();
   const confirm = useConfirm();
@@ -158,19 +160,19 @@ export default function AssignScreen() {
 
   if (!isAdmin && !isMentor) {
     return (
-      <View style={styles.centerContainer}>
-        <Text style={styles.accessText}>{t("assign.accessDenied")}</Text>
+      <View style={[styles.centerContainer, { backgroundColor: themeColors.background }]}>
+        <Text style={[styles.accessText, { color: themeColors.text }]}>{t("assign.accessDenied")}</Text>
       </View>
     );
   }
 
   if (unassignedMentees.length === 0) {
     return (
-      <View style={styles.centerContainer}>
-        <Text style={styles.boldTitle}>
+      <View style={[styles.centerContainer, { backgroundColor: themeColors.background }]}>
+        <Text style={[styles.boldTitle, { color: themeColors.text }]}>
           {isMentor ? t("assign.noMenteesMentorTitle") : t("assign.noMenteesTitle")}
         </Text>
-        <Text style={styles.centerSubText}>
+        <Text style={[styles.centerSubText, { color: themeColors.textSecondary }]}>
           {isMentor
             ? t("assign.noMenteesMentorText")
             : t("assign.noMenteesText")}
@@ -183,7 +185,7 @@ export default function AssignScreen() {
   }
 
   return (
-    <ScrollView style={styles.scrollView}>
+    <ScrollView style={[styles.scrollView, { backgroundColor: themeColors.background }]}>
       <View style={styles.page}>
         {/* Mentor-Modus Banner */}
         {isMentor && (
@@ -196,15 +198,15 @@ export default function AssignScreen() {
         )}
 
         {/* Mentee auswählen */}
-        <Text style={styles.sectionLabel}>{t("assign.selectMentee")}</Text>
-        <View style={styles.listCard}>
+        <Text style={[styles.sectionLabel, { color: themeColors.textTertiary }]}>{t("assign.selectMentee")}</Text>
+        <View style={[styles.listCard, { backgroundColor: themeColors.card, borderColor: themeColors.border }]}>
           {unassignedMentees.map((mentee, idx) => (
             <TouchableOpacity
               key={mentee.id}
               style={[
                 styles.listItem,
-                idx < unassignedMentees.length - 1 ? styles.listItemBorder : {},
-                selectedMenteeId === mentee.id ? styles.listItemSelected : {},
+                idx < unassignedMentees.length - 1 ? [styles.listItemBorder, { borderBottomColor: themeColors.border }] : {},
+                selectedMenteeId === mentee.id ? [styles.listItemSelected, { backgroundColor: themeColors.background }] : {},
               ]}
               onPress={() => {
                 setSelectedMenteeId(mentee.id);
@@ -216,7 +218,7 @@ export default function AssignScreen() {
                   styles.radioCircle,
                   selectedMenteeId === mentee.id
                     ? styles.radioCircleActive
-                    : styles.radioCircleInactive,
+                    : [styles.radioCircleInactive, { borderColor: themeColors.border }],
                 ]}
               >
                 {selectedMenteeId === mentee.id && (
@@ -224,8 +226,8 @@ export default function AssignScreen() {
                 )}
               </View>
               <View style={{ flex: 1 }}>
-                <Text style={styles.itemName}>{mentee.name}</Text>
-                <Text style={styles.itemSub}>
+                <Text style={[styles.itemName, { color: themeColors.text }]}>{mentee.name}</Text>
+                <Text style={[styles.itemSub, { color: themeColors.textTertiary }]}>
                   {mentee.city} · {mentee.age} J. ·{" "}
                   {mentee.gender === "male" ? t("assign.brother") : t("assign.sister")}
                 </Text>
@@ -237,8 +239,8 @@ export default function AssignScreen() {
         {/* Passende Mentoren (nur Admin-Modus) */}
         {isAdmin && selectedMentee && (
           <>
-            <Text style={styles.sectionLabel}>{t("assign.matchedMentors")}</Text>
-            <Text style={styles.sectionHint}>
+            <Text style={[styles.sectionLabel, { color: themeColors.textTertiary }]}>{t("assign.matchedMentors")}</Text>
+            <Text style={[styles.sectionHint, { color: themeColors.textSecondary }]}>
               {t("assign.genderRule")}
             </Text>
 
@@ -269,7 +271,9 @@ export default function AssignScreen() {
                       key={match.mentor.id}
                       style={[
                         styles.mentorCard,
-                        isSelected ? styles.mentorCardSelected : styles.mentorCardDefault,
+                        isSelected
+                          ? [styles.mentorCardSelected, { borderColor: COLORS.primary, backgroundColor: themeColors.background }]
+                          : [styles.mentorCardDefault, { borderColor: themeColors.border, backgroundColor: themeColors.card }],
                       ]}
                       onPress={() => setSelectedMentorId(match.mentor.id)}
                     >
@@ -280,8 +284,8 @@ export default function AssignScreen() {
                               <Text style={styles.bestChoiceText}>{t("assign.bestChoice")}</Text>
                             </View>
                           )}
-                          <Text style={styles.mentorName}>{match.mentor.name}</Text>
-                          <Text style={styles.mentorSub}>
+                          <Text style={[styles.mentorName, { color: themeColors.text }]}>{match.mentor.name}</Text>
+                          <Text style={[styles.mentorSub, { color: themeColors.textTertiary }]}>
                             {match.mentor.city} · {match.mentor.age} J. ·{" "}
                             {t("assign.activeMentorships")
                               .replace("{0}", String(activeMenteeCount))
@@ -292,11 +296,11 @@ export default function AssignScreen() {
                           <Text style={[styles.scoreValue, { color: scoreColor }]}>
                             {percentage}%
                           </Text>
-                          <Text style={styles.scoreLabel}>{t("assign.match")}</Text>
+                          <Text style={[styles.scoreLabel, { color: themeColors.textTertiary }]}>{t("assign.match")}</Text>
                         </View>
                       </View>
 
-                      <View style={styles.scoreBar}>
+                      <View style={[styles.scoreBar, { backgroundColor: themeColors.background }]}>
                         <View
                           style={[
                             styles.scoreBarFill,
@@ -307,15 +311,15 @@ export default function AssignScreen() {
 
                       <View style={styles.reasonsRow}>
                         {match.reasonKeys.map((reasonKey) => (
-                          <View key={reasonKey} style={styles.reasonChip}>
-                            <Text style={styles.reasonText}>✓ {t(reasonKey as TranslationKeys)}</Text>
+                          <View key={reasonKey} style={[styles.reasonChip, { backgroundColor: themeColors.background }]}>
+                            <Text style={[styles.reasonText, { color: themeColors.textSecondary }]}>✓ {t(reasonKey as TranslationKeys)}</Text>
                           </View>
                         ))}
                       </View>
 
                       {isSelected && (
                         <View style={styles.selectedIndicator}>
-                          <Text style={styles.selectedIndicatorText}>{t("assign.selected")}</Text>
+                          <Text style={[styles.selectedIndicatorText, { color: themeColors.text }]}>{t("assign.selected")}</Text>
                         </View>
                       )}
                     </TouchableOpacity>
@@ -339,7 +343,7 @@ export default function AssignScreen() {
             styles.assignButton,
             (isMentor ? selectedMenteeId : selectedMenteeId && selectedMentorId) && !isAssigning
               ? { backgroundColor: COLORS.cta }
-              : { backgroundColor: COLORS.border },
+              : { backgroundColor: themeColors.border },
           ]}
           onPress={handleAssign}
           disabled={isAssigning || (isMentor ? !selectedMenteeId : !selectedMenteeId || !selectedMentorId)}
@@ -349,7 +353,7 @@ export default function AssignScreen() {
               styles.assignButtonText,
               (isMentor ? selectedMenteeId : selectedMenteeId && selectedMentorId) && !isAssigning
                 ? { color: COLORS.white }
-                : { color: COLORS.tertiary },
+                : { color: themeColors.textTertiary },
             ]}
           >
             {isAssigning ? "..." : isMentor ? t("assign.pendingApprovalButton") : t("assign.assignButton")}
@@ -361,16 +365,16 @@ export default function AssignScreen() {
 }
 
 const styles = StyleSheet.create({
-  scrollView: { flex: 1, backgroundColor: COLORS.bg },
-  centerContainer: { flex: 1, backgroundColor: COLORS.bg, alignItems: "center", justifyContent: "center", padding: 24 },
-  accessText: { color: COLORS.primary, fontWeight: "600" },
-  boldTitle: { color: COLORS.primary, fontWeight: "bold", fontSize: 18, marginBottom: 8 },
-  centerSubText: { color: COLORS.secondary, textAlign: "center", fontSize: 14, marginBottom: 24 },
+  scrollView: { flex: 1 },
+  centerContainer: { flex: 1, alignItems: "center", justifyContent: "center", padding: 24 },
+  accessText: { fontWeight: "600" },
+  boldTitle: { fontWeight: "bold", fontSize: 18, marginBottom: 8 },
+  centerSubText: { textAlign: "center", fontSize: 14, marginBottom: 24 },
   backButton: { backgroundColor: COLORS.primary, paddingHorizontal: 24, paddingVertical: 9, borderRadius: 5 },
   backButtonText: { color: COLORS.white, fontWeight: "600" },
   page: { padding: 20 },
-  sectionLabel: { fontSize: 11, fontWeight: "600", color: COLORS.tertiary, letterSpacing: 1, marginBottom: 10 },
-  sectionHint: { color: COLORS.secondary, fontSize: 12, marginBottom: 10 },
+  sectionLabel: { fontSize: 11, fontWeight: "600", letterSpacing: 1, marginBottom: 10 },
+  sectionHint: { fontSize: 12, marginBottom: 10 },
   mentorModeBox: {
     backgroundColor: "#eff6ff",
     borderWidth: 1,
@@ -382,10 +386,8 @@ const styles = StyleSheet.create({
   mentorModeTitle: { color: "#1e40af", fontWeight: "600", fontSize: 14, marginBottom: 4 },
   mentorModeText: { color: "#2563eb", fontSize: 13 },
   listCard: {
-    backgroundColor: COLORS.white,
     borderRadius: 8,
     borderWidth: 1,
-    borderColor: COLORS.border,
     overflow: "hidden",
     marginBottom: 16,
   },
@@ -395,8 +397,8 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
     paddingVertical: 12,
   },
-  listItemBorder: { borderBottomWidth: 1, borderBottomColor: COLORS.border },
-  listItemSelected: { backgroundColor: "#eff6ff" },
+  listItemBorder: { borderBottomWidth: 1 },
+  listItemSelected: {},
   radioCircle: {
     width: 20,
     height: 20,
@@ -407,10 +409,10 @@ const styles = StyleSheet.create({
     justifyContent: "center",
   },
   radioCircleActive: { borderColor: COLORS.primary, backgroundColor: COLORS.primary },
-  radioCircleInactive: { borderColor: COLORS.border },
+  radioCircleInactive: {},
   radioDot: { width: 8, height: 8, borderRadius: 9999, backgroundColor: COLORS.white },
-  itemName: { fontWeight: "600", color: COLORS.primary },
-  itemSub: { color: COLORS.tertiary, fontSize: 12 },
+  itemName: { fontWeight: "600" },
+  itemSub: { fontSize: 12 },
   errorBox: {
     backgroundColor: "#fef2f2",
     borderWidth: 1,
@@ -427,8 +429,8 @@ const styles = StyleSheet.create({
     padding: 14,
     marginBottom: 10,
   },
-  mentorCardDefault: { borderColor: COLORS.border, backgroundColor: COLORS.white },
-  mentorCardSelected: { borderColor: COLORS.primary, backgroundColor: "#eff6ff" },
+  mentorCardDefault: {},
+  mentorCardSelected: {},
   mentorCardHeader: { flexDirection: "row", alignItems: "flex-start", justifyContent: "space-between", marginBottom: 8 },
   bestChoiceBadge: {
     backgroundColor: "rgba(238,167,27,0.2)",
@@ -439,28 +441,27 @@ const styles = StyleSheet.create({
     alignSelf: "flex-start",
   },
   bestChoiceText: { fontSize: 12, fontWeight: "bold", color: COLORS.gold },
-  mentorName: { fontWeight: "bold", color: COLORS.primary },
-  mentorSub: { color: COLORS.tertiary, fontSize: 12 },
+  mentorName: { fontWeight: "bold" },
+  mentorSub: { fontSize: 12 },
   scoreValue: { fontSize: 24, fontWeight: "bold" },
-  scoreLabel: { color: COLORS.tertiary, fontSize: 12 },
+  scoreLabel: { fontSize: 12 },
   scoreBar: {
     height: 6,
-    backgroundColor: COLORS.bg,
     borderRadius: 9999,
     overflow: "hidden",
     marginBottom: 8,
   },
   scoreBarFill: { height: "100%", borderRadius: 9999 },
   reasonsRow: { flexDirection: "row", flexWrap: "wrap", gap: 4 },
-  reasonChip: { backgroundColor: COLORS.bg, paddingHorizontal: 8, paddingVertical: 2, borderRadius: 9999 },
-  reasonText: { color: COLORS.secondary, fontSize: 12 },
+  reasonChip: { paddingHorizontal: 8, paddingVertical: 2, borderRadius: 9999 },
+  reasonText: { fontSize: 12 },
   selectedIndicator: {
     marginTop: 8,
     borderTopWidth: 1,
     borderTopColor: "#bfdbfe",
     paddingTop: 8,
   },
-  selectedIndicatorText: { color: COLORS.primary, fontSize: 12, fontWeight: "600" },
+  selectedIndicatorText: { fontSize: 12, fontWeight: "600" },
   assignButton: { borderRadius: 5, paddingVertical: 9, alignItems: "center" },
   assignButtonText: { fontWeight: "600", fontSize: 14 },
   pendingHintBox: {

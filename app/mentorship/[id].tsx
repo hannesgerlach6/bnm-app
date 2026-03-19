@@ -14,6 +14,7 @@ import { useAuth } from "../../contexts/AuthContext";
 import { useData } from "../../contexts/DataContext";
 import { COLORS } from "../../constants/Colors";
 import { useLanguage } from "../../contexts/LanguageContext";
+import { useThemeColors } from "../../contexts/ThemeContext";
 import { supabase } from "../../lib/supabase";
 
 
@@ -21,6 +22,7 @@ export default function MentorshipDetailScreen() {
   const router = useRouter();
   const { user } = useAuth();
   const { t } = useLanguage();
+  const themeColors = useThemeColors();
   const [isUpdatingStatus, setIsUpdatingStatus] = useState(false);
   const {
     getMentorshipById,
@@ -74,8 +76,8 @@ export default function MentorshipDetailScreen() {
 
   if (!mentorship) {
     return (
-      <View style={styles.centerContainer}>
-        <Text style={styles.boldTitle}>{t("mentorship.notFound")}</Text>
+      <View style={[styles.centerContainer, { backgroundColor: themeColors.background }]}>
+        <Text style={[styles.boldTitle, { color: themeColors.text }]}>{t("mentorship.notFound")}</Text>
         <TouchableOpacity
           style={[styles.primaryButton, { marginTop: 16 }]}
           onPress={() => router.back()}
@@ -193,52 +195,52 @@ export default function MentorshipDetailScreen() {
 
   return (
     <>
-    <ScrollView style={styles.scrollView}>
+    <ScrollView style={[styles.scrollView, { backgroundColor: themeColors.background }]}>
       <View style={styles.page}>
         {/* Status-Badge */}
         <View style={styles.statusRow}>
           <View style={[styles.statusBadge, { backgroundColor: statusBg }]}>
             <Text style={[styles.statusText, { color: statusTextColor }]}>{statusLabel}</Text>
           </View>
-          <Text style={styles.dateSince}>
+          <Text style={[styles.dateSince, { color: themeColors.textTertiary }]}>
             {t("mentorship.since").replace("{0}", new Date(mentorship.assigned_at).toLocaleDateString("de-DE"))}
           </Text>
         </View>
 
         {/* Mentee-Info */}
-        <View style={styles.card}>
-          <Text style={styles.cardSectionLabel}>{t("mentorship.mentee")}</Text>
-          <Text style={styles.bigName}>{mentorship.mentee?.name}</Text>
+        <View style={[styles.card, { backgroundColor: themeColors.card, borderColor: themeColors.border }]}>
+          <Text style={[styles.cardSectionLabel, { color: themeColors.textTertiary }]}>{t("mentorship.mentee")}</Text>
+          <Text style={[styles.bigName, { color: themeColors.text }]}>{mentorship.mentee?.name}</Text>
           <View style={styles.chipRow}>
-            <InfoChip label={mentorship.mentee?.city ?? ""} />
-            <InfoChip label={`${mentorship.mentee?.age} J.`} />
-            <InfoChip label={mentorship.mentee?.gender === "male" ? t("mentorship.brother") : t("mentorship.sister")} />
+            <InfoChip label={mentorship.mentee?.city ?? ""} themeColors={themeColors} />
+            <InfoChip label={`${mentorship.mentee?.age} J.`} themeColors={themeColors} />
+            <InfoChip label={mentorship.mentee?.gender === "male" ? t("mentorship.brother") : t("mentorship.sister")} themeColors={themeColors} />
           </View>
           {mentorship.mentee?.phone && (
-            <Text style={styles.phoneText}>{mentorship.mentee.phone}</Text>
+            <Text style={[styles.phoneText, { color: themeColors.textSecondary }]}>{mentorship.mentee.phone}</Text>
           )}
         </View>
 
         {/* Mentor-Info */}
-        <View style={styles.card}>
-          <Text style={styles.cardSectionLabel}>{t("mentorship.mentor")}</Text>
-          <Text style={[styles.bigName, { fontSize: 18 }]}>{mentorship.mentor?.name}</Text>
+        <View style={[styles.card, { backgroundColor: themeColors.card, borderColor: themeColors.border }]}>
+          <Text style={[styles.cardSectionLabel, { color: themeColors.textTertiary }]}>{t("mentorship.mentor")}</Text>
+          <Text style={[styles.bigName, { fontSize: 18, color: themeColors.text }]}>{mentorship.mentor?.name}</Text>
           <View style={styles.chipRow}>
-            <InfoChip label={mentorship.mentor?.city ?? ""} />
-            <InfoChip label={`${mentorship.mentor?.age} J.`} />
+            <InfoChip label={mentorship.mentor?.city ?? ""} themeColors={themeColors} />
+            <InfoChip label={`${mentorship.mentor?.age} J.`} themeColors={themeColors} />
           </View>
         </View>
 
         {/* Fortschrittsbalken */}
-        <View style={styles.card}>
+        <View style={[styles.card, { backgroundColor: themeColors.card, borderColor: themeColors.border }]}>
           <View style={styles.progressHeader}>
-            <Text style={styles.cardTitle}>{t("mentorship.progress")}</Text>
+            <Text style={[styles.cardTitle, { color: themeColors.text }]}>{t("mentorship.progress")}</Text>
             <Text style={styles.progressPercent}>{progress}%</Text>
           </View>
-          <View style={styles.progressTrack}>
+          <View style={[styles.progressTrack, { backgroundColor: themeColors.background }]}>
             <View style={[styles.progressFill, { width: `${progress}%` as any }]} />
           </View>
-          <Text style={styles.progressSub}>
+          <Text style={[styles.progressSub, { color: themeColors.textTertiary }]}>
             {t("mentorship.stepsCompleted")
               .replace("{0}", String(completedStepIds.length))
               .replace("{1}", String(sessionTypes.length))}
@@ -260,8 +262,8 @@ export default function MentorshipDetailScreen() {
         )}
 
         {/* Session-Timeline */}
-        <Text style={styles.sectionLabel}>{t("mentorship.sessionHistory")}</Text>
-        <View style={[styles.card, { padding: 0, overflow: "hidden" }]}>
+        <Text style={[styles.sectionLabel, { color: themeColors.textTertiary }]}>{t("mentorship.sessionHistory")}</Text>
+        <View style={[styles.card, { backgroundColor: themeColors.card, borderColor: themeColors.border, padding: 0, overflow: "hidden" }]}>
           {sortedSessionTypes.map((step, idx) => {
             const isDone = completedStepIds.includes(step.id);
             const isCurrent = !isDone && idx === completedStepIds.length;
@@ -273,7 +275,7 @@ export default function MentorshipDetailScreen() {
                 key={step.id}
                 style={[
                   styles.timelineItem,
-                  !isLast ? styles.timelineItemBorder : {},
+                  !isLast ? [styles.timelineItemBorder, { borderBottomColor: themeColors.border }] : {},
                   isCurrent ? { backgroundColor: "#fffbeb" } : {},
                 ]}
               >
@@ -285,7 +287,7 @@ export default function MentorshipDetailScreen() {
                         ? { backgroundColor: COLORS.cta }
                         : isCurrent
                         ? { backgroundColor: COLORS.gold }
-                        : { backgroundColor: COLORS.bg, borderWidth: 1, borderColor: COLORS.border },
+                        : { backgroundColor: themeColors.background, borderWidth: 1, borderColor: themeColors.border },
                     ]}
                   >
                     {isDone ? (
@@ -293,7 +295,7 @@ export default function MentorshipDetailScreen() {
                     ) : (
                       <Text
                         style={
-                          isCurrent ? styles.dotTextWhite : styles.dotTextTertiary
+                          isCurrent ? styles.dotTextWhite : [styles.dotTextTertiary, { color: themeColors.textTertiary }]
                         }
                       >
                         {idx + 1}
@@ -304,7 +306,7 @@ export default function MentorshipDetailScreen() {
                     <View
                       style={[
                         styles.timelineLine,
-                        { backgroundColor: isDone ? COLORS.cta : COLORS.border },
+                        { backgroundColor: isDone ? COLORS.cta : themeColors.border },
                       ]}
                     />
                   )}
@@ -318,8 +320,8 @@ export default function MentorshipDetailScreen() {
                       isDone
                         ? { color: COLORS.cta }
                         : isCurrent
-                        ? { color: COLORS.primary }
-                        : { color: COLORS.tertiary },
+                        ? { color: themeColors.text }
+                        : { color: themeColors.textTertiary },
                     ]}
                   >
                     {step.name}
@@ -327,7 +329,7 @@ export default function MentorshipDetailScreen() {
 
                   {isDone && session && (
                     <>
-                      <Text style={styles.sessionDate}>
+                      <Text style={[styles.sessionDate, { color: themeColors.textTertiary }]}>
                         {new Date(session.date).toLocaleDateString("de-DE")} ·{" "}
                         {session.is_online ? t("mentorship.online") : t("mentorship.inPerson")}
                         {session.duration_minutes ? ` · ${t("timeline.duration").replace("{0}", String(session.duration_minutes))}` : ""}
@@ -336,7 +338,7 @@ export default function MentorshipDetailScreen() {
                           : ""}
                       </Text>
                       {session.details && (
-                        <Text style={styles.sessionDetails}>"{session.details}"</Text>
+                        <Text style={[styles.sessionDetails, { color: themeColors.textSecondary }]}>"{session.details}"</Text>
                       )}
                       {canDocumentSession && (
                         <View style={styles.sessionActionRow}>
@@ -449,7 +451,7 @@ export default function MentorshipDetailScreen() {
         )}
 
         {mentorship.completed_at && (
-          <Text style={styles.completedAtText}>
+          <Text style={[styles.completedAtText, { color: themeColors.textTertiary }]}>
             {t("mentorship.completedAt")
               .replace("{0}", mentorship.status === "completed" ? t("mentorship.completed") : t("mentorship.cancelled"))
               .replace("{1}", new Date(mentorship.completed_at).toLocaleDateString("de-DE"))}
@@ -458,15 +460,15 @@ export default function MentorshipDetailScreen() {
 
         {/* Mentor-Notizen (nur für Mentor + Admin sichtbar) */}
         {canWriteNotes && (
-          <View style={styles.notesCard}>
-            <Text style={styles.notesTitle}>{t("notes.title")}</Text>
-            <Text style={styles.notesHint}>{t("notes.hint")}</Text>
+          <View style={[styles.notesCard, { backgroundColor: themeColors.card, borderColor: themeColors.border }]}>
+            <Text style={[styles.notesTitle, { color: themeColors.text }]}>{t("notes.title")}</Text>
+            <Text style={[styles.notesHint, { color: themeColors.textTertiary }]}>{t("notes.hint")}</Text>
             <TextInput
-              style={styles.notesInput}
+              style={[styles.notesInput, { backgroundColor: themeColors.background, borderColor: themeColors.border, color: themeColors.text }]}
               value={displayNotes}
               onChangeText={setNotesText}
               placeholder={t("notes.placeholder")}
-              placeholderTextColor={COLORS.tertiary}
+              placeholderTextColor={themeColors.textTertiary}
               multiline
               numberOfLines={4}
             />
@@ -492,16 +494,16 @@ export default function MentorshipDetailScreen() {
       onRequestClose={() => setShowCancelModal(false)}
     >
       <View style={styles.modalOverlay}>
-        <View style={styles.modalCard}>
-          <Text style={styles.modalTitle}>{t("cancel.title")}</Text>
-          <Text style={styles.modalSubtitle}>{t("cancel.confirm")}</Text>
-          <Text style={styles.modalLabel}>{t("cancel.reason")}</Text>
+        <View style={[styles.modalCard, { backgroundColor: themeColors.card }]}>
+          <Text style={[styles.modalTitle, { color: themeColors.text }]}>{t("cancel.title")}</Text>
+          <Text style={[styles.modalSubtitle, { color: themeColors.textSecondary }]}>{t("cancel.confirm")}</Text>
+          <Text style={[styles.modalLabel, { color: themeColors.textSecondary }]}>{t("cancel.reason")}</Text>
           <TextInput
-            style={styles.modalTextInput}
+            style={[styles.modalTextInput, { borderColor: themeColors.border, color: themeColors.text }]}
             value={cancelReason}
             onChangeText={setCancelReason}
             placeholder={t("cancel.reasonPlaceholder")}
-            placeholderTextColor={COLORS.tertiary}
+            placeholderTextColor={themeColors.textTertiary}
             multiline
             numberOfLines={3}
             textAlignVertical="top"
@@ -509,11 +511,11 @@ export default function MentorshipDetailScreen() {
           />
           <View style={styles.modalButtonRow}>
             <TouchableOpacity
-              style={styles.modalCancelButton}
+              style={[styles.modalCancelButton, { borderColor: themeColors.border }]}
               onPress={() => { setShowCancelModal(false); setCancelReason(""); }}
               disabled={isCancelling}
             >
-              <Text style={styles.modalCancelText}>{t("common.back")}</Text>
+              <Text style={[styles.modalCancelText, { color: themeColors.textSecondary }]}>{t("common.back")}</Text>
             </TouchableOpacity>
             <TouchableOpacity
               style={[styles.modalConfirmButton, isCancelling ? { opacity: 0.6 } : {}]}
@@ -532,53 +534,51 @@ export default function MentorshipDetailScreen() {
   );
 }
 
-function InfoChip({ label }: { label: string }) {
+function InfoChip({ label, themeColors }: { label: string; themeColors: any }) {
   return (
-    <View style={styles.infoChip}>
-      <Text style={styles.infoChipText}>{label}</Text>
+    <View style={[styles.infoChip, { backgroundColor: themeColors.background }]}>
+      <Text style={[styles.infoChipText, { color: themeColors.textSecondary }]}>{label}</Text>
     </View>
   );
 }
 
 const styles = StyleSheet.create({
-  scrollView: { flex: 1, backgroundColor: COLORS.bg },
-  centerContainer: { flex: 1, backgroundColor: COLORS.bg, alignItems: "center", justifyContent: "center", padding: 24 },
-  boldTitle: { color: COLORS.primary, fontWeight: "bold" },
+  scrollView: { flex: 1 },
+  centerContainer: { flex: 1, alignItems: "center", justifyContent: "center", padding: 24 },
+  boldTitle: { fontWeight: "bold" },
   page: { padding: 24 },
   statusRow: { flexDirection: "row", justifyContent: "space-between", alignItems: "center", marginBottom: 16 },
   statusBadge: { paddingHorizontal: 12, paddingVertical: 4, borderRadius: 9999 },
   statusText: { fontSize: 14, fontWeight: "600" },
-  dateSince: { color: COLORS.tertiary, fontSize: 12 },
+  dateSince: { fontSize: 12 },
   card: {
-    backgroundColor: COLORS.white,
     borderRadius: 8,
     borderWidth: 1,
-    borderColor: COLORS.border,
     padding: 14,
     marginBottom: 16,
   },
-  cardSectionLabel: { fontSize: 12, fontWeight: "600", color: COLORS.tertiary, letterSpacing: 1, marginBottom: 12 },
-  cardTitle: { fontWeight: "bold", color: COLORS.primary },
-  bigName: { fontWeight: "bold", color: COLORS.primary, fontSize: 20, marginBottom: 8 },
+  cardSectionLabel: { fontSize: 12, fontWeight: "600", letterSpacing: 1, marginBottom: 12 },
+  cardTitle: { fontWeight: "bold" },
+  bigName: { fontWeight: "bold", fontSize: 20, marginBottom: 8 },
   chipRow: { flexDirection: "row", gap: 12 },
-  phoneText: { color: COLORS.secondary, fontSize: 14, marginTop: 8 },
+  phoneText: { fontSize: 14, marginTop: 8 },
   progressHeader: { flexDirection: "row", justifyContent: "space-between", alignItems: "center", marginBottom: 12 },
   progressPercent: { color: COLORS.gold, fontWeight: "bold", fontSize: 18 },
-  progressTrack: { height: 12, backgroundColor: COLORS.bg, borderRadius: 9999, overflow: "hidden", marginBottom: 4 },
+  progressTrack: { height: 12, borderRadius: 9999, overflow: "hidden", marginBottom: 4 },
   progressFill: { height: "100%", backgroundColor: COLORS.cta, borderRadius: 9999 },
-  progressSub: { color: COLORS.tertiary, fontSize: 12, marginTop: 4 },
-  sectionLabel: { fontSize: 12, fontWeight: "600", color: COLORS.tertiary, letterSpacing: 1, marginBottom: 12 },
+  progressSub: { fontSize: 12, marginTop: 4 },
+  sectionLabel: { fontSize: 12, fontWeight: "600", letterSpacing: 1, marginBottom: 12 },
   timelineItem: { flexDirection: "row", alignItems: "flex-start", paddingHorizontal: 16, paddingVertical: 12 },
-  timelineItemBorder: { borderBottomWidth: 1, borderBottomColor: COLORS.border },
+  timelineItemBorder: { borderBottomWidth: 1 },
   timelineDotCol: { alignItems: "center", marginRight: 12 },
   timelineDot: { width: 32, height: 32, borderRadius: 9999, alignItems: "center", justifyContent: "center" },
   dotTextWhite: { color: COLORS.white, fontSize: 14, fontWeight: "bold" },
-  dotTextTertiary: { color: COLORS.tertiary, fontSize: 12, fontWeight: "bold" },
+  dotTextTertiary: { fontSize: 12, fontWeight: "bold" },
   timelineLine: { width: 2, flex: 1, minHeight: 16, marginTop: 4 },
   timelineContent: { flex: 1, paddingBottom: 8 },
   stepName: { fontWeight: "600" },
-  sessionDate: { color: COLORS.tertiary, fontSize: 12, marginTop: 2 },
-  sessionDetails: { color: COLORS.secondary, fontSize: 12, marginTop: 4, fontStyle: "italic" },
+  sessionDate: { fontSize: 12, marginTop: 2 },
+  sessionDetails: { fontSize: 12, marginTop: 4, fontStyle: "italic" },
   currentBadge: { marginTop: 4, backgroundColor: "#fef3c7", alignSelf: "flex-start", paddingHorizontal: 8, paddingVertical: 2, borderRadius: 9999 },
   currentBadgeText: { color: "#b45309", fontSize: 12, fontWeight: "500" },
   primaryButton: { borderRadius: 5, paddingVertical: 9, alignItems: "center" },
@@ -603,9 +603,9 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   cancelButtonText: { color: "#dc2626", fontWeight: "600", fontSize: 14 },
-  completedAtText: { color: COLORS.tertiary, fontSize: 12, textAlign: "center" },
-  infoChip: { backgroundColor: COLORS.bg, paddingHorizontal: 12, paddingVertical: 4, borderRadius: 9999 },
-  infoChipText: { color: COLORS.secondary, fontSize: 12, fontWeight: "500" },
+  completedAtText: { fontSize: 12, textAlign: "center" },
+  infoChip: { paddingHorizontal: 12, paddingVertical: 4, borderRadius: 9999 },
+  infoChipText: { fontSize: 12, fontWeight: "500" },
   discrepancyBanner: {
     backgroundColor: "#fffbeb",
     borderWidth: 1,
@@ -616,7 +616,6 @@ const styles = StyleSheet.create({
   },
   discrepancyTitle: { color: "#92400e", fontWeight: "700", fontSize: 14, marginBottom: 6 },
   discrepancyItem: { color: "#b45309", fontSize: 13, marginTop: 2 },
-
   allDoneBanner: {
     backgroundColor: "#dcfce7",
     borderWidth: 1,
@@ -639,22 +638,17 @@ const styles = StyleSheet.create({
   allDoneButtonText: { color: "#ffffff", fontWeight: "700", fontSize: 15 },
   allDoneBannerHint: { color: "#16a34a", fontSize: 12, textAlign: "center" },
   notesCard: {
-    backgroundColor: COLORS.white,
     borderRadius: 8,
     borderWidth: 1,
-    borderColor: COLORS.border,
     padding: 14,
     marginBottom: 20,
   },
-  notesTitle: { fontWeight: "700", color: COLORS.primary, fontSize: 15, marginBottom: 4 },
-  notesHint: { color: COLORS.tertiary, fontSize: 12, marginBottom: 10 },
+  notesTitle: { fontWeight: "700", fontSize: 15, marginBottom: 4 },
+  notesHint: { fontSize: 12, marginBottom: 10 },
   notesInput: {
-    backgroundColor: COLORS.bg,
     borderWidth: 1,
-    borderColor: COLORS.border,
     borderRadius: 6,
     padding: 10,
-    color: COLORS.primary,
     fontSize: 14,
     minHeight: 90,
     textAlignVertical: "top",
@@ -698,22 +692,19 @@ const styles = StyleSheet.create({
     paddingHorizontal: 24,
   },
   modalCard: {
-    backgroundColor: COLORS.white,
     borderRadius: 12,
     padding: 20,
     width: "100%",
     maxWidth: 400,
   },
-  modalTitle: { fontWeight: "700", color: COLORS.primary, fontSize: 16, marginBottom: 6 },
-  modalSubtitle: { color: COLORS.secondary, fontSize: 13, marginBottom: 14 },
-  modalLabel: { color: COLORS.secondary, fontSize: 13, fontWeight: "500", marginBottom: 6 },
+  modalTitle: { fontWeight: "700", fontSize: 16, marginBottom: 6 },
+  modalSubtitle: { fontSize: 13, marginBottom: 14 },
+  modalLabel: { fontSize: 13, fontWeight: "500", marginBottom: 6 },
   modalTextInput: {
     borderWidth: 1,
-    borderColor: COLORS.border,
     borderRadius: 6,
     paddingHorizontal: 12,
     paddingVertical: 8,
-    color: COLORS.primary,
     fontSize: 14,
     minHeight: 72,
     textAlignVertical: "top",
@@ -723,12 +714,11 @@ const styles = StyleSheet.create({
   modalCancelButton: {
     flex: 1,
     borderWidth: 1,
-    borderColor: COLORS.border,
     borderRadius: 6,
     paddingVertical: 9,
     alignItems: "center",
   },
-  modalCancelText: { color: COLORS.secondary, fontWeight: "600" },
+  modalCancelText: { fontWeight: "600" },
   modalConfirmButton: {
     flex: 1,
     backgroundColor: COLORS.error,

@@ -14,6 +14,7 @@ import { useAuth } from "../contexts/AuthContext";
 import { useData } from "../contexts/DataContext";
 import { COLORS } from "../constants/Colors";
 import { useLanguage } from "../contexts/LanguageContext";
+import { useThemeColors } from "../contexts/ThemeContext";
 
 const ERSTKONTAKT_TYPE_NAME = "Erstkontakt";
 const BNM_BOX_TYPE_NAME = "BNM-Box";
@@ -23,6 +24,7 @@ export default function DocumentSessionScreen() {
   const router = useRouter();
   const { user } = useAuth();
   const { t } = useLanguage();
+  const themeColors = useThemeColors();
   const {
     getMentorshipsByMentorId,
     getMentorshipById,
@@ -284,17 +286,17 @@ export default function DocumentSessionScreen() {
 
   if (!user || (user.role !== "mentor" && user.role !== "admin" && user.role !== "office")) {
     return (
-      <View style={styles.centerContainer}>
-        <Text style={styles.accessText}>{t("docSession.accessDenied")}</Text>
+      <View style={[styles.centerContainer, { backgroundColor: themeColors.background }]}>
+        <Text style={[styles.accessText, { color: themeColors.text }]}>{t("docSession.accessDenied")}</Text>
       </View>
     );
   }
 
   if (myMentorships.length === 0) {
     return (
-      <View style={styles.centerContainer}>
-        <Text style={styles.boldTitle}>{t("docSession.noMentorships")}</Text>
-        <Text style={styles.centerSubText}>
+      <View style={[styles.centerContainer, { backgroundColor: themeColors.background }]}>
+        <Text style={[styles.boldTitle, { color: themeColors.text }]}>{t("docSession.noMentorships")}</Text>
+        <Text style={[styles.centerSubText, { color: themeColors.textSecondary }]}>
           {isAdmin ? t("docSession.noMentorshipsAdmin") : t("docSession.noMentorshipsText")}
         </Text>
         <TouchableOpacity style={styles.backButton} onPress={() => router.back()}>
@@ -305,15 +307,15 @@ export default function DocumentSessionScreen() {
   }
 
   return (
-    <ScrollView style={styles.scrollView}>
+    <ScrollView style={[styles.scrollView, { backgroundColor: themeColors.background }]}>
       <View style={styles.page}>
         {/* Mentee auswählen (wenn mehrere oder Admin) */}
         {(myMentorships.length > 1 || isAdmin) && (
           <>
-            <Text style={styles.sectionLabel}>
+            <Text style={[styles.sectionLabel, { color: themeColors.textTertiary }]}>
               {isAdmin ? t("docSession.chooseAll") : t("docSession.choose")}
             </Text>
-            <View style={styles.listCard}>
+            <View style={[styles.listCard, { backgroundColor: themeColors.card, borderColor: themeColors.border }]}>
               {myMentorships.map((m, idx) => (
                 <TouchableOpacity
                   key={m.id}
@@ -340,8 +342,8 @@ export default function DocumentSessionScreen() {
                     )}
                   </View>
                   <View style={{ flex: 1 }}>
-                    <Text style={styles.itemName}>{m.mentee?.name}</Text>
-                    <Text style={styles.itemSub}>
+                    <Text style={[styles.itemName, { color: themeColors.text }]}>{m.mentee?.name}</Text>
+                    <Text style={[styles.itemSub, { color: themeColors.textTertiary }]}>
                       {m.mentor?.name} · {m.status === "completed" ? t("docSession.completed") : t("docSession.active")}
                     </Text>
                   </View>
@@ -394,8 +396,8 @@ export default function DocumentSessionScreen() {
 
             {isAdmin && !isCompleted && (
               <>
-                <Text style={styles.sectionLabel}>{t("docSession.chooseType")}</Text>
-                <View style={styles.listCard}>
+                <Text style={[styles.sectionLabel, { color: themeColors.textTertiary }]}>{t("docSession.chooseType")}</Text>
+                <View style={[styles.listCard, { backgroundColor: themeColors.card, borderColor: themeColors.border }]}>
                   {sortedSessionTypes.map((st, idx) => (
                     <TouchableOpacity
                       key={st.id}
@@ -417,8 +419,8 @@ export default function DocumentSessionScreen() {
                         {adminSelectedTypeId === st.id && <View style={styles.radioDot} />}
                       </View>
                       <View style={{ flex: 1 }}>
-                        <Text style={styles.itemName}>{st.sort_order}. {st.name}</Text>
-                        <Text style={styles.itemSub}>{st.description}</Text>
+                        <Text style={[styles.itemName, { color: themeColors.text }]}>{st.sort_order}. {st.name}</Text>
+                        <Text style={[styles.itemSub, { color: themeColors.textTertiary }]}>{st.description}</Text>
                       </View>
                       {completedStepIds.includes(st.id) && (
                         <View style={styles.doneChip}>
@@ -443,23 +445,23 @@ export default function DocumentSessionScreen() {
 
             {(isCompleted || nextStep || (isAdmin && adminSelectedTypeId) || forceNewSession) && (
               <>
-                <Text style={styles.sectionLabel}>{t("docSession.document")}</Text>
+                <Text style={[styles.sectionLabel, { color: themeColors.textTertiary }]}>{t("docSession.document")}</Text>
 
                 {isErstkontaktStep && (
-                  <View style={styles.formCard}>
-                    <Text style={styles.formLabel}>
+                  <View style={[styles.formCard, { backgroundColor: themeColors.card, borderColor: themeColors.border }]}>
+                    <Text style={[styles.formLabel, { color: themeColors.textSecondary }]}>
                       {t("docSession.contactAttempt").replace("{0}", String(previousAttempts))}
                     </Text>
                     <TextInput
-                      style={styles.textInput}
+                      style={[styles.textInput, { borderColor: themeColors.border, color: themeColors.text }]}
                       value={attemptNumber}
                       onChangeText={setAttemptNumber}
                       placeholder={`z.B. ${previousAttempts + 1}`}
-                      placeholderTextColor="#98A2B3"
+                      placeholderTextColor={themeColors.textTertiary}
                       keyboardType="number-pad"
                     />
                     {previousAttempts > 0 && (
-                      <Text style={styles.attemptHint}>
+                      <Text style={[styles.attemptHint, { color: themeColors.textTertiary }]}>
                         {t("docSession.previousAttempts")
                           .replace("{0}", String(previousAttempts))
                           .replace("{1}", previousAttempts !== 1 ? "e" : "")}
@@ -469,21 +471,21 @@ export default function DocumentSessionScreen() {
                 )}
 
                 {isBnmBoxStep && (
-                  <View style={styles.formCard}>
-                    <Text style={styles.formLabel}>{t("docSession.deliveryType")}</Text>
+                  <View style={[styles.formCard, { backgroundColor: themeColors.card, borderColor: themeColors.border }]}>
+                    <Text style={[styles.formLabel, { color: themeColors.textSecondary }]}>{t("docSession.deliveryType")}</Text>
                     <View style={styles.toggleRow}>
                       {BNM_BOX_DELIVERY_OPTIONS.map((opt) => (
                         <TouchableOpacity
                           key={opt.key}
                           style={[
                             styles.toggleButton,
-                            bnmBoxDelivery === opt.key ? styles.toggleButtonActive : styles.toggleButtonInactive,
+                            bnmBoxDelivery === opt.key ? styles.toggleButtonActive : styles.toggleButtonInactive, { backgroundColor: themeColors.card, borderColor: themeColors.border },
                           ]}
                           onPress={() => setBnmBoxDelivery(opt.key)}
                         >
                           <Text
                             style={
-                              bnmBoxDelivery === opt.key ? styles.toggleTextActive : styles.toggleTextInactive
+                              bnmBoxDelivery === opt.key ? styles.toggleTextActive : [styles.toggleTextInactive, { color: themeColors.textSecondary }]
                             }
                           >
                             {opt.label}
@@ -494,8 +496,8 @@ export default function DocumentSessionScreen() {
                   </View>
                 )}
 
-                <View style={styles.formCard}>
-                  <Text style={styles.formLabel}>{t("docSession.dateLabelNew")}</Text>
+                <View style={[styles.formCard, { backgroundColor: themeColors.card, borderColor: themeColors.border }]}>
+                  <Text style={[styles.formLabel, { color: themeColors.textSecondary }]}>{t("docSession.dateLabelNew")}</Text>
                   {Platform.OS === "web" ? (
                     <input
                       type="date"
@@ -504,15 +506,15 @@ export default function DocumentSessionScreen() {
                       onChange={(e) => setDate(e.target.value)}
                       style={{
                         borderWidth: 1,
-                        borderColor: COLORS.border,
+                        borderColor: themeColors.border,
                         borderRadius: 6,
                         paddingLeft: 12,
                         paddingRight: 12,
                         paddingTop: 8,
                         paddingBottom: 8,
-                        color: COLORS.primary,
+                        color: themeColors.text,
                         fontSize: 14,
-                        backgroundColor: COLORS.white,
+                        backgroundColor: themeColors.background,
                         width: "100%",
                         boxSizing: "border-box",
                         outline: "none",
@@ -521,70 +523,70 @@ export default function DocumentSessionScreen() {
                     />
                   ) : (
                     <TextInput
-                      style={styles.textInput}
+                      style={[styles.textInput, { borderColor: themeColors.border, color: themeColors.text }]}
                       value={date}
                       onChangeText={setDate}
                       placeholder={t("docSession.datePlaceholder")}
-                      placeholderTextColor="#98A2B3"
+                      placeholderTextColor={themeColors.textTertiary}
                       keyboardType="numbers-and-punctuation"
                       maxLength={10}
                     />
                   )}
                 </View>
 
-                <View style={styles.formCard}>
-                  <Text style={styles.formLabel}>{t("docSession.execution")}</Text>
+                <View style={[styles.formCard, { backgroundColor: themeColors.card, borderColor: themeColors.border }]}>
+                  <Text style={[styles.formLabel, { color: themeColors.textSecondary }]}>{t("docSession.execution")}</Text>
                   <View style={styles.toggleRow}>
                     <TouchableOpacity
                       style={[
                         styles.toggleButton,
-                        !isOnline ? styles.toggleButtonActive : styles.toggleButtonInactive,
+                        !isOnline ? styles.toggleButtonActive : styles.toggleButtonInactive, { backgroundColor: themeColors.card, borderColor: themeColors.border },
                       ]}
                       onPress={() => setIsOnline(false)}
                     >
-                      <Text style={!isOnline ? styles.toggleTextActive : styles.toggleTextInactive}>
+                      <Text style={!isOnline ? styles.toggleTextActive : [styles.toggleTextInactive, { color: themeColors.textSecondary }]}>
                         {t("docSession.inPerson")}
                       </Text>
                     </TouchableOpacity>
                     <TouchableOpacity
                       style={[
                         styles.toggleButton,
-                        isOnline ? styles.toggleButtonActive : styles.toggleButtonInactive,
+                        isOnline ? styles.toggleButtonActive : styles.toggleButtonInactive, { backgroundColor: themeColors.card, borderColor: themeColors.border },
                       ]}
                       onPress={() => setIsOnline(true)}
                     >
-                      <Text style={isOnline ? styles.toggleTextActive : styles.toggleTextInactive}>
+                      <Text style={isOnline ? styles.toggleTextActive : [styles.toggleTextInactive, { color: themeColors.textSecondary }]}>
                         {t("docSession.online")}
                       </Text>
                     </TouchableOpacity>
                   </View>
                 </View>
 
-                <View style={styles.formCard}>
-                  <Text style={styles.formLabel}>{t("docSession.detailsLabel")}</Text>
+                <View style={[styles.formCard, { backgroundColor: themeColors.card, borderColor: themeColors.border }]}>
+                  <Text style={[styles.formLabel, { color: themeColors.textSecondary }]}>{t("docSession.detailsLabel")}</Text>
                   <TextInput
-                    style={[styles.textInput, { height: 80, minHeight: undefined }]}
+                    style={[styles.textInput, { height: 80, minHeight: undefined, borderColor: themeColors.border, color: themeColors.text }]}
                     value={details}
                     onChangeText={setDetails}
                     placeholder={t("docSession.detailsPlaceholder")}
-                    placeholderTextColor="#98A2B3"
+                    placeholderTextColor={themeColors.textTertiary}
                     multiline
                     numberOfLines={4}
                     textAlignVertical="top"
                   />
                 </View>
 
-                <View style={styles.formCard}>
-                  <Text style={styles.formLabel}>{t("docSession.durationLabel")}</Text>
+                <View style={[styles.formCard, { backgroundColor: themeColors.card, borderColor: themeColors.border }]}>
+                  <Text style={[styles.formLabel, { color: themeColors.textSecondary }]}>{t("docSession.durationLabel")}</Text>
                   <TextInput
-                    style={styles.textInput}
+                    style={[styles.textInput, { borderColor: themeColors.border, color: themeColors.text }]}
                     value={durationMinutes}
                     onChangeText={setDurationMinutes}
                     placeholder="z.B. 45"
-                    placeholderTextColor="#98A2B3"
+                    placeholderTextColor={themeColors.textTertiary}
                     keyboardType="number-pad"
                   />
-                  <Text style={styles.attemptHint}>{t("docSession.durationHint")}</Text>
+                  <Text style={[styles.attemptHint, { color: themeColors.textTertiary }]}>{t("docSession.durationHint")}</Text>
                 </View>
 
                 <TouchableOpacity
@@ -644,24 +646,24 @@ export default function DocumentSessionScreen() {
 
             {/* Session-History: letzte Sessions mit Edit-Möglichkeit */}
             {selectedMentorshipId && allSessions.length > 0 && !forceNewSession && !editingSessionId && (
-              <View style={styles.historyBox}>
-                <Text style={styles.historyTitle}>{t("docSession.historyTitle")}</Text>
+              <View style={[styles.historyBox, { backgroundColor: themeColors.card, borderColor: themeColors.border }]}>
+                <Text style={[styles.historyTitle, { color: themeColors.textTertiary }]}>{t("docSession.historyTitle")}</Text>
                 {allSessions.slice(-5).reverse().map((s) => {
                   const stName = sessionTypes.find((st) => st.id === s.session_type_id)?.name ?? "Session";
                   const displayDate = s.date
                     ? new Date(s.date).toLocaleDateString("de-DE")
                     : "–";
                   return (
-                    <View key={s.id} style={styles.historyRow}>
+                    <View key={s.id} style={[styles.historyRow, { borderBottomColor: themeColors.border }]}>
                       <View style={styles.historyInfo}>
-                        <Text style={styles.historyStepName}>{stName}</Text>
-                        <Text style={styles.historyDate}>{displayDate} · {s.is_online ? t("docSession.online") : t("docSession.inPerson")}</Text>
+                        <Text style={[styles.historyStepName, { color: themeColors.text }]}>{stName}</Text>
+                        <Text style={[styles.historyDate, { color: themeColors.textSecondary }]}>{displayDate} · {s.is_online ? t("docSession.online") : t("docSession.inPerson")}</Text>
                         {s.details ? (
-                          <Text style={styles.historyDetails} numberOfLines={1}>{s.details}</Text>
+                          <Text style={[styles.historyDetails, { color: themeColors.textTertiary }]} numberOfLines={1}>{s.details}</Text>
                         ) : null}
                       </View>
                       <TouchableOpacity
-                        style={styles.historyEditButton}
+                        style={[styles.historyEditButton, { backgroundColor: themeColors.background, borderColor: themeColors.border }]}
                         onPress={() => {
                           // Felder vorausfüllen
                           const isoDateStr = s.date
@@ -676,7 +678,7 @@ export default function DocumentSessionScreen() {
                           if (isAdmin) setAdminSelectedTypeId(s.session_type_id);
                         }}
                       >
-                        <Text style={styles.historyEditText}>{t("docSession.historyEdit")} ✏️</Text>
+                        <Text style={[styles.historyEditText, { color: themeColors.textSecondary }]}>{t("docSession.historyEdit")} ✏️</Text>
                       </TouchableOpacity>
                     </View>
                   );
@@ -720,17 +722,17 @@ export default function DocumentSessionScreen() {
 
             {/* Wiederholbare Schritte — nur auf Anfrage sichtbar */}
             {!isAdmin && !isCompleted && showRepeatSection && !forceNewSession && (
-              <View style={styles.moreSessionBox}>
+              <View style={[styles.moreSessionBox, { backgroundColor: themeColors.card, borderColor: themeColors.border }]}>
                 <View style={styles.moreSessionHeader}>
-                  <Text style={styles.moreSessionTitle}>{t("docSession.moreSessionTitle")}</Text>
+                  <Text style={[styles.moreSessionTitle, { color: themeColors.text }]}>{t("docSession.moreSessionTitle")}</Text>
                   <TouchableOpacity onPress={() => { setShowRepeatSection(false); setAdditionalStepId(""); }}>
-                    <Text style={styles.moreSessionClose}>✕</Text>
+                    <Text style={[styles.moreSessionClose, { color: themeColors.textTertiary }]}>✕</Text>
                   </TouchableOpacity>
                 </View>
-                <Text style={styles.moreSessionSub}>
+                <Text style={[styles.moreSessionSub, { color: themeColors.textSecondary }]}>
                   {t("docSession.moreSessionSub")}
                 </Text>
-                <View style={styles.listCard}>
+                <View style={[styles.listCard, { backgroundColor: themeColors.background, borderColor: themeColors.border }]}>
                   {completedAllowsMultipleSteps.map((st, idx) => {
                     const count = allSessions.filter((s) => s.session_type_id === st.id).length;
                     return (
@@ -752,8 +754,8 @@ export default function DocumentSessionScreen() {
                           {additionalStepId === st.id && <View style={styles.radioDot} />}
                         </View>
                         <View style={{ flex: 1 }}>
-                          <Text style={styles.itemName}>{st.sort_order}. {st.name}</Text>
-                          <Text style={styles.itemSub}>
+                          <Text style={[styles.itemName, { color: themeColors.text }]}>{st.sort_order}. {st.name}</Text>
+                          <Text style={[styles.itemSub, { color: themeColors.textTertiary }]}>
                             {count !== 1
                               ? t("docSession.sessionCountPlural").replace("{0}", String(count))
                               : t("docSession.sessionCount").replace("{0}", String(count))}
@@ -805,20 +807,18 @@ export default function DocumentSessionScreen() {
 }
 
 const styles = StyleSheet.create({
-  scrollView: { flex: 1, backgroundColor: COLORS.bg },
-  centerContainer: { flex: 1, backgroundColor: COLORS.bg, alignItems: "center", justifyContent: "center", padding: 24 },
-  accessText: { color: COLORS.primary, fontWeight: "600" },
-  boldTitle: { color: COLORS.primary, fontWeight: "bold", fontSize: 18, marginBottom: 8 },
-  centerSubText: { color: COLORS.secondary, textAlign: "center", fontSize: 14, marginBottom: 24 },
+  scrollView: { flex: 1 },
+  centerContainer: { flex: 1, alignItems: "center", justifyContent: "center", padding: 24 },
+  accessText: { fontWeight: "600" },
+  boldTitle: { fontWeight: "bold", fontSize: 18, marginBottom: 8 },
+  centerSubText: { textAlign: "center", fontSize: 14, marginBottom: 24 },
   backButton: { backgroundColor: COLORS.primary, paddingHorizontal: 24, paddingVertical: 9, borderRadius: 5 },
   backButtonText: { color: COLORS.white, fontWeight: "600" },
   page: { padding: 20 },
-  sectionLabel: { fontSize: 11, fontWeight: "600", color: COLORS.tertiary, letterSpacing: 1, marginBottom: 10 },
+  sectionLabel: { fontSize: 11, fontWeight: "600", letterSpacing: 1, marginBottom: 10 },
   listCard: {
-    backgroundColor: COLORS.white,
     borderRadius: 8,
     borderWidth: 1,
-    borderColor: COLORS.border,
     overflow: "hidden",
     marginBottom: 16,
   },
@@ -832,8 +832,8 @@ const styles = StyleSheet.create({
   radioCircleActive: { borderColor: COLORS.primary, backgroundColor: COLORS.primary },
   radioCircleInactive: { borderColor: COLORS.border },
   radioDot: { width: 8, height: 8, borderRadius: 9999, backgroundColor: COLORS.white },
-  itemName: { fontWeight: "600", color: COLORS.primary },
-  itemSub: { color: COLORS.tertiary, fontSize: 12, marginTop: 2 },
+  itemName: { fontWeight: "600" },
+  itemSub: { fontSize: 12, marginTop: 2 },
   doneChip: { backgroundColor: "#dcfce7", paddingHorizontal: 8, paddingVertical: 2, borderRadius: 9999 },
   doneChipText: { color: "#15803d", fontSize: 11, fontWeight: "500" },
   progressCard: { backgroundColor: COLORS.primary, borderRadius: 8, padding: 16, marginBottom: 16 },
@@ -865,30 +865,26 @@ const styles = StyleSheet.create({
   amberStepName: { color: "#78350f", fontWeight: "bold", fontSize: 15 },
   amberDesc: { color: "#b45309", fontSize: 13, marginTop: 2 },
   formCard: {
-    backgroundColor: COLORS.white,
     borderRadius: 8,
     borderWidth: 1,
-    borderColor: COLORS.border,
     padding: 14,
     marginBottom: 12,
   },
-  formLabel: { color: COLORS.secondary, fontSize: 13, fontWeight: "500", marginBottom: 6 },
+  formLabel: { fontSize: 13, fontWeight: "500", marginBottom: 6 },
   textInput: {
     borderWidth: 1,
-    borderColor: COLORS.border,
     borderRadius: 6,
     paddingHorizontal: 12,
     paddingVertical: 8,
-    color: COLORS.primary,
     fontSize: 14,
   },
-  attemptHint: { color: COLORS.tertiary, fontSize: 12, marginTop: 6 },
+  attemptHint: { fontSize: 12, marginTop: 6 },
   toggleRow: { flexDirection: "row", gap: 8, flexWrap: "wrap" },
   toggleButton: { flex: 1, paddingVertical: 9, borderRadius: 5, borderWidth: 1, alignItems: "center", minWidth: 80 },
   toggleButtonActive: { backgroundColor: COLORS.primary, borderColor: COLORS.primary },
-  toggleButtonInactive: { backgroundColor: COLORS.white, borderColor: COLORS.border },
+  toggleButtonInactive: {},
   toggleTextActive: { color: COLORS.white, fontWeight: "600" },
-  toggleTextInactive: { color: COLORS.secondary, fontWeight: "600" },
+  toggleTextInactive: { fontWeight: "600" },
   saveButton: { borderRadius: 5, paddingVertical: 9, alignItems: "center" },
   saveButtonText: { color: COLORS.white, fontWeight: "600", fontSize: 14 },
   completedBox: {
@@ -916,17 +912,15 @@ const styles = StyleSheet.create({
   repeatStepLink: { marginBottom: 16, alignItems: "center" },
   repeatStepLinkText: { color: COLORS.tertiary, fontSize: 13, textDecorationLine: "underline" },
   moreSessionBox: {
-    backgroundColor: COLORS.white,
     borderRadius: 8,
     borderWidth: 1,
-    borderColor: COLORS.border,
     padding: 14,
     marginBottom: 16,
   },
   moreSessionHeader: { flexDirection: "row", justifyContent: "space-between", alignItems: "center", marginBottom: 4 },
-  moreSessionTitle: { color: COLORS.primary, fontWeight: "700", fontSize: 14 },
-  moreSessionClose: { color: COLORS.tertiary, fontSize: 16, paddingHorizontal: 4 },
-  moreSessionSub: { color: COLORS.secondary, fontSize: 13, marginBottom: 12 },
+  moreSessionTitle: { fontWeight: "700", fontSize: 14 },
+  moreSessionClose: { fontSize: 16, paddingHorizontal: 4 },
+  moreSessionSub: { fontSize: 13, marginBottom: 12 },
   addMoreButton: {
     backgroundColor: COLORS.gradientStart,
     borderRadius: 5,
@@ -966,10 +960,8 @@ const styles = StyleSheet.create({
   deleteSessionButtonText: { color: COLORS.error, fontWeight: "600", fontSize: 13 },
 
   historyBox: {
-    backgroundColor: COLORS.white,
     borderRadius: 8,
     borderWidth: 1,
-    borderColor: COLORS.border,
     padding: 14,
     marginTop: 16,
     marginBottom: 12,
@@ -977,7 +969,6 @@ const styles = StyleSheet.create({
   historyTitle: {
     fontSize: 11,
     fontWeight: "600",
-    color: COLORS.tertiary,
     letterSpacing: 1,
     marginBottom: 10,
   },
@@ -986,20 +977,17 @@ const styles = StyleSheet.create({
     alignItems: "center",
     paddingVertical: 8,
     borderBottomWidth: 1,
-    borderBottomColor: COLORS.border,
     gap: 8,
   },
   historyInfo: { flex: 1 },
-  historyStepName: { fontWeight: "600", color: COLORS.primary, fontSize: 13 },
-  historyDate: { color: COLORS.secondary, fontSize: 12, marginTop: 1 },
-  historyDetails: { color: COLORS.tertiary, fontSize: 12, marginTop: 1 },
+  historyStepName: { fontWeight: "600", fontSize: 13 },
+  historyDate: { fontSize: 12, marginTop: 1 },
+  historyDetails: { fontSize: 12, marginTop: 1 },
   historyEditButton: {
     paddingHorizontal: 10,
     paddingVertical: 5,
-    backgroundColor: COLORS.bg,
     borderRadius: 5,
     borderWidth: 1,
-    borderColor: COLORS.border,
   },
-  historyEditText: { color: COLORS.secondary, fontSize: 12, fontWeight: "500" },
+  historyEditText: { fontSize: 12, fontWeight: "500" },
 });

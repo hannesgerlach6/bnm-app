@@ -14,11 +14,13 @@ import { useData } from "../../contexts/DataContext";
 import type { SessionType } from "../../types";
 import { COLORS } from "../../constants/Colors";
 import { useLanguage } from "../../contexts/LanguageContext";
+import { useThemeColors } from "../../contexts/ThemeContext";
 
 export default function SessionTypesScreen() {
   const router = useRouter();
   const { user } = useAuth();
   const { t } = useLanguage();
+  const themeColors = useThemeColors();
   const { sessionTypes, addSessionType, updateSessionTypeOrder, deleteSessionType } = useData();
 
   const [showAddForm, setShowAddForm] = useState(false);
@@ -73,8 +75,8 @@ export default function SessionTypesScreen() {
 
   if (user?.role !== "admin" && user?.role !== "office") {
     return (
-      <View style={styles.centerContainer}>
-        <Text style={styles.accessText}>{t("sessionTypes.accessDenied")}</Text>
+      <View style={[styles.centerContainer, { backgroundColor: themeColors.background }]}>
+        <Text style={[styles.accessText, { color: themeColors.text }]}>{t("sessionTypes.accessDenied")}</Text>
       </View>
     );
   }
@@ -82,10 +84,10 @@ export default function SessionTypesScreen() {
   const isAdminRole = user?.role === "admin";
 
   return (
-    <ScrollView style={styles.scrollView}>
+    <ScrollView style={[styles.scrollView, { backgroundColor: themeColors.background }]}>
       <View style={styles.page}>
-        <Text style={styles.pageTitle}>{t("sessionTypes.title")}</Text>
-        <Text style={styles.pageSubtitle}>
+        <Text style={[styles.pageTitle, { color: themeColors.text }]}>{t("sessionTypes.title")}</Text>
+        <Text style={[styles.pageSubtitle, { color: themeColors.textSecondary }]}>
           {t("sessionTypes.subtitle").replace("{0}", String(sortedTypes.length))}
         </Text>
 
@@ -98,13 +100,13 @@ export default function SessionTypesScreen() {
         </View>
 
         {/* Liste */}
-        <View style={styles.listCard}>
+        <View style={[styles.listCard, { backgroundColor: themeColors.card, borderColor: themeColors.border }]}>
           {sortedTypes.map((st, idx) => (
             <View
               key={st.id}
               style={[
                 styles.listItem,
-                idx < sortedTypes.length - 1 ? styles.listItemBorder : {},
+                idx < sortedTypes.length - 1 ? [styles.listItemBorder, { borderBottomColor: themeColors.border }] : {},
               ]}
             >
               {/* Nummer */}
@@ -115,15 +117,15 @@ export default function SessionTypesScreen() {
               {/* Inhalt */}
               <View style={styles.itemContent}>
                 <View style={styles.itemNameRow}>
-                  <Text style={styles.itemName}>{st.name}</Text>
+                  <Text style={[styles.itemName, { color: themeColors.text }]}>{st.name}</Text>
                   {st.is_default && (
-                    <View style={styles.standardBadge}>
-                      <Text style={styles.standardBadgeText}>{t("sessionTypes.standard")}</Text>
+                    <View style={[styles.standardBadge, { backgroundColor: themeColors.background }]}>
+                      <Text style={[styles.standardBadgeText, { color: themeColors.textTertiary }]}>{t("sessionTypes.standard")}</Text>
                     </View>
                   )}
                 </View>
                 {st.description ? (
-                  <Text style={styles.itemDesc} numberOfLines={2}>
+                  <Text style={[styles.itemDesc, { color: themeColors.textTertiary }]} numberOfLines={2}>
                     {st.description}
                   </Text>
                 ) : null}
@@ -134,23 +136,24 @@ export default function SessionTypesScreen() {
                 <View style={styles.actionsRow}>
                   {/* Hoch */}
                   <TouchableOpacity
-                    style={[styles.arrowButton, idx === 0 ? { opacity: 0.3 } : {}]}
+                    style={[styles.arrowButton, { backgroundColor: themeColors.background }, idx === 0 ? { opacity: 0.3 } : {}]}
                     onPress={() => moveUp(idx)}
                     disabled={idx === 0}
                   >
-                    <Text style={styles.arrowText}>▲</Text>
+                    <Text style={[styles.arrowText, { color: themeColors.textSecondary }]}>▲</Text>
                   </TouchableOpacity>
 
                   {/* Runter */}
                   <TouchableOpacity
                     style={[
                       styles.arrowButton,
+                      { backgroundColor: themeColors.background },
                       idx === sortedTypes.length - 1 ? { opacity: 0.3 } : {},
                     ]}
                     onPress={() => moveDown(idx)}
                     disabled={idx === sortedTypes.length - 1}
                   >
-                    <Text style={styles.arrowText}>▼</Text>
+                    <Text style={[styles.arrowText, { color: themeColors.textSecondary }]}>▼</Text>
                   </TouchableOpacity>
 
                   {/* Löschen (nur custom) */}
@@ -170,25 +173,25 @@ export default function SessionTypesScreen() {
 
         {/* Neuen Typ hinzufügen (nur Admin) */}
         {isAdminRole && showAddForm ? (
-          <View style={styles.addFormCard}>
-            <Text style={styles.addFormTitle}>{t("sessionTypes.addTitle")}</Text>
+          <View style={[styles.addFormCard, { backgroundColor: themeColors.card, borderColor: themeColors.border }]}>
+            <Text style={[styles.addFormTitle, { color: themeColors.text }]}>{t("sessionTypes.addTitle")}</Text>
 
-            <Text style={styles.formLabel}>{t("sessionTypes.nameLabel")}</Text>
+            <Text style={[styles.formLabel, { color: themeColors.textSecondary }]}>{t("sessionTypes.nameLabel")}</Text>
             <TextInput
-              style={styles.textInput}
+              style={[styles.textInput, { backgroundColor: themeColors.background, borderColor: themeColors.border, color: themeColors.text }]}
               value={newName}
               onChangeText={setNewName}
               placeholder={t("sessionTypes.namePlaceholder")}
-              placeholderTextColor="#98A2B3"
+              placeholderTextColor={themeColors.textTertiary}
             />
 
-            <Text style={styles.formLabel}>{t("sessionTypes.descLabel")}</Text>
+            <Text style={[styles.formLabel, { color: themeColors.textSecondary }]}>{t("sessionTypes.descLabel")}</Text>
             <TextInput
-              style={[styles.textInput, { minHeight: 80, marginBottom: 16 }]}
+              style={[styles.textInput, { backgroundColor: themeColors.background, borderColor: themeColors.border, color: themeColors.text, minHeight: 80, marginBottom: 16 }]}
               value={newDescription}
               onChangeText={setNewDescription}
               placeholder={t("sessionTypes.descPlaceholder")}
-              placeholderTextColor="#98A2B3"
+              placeholderTextColor={themeColors.textTertiary}
               multiline
               numberOfLines={3}
               textAlignVertical="top"
@@ -196,14 +199,14 @@ export default function SessionTypesScreen() {
 
             <View style={styles.formButtonRow}>
               <TouchableOpacity
-                style={styles.cancelFormButton}
+                style={[styles.cancelFormButton, { backgroundColor: themeColors.background, borderColor: themeColors.border }]}
                 onPress={() => {
                   setShowAddForm(false);
                   setNewName("");
                   setNewDescription("");
                 }}
               >
-                <Text style={styles.cancelFormButtonText}>{t("sessionTypes.cancel")}</Text>
+                <Text style={[styles.cancelFormButtonText, { color: themeColors.textSecondary }]}>{t("sessionTypes.cancel")}</Text>
               </TouchableOpacity>
               <TouchableOpacity style={styles.addButton} onPress={handleAdd}>
                 <Text style={styles.addButtonText}>{t("sessionTypes.add")}</Text>
@@ -224,12 +227,12 @@ export default function SessionTypesScreen() {
 }
 
 const styles = StyleSheet.create({
-  scrollView: { flex: 1, backgroundColor: COLORS.bg },
-  centerContainer: { flex: 1, backgroundColor: COLORS.bg, alignItems: "center", justifyContent: "center", padding: 24 },
-  accessText: { color: COLORS.primary, fontWeight: "600" },
+  scrollView: { flex: 1 },
+  centerContainer: { flex: 1, alignItems: "center", justifyContent: "center", padding: 24 },
+  accessText: { fontWeight: "600" },
   page: { padding: 24 },
-  pageTitle: { fontSize: 24, fontWeight: "bold", color: COLORS.primary, marginBottom: 4 },
-  pageSubtitle: { color: COLORS.secondary, marginBottom: 24 },
+  pageTitle: { fontSize: 24, fontWeight: "bold", marginBottom: 4 },
+  pageSubtitle: { marginBottom: 24 },
   blueBox: {
     backgroundColor: "#eff6ff",
     borderWidth: 1,
@@ -241,20 +244,18 @@ const styles = StyleSheet.create({
   blueTitle: { color: "#1e40af", fontSize: 14, fontWeight: "500", marginBottom: 4 },
   blueText: { color: "#2563eb", fontSize: 12 },
   listCard: {
-    backgroundColor: COLORS.white,
     borderRadius: 8,
     borderWidth: 1,
-    borderColor: COLORS.border,
     overflow: "hidden",
     marginBottom: 24,
   },
   listItem: { paddingHorizontal: 16, paddingVertical: 12, flexDirection: "row", alignItems: "center" },
-  listItemBorder: { borderBottomWidth: 1, borderBottomColor: COLORS.border },
+  listItemBorder: { borderBottomWidth: 1 },
   numberCircle: {
     width: 32,
     height: 32,
     borderRadius: 9999,
-    backgroundColor: COLORS.primary,
+    backgroundColor: COLORS.gradientStart,
     alignItems: "center",
     justifyContent: "center",
     marginRight: 12,
@@ -262,20 +263,19 @@ const styles = StyleSheet.create({
   numberText: { color: COLORS.white, fontSize: 12, fontWeight: "bold" },
   itemContent: { flex: 1, marginRight: 12 },
   itemNameRow: { flexDirection: "row", alignItems: "center", gap: 8, marginBottom: 2 },
-  itemName: { fontWeight: "600", color: COLORS.primary },
-  standardBadge: { backgroundColor: COLORS.bg, paddingHorizontal: 6, paddingVertical: 2, borderRadius: 4 },
-  standardBadgeText: { color: COLORS.tertiary, fontSize: 12 },
-  itemDesc: { color: COLORS.tertiary, fontSize: 12 },
+  itemName: { fontWeight: "600" },
+  standardBadge: { paddingHorizontal: 6, paddingVertical: 2, borderRadius: 4 },
+  standardBadgeText: { fontSize: 12 },
+  itemDesc: { fontSize: 12 },
   actionsRow: { flexDirection: "row", alignItems: "center", gap: 4 },
   arrowButton: {
     width: 32,
     height: 32,
     borderRadius: 8,
-    backgroundColor: COLORS.bg,
     alignItems: "center",
     justifyContent: "center",
   },
-  arrowText: { color: COLORS.secondary, fontSize: 14 },
+  arrowText: { fontSize: 14 },
   deleteButton: {
     width: 32,
     height: 32,
@@ -287,35 +287,29 @@ const styles = StyleSheet.create({
   },
   deleteButtonText: { color: "#ef4444", fontSize: 14, fontWeight: "bold" },
   addFormCard: {
-    backgroundColor: COLORS.white,
     borderRadius: 8,
     borderWidth: 1,
-    borderColor: COLORS.border,
     padding: 14,
     marginBottom: 16,
   },
-  addFormTitle: { fontWeight: "bold", color: COLORS.primary, marginBottom: 16 },
-  formLabel: { color: COLORS.secondary, fontSize: 14, fontWeight: "500", marginBottom: 8 },
+  addFormTitle: { fontWeight: "bold", marginBottom: 16 },
+  formLabel: { fontSize: 14, fontWeight: "500", marginBottom: 8 },
   textInput: {
     borderWidth: 1,
-    borderColor: COLORS.border,
     borderRadius: 6,
     paddingHorizontal: 12,
     paddingVertical: 8,
-    color: COLORS.primary,
     marginBottom: 16,
   },
   formButtonRow: { flexDirection: "row", gap: 12 },
   cancelFormButton: {
     flex: 1,
-    backgroundColor: COLORS.bg,
     borderWidth: 1,
-    borderColor: COLORS.border,
     borderRadius: 5,
     paddingVertical: 9,
     alignItems: "center",
   },
-  cancelFormButtonText: { color: COLORS.secondary, fontWeight: "600" },
+  cancelFormButtonText: { fontWeight: "600" },
   addButton: {
     flex: 1,
     backgroundColor: COLORS.cta,
@@ -325,7 +319,7 @@ const styles = StyleSheet.create({
   },
   addButtonText: { color: COLORS.white, fontWeight: "600" },
   primaryButton: {
-    backgroundColor: COLORS.primary,
+    backgroundColor: COLORS.gradientStart,
     borderRadius: 5,
     paddingVertical: 9,
     alignItems: "center",

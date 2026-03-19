@@ -14,6 +14,7 @@ import { useRouter } from "expo-router";
 import { COLORS } from "../constants/Colors";
 import { Container } from "../components/Container";
 import { useLanguage } from "../contexts/LanguageContext";
+import { useThemeColors } from "../contexts/ThemeContext";
 
 const { width: SCREEN_WIDTH } = Dimensions.get("window");
 
@@ -51,6 +52,7 @@ export async function hasSeenOnboarding(userId: string): Promise<boolean> {
 export default function OnboardingScreen() {
   const router = useRouter();
   const { t } = useLanguage();
+  const themeColors = useThemeColors();
 
   const SESSION_STEPS = [
     "Registrierung", "Zuweisung", "Erstkontakt", "Ersttreffen", "BNM-Box",
@@ -113,10 +115,10 @@ export default function OnboardingScreen() {
 
   return (
     <Container>
-      <View style={styles.root}>
+      <View style={[styles.root, { backgroundColor: themeColors.background }]}>
         {/* Überspringen-Link */}
         <TouchableOpacity style={styles.skipButton} onPress={handleSkip}>
-          <Text style={styles.skipText}>{t("onboarding.skip")}</Text>
+          <Text style={[styles.skipText, { color: themeColors.textSecondary }]}>{t("onboarding.skip")}</Text>
         </TouchableOpacity>
 
         {/* Slides */}
@@ -143,33 +145,33 @@ export default function OnboardingScreen() {
                 <Text style={styles.headerBadgeText}>{t("onboarding.slide1Badge")}</Text>
               </View>
 
-              <Text style={styles.slideTitle}>
+              <Text style={[styles.slideTitle, { color: themeColors.text }]}>
                 {t("onboarding.slide1Title")}
               </Text>
 
-              <Text style={styles.slideBody}>
+              <Text style={[styles.slideBody, { color: themeColors.textSecondary }]}>
                 {t("onboarding.slide1Body")}
               </Text>
 
-              <View style={styles.highlightBox}>
-                <Text style={styles.highlightTitle}>{t("onboarding.slide1HighlightTitle")}</Text>
-                <Text style={styles.highlightText}>
+              <View style={[styles.highlightBox, { backgroundColor: themeColors.card }]}>
+                <Text style={[styles.highlightTitle, { color: themeColors.text }]}>{t("onboarding.slide1HighlightTitle")}</Text>
+                <Text style={[styles.highlightText, { color: themeColors.textSecondary }]}>
                   {t("onboarding.slide1HighlightText")}
                 </Text>
               </View>
 
               <View style={styles.statsRow}>
-                <View style={styles.statPill}>
-                  <Text style={styles.statPillNumber}>10</Text>
-                  <Text style={styles.statPillLabel}>{t("onboarding.slide1Steps")}</Text>
+                <View style={[styles.statPill, { backgroundColor: themeColors.card, borderColor: themeColors.border }]}>
+                  <Text style={[styles.statPillNumber, { color: themeColors.text }]}>10</Text>
+                  <Text style={[styles.statPillLabel, { color: themeColors.textTertiary }]}>{t("onboarding.slide1Steps")}</Text>
                 </View>
-                <View style={styles.statPill}>
-                  <Text style={styles.statPillNumber}>1:1</Text>
-                  <Text style={styles.statPillLabel}>{t("onboarding.slide1OneOnOne")}</Text>
+                <View style={[styles.statPill, { backgroundColor: themeColors.card, borderColor: themeColors.border }]}>
+                  <Text style={[styles.statPillNumber, { color: themeColors.text }]}>1:1</Text>
+                  <Text style={[styles.statPillLabel, { color: themeColors.textTertiary }]}>{t("onboarding.slide1OneOnOne")}</Text>
                 </View>
-                <View style={styles.statPill}>
-                  <Text style={styles.statPillNumber}>✓</Text>
-                  <Text style={styles.statPillLabel}>{t("onboarding.slide1Documented")}</Text>
+                <View style={[styles.statPill, { backgroundColor: themeColors.card, borderColor: themeColors.border }]}>
+                  <Text style={[styles.statPillNumber, { color: themeColors.text }]}>✓</Text>
+                  <Text style={[styles.statPillLabel, { color: themeColors.textTertiary }]}>{t("onboarding.slide1Documented")}</Text>
                 </View>
               </View>
             </View>
@@ -182,21 +184,21 @@ export default function OnboardingScreen() {
                 <Text style={styles.headerBadgeText}>{t("onboarding.slide2Badge")}</Text>
               </View>
 
-              <Text style={styles.slideTitle}>
+              <Text style={[styles.slideTitle, { color: themeColors.text }]}>
                 {t("onboarding.slide2Title")}
               </Text>
 
-              <Text style={styles.slideBody}>
+              <Text style={[styles.slideBody, { color: themeColors.textSecondary }]}>
                 {t("onboarding.slide2Body")}
               </Text>
 
               <View style={styles.stepsGrid}>
                 {SESSION_STEPS.map((step, idx) => (
-                  <View key={idx} style={styles.stepItem}>
+                  <View key={idx} style={[styles.stepItem, { backgroundColor: themeColors.card, borderColor: themeColors.border }]}>
                     <View style={styles.stepNumber}>
                       <Text style={styles.stepNumberText}>{idx + 1}</Text>
                     </View>
-                    <Text style={styles.stepLabel}>{step}</Text>
+                    <Text style={[styles.stepLabel, { color: themeColors.text }]}>{step}</Text>
                   </View>
                 ))}
               </View>
@@ -222,17 +224,17 @@ export default function OnboardingScreen() {
                 <Text style={[styles.headerBadgeText, { color: "#92600a" }]}>{t("onboarding.slide3Badge")}</Text>
               </View>
 
-              <Text style={styles.slideTitle}>{t("onboarding.slide3Title")}</Text>
+              <Text style={[styles.slideTitle, { color: themeColors.text }]}>{t("onboarding.slide3Title")}</Text>
 
-              <Text style={styles.slideBody}>
+              <Text style={[styles.slideBody, { color: themeColors.textSecondary }]}>
                 {t("onboarding.slide3Body")}
               </Text>
 
-              <View style={styles.tipsCard}>
+              <View style={[styles.tipsCard, { backgroundColor: themeColors.card, borderColor: themeColors.border }]}>
                 {CONTACT_TIPS.map((tip, idx) => (
-                  <View key={idx} style={[styles.tipRow, idx < CONTACT_TIPS.length - 1 && styles.tipRowBorder]}>
+                  <View key={idx} style={[styles.tipRow, idx < CONTACT_TIPS.length - 1 && [styles.tipRowBorder, { borderBottomColor: themeColors.border }]]}>
                     <View style={styles.tipDot} />
-                    <Text style={styles.tipText}>{tip}</Text>
+                    <Text style={[styles.tipText, { color: themeColors.textSecondary }]}>{tip}</Text>
                   </View>
                 ))}
               </View>
@@ -254,7 +256,7 @@ export default function OnboardingScreen() {
               key={idx}
               style={[
                 styles.dot,
-                currentPage === idx ? styles.dotActive : styles.dotInactive,
+                currentPage === idx ? styles.dotActive : [styles.dotInactive, { backgroundColor: themeColors.border }],
               ]}
             />
           ))}
@@ -276,7 +278,6 @@ export default function OnboardingScreen() {
 const styles = StyleSheet.create({
   root: {
     flex: 1,
-    backgroundColor: COLORS.bg,
   },
   skipButton: {
     position: "absolute",
@@ -287,7 +288,6 @@ const styles = StyleSheet.create({
     paddingVertical: 8,
   },
   skipText: {
-    color: COLORS.secondary,
     fontSize: 14,
     fontWeight: "500",
   },
@@ -339,18 +339,15 @@ const styles = StyleSheet.create({
   slideTitle: {
     fontSize: 26,
     fontWeight: "bold",
-    color: COLORS.primary,
     marginBottom: 12,
     lineHeight: 32,
   },
   slideBody: {
     fontSize: 15,
-    color: COLORS.secondary,
     lineHeight: 22,
     marginBottom: 20,
   },
   highlightBox: {
-    backgroundColor: "rgba(16,24,40,0.05)",
     borderLeftWidth: 3,
     borderLeftColor: COLORS.primary,
     borderRadius: 8,
@@ -359,12 +356,10 @@ const styles = StyleSheet.create({
   },
   highlightTitle: {
     fontWeight: "700",
-    color: COLORS.primary,
     fontSize: 14,
     marginBottom: 6,
   },
   highlightText: {
-    color: COLORS.secondary,
     fontSize: 13,
     lineHeight: 19,
   },
@@ -374,9 +369,7 @@ const styles = StyleSheet.create({
   },
   statPill: {
     flex: 1,
-    backgroundColor: COLORS.white,
     borderWidth: 1,
-    borderColor: COLORS.border,
     borderRadius: 8,
     paddingVertical: 9,
     alignItems: "center",
@@ -384,11 +377,9 @@ const styles = StyleSheet.create({
   statPillNumber: {
     fontSize: 20,
     fontWeight: "bold",
-    color: COLORS.primary,
   },
   statPillLabel: {
     fontSize: 11,
-    color: COLORS.tertiary,
     marginTop: 2,
   },
   stepsGrid: {
@@ -398,9 +389,7 @@ const styles = StyleSheet.create({
   stepItem: {
     flexDirection: "row",
     alignItems: "center",
-    backgroundColor: COLORS.white,
     borderWidth: 1,
-    borderColor: COLORS.border,
     borderRadius: 8,
     paddingVertical: 9,
     paddingHorizontal: 14,
@@ -421,7 +410,6 @@ const styles = StyleSheet.create({
     fontSize: 13,
   },
   stepLabel: {
-    color: COLORS.primary,
     fontWeight: "500",
     fontSize: 14,
   },
@@ -438,9 +426,7 @@ const styles = StyleSheet.create({
     lineHeight: 19,
   },
   tipsCard: {
-    backgroundColor: COLORS.white,
     borderWidth: 1,
-    borderColor: COLORS.border,
     borderRadius: 12,
     padding: 16,
     marginBottom: 16,
@@ -453,7 +439,6 @@ const styles = StyleSheet.create({
   },
   tipRowBorder: {
     borderBottomWidth: 1,
-    borderBottomColor: COLORS.border,
   },
   tipDot: {
     width: 8,
@@ -465,7 +450,6 @@ const styles = StyleSheet.create({
   },
   tipText: {
     flex: 1,
-    color: COLORS.secondary,
     fontSize: 14,
     lineHeight: 20,
   },
@@ -503,7 +487,6 @@ const styles = StyleSheet.create({
   },
   dotInactive: {
     width: 8,
-    backgroundColor: COLORS.border,
   },
   ctaContainer: {
     paddingHorizontal: 24,

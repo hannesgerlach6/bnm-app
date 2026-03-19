@@ -16,6 +16,7 @@ import { COLORS } from "../../constants/Colors";
 import { supabase } from "../../lib/supabase";
 import { supabaseAnon } from "../../lib/supabaseAnon";
 import { sendCredentialsEmail } from "../../lib/emailService";
+import { useThemeColors } from "../../contexts/ThemeContext";
 import {
   parseCSV,
   validateMenteeRow,
@@ -64,6 +65,7 @@ export default function CSVImportScreen() {
   const router = useRouter();
   const { t } = useLanguage();
   const { user } = useAuth();
+  const themeColors = useThemeColors();
   const { users, refreshData } = useData();
 
   const [activeTab, setActiveTab] = useState<TabType>("mentees");
@@ -77,8 +79,8 @@ export default function CSVImportScreen() {
   // Nur Admin/Office darf importieren
   if (!user || (user.role !== "admin" && user.role !== "office")) {
     return (
-      <View style={styles.center}>
-        <Text style={styles.errorText}>{t("applications.accessDenied")}</Text>
+      <View style={[styles.center, { backgroundColor: themeColors.background }]}>
+        <Text style={[styles.errorText, { color: themeColors.error }]}>{t("applications.accessDenied")}</Text>
       </View>
     );
   }
@@ -288,24 +290,24 @@ export default function CSVImportScreen() {
   const errorCount = previewRows.filter((r) => r.status === "error").length;
 
   return (
-    <ScrollView style={styles.scrollView}>
+    <ScrollView style={[styles.scrollView, { backgroundColor: themeColors.background }]}>
       <View style={styles.page}>
         {/* Header */}
         <View style={styles.headerRow}>
           <TouchableOpacity onPress={() => router.back()} style={styles.backBtn}>
-            <Text style={styles.backBtnText}>‹</Text>
+            <Text style={[styles.backBtnText, { color: themeColors.text }]}>‹</Text>
           </TouchableOpacity>
-          <Text style={styles.pageTitle}>{t("csvImport.title")}</Text>
+          <Text style={[styles.pageTitle, { color: themeColors.text }]}>{t("csvImport.title")}</Text>
         </View>
 
         {/* Tabs */}
-        <View style={styles.tabRow}>
+        <View style={[styles.tabRow, { backgroundColor: themeColors.card, borderColor: themeColors.border }]}>
           <TouchableOpacity
             style={[styles.tab, activeTab === "mentees" && styles.tabActive]}
             onPress={() => handleTabChange("mentees")}
           >
             <Text
-              style={[styles.tabText, activeTab === "mentees" && styles.tabTextActive]}
+              style={[styles.tabText, { color: themeColors.textSecondary }, activeTab === "mentees" && styles.tabTextActive]}
             >
               {t("csvImport.tabMentees")}
             </Text>
@@ -315,7 +317,7 @@ export default function CSVImportScreen() {
             onPress={() => handleTabChange("mentors")}
           >
             <Text
-              style={[styles.tabText, activeTab === "mentors" && styles.tabTextActive]}
+              style={[styles.tabText, { color: themeColors.textSecondary }, activeTab === "mentors" && styles.tabTextActive]}
             >
               {t("csvImport.tabMentors")}
             </Text>
@@ -323,7 +325,7 @@ export default function CSVImportScreen() {
         </View>
 
         {/* Aktionsbereich */}
-        <View style={styles.actionCard}>
+        <View style={[styles.actionCard, { backgroundColor: themeColors.card, borderColor: themeColors.border }]}>
           {Platform.OS === "web" ? (
             <>
               <View style={styles.actionRow}>
@@ -337,16 +339,16 @@ export default function CSVImportScreen() {
                   </Text>
                 </TouchableOpacity>
                 <TouchableOpacity
-                  style={styles.templateButton}
+                  style={[styles.templateButton, { backgroundColor: themeColors.background, borderColor: themeColors.border }]}
                   onPress={handleDownloadTemplate}
                   disabled={isImporting}
                 >
-                  <Text style={styles.templateButtonText}>
+                  <Text style={[styles.templateButtonText, { color: themeColors.textSecondary }]}>
                     ↓ {t("csvImport.downloadTemplate")}
                   </Text>
                 </TouchableOpacity>
               </View>
-              <Text style={styles.uploadHint}>{t("csvImport.uploadHint")}</Text>
+              <Text style={[styles.uploadHint, { color: themeColors.textTertiary }]}>{t("csvImport.uploadHint")}</Text>
             </>
           ) : (
             <View style={styles.nativeHintBox}>
@@ -357,20 +359,20 @@ export default function CSVImportScreen() {
 
         {/* Ergebnis nach Import */}
         {importResult && (
-          <View style={styles.resultCard}>
-            <Text style={styles.resultTitle}>{t("csvImport.resultTitle")}</Text>
+          <View style={[styles.resultCard, { backgroundColor: themeColors.card, borderColor: themeColors.border }]}>
+            <Text style={[styles.resultTitle, { color: themeColors.text }]}>{t("csvImport.resultTitle")}</Text>
             <View style={styles.resultRow}>
               <View style={[styles.resultChip, styles.resultChipGreen]}>
-                <Text style={styles.resultChipValue}>{importResult.created}</Text>
-                <Text style={styles.resultChipLabel}>{t("csvImport.created")}</Text>
+                <Text style={[styles.resultChipValue, { color: themeColors.text }]}>{importResult.created}</Text>
+                <Text style={[styles.resultChipLabel, { color: themeColors.textSecondary }]}>{t("csvImport.created")}</Text>
               </View>
               <View style={[styles.resultChip, styles.resultChipYellow]}>
-                <Text style={styles.resultChipValue}>{importResult.skipped}</Text>
-                <Text style={styles.resultChipLabel}>{t("csvImport.skipped")}</Text>
+                <Text style={[styles.resultChipValue, { color: themeColors.text }]}>{importResult.skipped}</Text>
+                <Text style={[styles.resultChipLabel, { color: themeColors.textSecondary }]}>{t("csvImport.skipped")}</Text>
               </View>
               <View style={[styles.resultChip, styles.resultChipRed]}>
-                <Text style={styles.resultChipValue}>{importResult.failed}</Text>
-                <Text style={styles.resultChipLabel}>{t("csvImport.failed")}</Text>
+                <Text style={[styles.resultChipValue, { color: themeColors.text }]}>{importResult.failed}</Text>
+                <Text style={[styles.resultChipLabel, { color: themeColors.textSecondary }]}>{t("csvImport.failed")}</Text>
               </View>
             </View>
             {importResult.errors.length > 0 && (
@@ -387,15 +389,15 @@ export default function CSVImportScreen() {
 
         {/* Fortschritt während Import */}
         {isImporting && (
-          <View style={styles.progressCard}>
+          <View style={[styles.progressCard, { backgroundColor: themeColors.card, borderColor: themeColors.border }]}>
             <ActivityIndicator color={COLORS.gradientStart} size="small" />
-            <Text style={styles.progressText}>
+            <Text style={[styles.progressText, { color: themeColors.textSecondary }]}>
               {t("csvImport.importing")}{" "}
               {t("csvImport.progress")
                 .replace("{0}", String(progress))
                 .replace("{1}", String(progressTotal))}
             </Text>
-            <View style={styles.progressTrack}>
+            <View style={[styles.progressTrack, { backgroundColor: themeColors.background }]}>
               <View
                 style={[
                   styles.progressFill,
@@ -414,23 +416,23 @@ export default function CSVImportScreen() {
         {previewRows.length > 0 && !isImporting && (
           <View style={styles.previewSection}>
             <View style={styles.previewHeader}>
-              <Text style={styles.sectionTitle}>
+              <Text style={[styles.sectionTitle, { color: themeColors.text }]}>
                 {t("csvImport.preview")} ({previewRows.length})
               </Text>
               <View style={styles.previewStats}>
                 {validCount > 0 && (
                   <View style={styles.statBadgeGreen}>
-                    <Text style={styles.statBadgeText}>{validCount} OK</Text>
+                    <Text style={[styles.statBadgeText, { color: themeColors.text }]}>{validCount} OK</Text>
                   </View>
                 )}
                 {duplicateCount > 0 && (
                   <View style={styles.statBadgeYellow}>
-                    <Text style={styles.statBadgeText}>{duplicateCount} Duplikat</Text>
+                    <Text style={[styles.statBadgeText, { color: themeColors.text }]}>{duplicateCount} Duplikat</Text>
                   </View>
                 )}
                 {errorCount > 0 && (
                   <View style={styles.statBadgeRed}>
-                    <Text style={styles.statBadgeText}>{errorCount} Fehler</Text>
+                    <Text style={[styles.statBadgeText, { color: themeColors.text }]}>{errorCount} Fehler</Text>
                   </View>
                 )}
               </View>
@@ -441,13 +443,14 @@ export default function CSVImportScreen() {
                 key={row.index}
                 style={[
                   styles.previewRow,
+                  { backgroundColor: themeColors.card, borderColor: themeColors.border },
                   row.status === "valid" && styles.previewRowValid,
                   row.status === "error" && styles.previewRowError,
                   row.status === "duplicate" && styles.previewRowDuplicate,
                 ]}
               >
                 <View style={styles.previewRowHeader}>
-                  <Text style={styles.previewRowName}>
+                  <Text style={[styles.previewRowName, { color: themeColors.text }]}>
                     {row.index}. {row.name || "(kein Name)"}
                   </Text>
                   <View
@@ -474,7 +477,7 @@ export default function CSVImportScreen() {
                     </Text>
                   </View>
                 </View>
-                <Text style={styles.previewRowMeta}>
+                <Text style={[styles.previewRowMeta, { color: themeColors.textTertiary }]}>
                   {row.email} · {row.gender} · {row.city} · {row.age} J.
                 </Text>
                 {row.errors.length > 0 && (
@@ -506,8 +509,8 @@ export default function CSVImportScreen() {
         )}
 
         {parsedRows.length === 0 && previewRows.length === 0 && !importResult && Platform.OS === "web" && (
-          <View style={styles.emptyCard}>
-            <Text style={styles.emptyText}>{t("csvImport.noPreview")}</Text>
+          <View style={[styles.emptyCard, { backgroundColor: themeColors.card, borderColor: themeColors.border }]}>
+            <Text style={[styles.emptyText, { color: themeColors.textTertiary }]}>{t("csvImport.noPreview")}</Text>
           </View>
         )}
       </View>
@@ -518,24 +521,22 @@ export default function CSVImportScreen() {
 // ─── Styles ───────────────────────────────────────────────────────────────────
 
 const styles = StyleSheet.create({
-  scrollView: { flex: 1, backgroundColor: COLORS.bg },
+  scrollView: { flex: 1 },
   page: { padding: 20 },
   center: { flex: 1, alignItems: "center", justifyContent: "center", padding: 32 },
-  errorText: { color: COLORS.error, textAlign: "center" },
+  errorText: { textAlign: "center" },
 
   // Header
   headerRow: { flexDirection: "row", alignItems: "center", gap: 12, marginBottom: 20 },
   backBtn: { width: 36, height: 36, alignItems: "center", justifyContent: "center" },
-  backBtnText: { fontSize: 24, color: COLORS.primary, fontWeight: "300" },
-  pageTitle: { fontSize: 20, fontWeight: "700", color: COLORS.primary },
+  backBtnText: { fontSize: 24, fontWeight: "300" },
+  pageTitle: { fontSize: 20, fontWeight: "700" },
 
   // Tabs
   tabRow: {
     flexDirection: "row",
-    backgroundColor: COLORS.white,
     borderRadius: 8,
     borderWidth: 1,
-    borderColor: COLORS.border,
     marginBottom: 16,
     overflow: "hidden",
   },
@@ -550,7 +551,6 @@ const styles = StyleSheet.create({
   tabText: {
     fontSize: 13,
     fontWeight: "600",
-    color: COLORS.secondary,
   },
   tabTextActive: {
     color: COLORS.white,
@@ -558,12 +558,10 @@ const styles = StyleSheet.create({
 
   // Aktionsbereich
   actionCard: {
-    backgroundColor: COLORS.white,
     borderRadius: 8,
     padding: 16,
     marginBottom: 16,
     borderWidth: 1,
-    borderColor: COLORS.border,
   },
   actionRow: {
     flexDirection: "row",
@@ -584,21 +582,17 @@ const styles = StyleSheet.create({
   },
   templateButton: {
     flex: 1,
-    backgroundColor: COLORS.bg,
     borderRadius: 6,
     borderWidth: 1,
-    borderColor: COLORS.border,
     paddingVertical: 10,
     alignItems: "center",
   },
   templateButtonText: {
-    color: COLORS.secondary,
     fontWeight: "600",
     fontSize: 13,
   },
   uploadHint: {
     fontSize: 11,
-    color: COLORS.tertiary,
     lineHeight: 16,
   },
   nativeHintBox: {
@@ -614,17 +608,14 @@ const styles = StyleSheet.create({
 
   // Ergebnis
   resultCard: {
-    backgroundColor: COLORS.white,
     borderRadius: 8,
     padding: 16,
     marginBottom: 16,
     borderWidth: 1,
-    borderColor: COLORS.border,
   },
   resultTitle: {
     fontSize: 15,
     fontWeight: "700",
-    color: COLORS.primary,
     marginBottom: 12,
   },
   resultRow: {
@@ -643,11 +634,9 @@ const styles = StyleSheet.create({
   resultChipValue: {
     fontSize: 22,
     fontWeight: "700",
-    color: COLORS.primary,
   },
   resultChipLabel: {
     fontSize: 10,
-    color: COLORS.secondary,
     marginTop: 2,
     textAlign: "center",
   },
@@ -665,23 +654,19 @@ const styles = StyleSheet.create({
 
   // Fortschritt
   progressCard: {
-    backgroundColor: COLORS.white,
     borderRadius: 8,
     padding: 16,
     marginBottom: 16,
     borderWidth: 1,
-    borderColor: COLORS.border,
     alignItems: "center",
     gap: 10,
   },
   progressText: {
-    color: COLORS.secondary,
     fontSize: 13,
   },
   progressTrack: {
     width: "100%",
     height: 6,
-    backgroundColor: COLORS.bg,
     borderRadius: 3,
     overflow: "hidden",
   },
@@ -702,7 +687,6 @@ const styles = StyleSheet.create({
   sectionTitle: {
     fontSize: 16,
     fontWeight: "700",
-    color: COLORS.primary,
   },
   previewStats: { flexDirection: "row", gap: 6 },
   statBadgeGreen: {
@@ -723,18 +707,15 @@ const styles = StyleSheet.create({
     paddingHorizontal: 6,
     paddingVertical: 2,
   },
-  statBadgeText: { fontSize: 11, fontWeight: "600", color: COLORS.primary },
+  statBadgeText: { fontSize: 11, fontWeight: "600" },
 
   // Vorschau-Zeilen
   previewRow: {
-    backgroundColor: COLORS.white,
     borderRadius: 6,
     padding: 12,
     marginBottom: 8,
     borderWidth: 1,
     borderLeftWidth: 4,
-    borderColor: COLORS.border,
-    borderLeftColor: COLORS.border,
   },
   previewRowValid: {
     borderLeftColor: COLORS.cta,
@@ -753,13 +734,11 @@ const styles = StyleSheet.create({
   },
   previewRowName: {
     fontWeight: "600",
-    color: COLORS.primary,
     fontSize: 13,
     flex: 1,
   },
   previewRowMeta: {
     fontSize: 12,
-    color: COLORS.tertiary,
   },
   previewRowErrors: {
     fontSize: 11,
@@ -799,16 +778,13 @@ const styles = StyleSheet.create({
 
   // Leer-Zustand
   emptyCard: {
-    backgroundColor: COLORS.white,
     borderRadius: 8,
     padding: 32,
     alignItems: "center",
     borderWidth: 1,
-    borderColor: COLORS.border,
     borderStyle: "dashed",
   },
   emptyText: {
-    color: COLORS.tertiary,
     fontSize: 13,
   },
 });

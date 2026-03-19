@@ -18,6 +18,7 @@ import { COLORS } from "../../constants/Colors";
 import { Container } from "../../components/Container";
 import { showError, showSuccess } from "../../lib/errorHandler";
 import { SkeletonList } from "../../components/Skeleton";
+import { useThemeColors } from "../../contexts/ThemeContext";
 
 export default function MenteesScreen() {
   const { user } = useAuth();
@@ -36,6 +37,7 @@ type SortKey = "name" | "city" | "progress";
 function AdminMenteesView() {
   const router = useRouter();
   const { t } = useLanguage();
+  const themeColors = useThemeColors();
   const [search, setSearch] = useState("");
   const [assignFilter, setAssignFilter] = useState<AssignmentFilter>("all");
   const [statusFilter, setStatusFilter] = useState<StatusFilter>("all");
@@ -126,39 +128,39 @@ function AdminMenteesView() {
 
   return (
     <ScrollView
-      style={styles.scrollView}
+      style={[styles.scrollView, { backgroundColor: themeColors.background }]}
       refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor={COLORS.gold} />}
     >
       <View style={styles.page}>
         <View style={styles.titleRow}>
           <View>
-            <Text style={styles.pageTitle}>{t("mentees.allMentees")}</Text>
-            <Text style={styles.pageSubtitle}>{allMentees.length} {t("mentees.registered")}</Text>
+            <Text style={[styles.pageTitle, { color: themeColors.text }]}>{t("mentees.allMentees")}</Text>
+            <Text style={[styles.pageSubtitle, { color: themeColors.textSecondary }]}>{allMentees.length} {t("mentees.registered")}</Text>
           </View>
           <View style={{ flexDirection: "row", gap: 6 }}>
             <TouchableOpacity
-              style={styles.csvButton}
+              style={[styles.csvButton, { backgroundColor: themeColors.card, borderColor: themeColors.border }]}
               onPress={() => router.push("/admin/csv-import")}
             >
-              <Text style={styles.csvButtonText}>{t("csvImport.title")}</Text>
+              <Text style={[styles.csvButtonText, { color: themeColors.text }]}>{t("csvImport.title")}</Text>
             </TouchableOpacity>
-            <TouchableOpacity style={styles.csvButton} onPress={handleExportCsv}>
-              <Text style={styles.csvButtonText}>{t("csv.export")}</Text>
+            <TouchableOpacity style={[styles.csvButton, { backgroundColor: themeColors.card, borderColor: themeColors.border }]} onPress={handleExportCsv}>
+              <Text style={[styles.csvButtonText, { color: themeColors.text }]}>{t("csv.export")}</Text>
             </TouchableOpacity>
           </View>
         </View>
 
         {/* Suche */}
         <TextInput
-          style={styles.searchInput}
+          style={[styles.searchInput, { backgroundColor: themeColors.card, borderColor: themeColors.border, color: themeColors.text }]}
           placeholder={t("mentees.search")}
-          placeholderTextColor="#98A2B3"
+          placeholderTextColor={themeColors.textTertiary}
           value={search}
           onChangeText={setSearch}
         />
 
         {/* Filter: Zuweisung */}
-        <Text style={styles.filterGroupLabel}>{t("mentees.filterAssignment")}</Text>
+        <Text style={[styles.filterGroupLabel, { color: themeColors.textTertiary }]}>{t("mentees.filterAssignment")}</Text>
         <View style={styles.filterRow}>
           {(
             [
@@ -171,13 +173,13 @@ function AdminMenteesView() {
               key={tab.key}
               style={[
                 styles.filterChip,
-                assignFilter === tab.key ? styles.filterChipActive : styles.filterChipInactive,
+                assignFilter === tab.key ? styles.filterChipActive : [styles.filterChipInactive, { backgroundColor: themeColors.card, borderColor: themeColors.border }],
               ]}
               onPress={() => setAssignFilter(tab.key)}
             >
               <Text
                 style={
-                  assignFilter === tab.key ? styles.filterChipTextActive : styles.filterChipTextInactive
+                  assignFilter === tab.key ? styles.filterChipTextActive : [styles.filterChipTextInactive, { color: themeColors.textSecondary }]
                 }
               >
                 {tab.label}
@@ -187,7 +189,7 @@ function AdminMenteesView() {
         </View>
 
         {/* Filter: Status */}
-        <Text style={styles.filterGroupLabel}>{t("mentees.filterStatus")}</Text>
+        <Text style={[styles.filterGroupLabel, { color: themeColors.textTertiary }]}>{t("mentees.filterStatus")}</Text>
         <View style={styles.filterRow}>
           {(
             [
@@ -201,13 +203,13 @@ function AdminMenteesView() {
               key={tab.key}
               style={[
                 styles.filterChip,
-                statusFilter === tab.key ? styles.filterChipActive : styles.filterChipInactive,
+                statusFilter === tab.key ? styles.filterChipActive : [styles.filterChipInactive, { backgroundColor: themeColors.card, borderColor: themeColors.border }],
               ]}
               onPress={() => setStatusFilter(tab.key)}
             >
               <Text
                 style={
-                  statusFilter === tab.key ? styles.filterChipTextActive : styles.filterChipTextInactive
+                  statusFilter === tab.key ? styles.filterChipTextActive : [styles.filterChipTextInactive, { color: themeColors.textSecondary }]
                 }
               >
                 {tab.label}
@@ -217,7 +219,7 @@ function AdminMenteesView() {
         </View>
 
         {/* Filter: Geschlecht */}
-        <Text style={styles.filterGroupLabel}>{t("mentees.filterGender")}</Text>
+        <Text style={[styles.filterGroupLabel, { color: themeColors.textTertiary }]}>{t("mentees.filterGender")}</Text>
         <View style={styles.filterRow}>
           {(
             [
@@ -230,13 +232,13 @@ function AdminMenteesView() {
               key={tab.key}
               style={[
                 styles.filterChip,
-                genderFilter === tab.key ? styles.filterChipActive : styles.filterChipInactive,
+                genderFilter === tab.key ? styles.filterChipActive : [styles.filterChipInactive, { backgroundColor: themeColors.card, borderColor: themeColors.border }],
               ]}
               onPress={() => setGenderFilter(tab.key)}
             >
               <Text
                 style={
-                  genderFilter === tab.key ? styles.filterChipTextActive : styles.filterChipTextInactive
+                  genderFilter === tab.key ? styles.filterChipTextActive : [styles.filterChipTextInactive, { color: themeColors.textSecondary }]
                 }
               >
                 {tab.label}
@@ -246,7 +248,7 @@ function AdminMenteesView() {
         </View>
 
         {/* Sortierung */}
-        <Text style={styles.filterGroupLabel}>{t("mentees.filterSort")}</Text>
+        <Text style={[styles.filterGroupLabel, { color: themeColors.textTertiary }]}>{t("mentees.filterSort")}</Text>
         <View style={[styles.filterRow, { marginBottom: 24 }]}>
           {(
             [
@@ -259,13 +261,13 @@ function AdminMenteesView() {
               key={opt.key}
               style={[
                 styles.filterChip,
-                sortKey === opt.key ? styles.filterChipActive : styles.filterChipInactive,
+                sortKey === opt.key ? styles.filterChipActive : [styles.filterChipInactive, { backgroundColor: themeColors.card, borderColor: themeColors.border }],
               ]}
               onPress={() => setSortKey(opt.key)}
             >
               <Text
                 style={
-                  sortKey === opt.key ? styles.filterChipTextActive : styles.filterChipTextInactive
+                  sortKey === opt.key ? styles.filterChipTextActive : [styles.filterChipTextInactive, { color: themeColors.textSecondary }]
                 }
               >
                 {opt.label}
@@ -278,8 +280,8 @@ function AdminMenteesView() {
         {isLoading ? (
           <SkeletonList count={5} />
         ) : filteredMentees.length === 0 ? (
-          <View style={styles.emptyCard}>
-            <Text style={styles.emptyText}>{t("mentees.noResults")}</Text>
+          <View style={[styles.emptyCard, { backgroundColor: themeColors.card }]}>
+            <Text style={[styles.emptyText, { color: themeColors.textTertiary }]}>{t("mentees.noResults")}</Text>
           </View>
         ) : (
           filteredMentees.map((mentee) => {
@@ -319,7 +321,8 @@ function AdminMenteesView() {
                 key={mentee.id}
                 style={[
                   styles.menteeCard,
-                  mentorship ? styles.menteeCardAssigned : styles.menteeCardUnassigned,
+                  { backgroundColor: themeColors.card },
+                  mentorship ? styles.menteeCardAssigned : [styles.menteeCardUnassigned, { borderColor: themeColors.border }],
                 ]}
                 onPress={() =>
                   router.push({ pathname: "/mentee/[id]", params: { id: mentee.id } })
@@ -328,14 +331,14 @@ function AdminMenteesView() {
                 <View style={styles.menteeCardHeader}>
                   <View style={{ flex: 1 }}>
                     <View style={{ flexDirection: "row", alignItems: "center", gap: 6 }}>
-                      <Text style={styles.meneeName}>{mentee.name}</Text>
+                      <Text style={[styles.meneeName, { color: themeColors.text }]}>{mentee.name}</Text>
                       {mentee.is_active === false && (
                         <View style={styles.blockedBadge}>
                           <Text style={styles.blockedBadgeText}>{t("editUser.blocked")}</Text>
                         </View>
                       )}
                     </View>
-                    <Text style={styles.menteeSubText}>
+                    <Text style={[styles.menteeSubText, { color: themeColors.textTertiary }]}>
                       {mentee.city} · {mentee.age} J. ·{" "}
                       {mentee.gender === "male" ? t("mentees.brother") : t("mentees.sister")}
                     </Text>
@@ -347,25 +350,25 @@ function AdminMenteesView() {
 
                 {mentorship ? (
                   <>
-                    <Text style={styles.mentorLabel}>{t("mentees.mentor")}: {mentorship.mentor?.name}</Text>
+                    <Text style={[styles.mentorLabel, { color: themeColors.textTertiary }]}>{t("mentees.mentor")}: {mentorship.mentor?.name}</Text>
                     <View style={styles.progressRow}>
-                      <View style={styles.progressTrack}>
+                      <View style={[styles.progressTrack, { backgroundColor: themeColors.background }]}>
                         <View
                           style={[styles.progressFill, { width: `${progress}%` as any }]}
                         />
                       </View>
-                      <Text style={styles.progressText}>
+                      <Text style={[styles.progressText, { color: themeColors.textSecondary }]}>
                         {completedSteps.length}/{sessionTypes.length}
                       </Text>
                     </View>
                     <TouchableOpacity
-                      style={styles.viewChatButton}
+                      style={[styles.viewChatButton, { backgroundColor: themeColors.background, borderColor: themeColors.border }]}
                       onPress={(e) => {
                         e.stopPropagation();
                         router.push({ pathname: "/chat/[mentorshipId]", params: { mentorshipId: mentorship.id } });
                       }}
                     >
-                      <Text style={styles.viewChatButtonText}>{t("admin.viewChat")}</Text>
+                      <Text style={[styles.viewChatButtonText, { color: themeColors.textSecondary }]}>{t("admin.viewChat")}</Text>
                     </TouchableOpacity>
                   </>
                 ) : (
@@ -392,6 +395,7 @@ function MentorMenteesView() {
   const router = useRouter();
   const { user } = useAuth();
   const { t } = useLanguage();
+  const themeColors = useThemeColors();
   const { getMentorshipsByMentorId, refreshData } = useData();
   const [refreshing, setRefreshing] = useState(false);
   const onRefresh = useCallback(async () => {
@@ -406,12 +410,12 @@ function MentorMenteesView() {
 
   return (
     <ScrollView
-      style={styles.scrollView}
+      style={[styles.scrollView, { backgroundColor: themeColors.background }]}
       refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor={COLORS.gold} />}
     >
       <View style={styles.page}>
-        <Text style={styles.pageTitle}>{t("mentees.myMentees")}</Text>
-        <Text style={styles.pageSubtitle}>
+        <Text style={[styles.pageTitle, { color: themeColors.text }]}>{t("mentees.myMentees")}</Text>
+        <Text style={[styles.pageSubtitle, { color: themeColors.textSecondary }]}>
           {myMentorships.filter((m) => m.status === "active").length} {t("mentees.activeMentorships")}
         </Text>
 
@@ -424,12 +428,12 @@ function MentorMenteesView() {
         </TouchableOpacity>
 
         {myMentorships.length === 0 ? (
-          <View style={styles.emptyCard}>
+          <View style={[styles.emptyCard, { backgroundColor: themeColors.card }]}>
             <Text style={{ fontSize: 36, marginBottom: 12 }}>🤝</Text>
-            <Text style={[styles.meneeName, { textAlign: "center", marginBottom: 8 }]}>
+            <Text style={[styles.meneeName, { textAlign: "center", marginBottom: 8, color: themeColors.text }]}>
               {t("mentees.noMenteesYet")}
             </Text>
-            <Text style={[styles.emptyText, { marginTop: 0, marginBottom: 12 }]}>
+            <Text style={[styles.emptyText, { marginTop: 0, marginBottom: 12, color: themeColors.textTertiary }]}>
               {t("mentees.noMenteesText")}
             </Text>
             <TouchableOpacity
@@ -454,6 +458,7 @@ function MentorMenteesView() {
 function MentorMenteeCard({ mentorship }: { mentorship: Mentorship }) {
   const router = useRouter();
   const { t } = useLanguage();
+  const themeColors = useThemeColors();
   const { getCompletedStepIds, getSessionsByMentorshipId, sessionTypes } = useData();
 
   const completedStepIds = getCompletedStepIds(mentorship.id);
@@ -465,7 +470,8 @@ function MentorMenteeCard({ mentorship }: { mentorship: Mentorship }) {
     <TouchableOpacity
       style={[
         styles.menteeCard,
-        mentorship.status === "active" ? styles.menteeCardAssigned : styles.menteeCardUnassigned,
+        { backgroundColor: themeColors.card },
+        mentorship.status === "active" ? styles.menteeCardAssigned : [styles.menteeCardUnassigned, { borderColor: themeColors.border }],
       ]}
       onPress={() =>
         router.push({ pathname: "/mentorship/[id]", params: { id: mentorship.id } })
@@ -474,8 +480,8 @@ function MentorMenteeCard({ mentorship }: { mentorship: Mentorship }) {
       {/* Mentee-Header */}
       <View style={styles.menteeCardHeader}>
         <View>
-          <Text style={styles.meneeName}>{mentorship.mentee?.name}</Text>
-          <Text style={styles.menteeSubText}>
+          <Text style={[styles.meneeName, { color: themeColors.text }]}>{mentorship.mentee?.name}</Text>
+          <Text style={[styles.menteeSubText, { color: themeColors.textTertiary }]}>
             {mentorship.mentee?.city} · {mentorship.mentee?.age} J. ·{" "}
             {mentorship.mentee?.gender === "male" ? t("mentees.brother") : t("mentees.sister")}
           </Text>
@@ -499,22 +505,22 @@ function MentorMenteeCard({ mentorship }: { mentorship: Mentorship }) {
 
       {/* Fortschrittsbalken */}
       <View style={styles.progressRow}>
-        <View style={styles.progressTrack}>
+        <View style={[styles.progressTrack, { backgroundColor: themeColors.background }]}>
           <View style={[styles.progressFill, { width: `${progress}%` as any }]} />
         </View>
-        <Text style={styles.progressText}>
+        <Text style={[styles.progressText, { color: themeColors.textSecondary }]}>
           {completedStepIds.length}/{sessionTypes.length} {t("mentees.steps")}
         </Text>
       </View>
 
       {/* Step-Liste */}
-      <Text style={styles.stepSectionLabel}>{t("mentees.progress")}</Text>
+      <Text style={[styles.stepSectionLabel, { color: themeColors.textTertiary }]}>{t("mentees.progress")}</Text>
       <View style={styles.stepChipRow}>
         {sortedTypes.map((step, idx) => {
           const isDone = completedStepIds.includes(step.id);
           const isCurrent = !isDone && idx === completedStepIds.length;
-          const chipBg = isDone ? "#dcfce7" : isCurrent ? "#fef3c7" : COLORS.bg;
-          const chipColor = isDone ? "#15803d" : isCurrent ? "#b45309" : COLORS.tertiary;
+          const chipBg = isDone ? "#dcfce7" : isCurrent ? "#fef3c7" : themeColors.background;
+          const chipColor = isDone ? "#15803d" : isCurrent ? "#b45309" : themeColors.textTertiary;
           const chipWeight: "normal" | "500" = isDone || isCurrent ? "500" : "normal";
           return (
             <View key={step.id} style={[styles.stepChip, { backgroundColor: chipBg }]}>
@@ -527,8 +533,8 @@ function MentorMenteeCard({ mentorship }: { mentorship: Mentorship }) {
       </View>
 
       {/* Session-Anzahl + Aktionen */}
-      <View style={styles.cardFooter}>
-        <Text style={styles.sessionCount}>
+      <View style={[styles.cardFooter, { borderTopColor: themeColors.border }]}>
+        <Text style={[styles.sessionCount, { color: themeColors.textTertiary }]}>
           {sessions.length} Session{sessions.length !== 1 ? "s" : ""} {t("mentees.documented")}
         </Text>
         {mentorship.status === "active" && (
@@ -554,6 +560,7 @@ function MenteeProgressView() {
   const { user } = useAuth();
   const router = useRouter();
   const { t } = useLanguage();
+  const themeColors = useThemeColors();
   const {
     getMentorshipByMenteeId,
     getCompletedStepIds,
@@ -578,17 +585,17 @@ function MenteeProgressView() {
   if (!mentorship) {
     return (
       <ScrollView
-        style={styles.scrollView}
+        style={[styles.scrollView, { backgroundColor: themeColors.background }]}
         refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor={COLORS.gold} />}
       >
         <View style={styles.page}>
-          <Text style={styles.pageTitle}>{t("mentees.myProgress")}</Text>
-          <View style={styles.emptyCard}>
+          <Text style={[styles.pageTitle, { color: themeColors.text }]}>{t("mentees.myProgress")}</Text>
+          <View style={[styles.emptyCard, { backgroundColor: themeColors.card }]}>
             <Text style={{ fontSize: 36, marginBottom: 12 }}>🌱</Text>
-            <Text style={[styles.meneeName, { textAlign: "center", marginBottom: 8 }]}>
+            <Text style={[styles.meneeName, { textAlign: "center", marginBottom: 8, color: themeColors.text }]}>
               {t("mentees.noAssignmentYet")}
             </Text>
-            <Text style={[styles.emptyText, { marginTop: 0 }]}>
+            <Text style={[styles.emptyText, { marginTop: 0, color: themeColors.textTertiary }]}>
               {t("mentees.noAssignmentText")}
             </Text>
           </View>
@@ -601,12 +608,12 @@ function MenteeProgressView() {
 
   return (
     <ScrollView
-      style={styles.scrollView}
+      style={[styles.scrollView, { backgroundColor: themeColors.background }]}
       refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor={COLORS.gold} />}
     >
       <View style={styles.page}>
-        <Text style={styles.pageTitle}>{t("mentees.myProgress")}</Text>
-        <Text style={styles.pageSubtitle}>{t("mentees.mentor")}: {mentorship.mentor?.name}</Text>
+        <Text style={[styles.pageTitle, { color: themeColors.text }]}>{t("mentees.myProgress")}</Text>
+        <Text style={[styles.pageSubtitle, { color: themeColors.textSecondary }]}>{t("mentees.mentor")}: {mentorship.mentor?.name}</Text>
 
         {/* Gesamtfortschritt – dunkle Hero-Card */}
         <View style={styles.progressHeaderCard}>
@@ -634,8 +641,8 @@ function MenteeProgressView() {
         </TouchableOpacity>
 
         {/* Detaillierte Schritt-Liste */}
-        <Text style={styles.sectionTitle}>{t("mentees.your10StepsDetail")}</Text>
-        <View style={[styles.emptyCard, { padding: 0, overflow: "hidden", marginBottom: 24 }]}>
+        <Text style={[styles.sectionTitle, { color: themeColors.text }]}>{t("mentees.your10StepsDetail")}</Text>
+        <View style={[styles.emptyCard, { backgroundColor: themeColors.card, padding: 0, overflow: "hidden", marginBottom: 24 }]}>
           {sortedTypes.map((step, idx) => {
             const isDone = completedStepIds.includes(step.id);
             const isCurrent = !isDone && idx === completedStepIds.length;
@@ -647,7 +654,7 @@ function MenteeProgressView() {
                 key={step.id}
                 style={[
                   styles.stepDetailRow,
-                  idx < sessionTypes.length - 1 ? styles.stepDetailBorder : {},
+                  idx < sessionTypes.length - 1 ? [styles.stepDetailBorder, { borderBottomColor: themeColors.border }] : {},
                   isCurrent ? { backgroundColor: "#fffbeb" } : {},
                 ]}
               >
@@ -658,7 +665,7 @@ function MenteeProgressView() {
                       ? { backgroundColor: COLORS.cta }
                       : isCurrent
                       ? { backgroundColor: COLORS.gold }
-                      : { backgroundColor: COLORS.bg, borderWidth: 1, borderColor: COLORS.border },
+                      : { backgroundColor: themeColors.background, borderWidth: 1, borderColor: themeColors.border },
                   ]}
                 >
                   {isDone ? (
@@ -682,14 +689,14 @@ function MenteeProgressView() {
                         isDone
                           ? { color: COLORS.cta }
                           : isCurrent
-                          ? { color: COLORS.primary }
-                          : { color: COLORS.tertiary },
+                          ? { color: themeColors.text }
+                          : { color: themeColors.textTertiary },
                       ]}
                     >
                       {step.name}
                     </Text>
                     {isLocked && (
-                      <Text style={{ color: COLORS.tertiary, fontSize: 12 }}>{t("mentees.locked")}</Text>
+                      <Text style={{ color: themeColors.textTertiary, fontSize: 12 }}>{t("mentees.locked")}</Text>
                     )}
                     {isCurrent && (
                       <View style={{ backgroundColor: "#fef3c7", paddingHorizontal: 8, paddingVertical: 2, borderRadius: 4 }}>
@@ -697,7 +704,7 @@ function MenteeProgressView() {
                       </View>
                     )}
                   </View>
-                  <Text style={styles.stepDetailDesc}>{step.description}</Text>
+                  <Text style={[styles.stepDetailDesc, { color: themeColors.textTertiary }]}>{step.description}</Text>
                   {isDone && session && (
                     <Text style={{ color: "#16a34a", fontSize: 12, marginTop: 4 }}>
                       {t("mentees.completedOn")}{" "}
@@ -716,48 +723,41 @@ function MenteeProgressView() {
 }
 
 const styles = StyleSheet.create({
-  scrollView: { flex: 1, backgroundColor: COLORS.bg },
+  scrollView: { flex: 1 },
   page: { padding: 20 },
   titleRow: { flexDirection: "row", alignItems: "flex-start", justifyContent: "space-between", marginBottom: 16 },
-  pageTitle: { fontSize: 24, fontWeight: "700", color: COLORS.primary, marginBottom: 2 },
-  pageSubtitle: { color: COLORS.secondary, fontSize: 13 },
+  pageTitle: { fontSize: 24, fontWeight: "700", marginBottom: 2 },
+  pageSubtitle: { fontSize: 13 },
   csvButton: {
-    backgroundColor: COLORS.white,
     borderWidth: 1,
-    borderColor: COLORS.border,
     borderRadius: 6,
     paddingHorizontal: 10,
     paddingVertical: 6,
     marginTop: 4,
   },
-  csvButtonText: { color: COLORS.primary, fontSize: 12, fontWeight: "600" },
-  sectionTitle: { fontSize: 18, fontWeight: "600", color: COLORS.primary, marginBottom: 10 },
+  csvButtonText: { fontSize: 12, fontWeight: "600" },
+  sectionTitle: { fontSize: 18, fontWeight: "600", marginBottom: 10 },
   searchInput: {
-    backgroundColor: COLORS.white,
     borderWidth: 1,
-    borderColor: COLORS.border,
     borderRadius: 6,
     paddingHorizontal: 12,
     paddingVertical: 8,
-    color: COLORS.primary,
     marginBottom: 12,
     fontSize: 14,
   },
   filterGroupLabel: {
     fontSize: 11,
     fontWeight: "600",
-    color: COLORS.tertiary,
     letterSpacing: 0.5,
     marginBottom: 4,
   },
   filterRow: { flexDirection: "row", flexWrap: "wrap", gap: 6, marginBottom: 10 },
   filterChip: { paddingHorizontal: 12, paddingVertical: 6, borderRadius: 5, borderWidth: 1 },
   filterChipActive: { backgroundColor: COLORS.gradientStart, borderColor: COLORS.gradientStart },
-  filterChipInactive: { backgroundColor: COLORS.white, borderColor: COLORS.border },
+  filterChipInactive: { borderWidth: 1 },
   filterChipTextActive: { color: COLORS.white, fontSize: 12, fontWeight: "500" },
-  filterChipTextInactive: { color: COLORS.secondary, fontSize: 12, fontWeight: "500" },
+  filterChipTextInactive: { fontSize: 12, fontWeight: "500" },
   emptyCard: {
-    backgroundColor: COLORS.white,
     borderRadius: 8,
     padding: 32,
     alignItems: "center",
@@ -768,9 +768,8 @@ const styles = StyleSheet.create({
     shadowRadius: 6,
     elevation: 1,
   },
-  emptyText: { color: COLORS.tertiary, textAlign: "center", fontSize: 14, marginTop: 8 },
+  emptyText: { textAlign: "center", fontSize: 14, marginTop: 8 },
   menteeCard: {
-    backgroundColor: COLORS.white,
     borderRadius: 8,
     padding: 16,
     marginBottom: 12,
@@ -786,18 +785,17 @@ const styles = StyleSheet.create({
   },
   menteeCardUnassigned: {
     borderWidth: 1,
-    borderColor: COLORS.border,
   },
   menteeCardHeader: { flexDirection: "row", alignItems: "flex-start", justifyContent: "space-between", marginBottom: 8 },
-  meneeName: { fontWeight: "700", color: COLORS.primary, fontSize: 15 },
-  menteeSubText: { color: COLORS.tertiary, fontSize: 12 },
+  meneeName: { fontWeight: "700", fontSize: 15 },
+  menteeSubText: { fontSize: 12 },
   statusBadge: { paddingHorizontal: 8, paddingVertical: 3, borderRadius: 4 },
   statusText: { fontSize: 12, fontWeight: "500" },
-  mentorLabel: { color: COLORS.tertiary, fontSize: 12, marginBottom: 8 },
+  mentorLabel: { fontSize: 12, marginBottom: 8 },
   progressRow: { flexDirection: "row", alignItems: "center", gap: 8 },
-  progressTrack: { flex: 1, height: 6, backgroundColor: COLORS.bg, borderRadius: 3, overflow: "hidden" },
+  progressTrack: { flex: 1, height: 6, borderRadius: 3, overflow: "hidden" },
   progressFill: { height: "100%", backgroundColor: COLORS.cta, borderRadius: 3 },
-  progressText: { color: COLORS.secondary, fontSize: 12 },
+  progressText: { fontSize: 12 },
   assignButton: {
     marginTop: 8,
     backgroundColor: COLORS.gradientStart,
@@ -809,18 +807,15 @@ const styles = StyleSheet.create({
   assignButtonText: { color: COLORS.white, fontSize: 14, fontWeight: "600" },
   viewChatButton: {
     marginTop: 8,
-    backgroundColor: COLORS.bg,
     borderWidth: 1,
-    borderColor: COLORS.border,
     borderRadius: 5,
     paddingVertical: 7,
     paddingHorizontal: 16,
     alignItems: "center",
     alignSelf: "flex-start",
   },
-  viewChatButtonText: { color: COLORS.secondary, fontSize: 13, fontWeight: "500" },
+  viewChatButtonText: { fontSize: 13, fontWeight: "500" },
   stepSectionLabel: {
-    color: COLORS.tertiary,
     fontSize: 11,
     fontWeight: "600",
     marginTop: 12,
@@ -832,13 +827,12 @@ const styles = StyleSheet.create({
   stepChipText: { fontSize: 12 },
   cardFooter: {
     borderTopWidth: 1,
-    borderTopColor: COLORS.border,
     paddingTop: 12,
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
   },
-  sessionCount: { color: COLORS.tertiary, fontSize: 12 },
+  sessionCount: { fontSize: 12 },
   docChipButton: {
     backgroundColor: "rgba(39,174,96,0.08)",
     borderWidth: 1,
@@ -865,7 +859,7 @@ const styles = StyleSheet.create({
   },
   selfAssignText: { color: COLORS.white, fontWeight: "600", fontSize: 14 },
   progressHeaderCard: {
-    backgroundColor: COLORS.gradientStart,
+    backgroundColor: COLORS.gradientStart,  // intentional accent color
     borderRadius: 8,
     padding: 16,
     marginBottom: 16,
@@ -895,7 +889,7 @@ const styles = StyleSheet.create({
   detailsButtonText: { color: COLORS.cta, fontWeight: "600" },
   detailsArrow: { color: COLORS.cta },
   stepDetailRow: { flexDirection: "row", alignItems: "flex-start", paddingHorizontal: 16, paddingVertical: 12 },
-  stepDetailBorder: { borderBottomWidth: 1, borderBottomColor: COLORS.border },
+  stepDetailBorder: { borderBottomWidth: 1 },
   stepIndicator: {
     width: 36,
     height: 36,
@@ -906,7 +900,7 @@ const styles = StyleSheet.create({
     flexShrink: 0,
   },
   stepIndicatorTextWhite: { color: COLORS.white, fontWeight: "700" },
-  stepIndicatorTextTertiary: { color: COLORS.tertiary, fontSize: 14, fontWeight: "700" },
+  stepIndicatorTextTertiary: { fontSize: 14, fontWeight: "700" },
   stepDetailName: { fontWeight: "600", fontSize: 15 },
-  stepDetailDesc: { color: COLORS.tertiary, fontSize: 12 },
+  stepDetailDesc: { fontSize: 12 },
 });

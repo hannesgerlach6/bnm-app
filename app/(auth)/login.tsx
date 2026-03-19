@@ -13,6 +13,7 @@ import {
 import { useRouter } from "expo-router";
 import { useAuth } from "../../contexts/AuthContext";
 import { useLanguage } from "../../contexts/LanguageContext";
+import { useThemeColors } from "../../contexts/ThemeContext";
 import type { UserRole } from "../../types";
 import { COLORS } from "../../constants/Colors";
 import { BNMLogo } from "../../components/BNMLogo";
@@ -21,6 +22,7 @@ export default function LoginScreen() {
   const router = useRouter();
   const { login, loginAs, isLoading } = useAuth();
   const { t } = useLanguage();
+  const themeColors = useThemeColors();
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -57,11 +59,11 @@ export default function LoginScreen() {
 
   return (
     <KeyboardAvoidingView
-      style={styles.flex1}
+      style={[styles.flex1, { backgroundColor: themeColors.background }]}
       behavior={Platform.OS === "ios" ? "padding" : "height"}
     >
       <ScrollView
-        style={styles.flex1}
+        style={[styles.flex1, { backgroundColor: themeColors.background }]}
         contentContainerStyle={{ flexGrow: 1 }}
         keyboardShouldPersistTaps="handled"
       >
@@ -75,15 +77,15 @@ export default function LoginScreen() {
 
         {/* Login-Formular */}
         <View style={styles.formContainer}>
-          <Text style={styles.welcomeTitle}>{t("login.title")}</Text>
-          <Text style={styles.welcomeSubtitle}>{t("login.subtitle")}</Text>
+          <Text style={[styles.welcomeTitle, { color: themeColors.text }]}>{t("login.title")}</Text>
+          <Text style={[styles.welcomeSubtitle, { color: themeColors.textSecondary }]}>{t("login.subtitle")}</Text>
 
           {/* E-Mail */}
-          <Text style={styles.fieldLabel}>{t("login.email")}</Text>
+          <Text style={[styles.fieldLabel, { color: themeColors.textSecondary }]}>{t("login.email")}</Text>
           <TextInput
-            style={styles.input}
+            style={[styles.input, { backgroundColor: themeColors.card, borderColor: themeColors.border, color: themeColors.text }]}
             placeholder="deine@email.de"
-            placeholderTextColor="#98A2B3"
+            placeholderTextColor={themeColors.textTertiary}
             keyboardType="email-address"
             autoCapitalize="none"
             autoCorrect={false}
@@ -92,12 +94,12 @@ export default function LoginScreen() {
           />
 
           {/* Passwort */}
-          <Text style={styles.fieldLabel}>{t("login.password")}</Text>
-          <View style={styles.passwordRow}>
+          <Text style={[styles.fieldLabel, { color: themeColors.textSecondary }]}>{t("login.password")}</Text>
+          <View style={[styles.passwordRow, { backgroundColor: themeColors.card, borderColor: themeColors.border }]}>
             <TextInput
-              style={styles.passwordInput}
+              style={[styles.passwordInput, { color: themeColors.text }]}
               placeholder={t("login.password")}
-              placeholderTextColor="#98A2B3"
+              placeholderTextColor={themeColors.textTertiary}
               secureTextEntry={!showPassword}
               value={password}
               onChangeText={setPassword}
@@ -112,7 +114,7 @@ export default function LoginScreen() {
 
           {/* Fehlermeldung */}
           {errorMsg ? (
-            <View style={styles.errorBox}>
+            <View style={[styles.errorBox, { backgroundColor: "#fef2f2", borderColor: "#fecaca" }]}>
               <Text style={styles.errorText}>{errorMsg}</Text>
             </View>
           ) : null}
@@ -122,7 +124,7 @@ export default function LoginScreen() {
             style={styles.forgotPasswordRow}
             onPress={() => router.push("/(auth)/forgot-password")}
           >
-            <Text style={styles.forgotPasswordText}>{t("login.forgotPassword")}</Text>
+            <Text style={[styles.forgotPasswordText, { color: themeColors.link }]}>{t("login.forgotPassword")}</Text>
           </TouchableOpacity>
 
           {/* Login-Button */}
@@ -143,44 +145,44 @@ export default function LoginScreen() {
             <TouchableOpacity
               onPress={() => router.push("/(auth)/register-public")}
             >
-              <Text style={styles.linkText}>{t("login.publicRegister")}</Text>
+              <Text style={[styles.linkText, { color: themeColors.link }]}>{t("login.publicRegister")}</Text>
             </TouchableOpacity>
-            <Text style={styles.divider}>|</Text>
+            <Text style={[styles.divider, { color: themeColors.textTertiary }]}>|</Text>
             <TouchableOpacity
               onPress={() => router.push("/(auth)/register-mentor")}
             >
-              <Text style={styles.linkText}>{t("login.registerMentor")}</Text>
+              <Text style={[styles.linkText, { color: themeColors.link }]}>{t("login.registerMentor")}</Text>
             </TouchableOpacity>
           </View>
 
           {/* Test-Schnellzugang — nur in Development */}
           {__DEV__ && (
-            <View style={styles.quickSection}>
-              <Text style={styles.quickLabel}>{t("login.quickAccess")}</Text>
+            <View style={[styles.quickSection, { borderTopColor: themeColors.border }]}>
+              <Text style={[styles.quickLabel, { color: themeColors.textTertiary }]}>{t("login.quickAccess")}</Text>
               <View style={styles.quickRow}>
                 <TouchableOpacity
-                  style={styles.quickButton}
+                  style={[styles.quickButton, { backgroundColor: themeColors.card, borderColor: themeColors.border }]}
                   onPress={() => handleQuickLogin("admin")}
                 >
-                  <Text style={styles.quickButtonText}>Admin</Text>
+                  <Text style={[styles.quickButtonText, { color: themeColors.textSecondary }]}>Admin</Text>
                 </TouchableOpacity>
                 <TouchableOpacity
-                  style={styles.quickButton}
+                  style={[styles.quickButton, { backgroundColor: themeColors.card, borderColor: themeColors.border }]}
                   onPress={() => handleQuickLogin("mentor")}
                 >
-                  <Text style={styles.quickButtonText}>Mentor</Text>
+                  <Text style={[styles.quickButtonText, { color: themeColors.textSecondary }]}>Mentor</Text>
                 </TouchableOpacity>
                 <TouchableOpacity
-                  style={styles.quickButton}
+                  style={[styles.quickButton, { backgroundColor: themeColors.card, borderColor: themeColors.border }]}
                   onPress={() => handleQuickLogin("mentee")}
                 >
-                  <Text style={styles.quickButtonText}>Mentee</Text>
+                  <Text style={[styles.quickButtonText, { color: themeColors.textSecondary }]}>Mentee</Text>
                 </TouchableOpacity>
                 <TouchableOpacity
-                  style={styles.quickButton}
+                  style={[styles.quickButton, { backgroundColor: themeColors.card, borderColor: themeColors.border }]}
                   onPress={handleQuickOffice}
                 >
-                  <Text style={styles.quickButtonText}>Office</Text>
+                  <Text style={[styles.quickButtonText, { color: themeColors.textSecondary }]}>Office</Text>
                 </TouchableOpacity>
               </View>
             </View>
@@ -194,7 +196,6 @@ export default function LoginScreen() {
 const styles = StyleSheet.create({
   flex1: {
     flex: 1,
-    backgroundColor: COLORS.bg,
   },
   header: {
     backgroundColor: COLORS.gradientStart,
@@ -230,39 +231,31 @@ const styles = StyleSheet.create({
     paddingTop: 24,
   },
   welcomeTitle: {
-    color: COLORS.primary,
     fontSize: 24,
     fontWeight: "700",
     marginBottom: 4,
   },
   welcomeSubtitle: {
-    color: COLORS.secondary,
     fontSize: 14,
     marginBottom: 20,
   },
   fieldLabel: {
-    color: COLORS.secondary,
     fontSize: 13,
     fontWeight: "500",
     marginBottom: 4,
   },
   input: {
-    backgroundColor: COLORS.white,
     borderWidth: 1,
-    borderColor: COLORS.border,
     borderRadius: 6,
     paddingHorizontal: 12,
     paddingVertical: Platform.OS === "web" ? 8 : 10,
-    color: COLORS.primary,
     marginBottom: 10,
     fontSize: 14,
   },
   passwordRow: {
     flexDirection: "row",
     alignItems: "center",
-    backgroundColor: COLORS.white,
     borderWidth: 1,
-    borderColor: COLORS.border,
     borderRadius: 6,
     marginBottom: 10,
     overflow: "hidden",
@@ -271,7 +264,6 @@ const styles = StyleSheet.create({
     flex: 1,
     paddingHorizontal: 12,
     paddingVertical: Platform.OS === "web" ? 8 : 10,
-    color: COLORS.primary,
     fontSize: 14,
   },
   eyeButton: {
@@ -297,7 +289,6 @@ const styles = StyleSheet.create({
     marginBottom: 10,
   },
   forgotPasswordText: {
-    color: COLORS.link,
     fontSize: 13,
   },
   loginButton: {

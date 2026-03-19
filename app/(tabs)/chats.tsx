@@ -13,6 +13,7 @@ import { useData } from "../../contexts/DataContext";
 import { COLORS } from "../../constants/Colors";
 import { Container } from "../../components/Container";
 import { useLanguage } from "../../contexts/LanguageContext";
+import { useThemeColors } from "../../contexts/ThemeContext";
 
 function formatTime(dateStr: string, yesterday: string): string {
   const d = new Date(dateStr);
@@ -31,6 +32,7 @@ export default function ChatsScreen() {
   const router = useRouter();
   const { user } = useAuth();
   const { t } = useLanguage();
+  const themeColors = useThemeColors();
   const { mentorships, getMessagesByMentorshipId, getUnreadMessagesCount, refreshData } = useData();
   const [refreshing, setRefreshing] = useState(false);
 
@@ -106,7 +108,7 @@ export default function ChatsScreen() {
   return (
     <Container>
       <ScrollView
-        style={styles.scrollView}
+        style={[styles.scrollView, { backgroundColor: themeColors.background }]}
         refreshControl={
           <RefreshControl
             refreshing={refreshing}
@@ -116,21 +118,21 @@ export default function ChatsScreen() {
         }
       >
         <View style={styles.page}>
-          <Text style={styles.pageTitle}>{t("chats.title")}</Text>
+          <Text style={[styles.pageTitle, { color: themeColors.text }]}>{t("chats.title")}</Text>
           {totalUnread > 0 && (
-            <Text style={styles.pageSubtitle}>
+            <Text style={[styles.pageSubtitle, { color: themeColors.textSecondary }]}>
               {t("chats.unreadHint").replace("{0}", String(totalUnread))}
             </Text>
           )}
 
           {chatList.length === 0 ? (
-            <View style={styles.emptyCard}>
+            <View style={[styles.emptyCard, { backgroundColor: themeColors.card, borderColor: themeColors.border }]}>
               <Text style={styles.emptyIcon}>💬</Text>
-              <Text style={styles.emptyTitle}>{t("chats.noChats")}</Text>
-              <Text style={styles.emptyText}>{t("chats.noChatsText")}</Text>
+              <Text style={[styles.emptyTitle, { color: themeColors.text }]}>{t("chats.noChats")}</Text>
+              <Text style={[styles.emptyText, { color: themeColors.textSecondary }]}>{t("chats.noChatsText")}</Text>
             </View>
           ) : (
-            <View style={styles.listCard}>
+            <View style={[styles.listCard, { backgroundColor: themeColors.card, borderColor: themeColors.border }]}>
               {chatList.map((item, idx) => {
                 const { mentorship: m, lastMsg, unread } = item;
                 const isActive = m.status === "active";
@@ -139,7 +141,7 @@ export default function ChatsScreen() {
                     key={m.id}
                     style={[
                       styles.chatRow,
-                      idx < chatList.length - 1 ? styles.chatRowBorder : {},
+                      idx < chatList.length - 1 ? { borderBottomWidth: 1, borderBottomColor: themeColors.border } : {},
                     ]}
                     onPress={() =>
                       router.push({
@@ -152,7 +154,7 @@ export default function ChatsScreen() {
                     <View
                       style={[
                         styles.avatar,
-                        { backgroundColor: isActive ? COLORS.gradientStart : COLORS.border },
+                        { backgroundColor: isActive ? COLORS.gradientStart : themeColors.border },
                       ]}
                     >
                       <Text style={styles.avatarText}>
@@ -163,17 +165,17 @@ export default function ChatsScreen() {
                     {/* Inhalt */}
                     <View style={styles.chatInfo}>
                       <View style={styles.chatTopRow}>
-                        <Text style={styles.chatName} numberOfLines={1}>
+                        <Text style={[styles.chatName, { color: themeColors.text }]} numberOfLines={1}>
                           {getChatTitle(m)}
                         </Text>
                         {lastMsg && (
-                          <Text style={styles.chatTime}>
+                          <Text style={[styles.chatTime, { color: themeColors.textTertiary }]}>
                             {formatTime(lastMsg.created_at, t("chats.yesterday"))}
                           </Text>
                         )}
                       </View>
                       <View style={styles.chatBottomRow}>
-                        <Text style={styles.chatSub} numberOfLines={1}>
+                        <Text style={[styles.chatSub, { color: themeColors.textSecondary }]} numberOfLines={1}>
                           {lastMsg
                             ? lastMsg.content
                             : getChatSubtitle(m)}
@@ -199,24 +201,20 @@ export default function ChatsScreen() {
 }
 
 const styles = StyleSheet.create({
-  scrollView: { flex: 1, backgroundColor: COLORS.bg },
+  scrollView: { flex: 1 },
   page: { padding: 20 },
   pageTitle: {
     fontSize: 28,
     fontWeight: "700",
-    color: COLORS.primary,
     marginBottom: 4,
   },
   pageSubtitle: {
-    color: COLORS.secondary,
     fontSize: 13,
     marginBottom: 16,
   },
   emptyCard: {
-    backgroundColor: COLORS.white,
     borderRadius: 8,
     borderWidth: 1,
-    borderColor: COLORS.border,
     padding: 40,
     alignItems: "center",
     marginTop: 24,
@@ -224,20 +222,16 @@ const styles = StyleSheet.create({
   emptyIcon: { fontSize: 40, marginBottom: 12 },
   emptyTitle: {
     fontWeight: "700",
-    color: COLORS.primary,
     fontSize: 16,
     marginBottom: 6,
   },
   emptyText: {
-    color: COLORS.secondary,
     fontSize: 13,
     textAlign: "center",
   },
   listCard: {
-    backgroundColor: COLORS.white,
     borderRadius: 8,
     borderWidth: 1,
-    borderColor: COLORS.border,
     overflow: "hidden",
   },
   chatRow: {
@@ -249,7 +243,6 @@ const styles = StyleSheet.create({
   },
   chatRowBorder: {
     borderBottomWidth: 1,
-    borderBottomColor: COLORS.border,
   },
   avatar: {
     width: 44,
@@ -273,13 +266,11 @@ const styles = StyleSheet.create({
   },
   chatName: {
     fontWeight: "600",
-    color: COLORS.primary,
     fontSize: 15,
     flex: 1,
     marginRight: 8,
   },
   chatTime: {
-    color: COLORS.tertiary,
     fontSize: 12,
     flexShrink: 0,
   },
@@ -289,7 +280,6 @@ const styles = StyleSheet.create({
     justifyContent: "space-between",
   },
   chatSub: {
-    color: COLORS.secondary,
     fontSize: 13,
     flex: 1,
     marginRight: 8,

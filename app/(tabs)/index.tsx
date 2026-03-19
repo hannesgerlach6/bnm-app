@@ -9,6 +9,7 @@ import { COLORS } from "../../constants/Colors";
 import { Container } from "../../components/Container";
 import { BNMLogo } from "../../components/BNMLogo";
 import { showConfirm } from "../../lib/errorHandler";
+import { useThemeColors } from "../../contexts/ThemeContext";
 
 export default function DashboardScreen() {
   const { user } = useAuth();
@@ -24,6 +25,7 @@ export default function DashboardScreen() {
 function AdminDashboard({ showSystemSettings = true }: { showSystemSettings?: boolean }) {
   const router = useRouter();
   const { t } = useLanguage();
+  const themeColors = useThemeColors();
   const {
     users,
     mentorships,
@@ -158,75 +160,75 @@ function AdminDashboard({ showSystemSettings = true }: { showSystemSettings?: bo
 
   return (
     <ScrollView
-      style={styles.scrollView}
+      style={[styles.scrollView, { backgroundColor: themeColors.background }]}
       refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor={COLORS.gold} />}
     >
       <View style={styles.page}>
         <View style={styles.headerRow}>
           <BNMLogo size={36} showSubtitle={false} />
           <View style={styles.headerTextGroup}>
-            <Text style={styles.pageTitle}>{t("dashboard.admin")}</Text>
-            <Text style={styles.pageSubtitle}>{t("dashboard.overview")}</Text>
+            <Text style={[styles.pageTitle, { color: themeColors.text }]}>{t("dashboard.admin")}</Text>
+            <Text style={[styles.pageSubtitle, { color: themeColors.textSecondary }]}>{t("dashboard.overview")}</Text>
           </View>
         </View>
 
         {/* Globale Suche */}
         <TextInput
-          style={styles.searchInput}
+          style={[styles.searchInput, { backgroundColor: themeColors.card, borderColor: themeColors.border, color: themeColors.text }]}
           placeholder={t("search.placeholder")}
-          placeholderTextColor={COLORS.tertiary}
+          placeholderTextColor={themeColors.textTertiary}
           value={searchQuery}
           onChangeText={setSearchQuery}
         />
 
         {/* Suchergebnisse */}
         {searchResults && (
-          <View style={styles.searchResultsBox}>
+          <View style={[styles.searchResultsBox, { backgroundColor: themeColors.card, borderColor: themeColors.border }]}>
             {searchResults.mentees.length === 0 && searchResults.mentors.length === 0 && searchResults.mentorships.length === 0 ? (
-              <Text style={styles.searchNoResults}>{t("search.noResults")}</Text>
+              <Text style={[styles.searchNoResults, { color: themeColors.textTertiary }]}>{t("search.noResults")}</Text>
             ) : (
               <>
                 {searchResults.mentees.length > 0 && (
-                  <View style={styles.searchSection}>
-                    <Text style={styles.searchSectionLabel}>{t("search.mentees")}</Text>
+                  <View style={[styles.searchSection, { borderBottomColor: themeColors.border }]}>
+                    <Text style={[styles.searchSectionLabel, { color: themeColors.textTertiary }]}>{t("search.mentees")}</Text>
                     {searchResults.mentees.slice(0, 3).map((u) => (
                       <TouchableOpacity
                         key={u.id}
-                        style={styles.searchResultRow}
+                        style={[styles.searchResultRow, { borderTopColor: themeColors.border }]}
                         onPress={() => { setSearchQuery(""); router.push({ pathname: "/mentee/[id]", params: { id: u.id } }); }}
                       >
-                        <Text style={styles.searchResultName}>{u.name}</Text>
-                        <Text style={styles.searchResultSub}>{u.city}</Text>
+                        <Text style={[styles.searchResultName, { color: themeColors.text }]}>{u.name}</Text>
+                        <Text style={[styles.searchResultSub, { color: themeColors.textTertiary }]}>{u.city}</Text>
                       </TouchableOpacity>
                     ))}
                   </View>
                 )}
                 {searchResults.mentors.length > 0 && (
-                  <View style={styles.searchSection}>
-                    <Text style={styles.searchSectionLabel}>{t("search.mentors")}</Text>
+                  <View style={[styles.searchSection, { borderBottomColor: themeColors.border }]}>
+                    <Text style={[styles.searchSectionLabel, { color: themeColors.textTertiary }]}>{t("search.mentors")}</Text>
                     {searchResults.mentors.slice(0, 3).map((u) => (
                       <TouchableOpacity
                         key={u.id}
-                        style={styles.searchResultRow}
+                        style={[styles.searchResultRow, { borderTopColor: themeColors.border }]}
                         onPress={() => { setSearchQuery(""); router.push({ pathname: "/mentor/[id]", params: { id: u.id } }); }}
                       >
-                        <Text style={styles.searchResultName}>{u.name}</Text>
-                        <Text style={styles.searchResultSub}>{u.city}</Text>
+                        <Text style={[styles.searchResultName, { color: themeColors.text }]}>{u.name}</Text>
+                        <Text style={[styles.searchResultSub, { color: themeColors.textTertiary }]}>{u.city}</Text>
                       </TouchableOpacity>
                     ))}
                   </View>
                 )}
                 {searchResults.mentorships.length > 0 && (
-                  <View style={styles.searchSection}>
-                    <Text style={styles.searchSectionLabel}>{t("search.mentorships")}</Text>
+                  <View style={[styles.searchSection, { borderBottomColor: themeColors.border }]}>
+                    <Text style={[styles.searchSectionLabel, { color: themeColors.textTertiary }]}>{t("search.mentorships")}</Text>
                     {searchResults.mentorships.slice(0, 3).map((m) => (
                       <TouchableOpacity
                         key={m.id}
-                        style={styles.searchResultRow}
+                        style={[styles.searchResultRow, { borderTopColor: themeColors.border }]}
                         onPress={() => { setSearchQuery(""); router.push({ pathname: "/mentorship/[id]", params: { id: m.id } }); }}
                       >
-                        <Text style={styles.searchResultName}>{m.mentee?.name} → {m.mentor?.name}</Text>
-                        <Text style={styles.searchResultSub}>
+                        <Text style={[styles.searchResultName, { color: themeColors.text }]}>{m.mentee?.name} → {m.mentor?.name}</Text>
+                        <Text style={[styles.searchResultSub, { color: themeColors.textTertiary }]}>
                           {m.status === "active" ? t("search.active") : t("search.completed")}
                         </Text>
                       </TouchableOpacity>
@@ -301,21 +303,21 @@ function AdminDashboard({ showSystemSettings = true }: { showSystemSettings?: bo
           >
             <View style={styles.momAdminHeader}>
               <Text style={styles.momAdminStar}>★</Text>
-              <Text style={styles.momAdminTitle}>{t("dashboard.currentMentorOfMonth")}</Text>
+              <Text style={[styles.momAdminTitle, { color: themeColors.textSecondary }]}>{t("dashboard.currentMentorOfMonth")}</Text>
             </View>
-            <Text style={styles.momAdminName}>{topMentor.mentor.name}</Text>
+            <Text style={[styles.momAdminName, { color: themeColors.text }]}>{topMentor.mentor.name}</Text>
             <View style={styles.momAdminStatsRow}>
-              <View style={styles.momAdminStat}>
+              <View style={[styles.momAdminStat, { backgroundColor: themeColors.card }]}>
                 <Text style={styles.momAdminStatValue}>{topMentor.score}</Text>
-                <Text style={styles.momAdminStatLabel}>{t("leaderboard.points")}</Text>
+                <Text style={[styles.momAdminStatLabel, { color: themeColors.textSecondary }]}>{t("leaderboard.points")}</Text>
               </View>
-              <View style={styles.momAdminStat}>
+              <View style={[styles.momAdminStat, { backgroundColor: themeColors.card }]}>
                 <Text style={styles.momAdminStatValue}>{topMentor.completedCount}</Text>
-                <Text style={styles.momAdminStatLabel}>{t("leaderboard.completions")}</Text>
+                <Text style={[styles.momAdminStatLabel, { color: themeColors.textSecondary }]}>{t("leaderboard.completions")}</Text>
               </View>
-              <View style={styles.momAdminStat}>
+              <View style={[styles.momAdminStat, { backgroundColor: themeColors.card }]}>
                 <Text style={styles.momAdminStatValue}>{topMentor.sessionCount}</Text>
-                <Text style={styles.momAdminStatLabel}>{t("leaderboard.sessions")}</Text>
+                <Text style={[styles.momAdminStatLabel, { color: themeColors.textSecondary }]}>{t("leaderboard.sessions")}</Text>
               </View>
             </View>
             <Text style={styles.momAdminArrow}>Profil ansehen ›</Text>
@@ -333,7 +335,7 @@ function AdminDashboard({ showSystemSettings = true }: { showSystemSettings?: bo
               <View key={mentee.id} style={styles.amberRow}>
                 <View>
                   <Text style={styles.menteeNameText}>{mentee.name}</Text>
-                  <Text style={styles.menteeSubText}>
+                  <Text style={[styles.menteeSubText, { color: themeColors.textTertiary }]}>
                     {mentee.city} · {mentee.gender === "male" ? t("dashboard.brother") : t("dashboard.sister")}
                   </Text>
                 </View>
@@ -391,89 +393,89 @@ function AdminDashboard({ showSystemSettings = true }: { showSystemSettings?: bo
 
         {/* Schnellzugriff: Bewerbungen */}
         <TouchableOpacity
-          style={styles.applicationsButton}
+          style={[styles.applicationsButton, { backgroundColor: themeColors.card }]}
           onPress={() => router.push("/admin/applications")}
         >
           <View style={styles.applicationsButtonContent}>
-            <Text style={styles.applicationsButtonText}>{t("dashboard.applications")}</Text>
-            <Text style={styles.applicationsButtonSub}>{t("dashboard.checkApplications")}</Text>
+            <Text style={[styles.applicationsButtonText, { color: themeColors.text }]}>{t("dashboard.applications")}</Text>
+            <Text style={[styles.applicationsButtonSub, { color: themeColors.textTertiary }]}>{t("dashboard.checkApplications")}</Text>
           </View>
           {pendingAppsCount > 0 && (
             <View style={styles.applicationsBadge}>
               <Text style={styles.applicationsBadgeText}>{pendingAppsCount}</Text>
             </View>
           )}
-          <Text style={styles.applicationsArrow}>›</Text>
+          <Text style={[styles.applicationsArrow, { color: themeColors.textTertiary }]}>›</Text>
         </TouchableOpacity>
 
         {/* Feedback-Übersicht */}
         <TouchableOpacity
-          style={styles.applicationsButton}
+          style={[styles.applicationsButton, { backgroundColor: themeColors.card }]}
           onPress={() => router.push("/admin/feedback-overview")}
         >
           <View style={styles.applicationsButtonContent}>
-            <Text style={styles.applicationsButtonText}>{t("dashboard.feedbackOverview")}</Text>
-            <Text style={styles.applicationsButtonSub}>{t("dashboard.viewAllFeedbacks")}</Text>
+            <Text style={[styles.applicationsButtonText, { color: themeColors.text }]}>{t("dashboard.feedbackOverview")}</Text>
+            <Text style={[styles.applicationsButtonSub, { color: themeColors.textTertiary }]}>{t("dashboard.viewAllFeedbacks")}</Text>
           </View>
-          <Text style={styles.applicationsArrow}>›</Text>
+          <Text style={[styles.applicationsArrow, { color: themeColors.textTertiary }]}>›</Text>
         </TouchableOpacity>
 
         {/* Mentoren-Übersicht */}
         <TouchableOpacity
-          style={styles.applicationsButton}
+          style={[styles.applicationsButton, { backgroundColor: themeColors.card }]}
           onPress={() => router.push("/admin/mentors")}
         >
           <View style={styles.applicationsButtonContent}>
-            <Text style={styles.applicationsButtonText}>{t("adminMentors.title")}</Text>
-            <Text style={styles.applicationsButtonSub}>{allMentors.length} {t("adminMentors.mentors")}</Text>
+            <Text style={[styles.applicationsButtonText, { color: themeColors.text }]}>{t("adminMentors.title")}</Text>
+            <Text style={[styles.applicationsButtonSub, { color: themeColors.textTertiary }]}>{allMentors.length} {t("adminMentors.mentors")}</Text>
           </View>
-          <Text style={styles.applicationsArrow}>›</Text>
+          <Text style={[styles.applicationsArrow, { color: themeColors.textTertiary }]}>›</Text>
         </TouchableOpacity>
 
         {/* Erweiterte Statistiken */}
         {showSystemSettings && (
           <TouchableOpacity
-            style={styles.applicationsButton}
+            style={[styles.applicationsButton, { backgroundColor: themeColors.card }]}
             onPress={() => router.push("/admin/statistics")}
           >
             <View style={styles.applicationsButtonContent}>
-              <Text style={styles.applicationsButtonText}>{t("statistics.title")}</Text>
-              <Text style={styles.applicationsButtonSub}>{t("statistics.completionRate")} · {t("statistics.cityDistribution")}</Text>
+              <Text style={[styles.applicationsButtonText, { color: themeColors.text }]}>{t("statistics.title")}</Text>
+              <Text style={[styles.applicationsButtonSub, { color: themeColors.textTertiary }]}>{t("statistics.completionRate")} · {t("statistics.cityDistribution")}</Text>
             </View>
-            <Text style={styles.applicationsArrow}>›</Text>
+            <Text style={[styles.applicationsArrow, { color: themeColors.textTertiary }]}>›</Text>
           </TouchableOpacity>
         )}
 
         {/* Spender-Bericht Dashboard */}
         <TouchableOpacity
-          style={styles.applicationsButton}
+          style={[styles.applicationsButton, { backgroundColor: themeColors.card }]}
           onPress={() => router.push("/admin/donor-report" as never)}
         >
           <View style={styles.applicationsButtonContent}>
-            <Text style={styles.applicationsButtonText}>{t("donorDashboard.title")}</Text>
-            <Text style={styles.applicationsButtonSub}>{t("donorDashboard.subtitle")}</Text>
+            <Text style={[styles.applicationsButtonText, { color: themeColors.text }]}>{t("donorDashboard.title")}</Text>
+            <Text style={[styles.applicationsButtonSub, { color: themeColors.textTertiary }]}>{t("donorDashboard.subtitle")}</Text>
           </View>
-          <Text style={styles.applicationsArrow}>›</Text>
+          <Text style={[styles.applicationsArrow, { color: themeColors.textTertiary }]}>›</Text>
         </TouchableOpacity>
 
         {/* CSV Import */}
         <TouchableOpacity
-          style={styles.applicationsButton}
+          style={[styles.applicationsButton, { backgroundColor: themeColors.card }]}
           onPress={() => router.push("/admin/csv-import")}
         >
           <View style={styles.applicationsButtonContent}>
-            <Text style={styles.applicationsButtonText}>{t("csvImport.title")}</Text>
-            <Text style={styles.applicationsButtonSub}>{t("csvImport.tabMentees")} · {t("csvImport.tabMentors")}</Text>
+            <Text style={[styles.applicationsButtonText, { color: themeColors.text }]}>{t("csvImport.title")}</Text>
+            <Text style={[styles.applicationsButtonSub, { color: themeColors.textTertiary }]}>{t("csvImport.tabMentees")} · {t("csvImport.tabMentors")}</Text>
           </View>
-          <Text style={styles.applicationsArrow}>›</Text>
+          <Text style={[styles.applicationsArrow, { color: themeColors.textTertiary }]}>›</Text>
         </TouchableOpacity>
 
         {/* Letzte Aktivitäten */}
-        <View style={styles.card}>
-          <Text style={styles.cardTitle}>{t("dashboard.recentActivity")}</Text>
-          <Text style={[styles.tertiaryXs, { marginBottom: 8 }]}>{t("dashboard.recentActivitySub")}</Text>
+        <View style={[styles.card, { backgroundColor: themeColors.card }]}>
+          <Text style={[styles.cardTitle, { color: themeColors.text }]}>{t("dashboard.recentActivity")}</Text>
+          <Text style={[styles.tertiaryXs, { color: themeColors.textTertiary, marginBottom: 8 }]}>{t("dashboard.recentActivitySub")}</Text>
           {recentSessions.length === 0 ? (
-            <Text style={styles.emptyText}>{t("dashboard.noRecentActivity")}</Text>
+            <Text style={[styles.emptyText, { color: themeColors.textTertiary }]}>{t("dashboard.noRecentActivity")}</Text>
           ) : (
             recentSessions.map((s, idx) => {
               const mentorship = mentorships.find((m) => m.id === s.mentorship_id);
@@ -482,15 +484,15 @@ function AdminDashboard({ showSystemSettings = true }: { showSystemSettings?: bo
               const menteeName = mentorship?.mentee?.name ?? "–";
               const isLast = idx === recentSessions.length - 1;
               return (
-                <View key={s.id} style={[styles.activityRow, isLast ? {} : styles.activityRowBorder]}>
+                <View key={s.id} style={[styles.activityRow, isLast ? {} : [styles.activityRowBorder, { borderBottomColor: themeColors.border }]]}>
                   <View style={styles.activityDot} />
                   <View style={{ flex: 1 }}>
-                    <Text style={styles.activityTitle}>{stepName}</Text>
-                    <Text style={styles.activitySub}>
+                    <Text style={[styles.activityTitle, { color: themeColors.text }]}>{stepName}</Text>
+                    <Text style={[styles.activitySub, { color: themeColors.textTertiary }]}>
                       {menteeName} · {t("dashboard.activityBy")} {mentorName}
                     </Text>
                   </View>
-                  <Text style={styles.activityDate}>
+                  <Text style={[styles.activityDate, { color: themeColors.textTertiary }]}>
                     {new Date(s.date).toLocaleDateString("de-DE", { day: "2-digit", month: "2-digit" })}
                   </Text>
                 </View>
@@ -503,12 +505,12 @@ function AdminDashboard({ showSystemSettings = true }: { showSystemSettings?: bo
         <MonthlyChart mentorships={mentorships} />
 
         {/* Aktive Betreuungen Übersicht */}
-        <View style={styles.card}>
-          <Text style={styles.cardTitle}>{t("dashboard.activeMentorships")}</Text>
+        <View style={[styles.card, { backgroundColor: themeColors.card }]}>
+          <Text style={[styles.cardTitle, { color: themeColors.text }]}>{t("dashboard.activeMentorships")}</Text>
           {activeMentorships.length === 0 ? (
             <View style={{ alignItems: "center", paddingVertical: 16 }}>
               <Text style={{ fontSize: 28, marginBottom: 8 }}>👥</Text>
-              <Text style={[styles.emptyText, { marginBottom: 8 }]}>
+              <Text style={[styles.emptyText, { color: themeColors.textTertiary, marginBottom: 8 }]}>
                 {t("dashboard.noActiveMentorships")}
               </Text>
               <Text style={{ color: COLORS.link, fontSize: 13 }}>
@@ -525,18 +527,18 @@ function AdminDashboard({ showSystemSettings = true }: { showSystemSettings?: bo
               return (
                 <TouchableOpacity
                   key={m.id}
-                  style={[styles.listItem, isLast ? {} : styles.listItemBorder]}
+                  style={[styles.listItem, isLast ? {} : [styles.listItemBorder, { borderBottomColor: themeColors.border }]]}
                   onPress={() =>
                     router.push({ pathname: "/mentorship/[id]", params: { id: m.id } })
                   }
                 >
                   <View style={styles.rowBetweenMb2}>
                     <View>
-                      <Text style={styles.semiboldPrimary}>{m.mentee?.name}</Text>
-                      <Text style={styles.tertiaryXs}>{t("dashboard.mentor")} {m.mentor?.name}</Text>
+                      <Text style={[styles.semiboldPrimary, { color: themeColors.text }]}>{m.mentee?.name}</Text>
+                      <Text style={[styles.tertiaryXs, { color: themeColors.textTertiary }]}>{t("dashboard.mentor")} {m.mentor?.name}</Text>
                     </View>
-                    <View style={styles.percentBadge}>
-                      <Text style={styles.percentBadgeText}>{progress}%</Text>
+                    <View style={[styles.percentBadge, { backgroundColor: themeColors.background, borderColor: themeColors.border }]}>
+                      <Text style={[styles.percentBadgeText, { color: themeColors.text }]}>{progress}%</Text>
                     </View>
                   </View>
                   <ProgressBar progress={progress} />
@@ -555,6 +557,7 @@ function MentorDashboard() {
   const { user } = useAuth();
   const router = useRouter();
   const { t } = useLanguage();
+  const themeColors = useThemeColors();
   const { getMentorshipsByMentorId, getCompletedStepIds, sessionTypes, refreshData, getUnreadMessagesCount } = useData();
   const [refreshing, setRefreshing] = useState(false);
   const onRefresh = useCallback(async () => {
@@ -597,7 +600,7 @@ function MentorDashboard() {
 
   return (
     <ScrollView
-      style={styles.scrollView}
+      style={[styles.scrollView, { backgroundColor: themeColors.background }]}
       refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor={COLORS.gold} />}
     >
       <View style={styles.page}>
@@ -617,10 +620,10 @@ function MentorDashboard() {
         </View>
 
         {/* Aktive Betreuungen */}
-        <Text style={styles.sectionTitle}>{t("dashboard.myActiveMentorships")}</Text>
+        <Text style={[styles.sectionTitle, { color: themeColors.text }]}>{t("dashboard.myActiveMentorships")}</Text>
         {activeMentorships.length === 0 ? (
-          <View style={[styles.card, { padding: 24, alignItems: "center", marginBottom: 16 }]}>
-            <Text style={styles.emptyText}>{t("dashboard.noMenteesAssigned")}</Text>
+          <View style={[styles.card, { backgroundColor: themeColors.card, padding: 24, alignItems: "center", marginBottom: 16 }]}>
+            <Text style={[styles.emptyText, { color: themeColors.textTertiary }]}>{t("dashboard.noMenteesAssigned")}</Text>
           </View>
         ) : (
           activeMentorships.map((m) => {
@@ -639,21 +642,21 @@ function MentorDashboard() {
             return (
               <TouchableOpacity
                 key={m.id}
-                style={styles.menteeCard}
+                style={[styles.menteeCard, { backgroundColor: themeColors.card }]}
                 onPress={() =>
                   router.push({ pathname: "/mentorship/[id]", params: { id: m.id } })
                 }
               >
                 <View style={styles.rowBetweenMb3}>
                   <View>
-                    <Text style={styles.boldPrimary}>{m.mentee?.name}</Text>
-                    <Text style={styles.tertiaryXs}>
+                    <Text style={[styles.boldPrimary, { color: themeColors.text }]}>{m.mentee?.name}</Text>
+                    <Text style={[styles.tertiaryXs, { color: themeColors.textTertiary }]}>
                       {m.mentee?.city} · Seit{" "}
                       {new Date(m.assigned_at).toLocaleDateString("de-DE")}
                     </Text>
                   </View>
-                  <View style={styles.stepsBadge}>
-                    <Text style={styles.stepsBadgeText}>
+                  <View style={[styles.stepsBadge, { backgroundColor: themeColors.background, borderColor: themeColors.border }]}>
+                    <Text style={[styles.stepsBadgeText, { color: themeColors.text }]}>
                       {completedSteps.length}/{sessionTypes.length}
                     </Text>
                   </View>
@@ -677,7 +680,7 @@ function MentorDashboard() {
                     {nextStep && (
                       <View style={styles.nextStepRow}>
                         <View style={styles.goldDot} />
-                        <Text style={styles.nextStepText}>
+                        <Text style={[styles.nextStepText, { color: themeColors.textSecondary }]}>
                           {t("dashboard.nextStep")} {nextStep.name}
                         </Text>
                       </View>
@@ -693,13 +696,13 @@ function MentorDashboard() {
                         <Text style={styles.docButtonText}>{t("dashboard.documentSession")}</Text>
                       </TouchableOpacity>
                       <TouchableOpacity
-                        style={styles.chatButton}
+                        style={[styles.chatButton, { backgroundColor: themeColors.background, borderColor: themeColors.border }]}
                         onPress={(e) => {
                           e.stopPropagation();
                           router.push({ pathname: "/chat/[mentorshipId]", params: { mentorshipId: m.id } });
                         }}
                       >
-                        <Text style={styles.chatButtonText}>{t("dashboard.openChat")}</Text>
+                        <Text style={[styles.chatButtonText, { color: themeColors.textSecondary }]}>{t("dashboard.openChat")}</Text>
                         {getUnreadMessagesCount(m.id) > 0 && (
                           <View style={styles.unreadBadge}>
                             <Text style={styles.unreadBadgeText}>
@@ -720,9 +723,9 @@ function MentorDashboard() {
         <View style={styles.goldBox}>
           <View style={styles.goldBoxHeader}>
             <Text style={styles.goldStar}>★</Text>
-            <Text style={styles.goldBoxTitle}>{t("dashboard.mentorOfMonth")}</Text>
+            <Text style={[styles.goldBoxTitle, { color: themeColors.text }]}>{t("dashboard.mentorOfMonth")}</Text>
           </View>
-          <Text style={styles.goldBoxText}>{t("dashboard.mentorOfMonthText")}</Text>
+          <Text style={[styles.goldBoxText, { color: themeColors.textSecondary }]}>{t("dashboard.mentorOfMonthText")}</Text>
         </View>
       </View>
     </ScrollView>
@@ -733,6 +736,7 @@ function MenteeDashboard() {
   const { user } = useAuth();
   const router = useRouter();
   const { t } = useLanguage();
+  const themeColors = useThemeColors();
   const { getMentorshipByMenteeId, getCompletedStepIds, sessionTypes, hadithe, refreshData, getUnreadMessagesCount, confirmStepAsMentee, unconfirmStepAsMentee, mentorships, feedback } = useData();
   const [refreshing, setRefreshing] = useState(false);
   const [confirmingStep, setConfirmingStep] = useState<string | null>(null);
@@ -776,7 +780,7 @@ function MenteeDashboard() {
 
   return (
     <ScrollView
-      style={styles.scrollView}
+      style={[styles.scrollView, { backgroundColor: themeColors.background }]}
       refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor={COLORS.gold} />}
     >
       <View style={styles.page}>
@@ -1063,17 +1067,19 @@ function StatCard({
   value: number;
   color: string;
 }) {
+  const themeColors = useThemeColors();
   return (
-    <View style={styles.statCard}>
-      <Text style={styles.statLabel}>{label}</Text>
+    <View style={[styles.statCard, { backgroundColor: themeColors.card }]}>
+      <Text style={[styles.statLabel, { color: themeColors.textSecondary }]}>{label}</Text>
       <Text style={[styles.statValue, { color }]}>{value}</Text>
     </View>
   );
 }
 
 function ProgressBar({ progress }: { progress: number }) {
+  const themeColors = useThemeColors();
   return (
-    <View style={styles.progressTrack}>
+    <View style={[styles.progressTrack, { backgroundColor: themeColors.border }]}>
       <View
         style={[styles.progressFill, { width: `${progress}%` as any }]}
       />
@@ -1083,6 +1089,7 @@ function ProgressBar({ progress }: { progress: number }) {
 
 function MonthlyChart({ mentorships }: { mentorships: Mentorship[] }) {
   const { t } = useLanguage();
+  const themeColors = useThemeColors();
   const monthData = useMemo(() => {
     const now = new Date();
     const months: { label: string; count: number }[] = [];
@@ -1105,13 +1112,13 @@ function MonthlyChart({ mentorships }: { mentorships: Mentorship[] }) {
   const BAR_MAX_HEIGHT = 80;
 
   return (
-    <View style={styles.chartCard}>
-      <Text style={styles.cardTitle}>{t("dashboard.newMentorships")}</Text>
+    <View style={[styles.chartCard, { backgroundColor: themeColors.card }]}>
+      <Text style={[styles.cardTitle, { color: themeColors.text }]}>{t("dashboard.newMentorships")}</Text>
       <View style={styles.chartArea}>
         {/* Y-Achse */}
         <View style={styles.yAxis}>
           {[maxCount, Math.ceil(maxCount / 2), 0].map((val, idx) => (
-            <Text key={idx} style={styles.yLabel}>{val}</Text>
+            <Text key={idx} style={[styles.yLabel, { color: themeColors.textTertiary }]}>{val}</Text>
           ))}
         </View>
         {/* Balken */}
@@ -1123,7 +1130,7 @@ function MonthlyChart({ mentorships }: { mentorships: Mentorship[] }) {
             return (
               <View key={idx} style={styles.barColumn}>
                 <View style={styles.barWrapper}>
-                  <Text style={styles.barValueLabel}>{month.count > 0 ? month.count : ""}</Text>
+                  <Text style={[styles.barValueLabel, { color: themeColors.textSecondary }]}>{month.count > 0 ? month.count : ""}</Text>
                   <View
                     style={[
                       styles.bar,
@@ -1134,7 +1141,7 @@ function MonthlyChart({ mentorships }: { mentorships: Mentorship[] }) {
                     ]}
                   />
                 </View>
-                <Text style={styles.xLabel}>{month.label}</Text>
+                <Text style={[styles.xLabel, { color: themeColors.textTertiary }]}>{month.label}</Text>
               </View>
             );
           })}
@@ -1225,7 +1232,6 @@ const styles = StyleSheet.create({
   percentBadgeText: { color: COLORS.primary, fontSize: 12, fontWeight: "700" },
   statCard: {
     flex: 1,
-    backgroundColor: COLORS.white,
     borderRadius: 8,
     padding: 12,
     borderLeftWidth: 4,
@@ -1236,9 +1242,9 @@ const styles = StyleSheet.create({
     shadowRadius: 8,
     elevation: 2,
   },
-  statLabel: { color: COLORS.secondary, fontSize: 12, marginBottom: 2 },
+  statLabel: { fontSize: 12, marginBottom: 2 },
   statValue: { fontSize: 26, fontWeight: "700" },
-  progressTrack: { height: 8, backgroundColor: COLORS.bg, borderRadius: 4, overflow: "hidden" },
+  progressTrack: { height: 8, borderRadius: 4, overflow: "hidden" },
   progressFill: { height: "100%", backgroundColor: COLORS.cta, borderRadius: 4 },
   amberBox: {
     backgroundColor: "#fffbeb",
@@ -1472,7 +1478,6 @@ const styles = StyleSheet.create({
     fontStyle: "italic",
   },
   chartCard: {
-    backgroundColor: COLORS.white,
     borderRadius: 8,
     padding: 16,
     marginBottom: 16,

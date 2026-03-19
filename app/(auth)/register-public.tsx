@@ -12,6 +12,7 @@ import {
 import { showError } from "../../lib/errorHandler";
 import { useRouter } from "expo-router";
 import { COLORS } from "../../constants/Colors";
+import { useThemeColors } from "../../contexts/ThemeContext";
 import type { Gender, ContactPreference } from "../../types";
 import { Container } from "../../components/Container";
 import { supabase } from "../../lib/supabase";
@@ -36,6 +37,7 @@ function getPasswordStrength(pw: string): 0 | 1 | 2 | 3 {
 export default function RegisterPublicScreen() {
   const router = useRouter();
   const { t } = useLanguage();
+  const themeColors = useThemeColors();
   const [step, setStep] = useState<Step>("form");
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -159,15 +161,15 @@ export default function RegisterPublicScreen() {
   if (step === "success") {
     return (
       <Container>
-        <View style={styles.successContainer}>
+        <View style={[styles.successContainer, { backgroundColor: themeColors.background }]}>
           <View style={styles.successIconBox}>
             <Text style={styles.successIcon}>✓</Text>
           </View>
-          <Text style={styles.successTitle}>{t("register.successTitle")}</Text>
-          <Text style={styles.successText}>
+          <Text style={[styles.successTitle, { color: themeColors.text }]}>{t("register.successTitle")}</Text>
+          <Text style={[styles.successText, { color: themeColors.textSecondary }]}>
             {t("register.successText")}
           </Text>
-          <Text style={styles.successSub}>
+          <Text style={[styles.successSub, { color: themeColors.textTertiary }]}>
             {t("register.successSub")}
           </Text>
           <TouchableOpacity
@@ -184,19 +186,19 @@ export default function RegisterPublicScreen() {
   return (
     <Container>
       <KeyboardAvoidingView
-        style={styles.flex1}
+        style={[styles.flex1, { backgroundColor: themeColors.background }]}
         behavior={Platform.OS === "ios" ? "padding" : "height"}
       >
         <ScrollView
-          style={styles.flex1}
+          style={[styles.flex1, { backgroundColor: themeColors.background }]}
           contentContainerStyle={styles.scrollContent}
           keyboardShouldPersistTaps="handled"
         >
           <View style={styles.page}>
             {/* Titel */}
             <View style={styles.titleSection}>
-              <Text style={styles.pageTitle}>{t("register.title")}</Text>
-              <Text style={styles.pageSubtitle}>
+              <Text style={[styles.pageTitle, { color: themeColors.text }]}>{t("register.title")}</Text>
+              <Text style={[styles.pageSubtitle, { color: themeColors.textSecondary }]}>
                 {t("register.subtitle")}
               </Text>
             </View>
@@ -204,9 +206,9 @@ export default function RegisterPublicScreen() {
             {/* Vorname */}
             <FormField label={t("register.firstName")} error={errors.firstName}>
               <TextInput
-                style={[styles.input, errors.firstName ? styles.inputError : {}]}
+                style={[styles.input, { backgroundColor: themeColors.card, color: themeColors.text }, errors.firstName ? styles.inputError : { borderColor: themeColors.border }]}
                 placeholder={t("register.firstNamePlaceholder")}
-                placeholderTextColor={COLORS.tertiary}
+                placeholderTextColor={themeColors.textTertiary}
                 value={firstName}
                 onChangeText={setFirstName}
               />
@@ -215,9 +217,9 @@ export default function RegisterPublicScreen() {
             {/* Nachname */}
             <FormField label={t("register.lastName")} error={errors.lastName}>
               <TextInput
-                style={[styles.input, errors.lastName ? styles.inputError : {}]}
+                style={[styles.input, { backgroundColor: themeColors.card, color: themeColors.text }, errors.lastName ? styles.inputError : { borderColor: themeColors.border }]}
                 placeholder={t("register.lastNamePlaceholder")}
-                placeholderTextColor={COLORS.tertiary}
+                placeholderTextColor={themeColors.textTertiary}
                 value={lastName}
                 onChangeText={setLastName}
               />
@@ -226,9 +228,9 @@ export default function RegisterPublicScreen() {
             {/* E-Mail */}
             <FormField label={t("register.email")} error={errors.email}>
               <TextInput
-                style={[styles.input, errors.email ? styles.inputError : {}]}
+                style={[styles.input, { backgroundColor: themeColors.card, color: themeColors.text }, errors.email ? styles.inputError : { borderColor: themeColors.border }]}
                 placeholder="deine@email.de"
-                placeholderTextColor={COLORS.tertiary}
+                placeholderTextColor={themeColors.textTertiary}
                 keyboardType="email-address"
                 autoCapitalize="none"
                 autoCorrect={false}
@@ -240,9 +242,9 @@ export default function RegisterPublicScreen() {
             {/* Telefon */}
             <FormField label={t("register.phone")}>
               <TextInput
-                style={styles.input}
+                style={[styles.input, { backgroundColor: themeColors.card, color: themeColors.text, borderColor: themeColors.border }]}
                 placeholder="+49 ..."
-                placeholderTextColor={COLORS.tertiary}
+                placeholderTextColor={themeColors.textTertiary}
                 keyboardType="phone-pad"
                 value={phone}
                 onChangeText={setPhone}
@@ -253,18 +255,18 @@ export default function RegisterPublicScreen() {
             <FormField label={t("register.gender")} error={errors.gender}>
               <View style={styles.pillRow}>
                 <TouchableOpacity
-                  style={[styles.pill, gender === "male" ? styles.pillActive : styles.pillInactive]}
+                  style={[styles.pill, gender === "male" ? styles.pillActive : [styles.pillInactive, { backgroundColor: themeColors.card, borderColor: themeColors.border }]]}
                   onPress={() => setGender("male")}
                 >
-                  <Text style={gender === "male" ? styles.pillTextActive : styles.pillTextInactive}>
+                  <Text style={gender === "male" ? styles.pillTextActive : [styles.pillTextInactive, { color: themeColors.textSecondary }]}>
                     {t("register.brother")}
                   </Text>
                 </TouchableOpacity>
                 <TouchableOpacity
-                  style={[styles.pill, gender === "female" ? styles.pillActiveFemale : styles.pillInactive]}
+                  style={[styles.pill, gender === "female" ? styles.pillActiveFemale : [styles.pillInactive, { backgroundColor: themeColors.card, borderColor: themeColors.border }]]}
                   onPress={() => setGender("female")}
                 >
-                  <Text style={gender === "female" ? styles.pillTextActive : styles.pillTextInactive}>
+                  <Text style={gender === "female" ? styles.pillTextActive : [styles.pillTextInactive, { color: themeColors.textSecondary }]}>
                     {t("register.sister")}
                   </Text>
                 </TouchableOpacity>
@@ -274,9 +276,9 @@ export default function RegisterPublicScreen() {
             {/* Stadt */}
             <FormField label={t("register.city")} error={errors.city}>
               <TextInput
-                style={[styles.input, errors.city ? styles.inputError : {}]}
+                style={[styles.input, { backgroundColor: themeColors.card, color: themeColors.text }, errors.city ? styles.inputError : { borderColor: themeColors.border }]}
                 placeholder={t("register.cityPlaceholder")}
-                placeholderTextColor={COLORS.tertiary}
+                placeholderTextColor={themeColors.textTertiary}
                 value={city}
                 onChangeText={setCity}
               />
@@ -285,9 +287,9 @@ export default function RegisterPublicScreen() {
             {/* Alter */}
             <FormField label={t("register.age")} error={errors.age}>
               <TextInput
-                style={[styles.input, errors.age ? styles.inputError : {}]}
+                style={[styles.input, { backgroundColor: themeColors.card, color: themeColors.text }, errors.age ? styles.inputError : { borderColor: themeColors.border }]}
                 placeholder={t("register.agePlaceholder")}
-                placeholderTextColor={COLORS.tertiary}
+                placeholderTextColor={themeColors.textTertiary}
                 keyboardType="numeric"
                 value={age}
                 onChangeText={setAge}
@@ -309,7 +311,7 @@ export default function RegisterPublicScreen() {
                     key={opt.key}
                     style={[
                       styles.pill,
-                      contactPref === opt.key ? styles.pillActive : styles.pillInactive,
+                      contactPref === opt.key ? styles.pillActive : [styles.pillInactive, { backgroundColor: themeColors.card, borderColor: themeColors.border }],
                     ]}
                     onPress={() => setContactPref(opt.key)}
                   >
@@ -317,7 +319,7 @@ export default function RegisterPublicScreen() {
                       style={
                         contactPref === opt.key
                           ? styles.pillTextActive
-                          : styles.pillTextInactive
+                          : [styles.pillTextInactive, { color: themeColors.textSecondary }]
                       }
                     >
                       {opt.label}
@@ -331,9 +333,9 @@ export default function RegisterPublicScreen() {
             <FormField label={t("register.password")} error={errors.password}>
               <View style={{ flexDirection: "row", alignItems: "center" }}>
                 <TextInput
-                  style={[styles.input, { flex: 1 }, errors.password ? styles.inputError : {}]}
+                  style={[styles.input, { flex: 1, backgroundColor: themeColors.card, color: themeColors.text }, errors.password ? styles.inputError : { borderColor: themeColors.border }]}
                   placeholder={t("register.passwordPlaceholder")}
-                  placeholderTextColor={COLORS.tertiary}
+                  placeholderTextColor={themeColors.textTertiary}
                   secureTextEntry={!showPassword}
                   value={password}
                   onChangeText={setPassword}
@@ -342,7 +344,7 @@ export default function RegisterPublicScreen() {
                   style={{ paddingHorizontal: 10 }}
                   onPress={() => setShowPassword(!showPassword)}
                 >
-                  <Text style={{ color: COLORS.secondary, fontSize: 13 }}>
+                  <Text style={{ color: themeColors.textSecondary, fontSize: 13 }}>
                     {showPassword ? t("register.hidePassword") : t("register.showPassword")}
                   </Text>
                 </TouchableOpacity>
@@ -356,9 +358,9 @@ export default function RegisterPublicScreen() {
             {/* Passwort bestätigen */}
             <FormField label={t("register.passwordConfirm")} error={errors.passwordConfirm}>
               <TextInput
-                style={[styles.input, errors.passwordConfirm ? styles.inputError : {}]}
+                style={[styles.input, { backgroundColor: themeColors.card, color: themeColors.text }, errors.passwordConfirm ? styles.inputError : { borderColor: themeColors.border }]}
                 placeholder={t("register.passwordConfirmPlaceholder")}
-                placeholderTextColor={COLORS.tertiary}
+                placeholderTextColor={themeColors.textTertiary}
                 secureTextEntry={!showPassword}
                 value={passwordConfirm}
                 onChangeText={setPasswordConfirm}
@@ -385,9 +387,9 @@ export default function RegisterPublicScreen() {
 
             {/* Link zum Login */}
             <View style={styles.loginLinkRow}>
-              <Text style={styles.loginLinkText}>{t("register.alreadyRegistered")} </Text>
+              <Text style={[styles.loginLinkText, { color: themeColors.textSecondary }]}>{t("register.alreadyRegistered")} </Text>
               <TouchableOpacity onPress={() => router.replace("/(auth)/login")}>
-                <Text style={styles.loginLink}>{t("register.loginLink")}</Text>
+                <Text style={[styles.loginLink, { color: themeColors.link }]}>{t("register.loginLink")}</Text>
               </TouchableOpacity>
             </View>
           </View>
@@ -406,9 +408,10 @@ function FormField({
   error?: string;
   children: React.ReactNode;
 }) {
+  const themeColors = useThemeColors();
   return (
     <View style={fieldStyles.container}>
-      <Text style={fieldStyles.label}>{label}</Text>
+      <Text style={[fieldStyles.label, { color: themeColors.textSecondary }]}>{label}</Text>
       {children}
       {error ? <Text style={fieldStyles.error}>{error}</Text> : null}
     </View>
@@ -417,10 +420,11 @@ function FormField({
 
 function PasswordStrengthBar({ password }: { password: string }) {
   const { t } = useLanguage();
+  const themeColors = useThemeColors();
   const strength = getPasswordStrength(password);
 
   const colors: Record<number, string> = {
-    0: COLORS.border,
+    0: themeColors.border,
     1: COLORS.error,
     2: COLORS.gold,
     3: COLORS.cta,
@@ -438,7 +442,7 @@ function PasswordStrengthBar({ password }: { password: string }) {
 
   return (
     <View style={strengthStyles.container}>
-      <View style={strengthStyles.track}>
+      <View style={[strengthStyles.track, { backgroundColor: themeColors.border }]}>
         <View style={[strengthStyles.fill, { width: `${fillPct}%` as any, backgroundColor: fillColor }]} />
       </View>
       {strength > 0 && (
@@ -453,7 +457,6 @@ const strengthStyles = StyleSheet.create({
   track: {
     flex: 1,
     height: 5,
-    backgroundColor: COLORS.border,
     borderRadius: 3,
     overflow: "hidden",
   },
@@ -463,27 +466,24 @@ const strengthStyles = StyleSheet.create({
 
 const fieldStyles = StyleSheet.create({
   container: { marginBottom: 12 },
-  label: { color: COLORS.secondary, fontSize: 13, fontWeight: "500", marginBottom: 4 },
+  label: { fontSize: 13, fontWeight: "500", marginBottom: 4 },
   error: { color: COLORS.error, fontSize: 12, marginTop: 4 },
 });
 
 const styles = StyleSheet.create({
-  flex1: { flex: 1, backgroundColor: COLORS.bg },
+  flex1: { flex: 1 },
   scrollContent: { flexGrow: 1 },
   page: { padding: 20, paddingBottom: 40 },
 
   titleSection: { marginBottom: 16 },
-  pageTitle: { fontSize: 20, fontWeight: "bold", color: COLORS.primary, marginBottom: 4 },
-  pageSubtitle: { color: COLORS.secondary, fontSize: 13 },
+  pageTitle: { fontSize: 20, fontWeight: "bold", marginBottom: 4 },
+  pageSubtitle: { fontSize: 13 },
 
   input: {
-    backgroundColor: COLORS.white,
     borderWidth: 1,
-    borderColor: COLORS.border,
     borderRadius: 6,
     paddingHorizontal: 12,
     paddingVertical: 8,
-    color: COLORS.primary,
     fontSize: 14,
   },
   inputError: { borderColor: COLORS.error },
@@ -497,9 +497,9 @@ const styles = StyleSheet.create({
   },
   pillActive: { backgroundColor: COLORS.primary, borderColor: COLORS.primary },
   pillActiveFemale: { backgroundColor: "#7e22ce", borderColor: "#7e22ce" },
-  pillInactive: { backgroundColor: COLORS.white, borderColor: COLORS.border },
+  pillInactive: {},
   pillTextActive: { color: COLORS.white, fontWeight: "600", fontSize: 13 },
-  pillTextInactive: { color: COLORS.secondary, fontSize: 13 },
+  pillTextInactive: { fontSize: 13 },
 
   infoBox: {
     backgroundColor: "#eff6ff",
@@ -526,13 +526,12 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     alignItems: "center",
   },
-  loginLinkText: { color: COLORS.secondary, fontSize: 13 },
-  loginLink: { color: COLORS.link, fontSize: 13, fontWeight: "600" },
+  loginLinkText: { fontSize: 13 },
+  loginLink: { fontSize: 13, fontWeight: "600" },
 
   // Success Screen
   successContainer: {
     flex: 1,
-    backgroundColor: COLORS.bg,
     alignItems: "center",
     justifyContent: "center",
     padding: 28,
@@ -550,19 +549,16 @@ const styles = StyleSheet.create({
   successTitle: {
     fontSize: 20,
     fontWeight: "bold",
-    color: COLORS.primary,
     marginBottom: 10,
     textAlign: "center",
   },
   successText: {
-    color: COLORS.secondary,
     fontSize: 14,
     textAlign: "center",
     lineHeight: 20,
     marginBottom: 10,
   },
   successSub: {
-    color: COLORS.tertiary,
     fontSize: 13,
     textAlign: "center",
     lineHeight: 19,

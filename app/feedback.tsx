@@ -14,11 +14,13 @@ import { useData } from "../contexts/DataContext";
 import { COLORS } from "../constants/Colors";
 import { sendNewFeedbackNotification } from "../lib/emailService";
 import { useLanguage } from "../contexts/LanguageContext";
+import { useThemeColors } from "../contexts/ThemeContext";
 
 export default function FeedbackScreen() {
   const router = useRouter();
   const { user } = useAuth();
   const { t } = useLanguage();
+  const themeColors = useThemeColors();
   const { addFeedback, getMentorshipById } = useData();
   const params = useLocalSearchParams<{ mentorshipId?: string; type?: string }>();
 
@@ -81,7 +83,7 @@ export default function FeedbackScreen() {
   const isDisabled = isSaving || rating === 0;
 
   return (
-    <ScrollView style={styles.scrollView}>
+    <ScrollView style={[styles.scrollView, { backgroundColor: themeColors.background }]}>
       <View style={styles.page}>
         {/* Header */}
         <View style={styles.headerCard}>
@@ -98,13 +100,13 @@ export default function FeedbackScreen() {
           )}
         </View>
 
-        <Text style={styles.subText}>
+        <Text style={[styles.subText, { color: themeColors.textSecondary }]}>
           {isCancellation ? t("feedback.cancellationHelp") : t("feedback.helpText")}
         </Text>
 
         {/* Sternbewertung */}
-        <View style={styles.ratingCard}>
-          <Text style={styles.ratingTitle}>{t("feedback.ratingTitle")}</Text>
+        <View style={[styles.ratingCard, { backgroundColor: themeColors.card, borderColor: themeColors.border }]}>
+          <Text style={[styles.ratingTitle, { color: themeColors.text }]}>{t("feedback.ratingTitle")}</Text>
           <View style={styles.starsRow}>
             {[1, 2, 3, 4, 5].map((star) => (
               <TouchableOpacity
@@ -119,15 +121,15 @@ export default function FeedbackScreen() {
             ))}
           </View>
           {rating > 0 && (
-            <Text style={styles.ratingLabel}>{ratingLabel}</Text>
+            <Text style={[styles.ratingLabel, { color: themeColors.textSecondary }]}>{ratingLabel}</Text>
           )}
         </View>
 
         {/* Kommentar */}
-        <View style={styles.commentCard}>
-          <Text style={styles.commentTitle}>{t("feedback.commentTitle")}</Text>
+        <View style={[styles.commentCard, { backgroundColor: themeColors.card, borderColor: themeColors.border }]}>
+          <Text style={[styles.commentTitle, { color: themeColors.text }]}>{t("feedback.commentTitle")}</Text>
           <TextInput
-            style={[styles.commentInput]}
+            style={[styles.commentInput, { borderColor: themeColors.border, color: themeColors.text }]}
             value={comment}
             onChangeText={setComment}
             placeholder={t("feedback.commentPlaceholder")}
@@ -162,7 +164,7 @@ export default function FeedbackScreen() {
           style={styles.skipButton}
           onPress={() => router.replace("/(tabs)")}
         >
-          <Text style={styles.skipText}>{t("feedback.skip")}</Text>
+          <Text style={[styles.skipText, { color: themeColors.textTertiary }]}>{t("feedback.skip")}</Text>
         </TouchableOpacity>
       </View>
     </ScrollView>
@@ -170,7 +172,7 @@ export default function FeedbackScreen() {
 }
 
 const styles = StyleSheet.create({
-  scrollView: { flex: 1, backgroundColor: COLORS.bg },
+  scrollView: { flex: 1 },
   page: { padding: 20 },
   headerCard: {
     backgroundColor: COLORS.primary,
@@ -182,41 +184,35 @@ const styles = StyleSheet.create({
   headerEmoji: { fontSize: 28, marginBottom: 6 },
   headerTitle: { color: COLORS.white, fontWeight: "bold", fontSize: 17, textAlign: "center", marginBottom: 4 },
   headerSub: { color: COLORS.white, opacity: 0.7, fontSize: 13, textAlign: "center" },
-  subText: { color: COLORS.secondary, textAlign: "center", marginBottom: 16, fontSize: 13 },
+  subText: { textAlign: "center", marginBottom: 16, fontSize: 13 },
   ratingCard: {
-    backgroundColor: COLORS.white,
     borderRadius: 8,
     borderWidth: 1,
-    borderColor: COLORS.border,
     padding: 16,
     marginBottom: 12,
   },
-  ratingTitle: { fontWeight: "600", color: COLORS.primary, textAlign: "center", marginBottom: 12, fontSize: 14 },
+  ratingTitle: { fontWeight: "600", textAlign: "center", marginBottom: 12, fontSize: 14 },
   starsRow: { flexDirection: "row", justifyContent: "center", gap: 10 },
   starButton: { padding: 4 },
   starText: { fontSize: 30 },
-  ratingLabel: { color: COLORS.secondary, textAlign: "center", marginTop: 10, fontSize: 13 },
+  ratingLabel: { textAlign: "center", marginTop: 10, fontSize: 13 },
   commentCard: {
-    backgroundColor: COLORS.white,
     borderRadius: 8,
     borderWidth: 1,
-    borderColor: COLORS.border,
     padding: 14,
     marginBottom: 16,
   },
-  commentTitle: { fontWeight: "600", color: COLORS.primary, marginBottom: 6, fontSize: 13 },
+  commentTitle: { fontWeight: "600", marginBottom: 6, fontSize: 13 },
   commentInput: {
     borderWidth: 1,
-    borderColor: COLORS.border,
     borderRadius: 6,
     paddingHorizontal: 12,
     paddingVertical: 8,
-    color: COLORS.primary,
     fontSize: 14,
     height: 80,
   },
   submitButton: { borderRadius: 5, paddingVertical: 9, alignItems: "center", marginBottom: 10 },
   submitButtonText: { fontWeight: "600", fontSize: 14 },
   skipButton: { paddingVertical: 10, alignItems: "center" },
-  skipText: { color: COLORS.tertiary, fontSize: 13 },
+  skipText: { fontSize: 13 },
 });

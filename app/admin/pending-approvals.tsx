@@ -15,11 +15,13 @@ import { showError, showSuccess } from "../../lib/errorHandler";
 import { COLORS } from "../../constants/Colors";
 import { Container } from "../../components/Container";
 import { useLanguage } from "../../contexts/LanguageContext";
+import { useThemeColors } from "../../contexts/ThemeContext";
 
 export default function PendingApprovalsScreen() {
   const router = useRouter();
   const { user } = useAuth();
   const { t } = useLanguage();
+  const themeColors = useThemeColors();
   const { mentorships, approveMentorship, rejectMentorship, refreshData } = useData();
   const confirm = useConfirm();
   const [refreshing, setRefreshing] = useState(false);
@@ -34,8 +36,8 @@ export default function PendingApprovalsScreen() {
 
   if (!isAdmin) {
     return (
-      <View style={styles.center}>
-        <Text style={styles.accessText}>{t("applications.accessDenied")}</Text>
+      <View style={[styles.center, { backgroundColor: themeColors.background }]}>
+        <Text style={[styles.accessText, { color: themeColors.text }]}>{t("applications.accessDenied")}</Text>
       </View>
     );
   }
@@ -87,7 +89,7 @@ export default function PendingApprovalsScreen() {
   return (
     <Container>
       <ScrollView
-        style={styles.scrollView}
+        style={[styles.scrollView, { backgroundColor: themeColors.background }]}
         refreshControl={
           <RefreshControl
             refreshing={refreshing}
@@ -98,29 +100,29 @@ export default function PendingApprovalsScreen() {
       >
         <View style={styles.page}>
           <TouchableOpacity style={styles.backLink} onPress={() => router.back()}>
-            <Text style={styles.backLinkText}>‹ {t("common.back")}</Text>
+            <Text style={[styles.backLinkText, { color: themeColors.link }]}>‹ {t("common.back")}</Text>
           </TouchableOpacity>
 
-          <Text style={styles.pageTitle}>{t("pendingApprovals.title")}</Text>
+          <Text style={[styles.pageTitle, { color: themeColors.text }]}>{t("pendingApprovals.title")}</Text>
 
           {pendingList.length === 0 ? (
-            <View style={styles.emptyCard}>
-              <Text style={styles.emptyText}>{t("pendingApprovals.empty")}</Text>
+            <View style={[styles.emptyCard, { backgroundColor: themeColors.card, borderColor: themeColors.border }]}>
+              <Text style={[styles.emptyText, { color: themeColors.textSecondary }]}>{t("pendingApprovals.empty")}</Text>
             </View>
           ) : (
             pendingList.map((m) => (
-              <View key={m.id} style={styles.card}>
+              <View key={m.id} style={[styles.card, { backgroundColor: themeColors.card }]}>
                 <View style={styles.cardHeader}>
                   <View style={styles.cardInfo}>
-                    <Text style={styles.cardTitle}>
+                    <Text style={[styles.cardTitle, { color: themeColors.text }]}>
                       {m.mentor?.name ?? "?"} → {m.mentee?.name ?? "?"}
                     </Text>
-                    <Text style={styles.cardSub}>
+                    <Text style={[styles.cardSub, { color: themeColors.textSecondary }]}>
                       {t("chats.mentor")}: {m.mentor?.city ?? "?"} ·{" "}
                       {t("chats.mentee")}: {m.mentee?.city ?? "?"}
                     </Text>
                     {m.assigned_at && (
-                      <Text style={styles.cardDate}>
+                      <Text style={[styles.cardDate, { color: themeColors.textTertiary }]}>
                         {new Date(m.assigned_at).toLocaleDateString("de-DE")}
                       </Text>
                     )}
@@ -137,7 +139,7 @@ export default function PendingApprovalsScreen() {
                     </Text>
                   </TouchableOpacity>
                   <TouchableOpacity
-                    style={styles.rejectButton}
+                    style={[styles.rejectButton, { borderColor: COLORS.error }]}
                     onPress={() => handleReject(m.id)}
                   >
                     <Text style={styles.rejectButtonText}>
@@ -155,35 +157,30 @@ export default function PendingApprovalsScreen() {
 }
 
 const styles = StyleSheet.create({
-  scrollView: { flex: 1, backgroundColor: COLORS.bg },
+  scrollView: { flex: 1 },
   center: {
     flex: 1,
-    backgroundColor: COLORS.bg,
     alignItems: "center",
     justifyContent: "center",
     padding: 24,
   },
-  accessText: { color: COLORS.primary, fontWeight: "600" },
+  accessText: { fontWeight: "600" },
   page: { padding: 20 },
   backLink: { marginBottom: 12 },
-  backLinkText: { color: COLORS.link, fontSize: 14 },
+  backLinkText: { fontSize: 14 },
   pageTitle: {
     fontSize: 24,
     fontWeight: "700",
-    color: COLORS.primary,
     marginBottom: 20,
   },
   emptyCard: {
-    backgroundColor: COLORS.white,
     borderRadius: 8,
     borderWidth: 1,
-    borderColor: COLORS.border,
     padding: 24,
     alignItems: "center",
   },
-  emptyText: { color: COLORS.secondary, fontSize: 14 },
+  emptyText: { fontSize: 14 },
   card: {
-    backgroundColor: COLORS.white,
     borderRadius: 8,
     borderWidth: 1,
     borderColor: "#fde68a",
@@ -199,9 +196,9 @@ const styles = StyleSheet.create({
   },
   cardHeader: { marginBottom: 12 },
   cardInfo: {},
-  cardTitle: { fontWeight: "700", color: COLORS.primary, fontSize: 15 },
-  cardSub: { color: COLORS.secondary, fontSize: 12, marginTop: 3 },
-  cardDate: { color: COLORS.tertiary, fontSize: 11, marginTop: 3 },
+  cardTitle: { fontWeight: "700", fontSize: 15 },
+  cardSub: { fontSize: 12, marginTop: 3 },
+  cardDate: { fontSize: 11, marginTop: 3 },
   actionRow: { flexDirection: "row", gap: 10 },
   approveButton: {
     flex: 1,
@@ -214,7 +211,6 @@ const styles = StyleSheet.create({
   rejectButton: {
     flex: 1,
     borderWidth: 1,
-    borderColor: COLORS.error,
     borderRadius: 5,
     paddingVertical: 9,
     alignItems: "center",

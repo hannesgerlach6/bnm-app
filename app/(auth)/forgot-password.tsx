@@ -14,10 +14,12 @@ import { useRouter } from "expo-router";
 import { COLORS } from "../../constants/Colors";
 import { supabase } from "../../lib/supabase";
 import { useLanguage } from "../../contexts/LanguageContext";
+import { useThemeColors } from "../../contexts/ThemeContext";
 
 export default function ForgotPasswordScreen() {
   const router = useRouter();
   const { t } = useLanguage();
+  const themeColors = useThemeColors();
   const [email, setEmail] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [sent, setSent] = useState(false);
@@ -54,11 +56,11 @@ export default function ForgotPasswordScreen() {
 
   return (
     <KeyboardAvoidingView
-      style={styles.flex1}
+      style={[styles.flex1, { backgroundColor: themeColors.background }]}
       behavior={Platform.OS === "ios" ? "padding" : "height"}
     >
       <ScrollView
-        style={styles.flex1}
+        style={[styles.flex1, { backgroundColor: themeColors.background }]}
         contentContainerStyle={{ flexGrow: 1 }}
         keyboardShouldPersistTaps="handled"
       >
@@ -68,8 +70,8 @@ export default function ForgotPasswordScreen() {
             <Text style={styles.iconText}>🔑</Text>
           </View>
 
-          <Text style={styles.title}>{t("forgotPassword.title")}</Text>
-          <Text style={styles.subtitle}>
+          <Text style={[styles.title, { color: themeColors.text }]}>{t("forgotPassword.title")}</Text>
+          <Text style={[styles.subtitle, { color: themeColors.textSecondary }]}>
             {t("forgotPassword.subtitle")}
           </Text>
 
@@ -91,11 +93,11 @@ export default function ForgotPasswordScreen() {
           ) : (
             /* Formular */
             <>
-              <Text style={styles.fieldLabel}>{t("forgotPassword.emailLabel")}</Text>
+              <Text style={[styles.fieldLabel, { color: themeColors.textSecondary }]}>{t("forgotPassword.emailLabel")}</Text>
               <TextInput
-                style={[styles.input, errorMsg ? styles.inputError : styles.inputNormal]}
+                style={[styles.input, { backgroundColor: themeColors.card, color: themeColors.text }, errorMsg ? styles.inputError : { borderColor: themeColors.border }]}
                 placeholder="deine@email.de"
-                placeholderTextColor="#98A2B3"
+                placeholderTextColor={themeColors.textTertiary}
                 keyboardType="email-address"
                 autoCapitalize="none"
                 autoCorrect={false}
@@ -125,10 +127,10 @@ export default function ForgotPasswordScreen() {
               </TouchableOpacity>
 
               <TouchableOpacity
-                style={styles.cancelButton}
+                style={[styles.cancelButton, { backgroundColor: themeColors.card, borderColor: themeColors.border }]}
                 onPress={() => router.back()}
               >
-                <Text style={styles.cancelButtonText}>{t("forgotPassword.backToLogin")}</Text>
+                <Text style={[styles.cancelButtonText, { color: themeColors.textSecondary }]}>{t("forgotPassword.backToLogin")}</Text>
               </TouchableOpacity>
             </>
           )}
@@ -139,7 +141,7 @@ export default function ForgotPasswordScreen() {
 }
 
 const styles = StyleSheet.create({
-  flex1: { flex: 1, backgroundColor: COLORS.bg },
+  flex1: { flex: 1 },
   container: {
     flex: 1,
     paddingHorizontal: 24,
@@ -172,16 +174,13 @@ const styles = StyleSheet.create({
     marginBottom: 4,
   },
   input: {
-    backgroundColor: COLORS.white,
     borderWidth: 1,
     borderRadius: 6,
     paddingHorizontal: 12,
     paddingVertical: 10,
-    color: COLORS.primary,
     fontSize: 14,
     marginBottom: 12,
   },
-  inputNormal: { borderColor: COLORS.border },
   inputError: { borderColor: "#f87171" },
   errorBox: {
     backgroundColor: "#fef2f2",
@@ -203,13 +202,11 @@ const styles = StyleSheet.create({
   submitButtonText: { color: COLORS.white, fontWeight: "600", fontSize: 14 },
   cancelButton: {
     borderWidth: 1,
-    borderColor: COLORS.border,
     borderRadius: 5,
     paddingVertical: 10,
     alignItems: "center",
-    backgroundColor: COLORS.white,
   },
-  cancelButtonText: { color: COLORS.secondary, fontWeight: "500", fontSize: 14 },
+  cancelButtonText: { fontWeight: "500", fontSize: 14 },
   successBox: {
     backgroundColor: "#f0fdf4",
     borderWidth: 1,

@@ -12,11 +12,13 @@ import { useAuth } from "../../contexts/AuthContext";
 import { COLORS } from "../../constants/Colors";
 import { Container } from "../../components/Container";
 import { useLanguage } from "../../contexts/LanguageContext";
+import { useThemeColors } from "../../contexts/ThemeContext";
 
 export default function MentorDetailScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const router = useRouter();
   const { t } = useLanguage();
+  const themeColors = useThemeColors();
   const { user: authUser } = useAuth();
   const isAdminOrOffice = authUser?.role === "admin" || authUser?.role === "office";
   const {
@@ -52,16 +54,16 @@ export default function MentorDetailScreen() {
   if (!mentor) {
     return (
       <Container>
-        <View style={styles.root}>
-          <View style={styles.header}>
+        <View style={[styles.root, { backgroundColor: themeColors.background }]}>
+          <View style={[styles.header, { backgroundColor: themeColors.card, borderBottomColor: themeColors.border }]}>
             <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
-              <Text style={styles.backText}>{t("mentorDetail.back")}</Text>
+              <Text style={[styles.backText, { color: themeColors.text }]}>{t("mentorDetail.back")}</Text>
             </TouchableOpacity>
-            <Text style={styles.headerTitle}>{t("mentorDetail.title")}</Text>
+            <Text style={[styles.headerTitle, { color: themeColors.text }]}>{t("mentorDetail.title")}</Text>
             <View style={styles.headerRight} />
           </View>
           <View style={styles.emptyBox}>
-            <Text style={styles.emptyText}>{t("mentorDetail.notFound")}</Text>
+            <Text style={[styles.emptyText, { color: themeColors.textTertiary }]}>{t("mentorDetail.notFound")}</Text>
           </View>
         </View>
       </Container>
@@ -77,25 +79,25 @@ export default function MentorDetailScreen() {
 
   return (
     <Container>
-      <View style={styles.root}>
+      <View style={[styles.root, { backgroundColor: themeColors.background }]}>
         {/* Header */}
-        <View style={styles.header}>
+        <View style={[styles.header, { backgroundColor: themeColors.card, borderBottomColor: themeColors.border }]}>
           <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
-            <Text style={styles.backText}>{t("mentorDetail.back")}</Text>
+            <Text style={[styles.backText, { color: themeColors.text }]}>{t("mentorDetail.back")}</Text>
           </TouchableOpacity>
-          <Text style={styles.headerTitle}>{t("mentorDetail.title")}</Text>
+          <Text style={[styles.headerTitle, { color: themeColors.text }]}>{t("mentorDetail.title")}</Text>
           <View style={styles.headerRight} />
         </View>
 
         <ScrollView style={styles.scrollView} contentContainerStyle={styles.content}>
 
           {/* Profil-Card */}
-          <View style={styles.profileCard}>
+          <View style={[styles.profileCard, { backgroundColor: themeColors.card, borderColor: themeColors.border }]}>
             <View style={styles.avatarCircle}>
               <Text style={styles.avatarText}>{initials}</Text>
             </View>
-            <Text style={styles.profileName}>{mentor.name}</Text>
-            <Text style={styles.profileSub}>
+            <Text style={[styles.profileName, { color: themeColors.text }]}>{mentor.name}</Text>
+            <Text style={[styles.profileSub, { color: themeColors.textSecondary }]}>
               {mentor.city} · {mentor.age} Jahre ·{" "}
               {mentor.gender === "male" ? t("mentorDetail.brother") : t("mentorDetail.sister")}
             </Text>
@@ -107,39 +109,39 @@ export default function MentorDetailScreen() {
           </View>
 
           {/* Statistiken */}
-          <Text style={styles.sectionLabel}>{t("mentorDetail.stats")}</Text>
+          <Text style={[styles.sectionLabel, { color: themeColors.textTertiary }]}>{t("mentorDetail.stats")}</Text>
           <View style={styles.statsGrid}>
-            <View style={styles.statCard}>
-              <Text style={[styles.statValue, { color: COLORS.primary }]}>
+            <View style={[styles.statCard, { backgroundColor: themeColors.card, borderColor: themeColors.border }]}>
+              <Text style={[styles.statValue, { color: themeColors.text }]}>
                 {activeMentorships.length}
               </Text>
-              <Text style={styles.statLabel}>{t("mentorDetail.activeMentorships")}</Text>
+              <Text style={[styles.statLabel, { color: themeColors.textTertiary }]}>{t("mentorDetail.activeMentorships")}</Text>
             </View>
-            <View style={styles.statCard}>
+            <View style={[styles.statCard, { backgroundColor: themeColors.card, borderColor: themeColors.border }]}>
               <Text style={[styles.statValue, { color: COLORS.cta }]}>
                 {completedMentorships.length}
               </Text>
-              <Text style={styles.statLabel}>{t("mentorDetail.completed")}</Text>
+              <Text style={[styles.statLabel, { color: themeColors.textTertiary }]}>{t("mentorDetail.completed")}</Text>
             </View>
-            <View style={styles.statCard}>
+            <View style={[styles.statCard, { backgroundColor: themeColors.card, borderColor: themeColors.border }]}>
               <Text style={[styles.statValue, { color: COLORS.gold }]}>
                 {totalSessions}
               </Text>
-              <Text style={styles.statLabel}>{t("mentorDetail.totalSessions")}</Text>
+              <Text style={[styles.statLabel, { color: themeColors.textTertiary }]}>{t("mentorDetail.totalSessions")}</Text>
             </View>
-            <View style={styles.statCard}>
+            <View style={[styles.statCard, { backgroundColor: themeColors.card, borderColor: themeColors.border }]}>
               <Text style={[styles.statValue, { color: COLORS.link }]}>
                 #{rank}
               </Text>
-              <Text style={styles.statLabel}>{t("mentorDetail.rankingPosition")}</Text>
+              <Text style={[styles.statLabel, { color: themeColors.textTertiary }]}>{t("mentorDetail.rankingPosition")}</Text>
             </View>
           </View>
 
           {/* Aktuelle Mentees */}
           {activeMentorships.length > 0 && (
             <>
-              <Text style={styles.sectionLabel}>{t("mentorDetail.activeMentees")}</Text>
-              <View style={styles.card}>
+              <Text style={[styles.sectionLabel, { color: themeColors.textTertiary }]}>{t("mentorDetail.activeMentees")}</Text>
+              <View style={[styles.card, { backgroundColor: themeColors.card, borderColor: themeColors.border }]}>
                 {activeMentorships.map((mentorship, idx) => {
                   const completedStepIds = getCompletedStepIds(mentorship.id);
                   const progress = sessionTypes.length > 0
@@ -150,7 +152,7 @@ export default function MentorDetailScreen() {
                   return (
                     <TouchableOpacity
                       key={mentorship.id}
-                      style={[styles.menteeRow, !isLast && styles.menteeRowBorder]}
+                      style={[styles.menteeRow, !isLast && [styles.menteeRowBorder, { borderBottomColor: themeColors.border }]]}
                       onPress={() =>
                         router.push({ pathname: "/mentee/[id]", params: { id: mentorship.mentee_id } })
                       }
@@ -166,25 +168,25 @@ export default function MentorDetailScreen() {
                         </Text>
                       </View>
                       <View style={styles.menteeInfo}>
-                        <Text style={styles.menteeName}>
+                        <Text style={[styles.menteeName, { color: themeColors.text }]}>
                           {mentorship.mentee?.name ?? t("feedbackOverview.unknown")}
                         </Text>
-                        <Text style={styles.menteeSub}>
+                        <Text style={[styles.menteeSub, { color: themeColors.textTertiary }]}>
                           {mentorship.mentee?.city} ·{" "}
                           {mentorship.mentee?.gender === "male" ? t("mentorDetail.brother") : t("mentorDetail.sister")}
                         </Text>
                         <View style={styles.progressRow}>
-                          <View style={styles.progressTrack}>
+                          <View style={[styles.progressTrack, { backgroundColor: themeColors.background }]}>
                             <View
                               style={[styles.progressFill, { width: `${progress}%` as any }]}
                             />
                           </View>
-                          <Text style={styles.progressText}>
+                          <Text style={[styles.progressText, { color: themeColors.textTertiary }]}>
                             {completedStepIds.length}/{sessionTypes.length}
                           </Text>
                         </View>
                       </View>
-                      <Text style={styles.arrowText}>›</Text>
+                      <Text style={[styles.arrowText, { color: themeColors.textTertiary }]}>›</Text>
                     </TouchableOpacity>
                   );
                 })}
@@ -195,14 +197,14 @@ export default function MentorDetailScreen() {
           {/* Abgeschlossene Betreuungen */}
           {completedMentorships.length > 0 && (
             <>
-              <Text style={styles.sectionLabel}>{t("mentorDetail.completedMentorships")}</Text>
-              <View style={styles.card}>
+              <Text style={[styles.sectionLabel, { color: themeColors.textTertiary }]}>{t("mentorDetail.completedMentorships")}</Text>
+              <View style={[styles.card, { backgroundColor: themeColors.card, borderColor: themeColors.border }]}>
                 {completedMentorships.map((mentorship, idx) => {
                   const isLast = idx === completedMentorships.length - 1;
                   return (
                     <View
                       key={mentorship.id}
-                      style={[styles.completedRow, !isLast && styles.menteeRowBorder]}
+                      style={[styles.completedRow, !isLast && [styles.menteeRowBorder, { borderBottomColor: themeColors.border }]]}
                     >
                       <View style={[styles.menteeAvatar, { backgroundColor: "#dcfce7" }]}>
                         <Text style={[styles.menteeAvatarText, { color: "#15803d" }]}>
@@ -215,11 +217,11 @@ export default function MentorDetailScreen() {
                         </Text>
                       </View>
                       <View style={styles.menteeInfo}>
-                        <Text style={styles.menteeName}>
+                        <Text style={[styles.menteeName, { color: themeColors.text }]}>
                           {mentorship.mentee?.name ?? t("feedbackOverview.unknown")}
                         </Text>
                         {mentorship.completed_at && (
-                          <Text style={styles.menteeSub}>
+                          <Text style={[styles.menteeSub, { color: themeColors.textTertiary }]}>
                             {t("mentorDetail.completedOn").replace("{0}", new Date(mentorship.completed_at).toLocaleDateString("de-DE"))}
                           </Text>
                         )}
@@ -235,8 +237,8 @@ export default function MentorDetailScreen() {
           )}
 
           {myMentorships.length === 0 && (
-            <View style={styles.emptyCard}>
-              <Text style={styles.emptyCardText}>
+            <View style={[styles.emptyCard, { backgroundColor: themeColors.card, borderColor: themeColors.border }]}>
+              <Text style={[styles.emptyCardText, { color: themeColors.textTertiary }]}>
                 {t("mentorDetail.noMentorships")}
               </Text>
             </View>
@@ -261,20 +263,18 @@ export default function MentorDetailScreen() {
 }
 
 const styles = StyleSheet.create({
-  root: { flex: 1, backgroundColor: COLORS.bg },
+  root: { flex: 1 },
   header: {
     flexDirection: "row",
     alignItems: "center",
     paddingHorizontal: 16,
     paddingTop: 56,
     paddingBottom: 16,
-    backgroundColor: COLORS.white,
     borderBottomWidth: 1,
-    borderBottomColor: COLORS.border,
   },
   backButton: { flex: 1 },
-  backText: { color: COLORS.primary, fontSize: 16, fontWeight: "500" },
-  headerTitle: { fontWeight: "bold", color: COLORS.primary, fontSize: 16 },
+  backText: { fontSize: 16, fontWeight: "500" },
+  headerTitle: { fontWeight: "bold", fontSize: 16 },
   headerRight: { flex: 1 },
   scrollView: { flex: 1 },
   content: { padding: 20, paddingBottom: 40 },
@@ -284,12 +284,10 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     padding: 32,
   },
-  emptyText: { color: COLORS.tertiary, fontSize: 16 },
+  emptyText: { fontSize: 16 },
   profileCard: {
-    backgroundColor: COLORS.white,
     borderRadius: 8,
     borderWidth: 1,
-    borderColor: COLORS.border,
     padding: 14,
     alignItems: "center",
     marginBottom: 20,
@@ -304,8 +302,8 @@ const styles = StyleSheet.create({
     marginBottom: 12,
   },
   avatarText: { color: COLORS.white, fontSize: 22, fontWeight: "bold" },
-  profileName: { fontSize: 20, fontWeight: "bold", color: COLORS.primary, marginBottom: 4 },
-  profileSub: { color: COLORS.secondary, fontSize: 14, marginBottom: 10 },
+  profileName: { fontSize: 20, fontWeight: "bold", marginBottom: 4 },
+  profileSub: { fontSize: 14, marginBottom: 10 },
   rankBadge: {
     backgroundColor: "rgba(238,167,27,0.15)",
     borderWidth: 1,
@@ -318,7 +316,6 @@ const styles = StyleSheet.create({
   sectionLabel: {
     fontSize: 12,
     fontWeight: "600",
-    color: COLORS.tertiary,
     letterSpacing: 1,
     marginBottom: 8,
     marginTop: 4,
@@ -332,20 +329,16 @@ const styles = StyleSheet.create({
   statCard: {
     flex: 1,
     minWidth: "44%",
-    backgroundColor: COLORS.white,
     borderWidth: 1,
-    borderColor: COLORS.border,
     borderRadius: 8,
     padding: 14,
     alignItems: "center",
   },
   statValue: { fontSize: 26, fontWeight: "bold" },
-  statLabel: { color: COLORS.tertiary, fontSize: 11, marginTop: 2, textAlign: "center" },
+  statLabel: { fontSize: 11, marginTop: 2, textAlign: "center" },
   card: {
-    backgroundColor: COLORS.white,
     borderRadius: 8,
     borderWidth: 1,
-    borderColor: COLORS.border,
     overflow: "hidden",
     marginBottom: 20,
   },
@@ -355,7 +348,7 @@ const styles = StyleSheet.create({
     padding: 14,
     gap: 12,
   },
-  menteeRowBorder: { borderBottomWidth: 1, borderBottomColor: COLORS.border },
+  menteeRowBorder: { borderBottomWidth: 1 },
   completedRow: {
     flexDirection: "row",
     alignItems: "center",
@@ -373,8 +366,8 @@ const styles = StyleSheet.create({
   },
   menteeAvatarText: { color: COLORS.white, fontWeight: "bold", fontSize: 14 },
   menteeInfo: { flex: 1 },
-  menteeName: { fontWeight: "700", color: COLORS.primary, fontSize: 14 },
-  menteeSub: { color: COLORS.tertiary, fontSize: 12, marginTop: 2 },
+  menteeName: { fontWeight: "700", fontSize: 14 },
+  menteeSub: { fontSize: 12, marginTop: 2 },
   progressRow: {
     flexDirection: "row",
     alignItems: "center",
@@ -384,13 +377,12 @@ const styles = StyleSheet.create({
   progressTrack: {
     flex: 1,
     height: 6,
-    backgroundColor: COLORS.bg,
     borderRadius: 9999,
     overflow: "hidden",
   },
   progressFill: { height: "100%", backgroundColor: COLORS.cta, borderRadius: 9999 },
-  progressText: { color: COLORS.tertiary, fontSize: 11 },
-  arrowText: { color: COLORS.tertiary, fontSize: 20 },
+  progressText: { fontSize: 11 },
+  arrowText: { fontSize: 20 },
   completedBadge: {
     width: 28,
     height: 28,
@@ -401,14 +393,12 @@ const styles = StyleSheet.create({
   },
   completedBadgeText: { color: "#15803d", fontWeight: "bold" },
   emptyCard: {
-    backgroundColor: COLORS.white,
     borderRadius: 8,
     borderWidth: 1,
-    borderColor: COLORS.border,
     padding: 32,
     alignItems: "center",
   },
-  emptyCardText: { color: COLORS.tertiary, fontSize: 14 },
+  emptyCardText: { fontSize: 14 },
   editProfileButton: {
     backgroundColor: COLORS.gradientStart,
     borderRadius: 6,

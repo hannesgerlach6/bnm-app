@@ -13,6 +13,7 @@ import { useData } from "../contexts/DataContext";
 import { useAuth } from "../contexts/AuthContext";
 import { COLORS } from "../constants/Colors";
 import { useLanguage } from "../contexts/LanguageContext";
+import { useThemeColors } from "../contexts/ThemeContext";
 
 const MONTHS = [
   "Januar", "Februar", "März", "April", "Mai", "Juni",
@@ -32,6 +33,7 @@ export default function DonorReportScreen() {
   const router = useRouter();
   const { user } = useAuth();
   const { t } = useLanguage();
+  const themeColors = useThemeColors();
   const { mentorships, sessions, sessionTypes, users, mentorOfMonthVisible } = useData();
 
   const now = new Date();
@@ -45,8 +47,8 @@ export default function DonorReportScreen() {
 
   if (!isAdminOrOffice) {
     return (
-      <View style={styles.centerContainer}>
-        <Text style={styles.accessText}>{t("donorReport.accessDenied")}</Text>
+      <View style={[styles.centerContainer, { backgroundColor: themeColors.background }]}>
+        <Text style={[styles.accessText, { color: themeColors.text }]}>{t("donorReport.accessDenied")}</Text>
       </View>
     );
   }
@@ -189,8 +191,8 @@ export default function DonorReportScreen() {
   }, [kpis, periodMode, selectedQuarter, selectedYear]);
 
   return (
-    <View style={styles.flex1}>
-      <ScrollView style={styles.scrollView}>
+    <View style={[styles.flex1, { backgroundColor: themeColors.background }]}>
+      <ScrollView style={[styles.scrollView, { backgroundColor: themeColors.background }]}>
         {/* Header */}
         <View style={styles.reportHeader}>
           <TouchableOpacity style={styles.backButton} onPress={() => router.back()}>
@@ -206,16 +208,16 @@ export default function DonorReportScreen() {
 
         <View style={styles.page}>
           {/* Zeitraum-Auswahl */}
-          <View style={styles.card}>
-            <Text style={styles.cardLabel}>{t("donorReport.period")}</Text>
+          <View style={[styles.card, { backgroundColor: themeColors.card }]}>
+            <Text style={[styles.cardLabel, { color: themeColors.textTertiary }]}>{t("donorReport.period")}</Text>
             <View style={styles.modeRow}>
               {(["quarter", "year"] as const).map((m) => (
                 <TouchableOpacity
                   key={m}
-                  style={[styles.modeBtn, periodMode === m ? styles.modeBtnActive : styles.modeBtnInactive]}
+                  style={[styles.modeBtn, periodMode === m ? styles.modeBtnActive : [styles.modeBtnInactive, { backgroundColor: themeColors.background, borderColor: themeColors.border }]]}
                   onPress={() => setPeriodMode(m)}
                 >
-                  <Text style={periodMode === m ? styles.modeBtnTextActive : styles.modeBtnTextInactive}>
+                  <Text style={periodMode === m ? styles.modeBtnTextActive : [styles.modeBtnTextInactive, { color: themeColors.textSecondary }]}>
                     {m === "quarter" ? t("donorReport.quarter") : t("donorReport.year")}
                   </Text>
                 </TouchableOpacity>
@@ -225,10 +227,10 @@ export default function DonorReportScreen() {
               {years.map((y) => (
                 <TouchableOpacity
                   key={y}
-                  style={[styles.yearBtn, selectedYear === y ? styles.yearBtnActive : styles.yearBtnInactive]}
+                  style={[styles.yearBtn, selectedYear === y ? styles.yearBtnActive : [styles.yearBtnInactive, { backgroundColor: themeColors.background, borderColor: themeColors.border }]]}
                   onPress={() => setSelectedYear(y)}
                 >
-                  <Text style={selectedYear === y ? styles.yearBtnTextActive : styles.yearBtnTextInactive}>
+                  <Text style={selectedYear === y ? styles.yearBtnTextActive : [styles.yearBtnTextInactive, { color: themeColors.textSecondary }]}>
                     {y}
                   </Text>
                 </TouchableOpacity>
@@ -239,10 +241,10 @@ export default function DonorReportScreen() {
                 {QUARTERS.map((q, idx) => (
                   <TouchableOpacity
                     key={q.short}
-                    style={[styles.quarterBtn, selectedQuarter === idx ? styles.quarterBtnActive : styles.quarterBtnInactive]}
+                    style={[styles.quarterBtn, selectedQuarter === idx ? styles.quarterBtnActive : [styles.quarterBtnInactive, { backgroundColor: themeColors.background, borderColor: themeColors.border }]]}
                     onPress={() => setSelectedQuarter(idx)}
                   >
-                    <Text style={selectedQuarter === idx ? styles.quarterBtnTextActive : styles.quarterBtnTextInactive}>
+                    <Text style={selectedQuarter === idx ? styles.quarterBtnTextActive : [styles.quarterBtnTextInactive, { color: themeColors.textSecondary }]}>
                       {q.short}
                     </Text>
                   </TouchableOpacity>
@@ -256,57 +258,57 @@ export default function DonorReportScreen() {
             <Text style={styles.sectionHeaderText}>{t("donorReport.overview")}</Text>
           </View>
           <View style={styles.kpiGrid}>
-            <View style={styles.kpiCard}>
-              <Text style={styles.kpiValue}>{kpis.totalMentorships}</Text>
-              <Text style={styles.kpiLabel}>{t("donorReport.newMentorships")}</Text>
+            <View style={[styles.kpiCard, { backgroundColor: themeColors.card }]}>
+              <Text style={[styles.kpiValue, { color: themeColors.text }]}>{kpis.totalMentorships}</Text>
+              <Text style={[styles.kpiLabel, { color: themeColors.textSecondary }]}>{t("donorReport.newMentorships")}</Text>
             </View>
-            <View style={styles.kpiCard}>
+            <View style={[styles.kpiCard, { backgroundColor: themeColors.card }]}>
               <Text style={[styles.kpiValue, { color: COLORS.cta }]}>{kpis.completedMentorships}</Text>
-              <Text style={styles.kpiLabel}>{t("donorReport.completions")}</Text>
+              <Text style={[styles.kpiLabel, { color: themeColors.textSecondary }]}>{t("donorReport.completions")}</Text>
             </View>
-            <View style={styles.kpiCard}>
+            <View style={[styles.kpiCard, { backgroundColor: themeColors.card }]}>
               <Text style={[styles.kpiValue, { color: COLORS.gold }]}>{kpis.mentorCount}</Text>
-              <Text style={styles.kpiLabel}>{t("donorReport.mentors")}</Text>
+              <Text style={[styles.kpiLabel, { color: themeColors.textSecondary }]}>{t("donorReport.mentors")}</Text>
             </View>
-            <View style={styles.kpiCard}>
+            <View style={[styles.kpiCard, { backgroundColor: themeColors.card }]}>
               <Text style={[styles.kpiValue, { color: COLORS.gradientStart }]}>{kpis.menteeCount}</Text>
-              <Text style={styles.kpiLabel}>{t("donorReport.mentees")}</Text>
+              <Text style={[styles.kpiLabel, { color: themeColors.textSecondary }]}>{t("donorReport.mentees")}</Text>
             </View>
           </View>
           <View style={styles.kpiRow2}>
-            <View style={[styles.kpiCard, { flex: 1 }]}>
+            <View style={[styles.kpiCard, { flex: 1, backgroundColor: themeColors.card }]}>
               <Text style={[styles.kpiValue, { color: COLORS.gradientStart }]}>{kpis.totalSessions}</Text>
-              <Text style={styles.kpiLabel}>{t("donorReport.totalSessions")}</Text>
+              <Text style={[styles.kpiLabel, { color: themeColors.textSecondary }]}>{t("donorReport.totalSessions")}</Text>
             </View>
-            <View style={[styles.kpiCard, { flex: 1 }]}>
+            <View style={[styles.kpiCard, { flex: 1, backgroundColor: themeColors.card }]}>
               <Text style={[styles.kpiValue, { color: COLORS.gold }]}>{kpis.bnmBoxes}</Text>
-              <Text style={styles.kpiLabel}>{t("donorReport.bnmBoxes")}</Text>
+              <Text style={[styles.kpiLabel, { color: themeColors.textSecondary }]}>{t("donorReport.bnmBoxes")}</Text>
             </View>
-            <View style={[styles.kpiCard, { flex: 1 }]}>
+            <View style={[styles.kpiCard, { flex: 1, backgroundColor: themeColors.card }]}>
               <Text style={[styles.kpiValue, { color: kpis.completionRate >= 50 ? COLORS.cta : COLORS.error }]}>
                 {kpis.completionRate}%
               </Text>
-              <Text style={styles.kpiLabel}>{t("donorReport.completionRate")}</Text>
+              <Text style={[styles.kpiLabel, { color: themeColors.textSecondary }]}>{t("donorReport.completionRate")}</Text>
             </View>
           </View>
 
           {/* Wudu / Salah / Koran / Nachbetreuung KPIs */}
           <View style={styles.kpiGrid}>
-            <View style={styles.kpiCard}>
+            <View style={[styles.kpiCard, { backgroundColor: themeColors.card }]}>
               <Text style={[styles.kpiValue, { color: COLORS.gradientStart }]}>{kpis.wuduSessions}</Text>
-              <Text style={styles.kpiLabel}>{t("reports.wuduSessions")}</Text>
+              <Text style={[styles.kpiLabel, { color: themeColors.textSecondary }]}>{t("reports.wuduSessions")}</Text>
             </View>
-            <View style={styles.kpiCard}>
+            <View style={[styles.kpiCard, { backgroundColor: themeColors.card }]}>
               <Text style={[styles.kpiValue, { color: COLORS.gradientStart }]}>{kpis.salahSessions}</Text>
-              <Text style={styles.kpiLabel}>{t("reports.salahSessions")}</Text>
+              <Text style={[styles.kpiLabel, { color: themeColors.textSecondary }]}>{t("reports.salahSessions")}</Text>
             </View>
-            <View style={styles.kpiCard}>
+            <View style={[styles.kpiCard, { backgroundColor: themeColors.card }]}>
               <Text style={[styles.kpiValue, { color: COLORS.gold }]}>{kpis.koranSessions}</Text>
-              <Text style={styles.kpiLabel}>{t("reports.koranSessions")}</Text>
+              <Text style={[styles.kpiLabel, { color: themeColors.textSecondary }]}>{t("reports.koranSessions")}</Text>
             </View>
-            <View style={styles.kpiCard}>
+            <View style={[styles.kpiCard, { backgroundColor: themeColors.card }]}>
               <Text style={[styles.kpiValue, { color: COLORS.gold }]}>{kpis.nachbetreuungSessions}</Text>
-              <Text style={styles.kpiLabel}>{t("reports.nachbetreuungSessions")}</Text>
+              <Text style={[styles.kpiLabel, { color: themeColors.textSecondary }]}>{t("reports.nachbetreuungSessions")}</Text>
             </View>
           </View>
 
@@ -405,18 +407,18 @@ export default function DonorReportScreen() {
               <View style={styles.sectionHeader}>
                 <Text style={styles.sectionHeaderText}>{t("donorReport.sessionDistribution")}</Text>
               </View>
-              <View style={styles.card}>
+              <View style={[styles.card, { backgroundColor: themeColors.card }]}>
                 {sessionDistribution.map((item) => {
                   const widthPct = Math.max((item.count / maxSessionCount) * 100, 4);
                   return (
                     <View key={item.name} style={styles.hBarRow}>
-                      <Text style={styles.hBarLabel} numberOfLines={1}>{item.name}</Text>
-                      <View style={styles.hBarTrack}>
+                      <Text style={[styles.hBarLabel, { color: themeColors.text }]} numberOfLines={1}>{item.name}</Text>
+                      <View style={[styles.hBarTrack, { backgroundColor: themeColors.background }]}>
                         <View
                           style={[styles.hBarFill, { width: `${widthPct}%` as any }]}
                         />
                       </View>
-                      <Text style={styles.hBarCount}>{item.count}</Text>
+                      <Text style={[styles.hBarCount, { color: themeColors.text }]}>{item.count}</Text>
                     </View>
                   );
                 })}
@@ -430,11 +432,11 @@ export default function DonorReportScreen() {
               <View style={styles.sectionHeader}>
                 <Text style={styles.sectionHeaderText}>{t("donorReport.mentorOfPeriod")}</Text>
               </View>
-              <View style={styles.goldBox}>
+              <View style={[styles.goldBox, { backgroundColor: themeColors.card }]}>
                 <Text style={styles.goldStar}>★</Text>
-                <Text style={styles.goldMentorName}>{mentorOfPeriod.mentor.name}</Text>
-                <Text style={styles.goldMentorCity}>{mentorOfPeriod.mentor.city}</Text>
-                <Text style={styles.goldMentorSessions}>
+                <Text style={[styles.goldMentorName, { color: themeColors.text }]}>{mentorOfPeriod.mentor.name}</Text>
+                <Text style={[styles.goldMentorCity, { color: themeColors.textSecondary }]}>{mentorOfPeriod.mentor.city}</Text>
+                <Text style={[styles.goldMentorSessions, { color: themeColors.textSecondary }]}>
                   {t("donorReport.mentorSessions")
                     .replace("{0}", String(mentorOfPeriod.count))
                     .replace("{1}", mentorOfPeriod.count !== 1 ? "s" : "")}
@@ -447,8 +449,8 @@ export default function DonorReportScreen() {
           <View style={styles.sectionHeader}>
             <Text style={styles.sectionHeaderText}>{t("donorReport.summary")}</Text>
           </View>
-          <View style={styles.summaryCard}>
-            <Text style={styles.summaryText}>{summaryText}</Text>
+          <View style={[styles.summaryCard, { backgroundColor: themeColors.card }]}>
+            <Text style={[styles.summaryText, { color: themeColors.text }]}>{summaryText}</Text>
           </View>
 
           {/* Buttons */}
@@ -465,8 +467,8 @@ export default function DonorReportScreen() {
             </TouchableOpacity>
           )}
 
-          <TouchableOpacity style={styles.backBtn} onPress={() => router.back()}>
-            <Text style={styles.backBtnText}>{t("donorReport.backToReports")}</Text>
+          <TouchableOpacity style={[styles.backBtn, { borderColor: themeColors.border }]} onPress={() => router.back()}>
+            <Text style={[styles.backBtnText, { color: themeColors.textSecondary }]}>{t("donorReport.backToReports")}</Text>
           </TouchableOpacity>
         </View>
       </ScrollView>
@@ -475,10 +477,10 @@ export default function DonorReportScreen() {
 }
 
 const styles = StyleSheet.create({
-  flex1: { flex: 1, backgroundColor: COLORS.bg },
-  scrollView: { flex: 1, backgroundColor: COLORS.bg },
-  centerContainer: { flex: 1, backgroundColor: COLORS.bg, alignItems: "center", justifyContent: "center", padding: 24 },
-  accessText: { color: COLORS.primary, fontWeight: "600" },
+  flex1: { flex: 1 },
+  scrollView: { flex: 1 },
+  centerContainer: { flex: 1, alignItems: "center", justifyContent: "center", padding: 24 },
+  accessText: { fontWeight: "600" },
 
   // Header
   reportHeader: {
@@ -511,7 +513,6 @@ const styles = StyleSheet.create({
 
   // Zeitraum
   card: {
-    backgroundColor: COLORS.white,
     borderRadius: 8,
     padding: 14,
     marginBottom: 16,
@@ -521,25 +522,25 @@ const styles = StyleSheet.create({
     shadowRadius: 6,
     elevation: 2,
   },
-  cardLabel: { fontSize: 11, fontWeight: "600", color: COLORS.tertiary, letterSpacing: 1, marginBottom: 10 },
+  cardLabel: { fontSize: 11, fontWeight: "600", letterSpacing: 1, marginBottom: 10 },
   modeRow: { flexDirection: "row", gap: 8, marginBottom: 10 },
   modeBtn: { flex: 1, paddingVertical: 8, borderRadius: 5, borderWidth: 1, alignItems: "center" },
   modeBtnActive: { backgroundColor: COLORS.gradientStart, borderColor: COLORS.gradientStart },
-  modeBtnInactive: { backgroundColor: COLORS.bg, borderColor: COLORS.border },
+  modeBtnInactive: {},
   modeBtnTextActive: { color: COLORS.white, fontWeight: "600", fontSize: 13 },
-  modeBtnTextInactive: { color: COLORS.secondary, fontSize: 13 },
+  modeBtnTextInactive: { fontSize: 13 },
   yearRow: { flexDirection: "row", gap: 8, marginBottom: 10 },
   yearBtn: { paddingHorizontal: 14, paddingVertical: 7, borderRadius: 5, borderWidth: 1 },
   yearBtnActive: { backgroundColor: COLORS.gradientStart, borderColor: COLORS.gradientStart },
-  yearBtnInactive: { backgroundColor: COLORS.bg, borderColor: COLORS.border },
+  yearBtnInactive: {},
   yearBtnTextActive: { color: COLORS.white, fontWeight: "600", fontSize: 13 },
-  yearBtnTextInactive: { color: COLORS.secondary, fontSize: 13 },
+  yearBtnTextInactive: { fontSize: 13 },
   quarterRow: { flexDirection: "row", gap: 8 },
   quarterBtn: { paddingHorizontal: 16, paddingVertical: 7, borderRadius: 5, borderWidth: 1 },
   quarterBtnActive: { backgroundColor: COLORS.gold, borderColor: COLORS.gold },
-  quarterBtnInactive: { backgroundColor: COLORS.bg, borderColor: COLORS.border },
+  quarterBtnInactive: {},
   quarterBtnTextActive: { color: COLORS.white, fontWeight: "700", fontSize: 13 },
-  quarterBtnTextInactive: { color: COLORS.secondary, fontSize: 13 },
+  quarterBtnTextInactive: { fontSize: 13 },
 
   // Sektion-Header
   sectionHeader: {
@@ -556,7 +557,6 @@ const styles = StyleSheet.create({
   kpiRow2: { flexDirection: "row", gap: 8, marginBottom: 16 },
   kpiCard: {
     flex: 1,
-    backgroundColor: COLORS.white,
     borderRadius: 8,
     padding: 10,
     alignItems: "center",
@@ -568,8 +568,8 @@ const styles = StyleSheet.create({
     borderTopWidth: 3,
     borderTopColor: COLORS.gold,
   },
-  kpiValue: { fontSize: 28, fontWeight: "800", color: COLORS.primary },
-  kpiLabel: { color: COLORS.secondary, fontSize: 11, textAlign: "center", marginTop: 2 },
+  kpiValue: { fontSize: 28, fontWeight: "800" },
+  kpiLabel: { fontSize: 11, textAlign: "center", marginTop: 2 },
 
   // Chart Cards
   chartCard: {
@@ -630,21 +630,19 @@ const styles = StyleSheet.create({
     alignItems: "center",
     marginBottom: 10,
   },
-  hBarLabel: { color: COLORS.primary, fontSize: 12, fontWeight: "500", width: 100, marginRight: 8 },
+  hBarLabel: { fontSize: 12, fontWeight: "500", width: 100, marginRight: 8 },
   hBarTrack: {
     flex: 1,
     height: 16,
-    backgroundColor: COLORS.bg,
     borderRadius: 3,
     overflow: "hidden",
     marginRight: 8,
   },
   hBarFill: { height: "100%" as any, backgroundColor: COLORS.gradientStart, borderRadius: 3 },
-  hBarCount: { color: COLORS.primary, fontWeight: "700", fontSize: 13, minWidth: 24, textAlign: "right" },
+  hBarCount: { fontWeight: "700", fontSize: 13, minWidth: 24, textAlign: "right" },
 
   // Gold Box (Mentor)
   goldBox: {
-    backgroundColor: "rgba(238,167,27,0.08)",
     borderWidth: 1,
     borderColor: COLORS.gold,
     borderRadius: 8,
@@ -653,13 +651,12 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   goldStar: { color: COLORS.gold, fontSize: 32, marginBottom: 6 },
-  goldMentorName: { color: COLORS.primary, fontSize: 20, fontWeight: "700", marginBottom: 2 },
-  goldMentorCity: { color: COLORS.secondary, fontSize: 13, marginBottom: 4 },
-  goldMentorSessions: { color: COLORS.secondary, fontSize: 13 },
+  goldMentorName: { fontSize: 20, fontWeight: "700", marginBottom: 2 },
+  goldMentorCity: { fontSize: 13, marginBottom: 4 },
+  goldMentorSessions: { fontSize: 13 },
 
   // Zusammenfassung
   summaryCard: {
-    backgroundColor: COLORS.white,
     borderRadius: 8,
     padding: 14,
     marginBottom: 16,
@@ -671,7 +668,7 @@ const styles = StyleSheet.create({
     shadowRadius: 4,
     elevation: 1,
   },
-  summaryText: { color: COLORS.primary, fontSize: 14, lineHeight: 22 },
+  summaryText: { fontSize: 14, lineHeight: 22 },
 
   // Buttons
   printButton: {
@@ -684,11 +681,10 @@ const styles = StyleSheet.create({
   printButtonText: { color: COLORS.white, fontWeight: "600", fontSize: 14 },
   backBtn: {
     borderWidth: 1,
-    borderColor: COLORS.border,
     borderRadius: 5,
     paddingVertical: 9,
     alignItems: "center",
     marginBottom: 28,
   },
-  backBtnText: { color: COLORS.secondary, fontWeight: "600", fontSize: 13 },
+  backBtnText: { fontWeight: "600", fontSize: 13 },
 });

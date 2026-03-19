@@ -18,11 +18,13 @@ import { COLORS } from "../constants/Colors";
 import { Container } from "../components/Container";
 import { uploadAvatar } from "../lib/storage";
 import { useLanguage } from "../contexts/LanguageContext";
+import { useThemeColors } from "../contexts/ThemeContext";
 
 export default function EditProfileScreen() {
   const router = useRouter();
   const { user } = useAuth();
   const { t } = useLanguage();
+  const themeColors = useThemeColors();
   const { updateUser } = useData();
 
   const CONTACT_OPTIONS: { key: ContactPreference; label: string }[] = [
@@ -105,13 +107,13 @@ export default function EditProfileScreen() {
 
   return (
     <Container>
-      <View style={styles.root}>
+      <View style={[styles.root, { backgroundColor: themeColors.background }]}>
         {/* Header */}
-        <View style={styles.header}>
+        <View style={[styles.header, { backgroundColor: themeColors.card, borderBottomColor: themeColors.border }]}>
           <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
-            <Text style={styles.backText}>{t("editProfile.back")}</Text>
+            <Text style={[styles.backText, { color: themeColors.text }]}>{t("editProfile.back")}</Text>
           </TouchableOpacity>
-          <Text style={styles.headerTitle}>{t("editProfile.title")}</Text>
+          <Text style={[styles.headerTitle, { color: themeColors.text }]}>{t("editProfile.title")}</Text>
           <View style={styles.headerRight} />
         </View>
 
@@ -167,58 +169,58 @@ export default function EditProfileScreen() {
           )}
 
           {/* Name */}
-          <Text style={styles.fieldLabel}>{t("editProfile.name")}</Text>
+          <Text style={[styles.fieldLabel, { color: themeColors.textSecondary }]}>{t("editProfile.name")}</Text>
           <TextInput
-            style={styles.input}
+            style={[styles.input, { backgroundColor: themeColors.card, color: themeColors.text, borderColor: themeColors.border }]}
             value={name}
             onChangeText={setName}
             placeholder={t("editProfile.namePlaceholder")}
-            placeholderTextColor={COLORS.tertiary}
+            placeholderTextColor={themeColors.textTertiary}
             autoCapitalize="words"
           />
 
           {/* Stadt */}
-          <Text style={styles.fieldLabel}>{t("editProfile.city")}</Text>
+          <Text style={[styles.fieldLabel, { color: themeColors.textSecondary }]}>{t("editProfile.city")}</Text>
           <TextInput
-            style={styles.input}
+            style={[styles.input, { backgroundColor: themeColors.card, color: themeColors.text, borderColor: themeColors.border }]}
             value={city}
             onChangeText={setCity}
             placeholder={t("editProfile.cityPlaceholder")}
-            placeholderTextColor={COLORS.tertiary}
+            placeholderTextColor={themeColors.textTertiary}
             autoCapitalize="words"
           />
 
           {/* Alter */}
-          <Text style={styles.fieldLabel}>{t("editProfile.age")}</Text>
+          <Text style={[styles.fieldLabel, { color: themeColors.textSecondary }]}>{t("editProfile.age")}</Text>
           <TextInput
-            style={styles.input}
+            style={[styles.input, { backgroundColor: themeColors.card, color: themeColors.text, borderColor: themeColors.border }]}
             value={age}
             onChangeText={setAge}
             placeholder={t("editProfile.agePlaceholder")}
-            placeholderTextColor={COLORS.tertiary}
+            placeholderTextColor={themeColors.textTertiary}
             keyboardType="number-pad"
           />
 
           {/* Telefon */}
-          <Text style={styles.fieldLabel}>{t("editProfile.phone")}</Text>
+          <Text style={[styles.fieldLabel, { color: themeColors.textSecondary }]}>{t("editProfile.phone")}</Text>
           <TextInput
-            style={styles.input}
+            style={[styles.input, { backgroundColor: themeColors.card, color: themeColors.text, borderColor: themeColors.border }]}
             value={phone}
             onChangeText={setPhone}
             placeholder="+49 151 ..."
-            placeholderTextColor={COLORS.tertiary}
+            placeholderTextColor={themeColors.textTertiary}
             keyboardType="phone-pad"
           />
 
           {/* Kontaktpräferenz */}
-          <Text style={styles.fieldLabel}>{t("editProfile.contactPref")}</Text>
+          <Text style={[styles.fieldLabel, { color: themeColors.textSecondary }]}>{t("editProfile.contactPref")}</Text>
           <View style={styles.contactGrid}>
             {CONTACT_OPTIONS.map((opt) => (
               <TouchableOpacity
                 key={opt.key}
                 style={[
                   styles.contactChip,
-                  contactPref === opt.key ? styles.contactChipActive : styles.contactChipInactive,
+                  contactPref === opt.key ? styles.contactChipActive : [styles.contactChipInactive, { backgroundColor: themeColors.card, borderColor: themeColors.border }],
                 ]}
                 onPress={() => setContactPref(opt.key)}
               >
@@ -226,7 +228,7 @@ export default function EditProfileScreen() {
                   style={
                     contactPref === opt.key
                       ? styles.contactChipTextActive
-                      : styles.contactChipTextInactive
+                      : [styles.contactChipTextInactive, { color: themeColors.textSecondary }]
                   }
                 >
                   {opt.label}
@@ -255,8 +257,8 @@ export default function EditProfileScreen() {
             </Text>
           </TouchableOpacity>
 
-          <TouchableOpacity style={styles.cancelButton} onPress={() => router.back()}>
-            <Text style={styles.cancelButtonText}>{t("editProfile.cancel")}</Text>
+          <TouchableOpacity style={[styles.cancelButton, { backgroundColor: themeColors.background, borderColor: themeColors.border }]} onPress={() => router.back()}>
+            <Text style={[styles.cancelButtonText, { color: themeColors.textSecondary }]}>{t("editProfile.cancel")}</Text>
           </TouchableOpacity>
 
         </ScrollView>
@@ -266,37 +268,31 @@ export default function EditProfileScreen() {
 }
 
 const styles = StyleSheet.create({
-  root: { flex: 1, backgroundColor: COLORS.bg },
+  root: { flex: 1 },
   header: {
     flexDirection: "row",
     alignItems: "center",
     paddingHorizontal: 16,
     paddingTop: 56,
     paddingBottom: 16,
-    backgroundColor: COLORS.white,
     borderBottomWidth: 1,
-    borderBottomColor: COLORS.border,
   },
   backButton: { flex: 1 },
-  backText: { color: COLORS.primary, fontSize: 16, fontWeight: "500" },
-  headerTitle: { fontWeight: "bold", color: COLORS.primary, fontSize: 16 },
+  backText: { fontSize: 16, fontWeight: "500" },
+  headerTitle: { fontWeight: "bold", fontSize: 16 },
   headerRight: { flex: 1 },
   scrollView: { flex: 1 },
   content: { padding: 16, paddingBottom: 40 },
   fieldLabel: {
-    color: COLORS.secondary,
     fontSize: 13,
     fontWeight: "500",
     marginBottom: 4,
   },
   input: {
-    backgroundColor: COLORS.white,
     borderWidth: 1,
-    borderColor: COLORS.border,
     borderRadius: 6,
     paddingHorizontal: 12,
     paddingVertical: 8,
-    color: COLORS.primary,
     fontSize: 14,
     marginBottom: 12,
   },
@@ -316,12 +312,9 @@ const styles = StyleSheet.create({
     backgroundColor: COLORS.primary,
     borderColor: COLORS.primary,
   },
-  contactChipInactive: {
-    backgroundColor: COLORS.white,
-    borderColor: COLORS.border,
-  },
+  contactChipInactive: {},
   contactChipTextActive: { color: COLORS.white, fontWeight: "600", fontSize: 13 },
-  contactChipTextInactive: { color: COLORS.secondary, fontWeight: "500", fontSize: 13 },
+  contactChipTextInactive: { fontWeight: "500", fontSize: 13 },
   infoBox: {
     backgroundColor: "#eff6ff",
     borderWidth: 1,
@@ -343,14 +336,12 @@ const styles = StyleSheet.create({
   saveButtonDisabled: { opacity: 0.6 },
   saveButtonText: { color: COLORS.white, fontWeight: "600", fontSize: 14 },
   cancelButton: {
-    backgroundColor: COLORS.bg,
     borderWidth: 1,
-    borderColor: COLORS.border,
     borderRadius: 5,
     paddingVertical: 9,
     alignItems: "center",
   },
-  cancelButtonText: { color: COLORS.secondary, fontWeight: "500", fontSize: 14 },
+  cancelButtonText: { fontWeight: "500", fontSize: 14 },
   avatarSection: {
     alignItems: "center",
     marginBottom: 20,
@@ -378,7 +369,6 @@ const styles = StyleSheet.create({
     fontWeight: "700",
   },
   avatarButton: {
-    backgroundColor: COLORS.white,
     borderWidth: 1,
     borderColor: COLORS.border,
     borderRadius: 5,

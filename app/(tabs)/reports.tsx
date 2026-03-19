@@ -15,6 +15,7 @@ import { useData } from "../../contexts/DataContext";
 import { COLORS } from "../../constants/Colors";
 import { Container } from "../../components/Container";
 import { useLanguage } from "../../contexts/LanguageContext";
+import { useThemeColors } from "../../contexts/ThemeContext";
 
 // MONTHS and QUARTERS are now built inside the component using t()
 // to support translations
@@ -35,6 +36,7 @@ export default function ReportsScreen() {
   const router = useRouter();
   const { user } = useAuth();
   const { t } = useLanguage();
+  const themeColors = useThemeColors();
   const { mentorships, sessions, sessionTypes, users, mentorOfMonthVisible, toggleMentorOfMonth, refreshData } = useData();
   const [refreshing, setRefreshing] = useState(false);
   const onRefresh = useCallback(async () => {
@@ -232,8 +234,8 @@ export default function ReportsScreen() {
 
   if (!isAdminOrOffice) {
     return (
-      <View style={styles.centerContainer}>
-        <Text style={styles.accessDeniedText}>{t("reports.accessDenied")}</Text>
+      <View style={[styles.centerContainer, { backgroundColor: themeColors.background }]}>
+        <Text style={[styles.accessDeniedText, { color: themeColors.text }]}>{t("reports.accessDenied")}</Text>
       </View>
     );
   }
@@ -245,12 +247,12 @@ export default function ReportsScreen() {
         refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor={COLORS.gold} />}
       >
         <View style={styles.page}>
-          <Text style={styles.pageTitle}>{t("reports.title")}</Text>
-          <Text style={styles.pageSubtitle}>{t("reports.subtitle")}</Text>
+          <Text style={[styles.pageTitle, { color: themeColors.text }]}>{t("reports.title")}</Text>
+          <Text style={[styles.pageSubtitle, { color: themeColors.textSecondary }]}>{t("reports.subtitle")}</Text>
 
           {/* Zeitraum-Auswahl */}
-          <View style={styles.card}>
-            <Text style={styles.cardSectionLabel}>{t("reports.periodLabel")}</Text>
+          <View style={[styles.card, { backgroundColor: themeColors.card }]}>
+            <Text style={[styles.cardSectionLabel, { color: themeColors.textTertiary }]}>{t("reports.periodLabel")}</Text>
 
             {/* Modus-Toggle */}
             <View style={styles.modeRow}>
@@ -265,13 +267,13 @@ export default function ReportsScreen() {
                   key={opt.key}
                   style={[
                     styles.modeButton,
-                    periodMode === opt.key ? styles.modeButtonActive : styles.modeButtonInactive,
+                    periodMode === opt.key ? styles.modeButtonActive : [styles.modeButtonInactive, { backgroundColor: themeColors.background, borderColor: themeColors.border }],
                   ]}
                   onPress={() => setPeriodMode(opt.key)}
                 >
                   <Text
                     style={
-                      periodMode === opt.key ? styles.modeTextActive : styles.modeTextInactive
+                      periodMode === opt.key ? styles.modeTextActive : [styles.modeTextInactive, { color: themeColors.textSecondary }]
                     }
                   >
                     {opt.label}
@@ -287,13 +289,13 @@ export default function ReportsScreen() {
                   key={year}
                   style={[
                     styles.yearButton,
-                    selectedYear === year ? styles.yearButtonActive : styles.yearButtonInactive,
+                    selectedYear === year ? styles.yearButtonActive : [styles.yearButtonInactive, { backgroundColor: themeColors.background, borderColor: themeColors.border }],
                   ]}
                   onPress={() => setSelectedYear(year)}
                 >
                   <Text
                     style={
-                      selectedYear === year ? styles.yearButtonTextActive : styles.yearButtonTextInactive
+                      selectedYear === year ? styles.yearButtonTextActive : [styles.yearButtonTextInactive, { color: themeColors.textSecondary }]
                     }
                   >
                     {year}
@@ -310,13 +312,13 @@ export default function ReportsScreen() {
                     key={month}
                     style={[
                       styles.monthChip,
-                      selectedMonth === idx ? styles.monthChipActive : styles.monthChipInactive,
+                      selectedMonth === idx ? styles.monthChipActive : [styles.monthChipInactive, { backgroundColor: themeColors.background, borderColor: themeColors.border }],
                     ]}
                     onPress={() => setSelectedMonth(idx)}
                   >
                     <Text
                       style={
-                        selectedMonth === idx ? styles.monthChipTextActive : styles.monthChipTextInactive
+                        selectedMonth === idx ? styles.monthChipTextActive : [styles.monthChipTextInactive, { color: themeColors.textSecondary }]
                       }
                     >
                       {month.slice(0, 3)}
@@ -334,13 +336,13 @@ export default function ReportsScreen() {
                     key={q.label}
                     style={[
                       styles.quarterChip,
-                      selectedQuarter === idx ? styles.monthChipActive : styles.monthChipInactive,
+                      selectedQuarter === idx ? styles.monthChipActive : [styles.monthChipInactive, { backgroundColor: themeColors.background, borderColor: themeColors.border }],
                     ]}
                     onPress={() => setSelectedQuarter(idx)}
                   >
                     <Text
                       style={
-                        selectedQuarter === idx ? styles.monthChipTextActive : styles.monthChipTextInactive
+                        selectedQuarter === idx ? styles.monthChipTextActive : [styles.monthChipTextInactive, { color: themeColors.textSecondary }]
                       }
                     >
                       {q.label}
@@ -352,7 +354,7 @@ export default function ReportsScreen() {
           </View>
 
           {/* Ausgewählter Zeitraum */}
-          <Text style={styles.periodTitle}>{periodLabel}</Text>
+          <Text style={[styles.periodTitle, { color: themeColors.text }]}>{periodLabel}</Text>
 
           {/* Empty State: Noch keine Daten in diesem Zeitraum */}
           {kpis.totalSessions === 0 && kpis.totalAssigned === 0 && mentorships.length === 0 && (
@@ -422,17 +424,17 @@ export default function ReportsScreen() {
             <View style={styles.goldBox}>
               <View style={styles.goldBoxHeader}>
                 <Text style={styles.goldStar}>★</Text>
-                <Text style={styles.goldBoxTitle}>{t("reports.mentorOfPeriod")}</Text>
+                <Text style={[styles.goldBoxTitle, { color: themeColors.text }]}>{t("reports.mentorOfPeriod")}</Text>
               </View>
-              <Text style={styles.goldMentorName}>{mentorOfMonth.mentor.name}</Text>
-              <Text style={styles.goldMentorSub}>
+              <Text style={[styles.goldMentorName, { color: themeColors.text }]}>{mentorOfMonth.mentor.name}</Text>
+              <Text style={[styles.goldMentorSub, { color: themeColors.textSecondary }]}>
                 {t("reports.sessionsDocumented").replace("{0}", String(mentorOfMonth.count)).replace("{1}", mentorOfMonth.count !== 1 ? "s" : "")}
               </Text>
             </View>
           ) : (
             !mentorOfMonthVisible ? null : (
-              <View style={styles.emptyMonthBox}>
-                <Text style={styles.emptyMonthText}>
+              <View style={[styles.emptyMonthBox, { backgroundColor: themeColors.background, borderColor: themeColors.border }]}>
+                <Text style={[styles.emptyMonthText, { color: themeColors.textTertiary }]}>
                   {t("reports.noSessionsYet")}
                 </Text>
               </View>
@@ -523,23 +525,23 @@ function KpiCard({
   value: number;
   color: string;
 }) {
+  const themeColors = useThemeColors();
   return (
-    <View style={styles.kpiCard}>
-      <Text style={styles.kpiLabel} numberOfLines={2}>{label}</Text>
+    <View style={[styles.kpiCard, { backgroundColor: themeColors.card }]}>
+      <Text style={[styles.kpiLabel, { color: themeColors.textSecondary }]} numberOfLines={2}>{label}</Text>
       <Text style={[styles.kpiValue, { color }]}>{value}</Text>
     </View>
   );
 }
 
 const styles = StyleSheet.create({
-  scrollView: { flex: 1, backgroundColor: COLORS.bg },
-  centerContainer: { flex: 1, backgroundColor: COLORS.bg, alignItems: "center", justifyContent: "center", padding: 24 },
-  accessDeniedText: { color: COLORS.primary, fontWeight: "600" },
+  scrollView: { flex: 1 },
+  centerContainer: { flex: 1, alignItems: "center", justifyContent: "center", padding: 24 },
+  accessDeniedText: { fontWeight: "600" },
   page: { padding: 20 },
-  pageTitle: { fontSize: 24, fontWeight: "700", color: COLORS.primary, marginBottom: 2 },
-  pageSubtitle: { color: COLORS.secondary, fontSize: 13, marginBottom: 16 },
+  pageTitle: { fontSize: 24, fontWeight: "700", marginBottom: 2 },
+  pageSubtitle: { fontSize: 13, marginBottom: 16 },
   card: {
-    backgroundColor: COLORS.white,
     borderRadius: 8,
     padding: 16,
     marginBottom: 16,
@@ -549,32 +551,31 @@ const styles = StyleSheet.create({
     shadowRadius: 8,
     elevation: 2,
   },
-  cardSectionLabel: { fontSize: 11, fontWeight: "600", color: COLORS.tertiary, letterSpacing: 1, marginBottom: 12 },
+  cardSectionLabel: { fontSize: 11, fontWeight: "600", letterSpacing: 1, marginBottom: 12 },
   modeRow: { flexDirection: "row", gap: 8, marginBottom: 12 },
   modeButton: { flex: 1, paddingVertical: 9, borderRadius: 5, borderWidth: 1, alignItems: "center" },
   modeButtonActive: { backgroundColor: COLORS.gradientStart, borderColor: COLORS.gradientStart },
-  modeButtonInactive: { backgroundColor: COLORS.bg, borderColor: COLORS.border },
+  modeButtonInactive: {},
   modeTextActive: { color: COLORS.white, fontWeight: "600", fontSize: 13 },
-  modeTextInactive: { color: COLORS.secondary, fontSize: 13 },
+  modeTextInactive: { fontSize: 13 },
   yearRow: { flexDirection: "row", gap: 8, marginBottom: 12 },
   yearButton: { paddingHorizontal: 16, paddingVertical: 8, borderRadius: 5, borderWidth: 1 },
   yearButtonActive: { backgroundColor: COLORS.gradientStart, borderColor: COLORS.gradientStart },
-  yearButtonInactive: { backgroundColor: COLORS.bg, borderColor: COLORS.border },
+  yearButtonInactive: {},
   yearButtonTextActive: { color: COLORS.white, fontSize: 14, fontWeight: "600" },
-  yearButtonTextInactive: { color: COLORS.secondary, fontSize: 14, fontWeight: "600" },
+  yearButtonTextInactive: { fontSize: 14, fontWeight: "600" },
   monthRow: { flexDirection: "row", flexWrap: "wrap", gap: 8 },
   monthChip: { paddingHorizontal: 12, paddingVertical: 6, borderRadius: 4, borderWidth: 1 },
   monthChipActive: { backgroundColor: COLORS.gold, borderColor: COLORS.gold },
-  monthChipInactive: { backgroundColor: COLORS.bg, borderColor: COLORS.border },
+  monthChipInactive: {},
   monthChipTextActive: { color: COLORS.white, fontSize: 12, fontWeight: "500" },
-  monthChipTextInactive: { color: COLORS.secondary, fontSize: 12, fontWeight: "500" },
+  monthChipTextInactive: { fontSize: 12, fontWeight: "500" },
   quarterRow: { flexDirection: "row", flexWrap: "wrap", gap: 8 },
   quarterChip: { paddingHorizontal: 10, paddingVertical: 6, borderRadius: 4, borderWidth: 1 },
-  periodTitle: { color: COLORS.primary, fontWeight: "700", fontSize: 20, marginBottom: 16 },
+  periodTitle: { fontWeight: "700", fontSize: 20, marginBottom: 16 },
   kpiRow: { flexDirection: "row", gap: 10, marginBottom: 10 },
   kpiCard: {
     flex: 1,
-    backgroundColor: COLORS.white,
     borderRadius: 8,
     padding: 12,
     borderLeftWidth: 4,
@@ -585,7 +586,7 @@ const styles = StyleSheet.create({
     shadowRadius: 8,
     elevation: 2,
   },
-  kpiLabel: { color: COLORS.secondary, fontSize: 12, marginBottom: 2 },
+  kpiLabel: { fontSize: 12, marginBottom: 2 },
   kpiValue: { fontSize: 26, fontWeight: "700" },
   cancellationBox: {
     backgroundColor: "#fef2f2",
@@ -641,9 +642,9 @@ const styles = StyleSheet.create({
   },
   goldBoxHeader: { flexDirection: "row", alignItems: "center", marginBottom: 8 },
   goldStar: { color: COLORS.gold, fontSize: 24, marginRight: 8 },
-  goldBoxTitle: { fontWeight: "700", color: COLORS.primary },
-  goldMentorName: { fontSize: 20, fontWeight: "700", color: COLORS.primary, marginBottom: 2 },
-  goldMentorSub: { color: COLORS.secondary, fontSize: 14 },
+  goldBoxTitle: { fontWeight: "700" },
+  goldMentorName: { fontSize: 20, fontWeight: "700", marginBottom: 2 },
+  goldMentorSub: { fontSize: 14 },
   emptyDataBox: {
     backgroundColor: "#fffbeb",
     borderWidth: 1,
@@ -654,14 +655,12 @@ const styles = StyleSheet.create({
   },
   emptyDataText: { color: "#92400e", fontSize: 14, textAlign: "center", lineHeight: 20 },
   emptyMonthBox: {
-    backgroundColor: COLORS.bg,
     borderWidth: 1,
-    borderColor: COLORS.border,
     borderRadius: 8,
     padding: 16,
     marginBottom: 16,
   },
-  emptyMonthText: { color: COLORS.tertiary, fontSize: 14, textAlign: "center" },
+  emptyMonthText: { fontSize: 14, textAlign: "center" },
   toggleMomButton: {
     borderWidth: 1,
     borderColor: COLORS.gradientStart,

@@ -13,6 +13,7 @@ import { showError, showSuccess } from "../../lib/errorHandler";
 import { useRouter } from "expo-router";
 import type { Gender, ContactPreference } from "../../types";
 import { COLORS } from "../../constants/Colors";
+import { useThemeColors } from "../../contexts/ThemeContext";
 import { supabase } from "../../lib/supabase";
 import { sendNewMentorApplicationNotification } from "../../lib/emailService";
 import { useLanguage } from "../../contexts/LanguageContext";
@@ -32,6 +33,7 @@ interface MentorFormData {
 export default function RegisterMentorScreen() {
   const router = useRouter();
   const { t } = useLanguage();
+  const themeColors = useThemeColors();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitted, setSubmitted] = useState(false);
   const [form, setForm] = useState<MentorFormData>({
@@ -129,12 +131,12 @@ export default function RegisterMentorScreen() {
 
   if (submitted) {
     return (
-      <View style={styles.successContainer}>
+      <View style={[styles.successContainer, { backgroundColor: themeColors.background }]}>
         <View style={styles.successIcon}>
           <Text style={{ color: COLORS.white, fontSize: 28, fontWeight: "bold" }}>✓</Text>
         </View>
-        <Text style={styles.successTitle}>{t("registerMentor.successTitle")}</Text>
-        <Text style={styles.successText}>{t("registerMentor.successMsg")}</Text>
+        <Text style={[styles.successTitle, { color: themeColors.text }]}>{t("registerMentor.successTitle")}</Text>
+        <Text style={[styles.successText, { color: themeColors.textSecondary }]}>{t("registerMentor.successMsg")}</Text>
         <TouchableOpacity
           style={styles.successButton}
           onPress={() => router.replace("/(auth)/login")}
@@ -147,25 +149,25 @@ export default function RegisterMentorScreen() {
 
   return (
     <KeyboardAvoidingView
-      style={styles.flex1}
+      style={[styles.flex1, { backgroundColor: themeColors.background }]}
       behavior={Platform.OS === "ios" ? "padding" : "height"}
     >
       <ScrollView
-        style={styles.flex1}
+        style={[styles.flex1, { backgroundColor: themeColors.background }]}
         contentContainerStyle={{ paddingBottom: 40 }}
         keyboardShouldPersistTaps="handled"
       >
         <View style={styles.container}>
-          <Text style={styles.intro}>
+          <Text style={[styles.intro, { color: themeColors.textSecondary }]}>
             {t("registerMentor.intro")}
           </Text>
 
           {/* Name */}
           <FieldLabel label={t("registerMentor.name")} error={errors.name} />
           <TextInput
-            style={[styles.input, errors.name ? styles.inputError : styles.inputNormal]}
+            style={[styles.input, { backgroundColor: themeColors.card, color: themeColors.text }, errors.name ? styles.inputError : { borderColor: themeColors.border }]}
             placeholder={t("registerMentor.namePlaceholder")}
-            placeholderTextColor="#98A2B3"
+            placeholderTextColor={themeColors.textTertiary}
             value={form.name}
             onChangeText={(v) => update("name", v)}
           />
@@ -173,9 +175,9 @@ export default function RegisterMentorScreen() {
           {/* E-Mail */}
           <FieldLabel label={t("registerMentor.email")} error={errors.email} />
           <TextInput
-            style={[styles.input, errors.email ? styles.inputError : styles.inputNormal]}
+            style={[styles.input, { backgroundColor: themeColors.card, color: themeColors.text }, errors.email ? styles.inputError : { borderColor: themeColors.border }]}
             placeholder="deine@email.de"
-            placeholderTextColor="#98A2B3"
+            placeholderTextColor={themeColors.textTertiary}
             keyboardType="email-address"
             autoCapitalize="none"
             value={form.email}
@@ -185,9 +187,9 @@ export default function RegisterMentorScreen() {
           {/* Telefon */}
           <FieldLabel label={t("registerMentor.phone")} />
           <TextInput
-            style={[styles.input, styles.inputNormal]}
+            style={[styles.input, { backgroundColor: themeColors.card, color: themeColors.text, borderColor: themeColors.border }]}
             placeholder="+49 151 ..."
-            placeholderTextColor="#98A2B3"
+            placeholderTextColor={themeColors.textTertiary}
             keyboardType="phone-pad"
             value={form.phone}
             onChangeText={(v) => update("phone", v)}
@@ -203,7 +205,7 @@ export default function RegisterMentorScreen() {
                   styles.toggleButton,
                   form.gender === opt.value
                     ? styles.toggleButtonActive
-                    : styles.toggleButtonInactive,
+                    : [styles.toggleButtonInactive, { backgroundColor: themeColors.card, borderColor: themeColors.border }],
                 ]}
                 onPress={() => update("gender", opt.value)}
               >
@@ -211,7 +213,7 @@ export default function RegisterMentorScreen() {
                   style={
                     form.gender === opt.value
                       ? styles.toggleTextActive
-                      : styles.toggleTextInactive
+                      : [styles.toggleTextInactive, { color: themeColors.textSecondary }]
                   }
                 >
                   {opt.label}
@@ -223,9 +225,9 @@ export default function RegisterMentorScreen() {
           {/* Stadt */}
           <FieldLabel label={t("registerMentor.city")} error={errors.city} />
           <TextInput
-            style={[styles.input, errors.city ? styles.inputError : styles.inputNormal]}
+            style={[styles.input, { backgroundColor: themeColors.card, color: themeColors.text }, errors.city ? styles.inputError : { borderColor: themeColors.border }]}
             placeholder={t("registerMentor.cityPlaceholder")}
-            placeholderTextColor="#98A2B3"
+            placeholderTextColor={themeColors.textTertiary}
             value={form.city}
             onChangeText={(v) => update("city", v)}
           />
@@ -233,9 +235,9 @@ export default function RegisterMentorScreen() {
           {/* Alter */}
           <FieldLabel label={t("registerMentor.age")} error={errors.age} />
           <TextInput
-            style={[styles.input, errors.age ? styles.inputError : styles.inputNormal]}
+            style={[styles.input, { backgroundColor: themeColors.card, color: themeColors.text }, errors.age ? styles.inputError : { borderColor: themeColors.border }]}
             placeholder={t("registerMentor.agePlaceholder")}
-            placeholderTextColor="#98A2B3"
+            placeholderTextColor={themeColors.textTertiary}
             keyboardType="number-pad"
             value={form.age}
             onChangeText={(v) => update("age", v)}
@@ -254,7 +256,7 @@ export default function RegisterMentorScreen() {
                   styles.chip,
                   form.contact_preference === opt.value
                     ? styles.chipActive
-                    : styles.chipInactive,
+                    : [styles.chipInactive, { backgroundColor: themeColors.card, borderColor: themeColors.border }],
                 ]}
                 onPress={() => update("contact_preference", opt.value)}
               >
@@ -263,7 +265,7 @@ export default function RegisterMentorScreen() {
                     styles.chipText,
                     form.contact_preference === opt.value
                       ? styles.chipTextActive
-                      : styles.chipTextInactive,
+                      : [styles.chipTextInactive, { color: themeColors.textSecondary }],
                   ]}
                 >
                   {opt.label}
@@ -275,9 +277,9 @@ export default function RegisterMentorScreen() {
           {/* Erfahrung */}
           <FieldLabel label={t("registerMentor.experience")} error={errors.experience} />
           <TextInput
-            style={[styles.input, styles.inputNormal, styles.textarea]}
+            style={[styles.input, { backgroundColor: themeColors.card, color: themeColors.text, borderColor: themeColors.border }, styles.textarea]}
             placeholder={t("registerMentor.experiencePlaceholder")}
-            placeholderTextColor="#98A2B3"
+            placeholderTextColor={themeColors.textTertiary}
             multiline
             numberOfLines={3}
             textAlignVertical="top"
@@ -293,12 +295,13 @@ export default function RegisterMentorScreen() {
           <TextInput
             style={[
               styles.input,
-              errors.motivation ? styles.inputError : styles.inputNormal,
+              { backgroundColor: themeColors.card, color: themeColors.text },
+              errors.motivation ? styles.inputError : { borderColor: themeColors.border },
               styles.textarea,
               { marginBottom: 16 },
             ]}
             placeholder={t("registerMentor.motivationPlaceholder")}
-            placeholderTextColor="#98A2B3"
+            placeholderTextColor={themeColors.textTertiary}
             multiline
             numberOfLines={4}
             textAlignVertical="top"
@@ -329,9 +332,10 @@ function FieldLabel({
   label: string;
   error?: string;
 }) {
+  const themeColors = useThemeColors();
   return (
     <View style={{ flexDirection: "row", justifyContent: "space-between", marginBottom: 4 }}>
-      <Text style={{ color: COLORS.secondary, fontSize: 13, fontWeight: "500", flex: 1 }}>{label}</Text>
+      <Text style={{ color: themeColors.textSecondary, fontSize: 13, fontWeight: "500", flex: 1 }}>{label}</Text>
       {error ? <Text style={{ color: "#ef4444", fontSize: 12, marginLeft: 8 }}>{error}</Text> : null}
     </View>
   );
@@ -340,24 +344,20 @@ function FieldLabel({
 const styles = StyleSheet.create({
   flex1: {
     flex: 1,
-    backgroundColor: COLORS.bg,
   },
   container: {
     paddingHorizontal: 20,
     paddingTop: 20,
   },
   intro: {
-    color: COLORS.secondary,
     fontSize: 13,
     marginBottom: 16,
   },
   input: {
-    backgroundColor: COLORS.white,
     borderWidth: 1,
     borderRadius: 6,
     paddingHorizontal: 12,
     paddingVertical: 8,
-    color: COLORS.primary,
     marginBottom: 12,
     fontSize: 14,
   },
@@ -387,8 +387,6 @@ const styles = StyleSheet.create({
     borderColor: COLORS.primary,
   },
   toggleButtonInactive: {
-    backgroundColor: COLORS.white,
-    borderColor: COLORS.border,
   },
   toggleTextActive: {
     color: COLORS.white,
@@ -417,8 +415,6 @@ const styles = StyleSheet.create({
     borderColor: COLORS.primary,
   },
   chipInactive: {
-    backgroundColor: COLORS.white,
-    borderColor: COLORS.border,
   },
   chipText: {
     fontSize: 13,
@@ -443,7 +439,6 @@ const styles = StyleSheet.create({
   },
   successContainer: {
     flex: 1,
-    backgroundColor: COLORS.bg,
     alignItems: "center",
     justifyContent: "center",
     padding: 28,
@@ -460,12 +455,10 @@ const styles = StyleSheet.create({
   successTitle: {
     fontSize: 20,
     fontWeight: "bold",
-    color: COLORS.primary,
     marginBottom: 10,
     textAlign: "center",
   },
   successText: {
-    color: COLORS.secondary,
     fontSize: 14,
     textAlign: "center",
     lineHeight: 20,

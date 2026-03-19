@@ -11,18 +11,20 @@ import { useAuth } from "../../contexts/AuthContext";
 import { useData } from "../../contexts/DataContext";
 import { useLanguage } from "../../contexts/LanguageContext";
 import { COLORS } from "../../constants/Colors";
+import { useThemeColors } from "../../contexts/ThemeContext";
 
 export default function StatisticsScreen() {
   const router = useRouter();
   const { user } = useAuth();
   const { t } = useLanguage();
+  const themeColors = useThemeColors();
   const { users, mentorships, sessions, feedback, sessionTypes } = useData();
 
   // Nur Admin oder Office
   if (!user || (user.role !== "admin" && user.role !== "office")) {
     return (
-      <View style={styles.center}>
-        <Text style={styles.denied}>{t("statistics.accessDenied")}</Text>
+      <View style={[styles.center, { backgroundColor: themeColors.background }]}>
+        <Text style={[styles.denied, { color: themeColors.error }]}>{t("statistics.accessDenied")}</Text>
       </View>
     );
   }
@@ -33,6 +35,7 @@ export default function StatisticsScreen() {
 function StatisticsContent() {
   const router = useRouter();
   const { t } = useLanguage();
+  const themeColors = useThemeColors();
   const { users, mentorships, sessions, feedback, sessionTypes } = useData();
 
   const stats = useMemo(() => {
@@ -112,20 +115,20 @@ function StatisticsContent() {
   }, [users, mentorships, sessions, feedback, t]);
 
   return (
-    <ScrollView style={styles.scrollView}>
+    <ScrollView style={[styles.scrollView, { backgroundColor: themeColors.background }]}>
       <View style={styles.page}>
         {/* Header */}
         <View style={styles.header}>
           <TouchableOpacity onPress={() => router.back()} style={styles.backBtn}>
-            <Text style={styles.backBtnText}>{t("statistics.back")}</Text>
+            <Text style={[styles.backBtnText, { color: themeColors.text }]}>{t("statistics.back")}</Text>
           </TouchableOpacity>
           <View style={{ flex: 1 }}>
-            <Text style={styles.pageTitle}>{t("statistics.title")}</Text>
+            <Text style={[styles.pageTitle, { color: themeColors.text }]}>{t("statistics.title")}</Text>
           </View>
         </View>
 
         {/* Gesamtstatistiken */}
-        <Text style={styles.sectionLabel}>{t("statistics.overallStats")}</Text>
+        <Text style={[styles.sectionLabel, { color: themeColors.textTertiary }]}>{t("statistics.overallStats")}</Text>
 
         <View style={styles.kpiGrid}>
           <KPICard
@@ -151,7 +154,7 @@ function StatisticsContent() {
         </View>
 
         {/* Betreuungsstatus */}
-        <View style={styles.card}>
+        <View style={[styles.card, { backgroundColor: themeColors.card, borderColor: themeColors.border }]}>
           <StatusRow
             label={t("statistics.completed")}
             count={stats.completedCount}
@@ -166,47 +169,47 @@ function StatisticsContent() {
             color="#b91c1c"
             bg="#fee2e2"
           />
-          <View style={[styles.statusRow, { borderBottomWidth: 0 }]}>
-            <Text style={styles.statusLabel}>{t("statistics.total")}</Text>
-            <Text style={[styles.statusCount, { color: COLORS.primary }]}>
+          <View style={[styles.statusRow, { borderBottomWidth: 0, borderBottomColor: themeColors.border }]}>
+            <Text style={[styles.statusLabel, { color: themeColors.textSecondary }]}>{t("statistics.total")}</Text>
+            <Text style={[styles.statusCount, { color: themeColors.text }]}>
               {stats.totalMentorships}
             </Text>
           </View>
         </View>
 
         {/* Häufigster Abbruchgrund */}
-        <Text style={styles.sectionLabel}>{t("statistics.topCancellationReason").toUpperCase()}</Text>
-        <View style={styles.card}>
-          <Text style={styles.reasonText}>{stats.topCancellationReason}</Text>
+        <Text style={[styles.sectionLabel, { color: themeColors.textTertiary }]}>{t("statistics.topCancellationReason").toUpperCase()}</Text>
+        <View style={[styles.card, { backgroundColor: themeColors.card, borderColor: themeColors.border }]}>
+          <Text style={[styles.reasonText, { color: themeColors.textSecondary }]}>{stats.topCancellationReason}</Text>
         </View>
 
         {/* Top-Mentoren */}
-        <Text style={styles.sectionLabel}>{t("statistics.mentorRanking")}</Text>
+        <Text style={[styles.sectionLabel, { color: themeColors.textTertiary }]}>{t("statistics.mentorRanking")}</Text>
         {stats.mentorCounts.length === 0 ? (
-          <View style={styles.emptyCard}>
-            <Text style={styles.emptyText}>{t("statistics.noData")}</Text>
+          <View style={[styles.emptyCard, { backgroundColor: themeColors.card, borderColor: themeColors.border }]}>
+            <Text style={[styles.emptyText, { color: themeColors.textTertiary }]}>{t("statistics.noData")}</Text>
           </View>
         ) : (
-          <View style={styles.card}>
+          <View style={[styles.card, { backgroundColor: themeColors.card, borderColor: themeColors.border }]}>
             {stats.mentorCounts.map((m, idx) => (
               <View
                 key={idx}
-                style={[styles.mentorRow, idx < stats.mentorCounts.length - 1 ? styles.rowBorder : {}]}
+                style={[styles.mentorRow, idx < stats.mentorCounts.length - 1 ? [styles.rowBorder, { borderBottomColor: themeColors.border }] : {}]}
               >
-                <View style={styles.rankCircle}>
-                  <Text style={styles.rankNumber}>{idx + 1}</Text>
+                <View style={[styles.rankCircle, { backgroundColor: themeColors.background, borderColor: themeColors.border }]}>
+                  <Text style={[styles.rankNumber, { color: themeColors.textSecondary }]}>{idx + 1}</Text>
                 </View>
                 <View style={{ flex: 1 }}>
-                  <Text style={styles.mentorName}>{m.name}</Text>
-                  <Text style={styles.mentorSub}>{m.city}</Text>
+                  <Text style={[styles.mentorName, { color: themeColors.text }]}>{m.name}</Text>
+                  <Text style={[styles.mentorSub, { color: themeColors.textTertiary }]}>{m.city}</Text>
                 </View>
                 <View style={styles.mentorStats}>
-                  <Text style={styles.mentorStatValue}>{m.total}</Text>
-                  <Text style={styles.mentorStatLabel}>{t("statistics.mentorships")}</Text>
+                  <Text style={[styles.mentorStatValue, { color: themeColors.text }]}>{m.total}</Text>
+                  <Text style={[styles.mentorStatLabel, { color: themeColors.textTertiary }]}>{t("statistics.mentorships")}</Text>
                 </View>
                 <View style={styles.mentorStats}>
                   <Text style={[styles.mentorStatValue, { color: COLORS.cta }]}>{m.completed}</Text>
-                  <Text style={styles.mentorStatLabel}>{t("statistics.completed")}</Text>
+                  <Text style={[styles.mentorStatLabel, { color: themeColors.textTertiary }]}>{t("statistics.completed")}</Text>
                 </View>
               </View>
             ))}
@@ -214,26 +217,26 @@ function StatisticsContent() {
         )}
 
         {/* Städte-Verteilung */}
-        <Text style={styles.sectionLabel}>{t("statistics.cityDistribution").toUpperCase()}</Text>
+        <Text style={[styles.sectionLabel, { color: themeColors.textTertiary }]}>{t("statistics.cityDistribution").toUpperCase()}</Text>
         {stats.topCities.length === 0 ? (
-          <View style={styles.emptyCard}>
-            <Text style={styles.emptyText}>{t("statistics.noData")}</Text>
+          <View style={[styles.emptyCard, { backgroundColor: themeColors.card, borderColor: themeColors.border }]}>
+            <Text style={[styles.emptyText, { color: themeColors.textTertiary }]}>{t("statistics.noData")}</Text>
           </View>
         ) : (
-          <View style={[styles.card, { marginBottom: 40 }]}>
+          <View style={[styles.card, { backgroundColor: themeColors.card, borderColor: themeColors.border, marginBottom: 40 }]}>
             {stats.topCities.map(([city, count], idx) => {
               const maxCount = stats.topCities[0][1];
               const pct = Math.round((count / maxCount) * 100);
               return (
                 <View
                   key={city}
-                  style={[styles.cityRow, idx < stats.topCities.length - 1 ? styles.rowBorder : {}]}
+                  style={[styles.cityRow, idx < stats.topCities.length - 1 ? [styles.rowBorder, { borderBottomColor: themeColors.border }] : {}]}
                 >
-                  <Text style={styles.cityName}>{city}</Text>
-                  <View style={styles.cityBarWrap}>
+                  <Text style={[styles.cityName, { color: themeColors.text }]}>{city}</Text>
+                  <View style={[styles.cityBarWrap, { backgroundColor: themeColors.background }]}>
                     <View style={[styles.cityBar, { width: `${pct}%` as any }]} />
                   </View>
-                  <Text style={styles.cityCount}>{count}</Text>
+                  <Text style={[styles.cityCount, { color: themeColors.textSecondary }]}>{count}</Text>
                 </View>
               );
             })}
@@ -245,10 +248,11 @@ function StatisticsContent() {
 }
 
 function KPICard({ label, value, color }: { label: string; value: string; color: string }) {
+  const themeColors = useThemeColors();
   return (
-    <View style={kpiStyles.card}>
+    <View style={[kpiStyles.card, { backgroundColor: themeColors.card, borderColor: themeColors.border }]}>
       <Text style={[kpiStyles.value, { color }]}>{value}</Text>
-      <Text style={kpiStyles.label}>{label}</Text>
+      <Text style={[kpiStyles.label, { color: themeColors.textTertiary }]}>{label}</Text>
     </View>
   );
 }
@@ -266,13 +270,14 @@ function StatusRow({
   color: string;
   bg: string;
 }) {
+  const themeColors = useThemeColors();
   const pct = total > 0 ? Math.round((count / total) * 100) : 0;
   return (
-    <View style={styles.statusRow}>
+    <View style={[styles.statusRow, { borderBottomColor: themeColors.border }]}>
       <View style={[styles.statusDot, { backgroundColor: bg }]}>
         <Text style={[styles.statusDotText, { color }]}>{count}</Text>
       </View>
-      <Text style={styles.statusLabel}>{label}</Text>
+      <Text style={[styles.statusLabel, { color: themeColors.textSecondary }]}>{label}</Text>
       <Text style={[styles.statusPct, { color }]}>{pct}%</Text>
     </View>
   );
@@ -282,31 +287,28 @@ const kpiStyles = StyleSheet.create({
   card: {
     flex: 1,
     minWidth: "44%",
-    backgroundColor: COLORS.white,
     borderWidth: 1,
-    borderColor: COLORS.border,
     borderRadius: 8,
     padding: 14,
     alignItems: "center",
     marginBottom: 10,
   },
   value: { fontSize: 24, fontWeight: "bold", marginBottom: 4 },
-  label: { color: COLORS.tertiary, fontSize: 11, textAlign: "center" },
+  label: { fontSize: 11, textAlign: "center" },
 });
 
 const styles = StyleSheet.create({
-  scrollView: { flex: 1, backgroundColor: COLORS.bg },
+  scrollView: { flex: 1 },
   page: { padding: 20 },
   center: { flex: 1, alignItems: "center", justifyContent: "center", padding: 32 },
-  denied: { color: COLORS.error, textAlign: "center", fontSize: 14 },
+  denied: { textAlign: "center", fontSize: 14 },
   header: { flexDirection: "row", alignItems: "center", gap: 8, marginBottom: 20 },
   backBtn: { paddingRight: 8 },
-  backBtnText: { color: COLORS.primary, fontSize: 16, fontWeight: "500" },
-  pageTitle: { fontSize: 20, fontWeight: "700", color: COLORS.primary },
+  backBtnText: { fontSize: 16, fontWeight: "500" },
+  pageTitle: { fontSize: 20, fontWeight: "700" },
   sectionLabel: {
     fontSize: 11,
     fontWeight: "600",
-    color: COLORS.tertiary,
     letterSpacing: 1,
     marginBottom: 10,
     marginTop: 4,
@@ -318,24 +320,20 @@ const styles = StyleSheet.create({
     marginBottom: 20,
   },
   card: {
-    backgroundColor: COLORS.white,
     borderRadius: 8,
     borderWidth: 1,
-    borderColor: COLORS.border,
     overflow: "hidden",
     marginBottom: 20,
   },
   emptyCard: {
-    backgroundColor: COLORS.white,
     borderRadius: 8,
     borderWidth: 1,
-    borderColor: COLORS.border,
     padding: 24,
     alignItems: "center",
     marginBottom: 20,
   },
-  emptyText: { color: COLORS.tertiary, fontSize: 14 },
-  reasonText: { color: COLORS.secondary, fontSize: 14, padding: 14, lineHeight: 20 },
+  emptyText: { fontSize: 14 },
+  reasonText: { fontSize: 14, padding: 14, lineHeight: 20 },
   statusRow: {
     flexDirection: "row",
     alignItems: "center",
@@ -343,7 +341,6 @@ const styles = StyleSheet.create({
     paddingVertical: 12,
     gap: 12,
     borderBottomWidth: 1,
-    borderBottomColor: COLORS.border,
   },
   statusDot: {
     width: 36,
@@ -353,7 +350,7 @@ const styles = StyleSheet.create({
     justifyContent: "center",
   },
   statusDotText: { fontWeight: "700", fontSize: 14 },
-  statusLabel: { flex: 1, color: COLORS.secondary, fontSize: 14 },
+  statusLabel: { flex: 1, fontSize: 14 },
   statusCount: { fontWeight: "700", fontSize: 16 },
   statusPct: { fontWeight: "600", fontSize: 14 },
   mentorRow: {
@@ -363,23 +360,21 @@ const styles = StyleSheet.create({
     paddingVertical: 12,
     gap: 10,
   },
-  rowBorder: { borderBottomWidth: 1, borderBottomColor: COLORS.border },
+  rowBorder: { borderBottomWidth: 1 },
   rankCircle: {
     width: 28,
     height: 28,
     borderRadius: 14,
-    backgroundColor: COLORS.bg,
     borderWidth: 1,
-    borderColor: COLORS.border,
     alignItems: "center",
     justifyContent: "center",
   },
-  rankNumber: { color: COLORS.secondary, fontWeight: "700", fontSize: 13 },
-  mentorName: { fontWeight: "600", color: COLORS.primary, fontSize: 14 },
-  mentorSub: { color: COLORS.tertiary, fontSize: 12, marginTop: 2 },
+  rankNumber: { fontWeight: "700", fontSize: 13 },
+  mentorName: { fontWeight: "600", fontSize: 14 },
+  mentorSub: { fontSize: 12, marginTop: 2 },
   mentorStats: { alignItems: "center", minWidth: 44 },
-  mentorStatValue: { fontWeight: "700", fontSize: 16, color: COLORS.primary },
-  mentorStatLabel: { color: COLORS.tertiary, fontSize: 10 },
+  mentorStatValue: { fontWeight: "700", fontSize: 16 },
+  mentorStatLabel: { fontSize: 10 },
   cityRow: {
     flexDirection: "row",
     alignItems: "center",
@@ -387,14 +382,13 @@ const styles = StyleSheet.create({
     paddingVertical: 10,
     gap: 10,
   },
-  cityName: { color: COLORS.primary, fontWeight: "500", fontSize: 13, width: 90 },
+  cityName: { fontWeight: "500", fontSize: 13, width: 90 },
   cityBarWrap: {
     flex: 1,
     height: 8,
-    backgroundColor: COLORS.bg,
     borderRadius: 4,
     overflow: "hidden",
   },
   cityBar: { height: "100%", backgroundColor: COLORS.gradientStart, borderRadius: 4 },
-  cityCount: { color: COLORS.secondary, fontSize: 13, fontWeight: "600", minWidth: 24, textAlign: "right" },
+  cityCount: { fontSize: 13, fontWeight: "600", minWidth: 24, textAlign: "right" },
 });

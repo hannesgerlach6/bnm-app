@@ -14,6 +14,7 @@ import { useData } from "../../contexts/DataContext";
 import { COLORS } from "../../constants/Colors";
 import { Container } from "../../components/Container";
 import { useLanguage } from "../../contexts/LanguageContext";
+import { useThemeColors } from "../../contexts/ThemeContext";
 
 interface MentorScore {
   mentorId: string;
@@ -35,6 +36,7 @@ export default function LeaderboardScreen() {
   const router = useRouter();
   const { user } = useAuth();
   const { t } = useLanguage();
+  const themeColors = useThemeColors();
   const { users, mentorships, sessions, mentorOfMonthVisible, refreshData } = useData();
 
   const [genderFilter, setGenderFilter] = useState<GenderFilter>("all");
@@ -129,24 +131,24 @@ export default function LeaderboardScreen() {
         refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor={COLORS.gold} />}
       >
         <View style={styles.page}>
-          <Text style={styles.pageTitle}>{t("leaderboard.title")}</Text>
-          <Text style={styles.pageSubtitle}>
+          <Text style={[styles.pageTitle, { color: themeColors.text }]}>{t("leaderboard.title")}</Text>
+          <Text style={[styles.pageSubtitle, { color: themeColors.textSecondary }]}>
             {t("leaderboard.subtitle")}
           </Text>
 
           {/* Suche nach Mentor-Name */}
           <TextInput
-            style={styles.searchInput}
+            style={[styles.searchInput, { backgroundColor: themeColors.card, color: themeColors.text, borderColor: themeColors.border }]}
             placeholder={t("leaderboard.searchPlaceholder")}
-            placeholderTextColor="#98A2B3"
+            placeholderTextColor={themeColors.textTertiary}
             value={search}
             onChangeText={setSearch}
           />
 
           {/* Admin-Filter für Geschlecht */}
           {isAdmin && (
-            <View style={styles.filterCard}>
-              <Text style={styles.filterLabel}>{t("leaderboard.filter")}</Text>
+            <View style={[styles.filterCard, { backgroundColor: themeColors.card }]}>
+              <Text style={[styles.filterLabel, { color: themeColors.textTertiary }]}>{t("leaderboard.filter")}</Text>
               <View style={styles.filterRow}>
                 {(
                   [
@@ -159,7 +161,7 @@ export default function LeaderboardScreen() {
                     key={opt.key}
                     style={[
                       styles.filterChip,
-                      genderFilter === opt.key ? styles.filterChipActive : styles.filterChipInactive,
+                      genderFilter === opt.key ? styles.filterChipActive : [styles.filterChipInactive, { backgroundColor: themeColors.background, borderColor: themeColors.border }],
                     ]}
                     onPress={() => setGenderFilter(opt.key)}
                   >
@@ -167,7 +169,7 @@ export default function LeaderboardScreen() {
                       style={
                         genderFilter === opt.key
                           ? styles.filterChipTextActive
-                          : styles.filterChipTextInactive
+                          : [styles.filterChipTextInactive, { color: themeColors.textSecondary }]
                       }
                     >
                       {opt.label}
@@ -194,21 +196,21 @@ export default function LeaderboardScreen() {
             <View style={styles.momBanner}>
               <View style={styles.momHeader}>
                 <Text style={styles.momStar}>★</Text>
-                <Text style={styles.momTitle}>{t("leaderboard.mentorOfMonth")}</Text>
+                <Text style={[styles.momTitle, { color: themeColors.text }]}>{t("leaderboard.mentorOfMonth")}</Text>
               </View>
-              <Text style={styles.momName}>{mentorOfMonthForUser.name}</Text>
+              <Text style={[styles.momName, { color: themeColors.text }]}>{mentorOfMonthForUser.name}</Text>
               <View style={styles.momStatsRow}>
-                <View style={styles.momStatPill}>
+                <View style={[styles.momStatPill, { backgroundColor: themeColors.card }]}>
                   <Text style={styles.momStatValue}>{mentorOfMonthForUser.score}</Text>
-                  <Text style={styles.momStatLabel}>{t("leaderboard.points")}</Text>
+                  <Text style={[styles.momStatLabel, { color: themeColors.textSecondary }]}>{t("leaderboard.points")}</Text>
                 </View>
-                <View style={styles.momStatPill}>
+                <View style={[styles.momStatPill, { backgroundColor: themeColors.card }]}>
                   <Text style={styles.momStatValue}>{mentorOfMonthForUser.completedCount}</Text>
-                  <Text style={styles.momStatLabel}>{t("leaderboard.completions")}</Text>
+                  <Text style={[styles.momStatLabel, { color: themeColors.textSecondary }]}>{t("leaderboard.completions")}</Text>
                 </View>
-                <View style={styles.momStatPill}>
+                <View style={[styles.momStatPill, { backgroundColor: themeColors.card }]}>
                   <Text style={styles.momStatValue}>{mentorOfMonthForUser.sessionCount}</Text>
-                  <Text style={styles.momStatLabel}>{t("leaderboard.sessions")}</Text>
+                  <Text style={[styles.momStatLabel, { color: themeColors.textSecondary }]}>{t("leaderboard.sessions")}</Text>
                 </View>
               </View>
             </View>
@@ -226,11 +228,11 @@ export default function LeaderboardScreen() {
           )}
 
           {/* Rangliste */}
-          <View style={styles.card}>
-            <Text style={styles.cardTitle}>{listTitle}</Text>
+          <View style={[styles.card, { backgroundColor: themeColors.card }]}>
+            <Text style={[styles.cardTitle, { color: themeColors.text }]}>{listTitle}</Text>
             {ranked.length === 0 ? (
               <View style={styles.emptyStateContainer}>
-                <Text style={styles.emptyStateText}>{t("leaderboard.noMentorsYet")}</Text>
+                <Text style={[styles.emptyStateText, { color: themeColors.textTertiary }]}>{t("leaderboard.noMentorsYet")}</Text>
               </View>
             ) : (
               ranked.map((item, index) => {
@@ -243,8 +245,8 @@ export default function LeaderboardScreen() {
                     key={item.mentorId}
                     style={[
                       styles.rankRow,
-                      index < ranked.length - 1 ? styles.rankRowBorder : {},
-                      isMe ? styles.rankRowHighlight : {},
+                      index < ranked.length - 1 ? [styles.rankRowBorder, { borderBottomColor: themeColors.border }] : {},
+                      isMe ? [styles.rankRowHighlight, { backgroundColor: themeColors.background }] : {},
                     ]}
                     onPress={() =>
                       router.push({ pathname: "/mentor/[id]", params: { id: item.mentorId } })
@@ -255,7 +257,7 @@ export default function LeaderboardScreen() {
                         styles.rankBadge,
                         isTop3
                           ? { backgroundColor: medalColor }
-                          : { backgroundColor: COLORS.bg },
+                          : { backgroundColor: themeColors.background },
                       ]}
                     >
                       {isTop3 ? (
@@ -263,13 +265,13 @@ export default function LeaderboardScreen() {
                           {MEDAL_EMOJIS[index]}
                         </Text>
                       ) : (
-                        <Text style={styles.rankBadgeTextDark}>{index + 1}</Text>
+                        <Text style={[styles.rankBadgeTextDark, { color: themeColors.textSecondary }]}>{index + 1}</Text>
                       )}
                     </View>
 
                     <View style={styles.rankInfo}>
                       <View style={styles.rankNameRow}>
-                        <Text style={styles.rankName}>{item.name}</Text>
+                        <Text style={[styles.rankName, { color: themeColors.text }]}>{item.name}</Text>
                         {isMe && (
                           <View style={styles.meChip}>
                             <Text style={styles.meChipText}>{t("leaderboard.you")}</Text>
@@ -281,10 +283,10 @@ export default function LeaderboardScreen() {
                           </View>
                         )}
                       </View>
-                      <Text style={styles.rankSub}>
+                      <Text style={[styles.rankSub, { color: themeColors.textTertiary }]}>
                         {item.city} · {item.gender === "male" ? t("leaderboard.brother") : t("leaderboard.sister")}
                       </Text>
-                      <Text style={styles.rankDetail}>
+                      <Text style={[styles.rankDetail, { color: themeColors.textSecondary }]}>
                         {item.completedCount} {t("leaderboard.completions")} · {item.sessionCount} {t("leaderboard.sessions")}
                       </Text>
                     </View>
@@ -293,12 +295,12 @@ export default function LeaderboardScreen() {
                       <Text
                         style={[
                           styles.scoreValue,
-                          isTop3 ? { color: medalColor } : {},
+                          isTop3 ? { color: medalColor } : { color: themeColors.text },
                         ]}
                       >
                         {item.score}
                       </Text>
-                      <Text style={styles.scoreLabel}>{t("leaderboard.points_short")}</Text>
+                      <Text style={[styles.scoreLabel, { color: themeColors.textTertiary }]}>{t("leaderboard.points_short")}</Text>
                     </View>
                   </TouchableOpacity>
                 );
@@ -307,17 +309,17 @@ export default function LeaderboardScreen() {
           </View>
 
           {/* Legende */}
-          <View style={styles.legendCard}>
-            <Text style={styles.legendTitle}>{t("leaderboard.legendTitle")}</Text>
+          <View style={[styles.legendCard, { backgroundColor: themeColors.card }]}>
+            <Text style={[styles.legendTitle, { color: themeColors.text }]}>{t("leaderboard.legendTitle")}</Text>
             <View style={styles.legendRow}>
               <View style={styles.legendDot} />
-              <Text style={styles.legendText}>
+              <Text style={[styles.legendText, { color: themeColors.textSecondary }]}>
                 {t("leaderboard.legendCompleted")}
               </Text>
             </View>
             <View style={styles.legendRow}>
               <View style={styles.legendDot} />
-              <Text style={styles.legendText}>
+              <Text style={[styles.legendText, { color: themeColors.textSecondary }]}>
                 {t("leaderboard.legendSession")}
               </Text>
             </View>
@@ -329,13 +331,12 @@ export default function LeaderboardScreen() {
 }
 
 const styles = StyleSheet.create({
-  scrollView: { flex: 1, backgroundColor: COLORS.bg },
+  scrollView: { flex: 1 },
   page: { padding: 24 },
-  pageTitle: { fontSize: 28, fontWeight: "700", color: COLORS.primary, marginBottom: 4 },
-  pageSubtitle: { color: COLORS.secondary, marginBottom: 24, fontSize: 13 },
+  pageTitle: { fontSize: 28, fontWeight: "700", marginBottom: 4 },
+  pageSubtitle: { marginBottom: 24, fontSize: 13 },
 
   filterCard: {
-    backgroundColor: COLORS.white,
     borderRadius: 8,
     padding: 16,
     marginBottom: 16,
@@ -345,13 +346,13 @@ const styles = StyleSheet.create({
     shadowRadius: 8,
     elevation: 2,
   },
-  filterLabel: { fontSize: 11, fontWeight: "600", color: COLORS.tertiary, letterSpacing: 1, marginBottom: 10 },
+  filterLabel: { fontSize: 11, fontWeight: "600", letterSpacing: 1, marginBottom: 10 },
   filterRow: { flexDirection: "row", gap: 8 },
   filterChip: { paddingHorizontal: 14, paddingVertical: 8, borderRadius: 5, borderWidth: 1 },
   filterChipActive: { backgroundColor: COLORS.gradientStart, borderColor: COLORS.gradientStart },
-  filterChipInactive: { backgroundColor: COLORS.bg, borderColor: COLORS.border },
+  filterChipInactive: {},
   filterChipTextActive: { color: COLORS.white, fontWeight: "600", fontSize: 13 },
-  filterChipTextInactive: { color: COLORS.secondary, fontSize: 13 },
+  filterChipTextInactive: { fontSize: 13 },
 
   genderHintBox: {
     backgroundColor: COLORS.gradientStart,
@@ -378,12 +379,11 @@ const styles = StyleSheet.create({
   },
   momHeader: { flexDirection: "row", alignItems: "center", marginBottom: 8 },
   momStar: { color: COLORS.gold, fontSize: 22, marginRight: 8 },
-  momTitle: { fontWeight: "700", color: COLORS.primary, fontSize: 15 },
-  momName: { fontSize: 22, fontWeight: "700", color: COLORS.primary, marginBottom: 16 },
+  momTitle: { fontWeight: "700", fontSize: 15 },
+  momName: { fontSize: 22, fontWeight: "700", marginBottom: 16 },
   momStatsRow: { flexDirection: "row", gap: 12 },
   momStatPill: {
     flex: 1,
-    backgroundColor: COLORS.white,
     borderRadius: 8,
     padding: 12,
     alignItems: "center",
@@ -412,7 +412,6 @@ const styles = StyleSheet.create({
   myPositionScore: { color: COLORS.white, fontWeight: "700", fontSize: 16 },
 
   card: {
-    backgroundColor: COLORS.white,
     borderRadius: 8,
     padding: 16,
     marginBottom: 16,
@@ -422,10 +421,10 @@ const styles = StyleSheet.create({
     shadowRadius: 8,
     elevation: 2,
   },
-  cardTitle: { fontWeight: "700", color: COLORS.primary, marginBottom: 16, fontSize: 15 },
-  emptyText: { color: COLORS.tertiary, textAlign: "center", fontSize: 14, paddingVertical: 16 },
+  cardTitle: { fontWeight: "700", marginBottom: 16, fontSize: 15 },
+  emptyText: { textAlign: "center", fontSize: 14, paddingVertical: 16 },
   emptyStateContainer: { paddingVertical: 24, alignItems: "center" },
-  emptyStateText: { color: COLORS.tertiary, textAlign: "center", fontSize: 14, lineHeight: 20 },
+  emptyStateText: { textAlign: "center", fontSize: 14, lineHeight: 20 },
 
   rankRow: {
     flexDirection: "row",
@@ -433,9 +432,8 @@ const styles = StyleSheet.create({
     paddingVertical: 12,
     gap: 12,
   },
-  rankRowBorder: { borderBottomWidth: 1, borderBottomColor: COLORS.border },
+  rankRowBorder: { borderBottomWidth: 1 },
   rankRowHighlight: {
-    backgroundColor: "#eff6ff",
     borderRadius: 6,
     marginHorizontal: -8,
     paddingHorizontal: 8,
@@ -450,11 +448,11 @@ const styles = StyleSheet.create({
     flexShrink: 0,
   },
   rankBadgeTextWhite: { fontSize: 20 },
-  rankBadgeTextDark: { color: COLORS.secondary, fontWeight: "700", fontSize: 14 },
+  rankBadgeTextDark: { fontWeight: "700", fontSize: 14 },
 
   rankInfo: { flex: 1 },
   rankNameRow: { flexDirection: "row", alignItems: "center", gap: 6, marginBottom: 2 },
-  rankName: { fontWeight: "600", color: COLORS.primary, fontSize: 15 },
+  rankName: { fontWeight: "600", fontSize: 15 },
   meChip: {
     backgroundColor: "#dbeafe",
     paddingHorizontal: 8,
@@ -464,15 +462,14 @@ const styles = StyleSheet.create({
   meChipText: { color: "#1d4ed8", fontSize: 11, fontWeight: "600" },
   medalChip: { paddingHorizontal: 8, paddingVertical: 2, borderRadius: 4 },
   medalChipText: { color: COLORS.white, fontSize: 11, fontWeight: "600" },
-  rankSub: { color: COLORS.tertiary, fontSize: 12 },
-  rankDetail: { color: COLORS.secondary, fontSize: 12, marginTop: 2 },
+  rankSub: { fontSize: 12 },
+  rankDetail: { fontSize: 12, marginTop: 2 },
 
   scoreBox: { alignItems: "center" },
-  scoreValue: { fontSize: 22, fontWeight: "700", color: COLORS.primary },
-  scoreLabel: { color: COLORS.tertiary, fontSize: 11 },
+  scoreValue: { fontSize: 22, fontWeight: "700" },
+  scoreLabel: { fontSize: 11 },
 
   legendCard: {
-    backgroundColor: COLORS.white,
     borderRadius: 8,
     borderLeftWidth: 4,
     borderLeftColor: COLORS.gold,
@@ -484,19 +481,16 @@ const styles = StyleSheet.create({
     shadowRadius: 6,
     elevation: 1,
   },
-  legendTitle: { fontWeight: "700", color: COLORS.primary, marginBottom: 12 },
+  legendTitle: { fontWeight: "700", marginBottom: 12 },
   legendRow: { flexDirection: "row", alignItems: "center", marginBottom: 8, gap: 8 },
   legendDot: { width: 8, height: 8, borderRadius: 4, backgroundColor: COLORS.gold },
-  legendText: { color: COLORS.secondary, fontSize: 13 },
-  legendBold: { fontWeight: "700", color: COLORS.primary },
+  legendText: { fontSize: 13 },
+  legendBold: { fontWeight: "700" },
   searchInput: {
-    backgroundColor: COLORS.white,
     borderWidth: 1,
-    borderColor: COLORS.border,
     borderRadius: 6,
     paddingHorizontal: 12,
     paddingVertical: 8,
-    color: COLORS.primary,
     fontSize: 14,
     marginBottom: 16,
   },

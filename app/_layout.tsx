@@ -11,7 +11,7 @@ import { AuthProvider, useAuth } from "../contexts/AuthContext";
 import { DataProvider } from "../contexts/DataContext";
 import { ModalProvider } from "../contexts/ModalContext";
 import { LanguageProvider } from "../contexts/LanguageContext";
-import { ThemeProvider, useTheme } from "../contexts/ThemeContext";
+import { ThemeProvider, useTheme, useThemeColors } from "../contexts/ThemeContext";
 import { LoadingScreen } from "../components/LoadingScreen";
 import { registerForPushNotifications } from "../lib/notificationService";
 
@@ -96,6 +96,7 @@ function NavigationGuard() {
 function RootLayoutInner() {
   const { isLoading: authLoading } = useAuth();
   const { isDark } = useTheme();
+  const themeColors = useThemeColors();
   const router = useRouter();
   const [loaded, error] = useFonts({
     SpaceMono: require("../assets/fonts/SpaceMono-Regular.ttf"),
@@ -204,8 +205,8 @@ function RootLayoutInner() {
           options={{
             presentation: "modal",
             title: "Mentor zuweisen",
-            headerStyle: { backgroundColor: "#FFFFFF" },
-            headerTintColor: "#101828",
+            headerStyle: { backgroundColor: themeColors.headerBackground },
+            headerTintColor: themeColors.headerText,
           }}
         />
         <Stack.Screen
@@ -213,8 +214,8 @@ function RootLayoutInner() {
           options={{
             presentation: "modal",
             title: "Session dokumentieren",
-            headerStyle: { backgroundColor: "#FFFFFF" },
-            headerTintColor: "#101828",
+            headerStyle: { backgroundColor: themeColors.headerBackground },
+            headerTintColor: themeColors.headerText,
           }}
         />
         <Stack.Screen
@@ -222,48 +223,48 @@ function RootLayoutInner() {
           options={{
             presentation: "modal",
             title: "Feedback",
-            headerStyle: { backgroundColor: "#FFFFFF" },
-            headerTintColor: "#101828",
+            headerStyle: { backgroundColor: themeColors.headerBackground },
+            headerTintColor: themeColors.headerText,
           }}
         />
         <Stack.Screen
           name="mentorship/[id]"
           options={{
             title: "Betreuung",
-            headerStyle: { backgroundColor: "#FFFFFF" },
-            headerTintColor: "#101828",
+            headerStyle: { backgroundColor: themeColors.headerBackground },
+            headerTintColor: themeColors.headerText,
           }}
         />
         <Stack.Screen
           name="chat/[mentorshipId]"
           options={{
             title: "Chat",
-            headerStyle: { backgroundColor: "#FFFFFF" },
-            headerTintColor: "#101828",
+            headerStyle: { backgroundColor: themeColors.headerBackground },
+            headerTintColor: themeColors.headerText,
           }}
         />
         <Stack.Screen
           name="admin/applications"
           options={{
             title: "Anmeldungen & Bewerbungen",
-            headerStyle: { backgroundColor: "#FFFFFF" },
-            headerTintColor: "#101828",
+            headerStyle: { backgroundColor: themeColors.headerBackground },
+            headerTintColor: themeColors.headerText,
           }}
         />
         <Stack.Screen
           name="admin/session-types"
           options={{
             title: "Session-Typen",
-            headerStyle: { backgroundColor: "#FFFFFF" },
-            headerTintColor: "#101828",
+            headerStyle: { backgroundColor: themeColors.headerBackground },
+            headerTintColor: themeColors.headerText,
           }}
         />
         <Stack.Screen
           name="admin/feedback-overview"
           options={{
             title: "Feedback-Übersicht",
-            headerStyle: { backgroundColor: "#FFFFFF" },
-            headerTintColor: "#101828",
+            headerStyle: { backgroundColor: themeColors.headerBackground },
+            headerTintColor: themeColors.headerText,
           }}
         />
         <Stack.Screen
@@ -276,8 +277,8 @@ function RootLayoutInner() {
           name="reset-password"
           options={{
             title: "Passwort zurücksetzen",
-            headerStyle: { backgroundColor: "#FFFFFF" },
-            headerTintColor: "#101828",
+            headerStyle: { backgroundColor: themeColors.headerBackground },
+            headerTintColor: themeColors.headerText,
           }}
         />
         <Stack.Screen

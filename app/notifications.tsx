@@ -12,6 +12,7 @@ import type { Notification, NotificationType } from "../types";
 import { COLORS } from "../constants/Colors";
 import { Container } from "../components/Container";
 import { useLanguage } from "../contexts/LanguageContext";
+import { useThemeColors } from "../contexts/ThemeContext";
 
 const TYPE_CONFIG: Record<
   NotificationType,
@@ -28,6 +29,7 @@ const TYPE_CONFIG: Record<
 export default function NotificationsScreen() {
   const router = useRouter();
   const { t } = useLanguage();
+  const themeColors = useThemeColors();
   const { notifications, markAsRead, markAllAsRead } = useData();
 
   function timeAgo(isoDate: string): string {
@@ -63,19 +65,19 @@ export default function NotificationsScreen() {
 
   return (
     <Container>
-      <View style={styles.root}>
+      <View style={[styles.root, { backgroundColor: themeColors.background }]}>
         {/* Header */}
-        <View style={styles.header}>
+        <View style={[styles.header, { backgroundColor: themeColors.card, borderBottomColor: themeColors.border }]}>
           <View style={styles.headerLeft}>
             <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
-              <Text style={styles.backText}>‹ {t("common.back")}</Text>
+              <Text style={[styles.backText, { color: themeColors.text }]}>‹ {t("common.back")}</Text>
             </TouchableOpacity>
           </View>
-          <Text style={styles.headerTitle}>{t("notifications.title")}</Text>
+          <Text style={[styles.headerTitle, { color: themeColors.text }]}>{t("notifications.title")}</Text>
           <View style={styles.headerRight}>
             {unreadCount > 0 && (
               <TouchableOpacity onPress={markAllAsRead}>
-                <Text style={styles.markAllText}>{t("notifications.markAll")}</Text>
+                <Text style={[styles.markAllText, { color: themeColors.link }]}>{t("notifications.markAll")}</Text>
               </TouchableOpacity>
             )}
           </View>
@@ -93,8 +95,8 @@ export default function NotificationsScreen() {
           {sorted.length === 0 ? (
             <View style={styles.emptyBox}>
               <Text style={styles.emptyIcon}>🔔</Text>
-              <Text style={styles.emptyTitle}>{t("notifications.emptyTitle")}</Text>
-              <Text style={styles.emptyText}>
+              <Text style={[styles.emptyTitle, { color: themeColors.text }]}>{t("notifications.emptyTitle")}</Text>
+              <Text style={[styles.emptyText, { color: themeColors.textTertiary }]}>
                 {t("notifications.emptyText")}
               </Text>
             </View>
@@ -106,6 +108,7 @@ export default function NotificationsScreen() {
                   key={notification.id}
                   style={[
                     styles.notifCard,
+                    { backgroundColor: themeColors.card, borderColor: themeColors.border },
                     !notification.read && styles.notifCardUnread,
                   ]}
                   onPress={() => handlePress(notification)}
@@ -119,14 +122,14 @@ export default function NotificationsScreen() {
 
                   <View style={styles.notifContent}>
                     <View style={styles.notifHeader}>
-                      <Text style={styles.notifTitle} numberOfLines={1}>
+                      <Text style={[styles.notifTitle, { color: themeColors.text }]} numberOfLines={1}>
                         {notification.title}
                       </Text>
-                      <Text style={styles.notifTime}>
+                      <Text style={[styles.notifTime, { color: themeColors.textTertiary }]}>
                         {timeAgo(notification.created_at)}
                       </Text>
                     </View>
-                    <Text style={styles.notifBody} numberOfLines={2}>
+                    <Text style={[styles.notifBody, { color: themeColors.textSecondary }]} numberOfLines={2}>
                       {notification.body}
                     </Text>
                     <View style={[styles.typeBadge, { backgroundColor: config.bg }]}>
@@ -148,7 +151,6 @@ export default function NotificationsScreen() {
 const styles = StyleSheet.create({
   root: {
     flex: 1,
-    backgroundColor: COLORS.bg,
   },
   header: {
     flexDirection: "row",
@@ -156,16 +158,14 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
     paddingTop: 56,
     paddingBottom: 16,
-    backgroundColor: COLORS.white,
     borderBottomWidth: 1,
-    borderBottomColor: COLORS.border,
   },
   headerLeft: { flex: 1 },
   headerRight: { flex: 1, alignItems: "flex-end" },
   backButton: { paddingVertical: 4 },
-  backText: { color: COLORS.primary, fontSize: 16, fontWeight: "500" },
-  headerTitle: { fontWeight: "bold", color: COLORS.primary, fontSize: 16 },
-  markAllText: { color: COLORS.link, fontSize: 13, fontWeight: "500" },
+  backText: { fontSize: 16, fontWeight: "500" },
+  headerTitle: { fontWeight: "bold", fontSize: 16 },
+  markAllText: { fontSize: 13, fontWeight: "500" },
   unreadBanner: {
     backgroundColor: "#eff6ff",
     borderBottomWidth: 1,
@@ -182,13 +182,11 @@ const styles = StyleSheet.create({
     paddingHorizontal: 32,
   },
   emptyIcon: { fontSize: 48, marginBottom: 16 },
-  emptyTitle: { fontWeight: "bold", color: COLORS.primary, fontSize: 18, marginBottom: 8 },
-  emptyText: { color: COLORS.tertiary, fontSize: 14, textAlign: "center", lineHeight: 20 },
+  emptyTitle: { fontWeight: "bold", fontSize: 18, marginBottom: 8 },
+  emptyText: { fontSize: 14, textAlign: "center", lineHeight: 20 },
   notifCard: {
-    backgroundColor: COLORS.white,
     borderRadius: 8,
     borderWidth: 1,
-    borderColor: COLORS.border,
     padding: 14,
     flexDirection: "row",
     alignItems: "flex-start",
@@ -227,12 +225,11 @@ const styles = StyleSheet.create({
   },
   notifTitle: {
     fontWeight: "700",
-    color: COLORS.primary,
     fontSize: 14,
     flex: 1,
   },
-  notifTime: { color: COLORS.tertiary, fontSize: 12, flexShrink: 0 },
-  notifBody: { color: COLORS.secondary, fontSize: 13, lineHeight: 18, marginBottom: 8 },
+  notifTime: { fontSize: 12, flexShrink: 0 },
+  notifBody: { fontSize: 13, lineHeight: 18, marginBottom: 8 },
   typeBadge: {
     alignSelf: "flex-start",
     paddingHorizontal: 8,

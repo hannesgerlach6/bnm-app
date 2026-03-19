@@ -13,10 +13,12 @@ import { supabase } from "../lib/supabase";
 import { COLORS } from "../constants/Colors";
 import { useLanguage } from "../contexts/LanguageContext";
 import { showError, showSuccess } from "../lib/errorHandler";
+import { useThemeColors } from "../contexts/ThemeContext";
 
 export default function ResetPasswordScreen() {
   const router = useRouter();
   const { t } = useLanguage();
+  const themeColors = useThemeColors();
 
   const [newPassword, setNewPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
@@ -81,10 +83,10 @@ export default function ResetPasswordScreen() {
   }
 
   return (
-    <ScrollView style={styles.scroll} contentContainerStyle={styles.container}>
-      <View style={styles.card}>
-        <Text style={styles.title}>{t("resetPassword.title")}</Text>
-        <Text style={styles.subtitle}>{t("resetPassword.subtitle")}</Text>
+    <ScrollView style={[styles.scroll, { backgroundColor: themeColors.background }]} contentContainerStyle={styles.container}>
+      <View style={[styles.card, { backgroundColor: themeColors.card, borderColor: themeColors.border }]}>
+        <Text style={[styles.title, { color: themeColors.text }]}>{t("resetPassword.title")}</Text>
+        <Text style={[styles.subtitle, { color: themeColors.textSecondary }]}>{t("resetPassword.subtitle")}</Text>
 
         {isDone ? (
           <View style={styles.successBox}>
@@ -94,14 +96,14 @@ export default function ResetPasswordScreen() {
         ) : (
           <>
             {/* Neues Passwort */}
-            <Text style={styles.label}>{t("resetPassword.newPassword")}</Text>
-            <View style={styles.inputRow}>
+            <Text style={[styles.label, { color: themeColors.text }]}>{t("resetPassword.newPassword")}</Text>
+            <View style={[styles.inputRow, { borderColor: themeColors.border, backgroundColor: themeColors.background }]}>
               <TextInput
-                style={styles.input}
+                style={[styles.input, { color: themeColors.text }]}
                 value={newPassword}
                 onChangeText={setNewPassword}
                 placeholder={t("resetPassword.passwordPlaceholder")}
-                placeholderTextColor={COLORS.tertiary}
+                placeholderTextColor={themeColors.textTertiary}
                 secureTextEntry={!showNew}
                 autoCapitalize="none"
               />
@@ -109,21 +111,21 @@ export default function ResetPasswordScreen() {
                 style={styles.eyeButton}
                 onPress={() => setShowNew((v) => !v)}
               >
-                <Text style={styles.eyeText}>
+                <Text style={[styles.eyeText, { color: themeColors.link }]}>
                   {showNew ? t("resetPassword.hide") : t("resetPassword.show")}
                 </Text>
               </TouchableOpacity>
             </View>
 
             {/* Passwort bestätigen */}
-            <Text style={styles.label}>{t("resetPassword.confirmPassword")}</Text>
-            <View style={styles.inputRow}>
+            <Text style={[styles.label, { color: themeColors.text }]}>{t("resetPassword.confirmPassword")}</Text>
+            <View style={[styles.inputRow, { borderColor: themeColors.border, backgroundColor: themeColors.background }]}>
               <TextInput
-                style={styles.input}
+                style={[styles.input, { color: themeColors.text }]}
                 value={confirmPassword}
                 onChangeText={setConfirmPassword}
                 placeholder={t("resetPassword.confirmPlaceholder")}
-                placeholderTextColor={COLORS.tertiary}
+                placeholderTextColor={themeColors.textTertiary}
                 secureTextEntry={!showConfirm}
                 autoCapitalize="none"
               />
@@ -131,7 +133,7 @@ export default function ResetPasswordScreen() {
                 style={styles.eyeButton}
                 onPress={() => setShowConfirm((v) => !v)}
               >
-                <Text style={styles.eyeText}>
+                <Text style={[styles.eyeText, { color: themeColors.link }]}>
                   {showConfirm ? t("resetPassword.hide") : t("resetPassword.show")}
                 </Text>
               </TouchableOpacity>
@@ -174,7 +176,7 @@ export default function ResetPasswordScreen() {
           style={styles.backLink}
           onPress={() => router.replace("/(auth)/login")}
         >
-          <Text style={styles.backLinkText}>{t("resetPassword.backToLogin")}</Text>
+          <Text style={[styles.backLinkText, { color: themeColors.link }]}>{t("resetPassword.backToLogin")}</Text>
         </TouchableOpacity>
       </View>
     </ScrollView>
@@ -182,7 +184,7 @@ export default function ResetPasswordScreen() {
 }
 
 const styles = StyleSheet.create({
-  scroll: { flex: 1, backgroundColor: COLORS.bg },
+  scroll: { flex: 1 },
   container: {
     flexGrow: 1,
     alignItems: "center",
@@ -190,10 +192,8 @@ const styles = StyleSheet.create({
     padding: 24,
   },
   card: {
-    backgroundColor: COLORS.white,
     borderRadius: 12,
     borderWidth: 1,
-    borderColor: COLORS.border,
     padding: 24,
     width: "100%",
     maxWidth: 440,
@@ -201,29 +201,24 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 22,
     fontWeight: "700",
-    color: COLORS.primary,
     marginBottom: 8,
     textAlign: "center",
   },
   subtitle: {
     fontSize: 14,
-    color: COLORS.secondary,
     textAlign: "center",
     marginBottom: 24,
   },
   label: {
     fontSize: 13,
     fontWeight: "600",
-    color: COLORS.primary,
     marginBottom: 6,
   },
   inputRow: {
     flexDirection: "row",
     alignItems: "center",
     borderWidth: 1,
-    borderColor: COLORS.border,
     borderRadius: 8,
-    backgroundColor: COLORS.bg,
     marginBottom: 16,
     overflow: "hidden",
   },
@@ -231,7 +226,6 @@ const styles = StyleSheet.create({
     flex: 1,
     paddingHorizontal: 12,
     paddingVertical: 10,
-    color: COLORS.primary,
     fontSize: 14,
   },
   eyeButton: {
@@ -239,7 +233,6 @@ const styles = StyleSheet.create({
     paddingVertical: 10,
   },
   eyeText: {
-    color: COLORS.link,
     fontSize: 13,
     fontWeight: "500",
   },
@@ -287,7 +280,6 @@ const styles = StyleSheet.create({
     paddingVertical: 8,
   },
   backLinkText: {
-    color: COLORS.link,
     fontSize: 14,
   },
 });

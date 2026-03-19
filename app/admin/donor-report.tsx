@@ -14,6 +14,7 @@ import { useAuth } from "../../contexts/AuthContext";
 import { COLORS } from "../../constants/Colors";
 import { useLanguage } from "../../contexts/LanguageContext";
 import { showSuccess } from "../../lib/errorHandler";
+import { useThemeColors } from "../../contexts/ThemeContext";
 
 // ─── Konstanten ──────────────────────────────────────────────────────────────
 
@@ -198,14 +199,15 @@ function HorizontalBar({
   color: string;
   total: number;
 }) {
+  const themeColors = useThemeColors();
   const pct = maxValue > 0 ? (value / maxValue) * 100 : 0;
   const shareStr = total > 0 ? `${Math.round((value / total) * 100)}%` : "0%";
   return (
     <View style={hBarStyles.row}>
-      <Text style={hBarStyles.label} numberOfLines={1}>
+      <Text style={[hBarStyles.label, { color: themeColors.text }]} numberOfLines={1}>
         {label}
       </Text>
-      <View style={hBarStyles.track}>
+      <View style={[hBarStyles.track, { backgroundColor: themeColors.background }]}>
         <View
           style={[
             hBarStyles.fill,
@@ -216,8 +218,8 @@ function HorizontalBar({
           ]}
         />
       </View>
-      <Text style={hBarStyles.count}>{value}</Text>
-      <Text style={hBarStyles.share}>{shareStr}</Text>
+      <Text style={[hBarStyles.count, { color: themeColors.text }]}>{value}</Text>
+      <Text style={[hBarStyles.share, { color: themeColors.textTertiary }]}>{shareStr}</Text>
     </View>
   );
 }
@@ -225,7 +227,6 @@ function HorizontalBar({
 const hBarStyles = StyleSheet.create({
   row: { flexDirection: "row", alignItems: "center", marginBottom: 8 },
   label: {
-    color: COLORS.primary,
     fontSize: 12,
     width: 90,
     marginRight: 6,
@@ -234,21 +235,18 @@ const hBarStyles = StyleSheet.create({
   track: {
     flex: 1,
     height: 14,
-    backgroundColor: COLORS.bg,
     borderRadius: 3,
     overflow: "hidden",
     marginRight: 6,
   },
   fill: { height: "100%" as any, borderRadius: 3 },
   count: {
-    color: COLORS.primary,
     fontWeight: "700",
     fontSize: 12,
     minWidth: 22,
     textAlign: "right",
   },
   share: {
-    color: COLORS.tertiary,
     fontSize: 11,
     minWidth: 34,
     textAlign: "right",
@@ -306,6 +304,7 @@ export default function AdminDonorReportScreen() {
   const router = useRouter();
   const { user } = useAuth();
   const { t } = useLanguage();
+  const themeColors = useThemeColors();
   const { mentorships, sessions, sessionTypes, users } = useData();
 
   const now = new Date();
@@ -573,8 +572,8 @@ export default function AdminDonorReportScreen() {
 
   if (!isAdminOrOffice) {
     return (
-      <View style={styles.centerContainer}>
-        <Text style={styles.accessText}>{t("donorDashboard.accessDenied")}</Text>
+      <View style={[styles.centerContainer, { backgroundColor: themeColors.background }]}>
+        <Text style={[styles.accessText, { color: themeColors.text }]}>{t("donorDashboard.accessDenied")}</Text>
       </View>
     );
   }
@@ -582,8 +581,8 @@ export default function AdminDonorReportScreen() {
   const periodLabel = formatPeriodLabel(periodMode, selectedYear, selectedMonth, selectedQuarter);
 
   return (
-    <View style={styles.flex1}>
-      <ScrollView style={styles.scrollView} showsVerticalScrollIndicator={false}>
+    <View style={[styles.flex1, { backgroundColor: themeColors.background }]}>
+      <ScrollView style={[styles.scrollView, { backgroundColor: themeColors.background }]} showsVerticalScrollIndicator={false}>
         {/* ── Header ── */}
         <View style={styles.header}>
           <TouchableOpacity style={styles.backBtn} onPress={() => router.back()}>
@@ -599,8 +598,8 @@ export default function AdminDonorReportScreen() {
 
         <View style={styles.page}>
           {/* ── Zeitraum-Filter ── */}
-          <View style={styles.card}>
-            <Text style={styles.sectionLabel}>{t("donorDashboard.periodSection")}</Text>
+          <View style={[styles.card, { backgroundColor: themeColors.card }]}>
+            <Text style={[styles.sectionLabel, { color: themeColors.textTertiary }]}>{t("donorDashboard.periodSection")}</Text>
 
             {/* Modi */}
             <View style={styles.modeRow}>
@@ -616,13 +615,13 @@ export default function AdminDonorReportScreen() {
                   key={opt.key}
                   style={[
                     styles.modeBtn,
-                    periodMode === opt.key ? styles.modeBtnActive : styles.modeBtnInactive,
+                    periodMode === opt.key ? styles.modeBtnActive : [styles.modeBtnInactive, { backgroundColor: themeColors.background, borderColor: themeColors.border }],
                   ]}
                   onPress={() => setPeriodMode(opt.key)}
                 >
                   <Text
                     style={
-                      periodMode === opt.key ? styles.modeBtnTextActive : styles.modeBtnTextInactive
+                      periodMode === opt.key ? styles.modeBtnTextActive : [styles.modeBtnTextInactive, { color: themeColors.textSecondary }]
                     }
                   >
                     {opt.label}
@@ -639,13 +638,13 @@ export default function AdminDonorReportScreen() {
                     key={y}
                     style={[
                       styles.yearBtn,
-                      selectedYear === y ? styles.yearBtnActive : styles.yearBtnInactive,
+                      selectedYear === y ? styles.yearBtnActive : [styles.yearBtnInactive, { backgroundColor: themeColors.background, borderColor: themeColors.border }],
                     ]}
                     onPress={() => setSelectedYear(y)}
                   >
                     <Text
                       style={
-                        selectedYear === y ? styles.yearBtnTextActive : styles.yearBtnTextInactive
+                        selectedYear === y ? styles.yearBtnTextActive : [styles.yearBtnTextInactive, { color: themeColors.textSecondary }]
                       }
                     >
                       {y}
@@ -663,13 +662,13 @@ export default function AdminDonorReportScreen() {
                     key={q.label}
                     style={[
                       styles.chip,
-                      selectedQuarter === idx ? styles.chipActive : styles.chipInactive,
+                      selectedQuarter === idx ? styles.chipActive : [styles.chipInactive, { backgroundColor: themeColors.background, borderColor: themeColors.border }],
                     ]}
                     onPress={() => setSelectedQuarter(idx)}
                   >
                     <Text
                       style={
-                        selectedQuarter === idx ? styles.chipTextActive : styles.chipTextInactive
+                        selectedQuarter === idx ? styles.chipTextActive : [styles.chipTextInactive, { color: themeColors.textSecondary }]
                       }
                     >
                       {q.label}
@@ -687,13 +686,13 @@ export default function AdminDonorReportScreen() {
                     key={m}
                     style={[
                       styles.chip,
-                      selectedMonth === idx ? styles.chipActive : styles.chipInactive,
+                      selectedMonth === idx ? styles.chipActive : [styles.chipInactive, { backgroundColor: themeColors.background, borderColor: themeColors.border }],
                     ]}
                     onPress={() => setSelectedMonth(idx)}
                   >
                     <Text
                       style={
-                        selectedMonth === idx ? styles.chipTextActive : styles.chipTextInactive
+                        selectedMonth === idx ? styles.chipTextActive : [styles.chipTextInactive, { color: themeColors.textSecondary }]
                       }
                     >
                       {m}
@@ -794,7 +793,7 @@ export default function AdminDonorReportScreen() {
             <Text style={styles.chartSectionTitle}>{t("donorDashboard.chartSessions")}</Text>
           </View>
           {sessionDistribution.items.length > 0 ? (
-            <View style={styles.card}>
+            <View style={[styles.card, { backgroundColor: themeColors.card }]}>
               {sessionDistribution.items.map((item) => (
                 <HorizontalBar
                   key={item.label}
@@ -805,13 +804,13 @@ export default function AdminDonorReportScreen() {
                   total={sessionDistribution.total}
                 />
               ))}
-              <Text style={styles.totalNote}>
+              <Text style={[styles.totalNote, { color: themeColors.textTertiary }]}>
                 {t("donorDashboard.totalLabel").replace("{0}", String(sessionDistribution.total))}
               </Text>
             </View>
           ) : (
-            <View style={styles.card}>
-              <Text style={styles.noDataTextDark}>{t("donorDashboard.noDataPeriod")}</Text>
+            <View style={[styles.card, { backgroundColor: themeColors.card }]}>
+              <Text style={[styles.noDataTextDark, { color: themeColors.textTertiary }]}>{t("donorDashboard.noDataPeriod")}</Text>
             </View>
           )}
 
@@ -837,7 +836,7 @@ export default function AdminDonorReportScreen() {
             <Text style={styles.chartSectionTitle}>{t("donorDashboard.chartRegions")}</Text>
           </View>
           {regionalData.length > 0 ? (
-            <View style={styles.card}>
+            <View style={[styles.card, { backgroundColor: themeColors.card }]}>
               {regionalData.map((item, idx) => (
                 <HorizontalBar
                   key={item.label}
@@ -848,13 +847,13 @@ export default function AdminDonorReportScreen() {
                   total={totalRegional}
                 />
               ))}
-              <Text style={styles.totalNote}>
+              <Text style={[styles.totalNote, { color: themeColors.textTertiary }]}>
                 {t("donorDashboard.totalLabel").replace("{0}", String(totalRegional))}
               </Text>
             </View>
           ) : (
-            <View style={styles.card}>
-              <Text style={styles.noDataTextDark}>{t("donorDashboard.noDataPeriod")}</Text>
+            <View style={[styles.card, { backgroundColor: themeColors.card }]}>
+              <Text style={[styles.noDataTextDark, { color: themeColors.textTertiary }]}>{t("donorDashboard.noDataPeriod")}</Text>
             </View>
           )}
 
@@ -862,8 +861,8 @@ export default function AdminDonorReportScreen() {
           <View style={styles.chartSectionHeader}>
             <Text style={styles.chartSectionTitle}>{t("donorDashboard.summary")}</Text>
           </View>
-          <View style={styles.summaryCard}>
-            <Text style={styles.summaryText}>{summaryText}</Text>
+          <View style={[styles.summaryCard, { backgroundColor: themeColors.card }]}>
+            <Text style={[styles.summaryText, { color: themeColors.text }]}>{summaryText}</Text>
           </View>
 
           {/* ── Export-Buttons ── */}
@@ -879,19 +878,19 @@ export default function AdminDonorReportScreen() {
 
           {Platform.OS === "web" && (
             <TouchableOpacity
-              style={styles.printBtn}
+              style={[styles.printBtn, { borderColor: themeColors.textSecondary }]}
               onPress={() => {
                 if (typeof window !== "undefined") {
                   (window as Window).print();
                 }
               }}
             >
-              <Text style={styles.printBtnText}>🖨 {t("donorDashboard.printPdf")}</Text>
+              <Text style={[styles.printBtnText, { color: themeColors.textSecondary }]}>🖨 {t("donorDashboard.printPdf")}</Text>
             </TouchableOpacity>
           )}
 
-          <TouchableOpacity style={styles.backBtnBottom} onPress={() => router.back()}>
-            <Text style={styles.backBtnBottomText}>{t("donorDashboard.backToReports")}</Text>
+          <TouchableOpacity style={[styles.backBtnBottom, { borderColor: themeColors.border }]} onPress={() => router.back()}>
+            <Text style={[styles.backBtnBottomText, { color: themeColors.textTertiary }]}>{t("donorDashboard.backToReports")}</Text>
           </TouchableOpacity>
         </View>
       </ScrollView>
@@ -914,16 +913,17 @@ function KpiCard({
   accent: string;
   fullWidth?: boolean;
 }) {
+  const themeColors = useThemeColors();
   return (
     <View
       style={[
         styles.kpiCard,
-        { borderTopColor: accent },
+        { borderTopColor: accent, backgroundColor: themeColors.card },
         fullWidth && { flex: 1 },
       ]}
     >
       <Text style={[styles.kpiValue, { color }]}>{value}</Text>
-      <Text style={styles.kpiLabel} numberOfLines={2}>
+      <Text style={[styles.kpiLabel, { color: themeColors.textSecondary }]} numberOfLines={2}>
         {label}
       </Text>
     </View>
@@ -942,16 +942,15 @@ function LegendItem({ color, label }: { color: string; label: string }) {
 // ─── Styles ──────────────────────────────────────────────────────────────────
 
 const styles = StyleSheet.create({
-  flex1: { flex: 1, backgroundColor: COLORS.bg },
-  scrollView: { flex: 1, backgroundColor: COLORS.bg },
+  flex1: { flex: 1 },
+  scrollView: { flex: 1 },
   centerContainer: {
     flex: 1,
-    backgroundColor: COLORS.bg,
     alignItems: "center",
     justifyContent: "center",
     padding: 24,
   },
-  accessText: { color: COLORS.primary, fontWeight: "600" },
+  accessText: { fontWeight: "600" },
 
   // Header
   header: {
@@ -991,7 +990,6 @@ const styles = StyleSheet.create({
 
   // Zeitraum-Filter
   card: {
-    backgroundColor: COLORS.white,
     borderRadius: 8,
     padding: 14,
     marginBottom: 14,
@@ -1004,7 +1002,6 @@ const styles = StyleSheet.create({
   sectionLabel: {
     fontSize: 11,
     fontWeight: "600",
-    color: COLORS.tertiary,
     letterSpacing: 1,
     marginBottom: 10,
   },
@@ -1017,27 +1014,26 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   modeBtnActive: { backgroundColor: COLORS.gradientStart, borderColor: COLORS.gradientStart },
-  modeBtnInactive: { backgroundColor: COLORS.bg, borderColor: COLORS.border },
+  modeBtnInactive: {},
   modeBtnTextActive: { color: COLORS.white, fontWeight: "600", fontSize: 12 },
-  modeBtnTextInactive: { color: COLORS.secondary, fontSize: 12 },
+  modeBtnTextInactive: { fontSize: 12 },
   yearRow: { flexDirection: "row", gap: 8, marginBottom: 10 },
   yearBtn: { paddingHorizontal: 14, paddingVertical: 7, borderRadius: 5, borderWidth: 1 },
   yearBtnActive: { backgroundColor: COLORS.gradientStart, borderColor: COLORS.gradientStart },
-  yearBtnInactive: { backgroundColor: COLORS.bg, borderColor: COLORS.border },
+  yearBtnInactive: {},
   yearBtnTextActive: { color: COLORS.white, fontWeight: "600", fontSize: 13 },
-  yearBtnTextInactive: { color: COLORS.secondary, fontSize: 13 },
+  yearBtnTextInactive: { fontSize: 13 },
   chipRow: { flexDirection: "row", flexWrap: "wrap", gap: 6 },
   chip: { paddingHorizontal: 10, paddingVertical: 5, borderRadius: 4, borderWidth: 1 },
   chipActive: { backgroundColor: COLORS.gold, borderColor: COLORS.gold },
-  chipInactive: { backgroundColor: COLORS.bg, borderColor: COLORS.border },
+  chipInactive: {},
   chipTextActive: { color: COLORS.white, fontSize: 12, fontWeight: "600" },
-  chipTextInactive: { color: COLORS.secondary, fontSize: 12 },
+  chipTextInactive: { fontSize: 12 },
 
   // KPI
   kpiGrid: { flexDirection: "row", gap: 10, marginBottom: 10 },
   kpiCard: {
     flex: 1,
-    backgroundColor: COLORS.white,
     borderRadius: 8,
     padding: 12,
     alignItems: "center",
@@ -1049,9 +1045,8 @@ const styles = StyleSheet.create({
     shadowRadius: 4,
     elevation: 1,
   },
-  kpiValue: { fontSize: 30, fontWeight: "800", color: COLORS.primary },
+  kpiValue: { fontSize: 30, fontWeight: "800" },
   kpiLabel: {
-    color: COLORS.secondary,
     fontSize: 11,
     textAlign: "center",
     marginTop: 2,
@@ -1092,7 +1087,6 @@ const styles = StyleSheet.create({
     flexWrap: "wrap",
   },
   totalNote: {
-    color: COLORS.tertiary,
     fontSize: 12,
     marginTop: 8,
     textAlign: "right",
@@ -1106,7 +1100,6 @@ const styles = StyleSheet.create({
 
   // Zusammenfassung
   summaryCard: {
-    backgroundColor: COLORS.white,
     borderRadius: 8,
     padding: 14,
     marginBottom: 16,
@@ -1118,7 +1111,7 @@ const styles = StyleSheet.create({
     shadowRadius: 4,
     elevation: 1,
   },
-  summaryText: { color: COLORS.primary, fontSize: 14, lineHeight: 22 },
+  summaryText: { fontSize: 14, lineHeight: 22 },
 
   // Export-Buttons
   exportBtnPrimary: {
@@ -1140,20 +1133,18 @@ const styles = StyleSheet.create({
   exportBtnSecText: { color: COLORS.gold, fontWeight: "700", fontSize: 14 },
   printBtn: {
     borderWidth: 1,
-    borderColor: COLORS.secondary,
     borderRadius: 6,
     paddingVertical: 9,
     alignItems: "center",
     marginBottom: 10,
   },
-  printBtnText: { color: COLORS.secondary, fontWeight: "600", fontSize: 13 },
+  printBtnText: { fontWeight: "600", fontSize: 13 },
   backBtnBottom: {
     borderWidth: 1,
-    borderColor: COLORS.border,
     borderRadius: 6,
     paddingVertical: 9,
     alignItems: "center",
     marginBottom: 32,
   },
-  backBtnBottomText: { color: COLORS.tertiary, fontWeight: "600", fontSize: 13 },
+  backBtnBottomText: { fontWeight: "600", fontSize: 13 },
 });

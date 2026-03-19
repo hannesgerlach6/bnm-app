@@ -18,6 +18,7 @@ import { supabase } from "../../lib/supabase";
 import { supabaseAnon } from "../../lib/supabaseAnon";
 import { sendCredentialsEmail } from "../../lib/emailService";
 import { useLanguage } from "../../contexts/LanguageContext";
+import { useThemeColors } from "../../contexts/ThemeContext";
 
 // Öffentliche Anmeldungen sind in mentor_applications mit diesem Motivation-Marker gespeichert
 const PUBLIC_REGISTRATION_MARKER = "Anmeldung als neuer Muslim (öffentliches Formular)";
@@ -28,6 +29,7 @@ export default function ApplicationsScreen() {
   const { user } = useAuth();
   const router = useRouter();
   const { t } = useLanguage();
+  const themeColors = useThemeColors();
   const { applications, approveApplication, rejectApplication } = useData();
   const [mainTab, setMainTab] = useState<MainTab>("mentors");
   const [mentorFilter, setMentorFilter] = useState<"pending" | "approved" | "rejected">("pending");
@@ -36,8 +38,8 @@ export default function ApplicationsScreen() {
 
   if (user?.role !== "admin" && user?.role !== "office") {
     return (
-      <View style={styles.centerContainer}>
-        <Text style={styles.accessDeniedText}>{t("applications.accessDenied")}</Text>
+      <View style={[styles.centerContainer, { backgroundColor: themeColors.background }]}>
+        <Text style={[styles.accessDeniedText, { color: themeColors.text }]}>{t("applications.accessDenied")}</Text>
       </View>
     );
   }
@@ -148,19 +150,19 @@ export default function ApplicationsScreen() {
 
   return (
     <Container>
-      <ScrollView style={styles.scrollView}>
+      <ScrollView style={[styles.scrollView, { backgroundColor: themeColors.background }]}>
         <View style={styles.page}>
           <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
-            <Text style={styles.backButtonText}>{t("applications.back")}</Text>
+            <Text style={[styles.backButtonText, { color: themeColors.link }]}>{t("applications.back")}</Text>
           </TouchableOpacity>
 
-          <Text style={styles.pageTitle}>{t("applications.title")}</Text>
+          <Text style={[styles.pageTitle, { color: themeColors.text }]}>{t("applications.title")}</Text>
 
           {/* Suche */}
           <TextInput
-            style={styles.searchInput}
+            style={[styles.searchInput, { backgroundColor: themeColors.card, borderColor: themeColors.border, color: themeColors.text }]}
             placeholder={t("applications.search")}
-            placeholderTextColor="#98A2B3"
+            placeholderTextColor={themeColors.textTertiary}
             value={search}
             onChangeText={(v) => setSearch(v)}
           />
@@ -170,12 +172,12 @@ export default function ApplicationsScreen() {
             <TouchableOpacity
               style={[
                 styles.mainTab,
-                mainTab === "mentors" ? styles.mainTabActive : styles.mainTabInactive,
+                mainTab === "mentors" ? styles.mainTabActive : [styles.mainTabInactive, { backgroundColor: themeColors.card, borderColor: themeColors.border }],
               ]}
               onPress={() => setMainTab("mentors")}
             >
               <Text
-                style={mainTab === "mentors" ? styles.mainTabTextActive : styles.mainTabTextInactive}
+                style={mainTab === "mentors" ? styles.mainTabTextActive : [styles.mainTabTextInactive, { color: themeColors.textSecondary }]}
               >
                 {t("applications.mentorTab")}
               </Text>
@@ -189,12 +191,12 @@ export default function ApplicationsScreen() {
             <TouchableOpacity
               style={[
                 styles.mainTab,
-                mainTab === "mentees" ? styles.mainTabActive : styles.mainTabInactive,
+                mainTab === "mentees" ? styles.mainTabActive : [styles.mainTabInactive, { backgroundColor: themeColors.card, borderColor: themeColors.border }],
               ]}
               onPress={() => setMainTab("mentees")}
             >
               <Text
-                style={mainTab === "mentees" ? styles.mainTabTextActive : styles.mainTabTextInactive}
+                style={mainTab === "mentees" ? styles.mainTabTextActive : [styles.mainTabTextInactive, { color: themeColors.textSecondary }]}
               >
                 {t("applications.menteeTab")}
               </Text>
@@ -209,7 +211,7 @@ export default function ApplicationsScreen() {
           {/* ─── Mentor-Bewerbungen ─── */}
           {mainTab === "mentors" && (
             <>
-              <Text style={styles.pageSubtitle}>
+              <Text style={[styles.pageSubtitle, { color: themeColors.textSecondary }]}>
                 {t("applications.pendingMentor")
                   .replace("{0}", String(pendingMentorCount))
                   .replace("{1}", pendingMentorCount !== 1 ? "en" : "")}
@@ -228,7 +230,7 @@ export default function ApplicationsScreen() {
                       key={tab.key}
                       style={[
                         styles.filterChip,
-                        mentorFilter === tab.key ? styles.filterChipActive : styles.filterChipInactive,
+                        mentorFilter === tab.key ? styles.filterChipActive : [styles.filterChipInactive, { backgroundColor: themeColors.card, borderColor: themeColors.border }],
                       ]}
                       onPress={() => setMentorFilter(tab.key)}
                     >
@@ -236,7 +238,7 @@ export default function ApplicationsScreen() {
                         style={
                           mentorFilter === tab.key
                             ? styles.filterChipTextActive
-                            : styles.filterChipTextInactive
+                            : [styles.filterChipTextInactive, { color: themeColors.textSecondary }]
                         }
                       >
                         {tab.label} ({count})
@@ -247,8 +249,8 @@ export default function ApplicationsScreen() {
               </View>
 
               {filteredMentorApps.length === 0 ? (
-                <View style={styles.emptyCard}>
-                  <Text style={styles.emptyText}>
+                <View style={[styles.emptyCard, { backgroundColor: themeColors.card, borderColor: themeColors.border }]}>
+                  <Text style={[styles.emptyText, { color: themeColors.textTertiary }]}>
                     {mentorFilter === "pending"
                       ? t("applications.noOpen")
                       : mentorFilter === "approved"
@@ -273,7 +275,7 @@ export default function ApplicationsScreen() {
           {/* ─── Mentee-Anmeldungen ─── */}
           {mainTab === "mentees" && (
             <>
-              <Text style={styles.pageSubtitle}>
+              <Text style={[styles.pageSubtitle, { color: themeColors.textSecondary }]}>
                 {t("applications.pendingMentee")
                   .replace("{0}", String(pendingMenteeCount))
                   .replace("{1}", pendingMenteeCount !== 1 ? "en" : "")}
@@ -299,7 +301,7 @@ export default function ApplicationsScreen() {
                       key={tab.key}
                       style={[
                         styles.filterChip,
-                        menteeFilter === tab.key ? styles.filterChipActive : styles.filterChipInactive,
+                        menteeFilter === tab.key ? styles.filterChipActive : [styles.filterChipInactive, { backgroundColor: themeColors.card, borderColor: themeColors.border }],
                       ]}
                       onPress={() => setMenteeFilter(tab.key)}
                     >
@@ -307,7 +309,7 @@ export default function ApplicationsScreen() {
                         style={
                           menteeFilter === tab.key
                             ? styles.filterChipTextActive
-                            : styles.filterChipTextInactive
+                            : [styles.filterChipTextInactive, { color: themeColors.textSecondary }]
                         }
                       >
                         {tab.label} ({count})
@@ -318,8 +320,8 @@ export default function ApplicationsScreen() {
               </View>
 
               {filteredMenteeApps.length === 0 ? (
-                <View style={styles.emptyCard}>
-                  <Text style={styles.emptyText}>
+                <View style={[styles.emptyCard, { backgroundColor: themeColors.card, borderColor: themeColors.border }]}>
+                  <Text style={[styles.emptyText, { color: themeColors.textTertiary }]}>
                     {menteeFilter === "pending"
                       ? t("applications.noOpenMentee")
                       : menteeFilter === "approved"
@@ -358,6 +360,7 @@ function ApplicationCard({
   onReject: () => void;
 }) {
   const { t } = useLanguage();
+  const themeColors = useThemeColors();
   const isPending = application.status === "pending";
   const isApproved = application.status === "approved";
 
@@ -378,12 +381,12 @@ function ApplicationCard({
   const approveColor = type === "mentor" ? COLORS.cta : COLORS.gradientStart;
 
   return (
-    <View style={styles.card}>
+    <View style={[styles.card, { backgroundColor: themeColors.card, borderColor: themeColors.border }]}>
       {/* Header */}
       <View style={styles.cardHeader}>
         <View style={{ flex: 1 }}>
-          <Text style={styles.applicantName}>{application.name}</Text>
-          <Text style={styles.applicantSub}>
+          <Text style={[styles.applicantName, { color: themeColors.text }]}>{application.name}</Text>
+          <Text style={[styles.applicantSub, { color: themeColors.textTertiary }]}>
             {application.city} · {genderLabel} · {application.age} Jahre
           </Text>
         </View>
@@ -393,7 +396,7 @@ function ApplicationCard({
       </View>
 
       {/* Kontakt-Info */}
-      <View style={styles.infoSection}>
+      <View style={[styles.infoSection, { backgroundColor: themeColors.background }]}>
         <InfoLine label={t("applications.emailLabel")} value={application.email} />
         {application.phone ? <InfoLine label={t("applications.phoneLabel")} value={application.phone} /> : null}
         <InfoLine
@@ -415,13 +418,13 @@ function ApplicationCard({
         <>
           {application.experience ? (
             <View style={styles.textSection}>
-              <Text style={styles.textSectionLabel}>{t("applications.experience")}</Text>
-              <Text style={styles.textSectionContent}>{application.experience}</Text>
+              <Text style={[styles.textSectionLabel, { color: themeColors.textTertiary }]}>{t("applications.experience")}</Text>
+              <Text style={[styles.textSectionContent, { color: themeColors.textSecondary }]}>{application.experience}</Text>
             </View>
           ) : null}
           <View style={styles.textSection}>
-            <Text style={styles.textSectionLabel}>{t("applications.motivation")}</Text>
-            <Text style={styles.textSectionContent}>{application.motivation}</Text>
+            <Text style={[styles.textSectionLabel, { color: themeColors.textTertiary }]}>{t("applications.motivation")}</Text>
+            <Text style={[styles.textSectionContent, { color: themeColors.textSecondary }]}>{application.motivation}</Text>
           </View>
         </>
       )}
@@ -445,10 +448,11 @@ function ApplicationCard({
 }
 
 function InfoLine({ label, value }: { label: string; value: string }) {
+  const themeColors = useThemeColors();
   return (
     <View style={styles.infoLine}>
-      <Text style={styles.infoLineLabel}>{label}</Text>
-      <Text style={styles.infoLineValue}>{value}</Text>
+      <Text style={[styles.infoLineLabel, { color: themeColors.textTertiary }]}>{label}</Text>
+      <Text style={[styles.infoLineValue, { color: themeColors.text }]}>{value}</Text>
     </View>
   );
 }
@@ -456,18 +460,17 @@ function InfoLine({ label, value }: { label: string; value: string }) {
 const styles = StyleSheet.create({
   centerContainer: {
     flex: 1,
-    backgroundColor: COLORS.bg,
     alignItems: "center",
     justifyContent: "center",
     padding: 24,
   },
-  accessDeniedText: { color: COLORS.primary, fontWeight: "600" },
-  scrollView: { flex: 1, backgroundColor: COLORS.bg },
+  accessDeniedText: { fontWeight: "600" },
+  scrollView: { flex: 1 },
   page: { padding: 20 },
   backButton: { marginBottom: 16 },
-  backButtonText: { color: COLORS.link, fontSize: 14 },
-  pageTitle: { fontSize: 22, fontWeight: "bold", color: COLORS.primary, marginBottom: 12 },
-  pageSubtitle: { color: COLORS.secondary, marginBottom: 16, fontSize: 13 },
+  backButtonText: { fontSize: 14 },
+  pageTitle: { fontSize: 22, fontWeight: "bold", marginBottom: 12 },
+  pageSubtitle: { marginBottom: 16, fontSize: 13 },
 
   mainTabRow: {
     flexDirection: "row",
@@ -489,17 +492,13 @@ const styles = StyleSheet.create({
     backgroundColor: COLORS.gradientStart,
     borderColor: COLORS.gradientStart,
   },
-  mainTabInactive: {
-    backgroundColor: COLORS.white,
-    borderColor: COLORS.border,
-  },
+  mainTabInactive: {},
   mainTabTextActive: {
     color: COLORS.white,
     fontWeight: "600",
     fontSize: 13,
   },
   mainTabTextInactive: {
-    color: COLORS.secondary,
     fontSize: 13,
   },
   tabBadge: {
@@ -514,22 +513,19 @@ const styles = StyleSheet.create({
   tabBadgeText: { color: COLORS.white, fontSize: 10, fontWeight: "700" },
 
   searchInput: {
-    backgroundColor: COLORS.white,
     borderWidth: 1,
-    borderColor: COLORS.border,
     borderRadius: 6,
     paddingHorizontal: 12,
     paddingVertical: 8,
-    color: COLORS.primary,
     fontSize: 14,
     marginBottom: 12,
   },
   filterRow: { flexDirection: "row", gap: 8, marginBottom: 16, flexWrap: "wrap" },
   filterChip: { paddingHorizontal: 12, paddingVertical: 7, borderRadius: 9999, borderWidth: 1 },
   filterChipActive: { backgroundColor: COLORS.primary, borderColor: COLORS.primary },
-  filterChipInactive: { backgroundColor: COLORS.white, borderColor: COLORS.border },
+  filterChipInactive: {},
   filterChipTextActive: { color: COLORS.white, fontSize: 12, fontWeight: "500" },
-  filterChipTextInactive: { color: COLORS.secondary, fontSize: 12, fontWeight: "500" },
+  filterChipTextInactive: { fontSize: 12, fontWeight: "500" },
 
   infoBox: {
     backgroundColor: "#eff6ff",
@@ -542,20 +538,16 @@ const styles = StyleSheet.create({
   infoBoxText: { color: "#1e40af", fontSize: 12, lineHeight: 18 },
 
   emptyCard: {
-    backgroundColor: COLORS.white,
     borderRadius: 8,
     borderWidth: 1,
-    borderColor: COLORS.border,
     padding: 28,
     alignItems: "center",
   },
-  emptyText: { color: COLORS.tertiary, fontSize: 14, textAlign: "center" },
+  emptyText: { fontSize: 14, textAlign: "center" },
 
   card: {
-    backgroundColor: COLORS.white,
     borderRadius: 8,
     borderWidth: 1,
-    borderColor: COLORS.border,
     padding: 14,
     marginBottom: 14,
   },
@@ -565,22 +557,20 @@ const styles = StyleSheet.create({
     justifyContent: "space-between",
     marginBottom: 12,
   },
-  applicantName: { fontWeight: "bold", color: COLORS.primary, fontSize: 16 },
-  applicantSub: { color: COLORS.tertiary, fontSize: 12, marginTop: 2 },
+  applicantName: { fontWeight: "bold", fontSize: 16 },
+  applicantSub: { fontSize: 12, marginTop: 2 },
   statusBadge: { paddingHorizontal: 10, paddingVertical: 4, borderRadius: 9999 },
   statusText: { fontSize: 12, fontWeight: "600" },
 
   infoSection: {
-    backgroundColor: COLORS.bg,
     borderRadius: 8,
     padding: 10,
     marginBottom: 10,
     gap: 5,
   },
   infoLine: { flexDirection: "row", justifyContent: "space-between" },
-  infoLineLabel: { color: COLORS.tertiary, fontSize: 13 },
+  infoLineLabel: { fontSize: 13 },
   infoLineValue: {
-    color: COLORS.primary,
     fontSize: 13,
     fontWeight: "500",
     maxWidth: "60%",
@@ -589,13 +579,12 @@ const styles = StyleSheet.create({
 
   textSection: { marginBottom: 10 },
   textSectionLabel: {
-    color: COLORS.tertiary,
     fontSize: 11,
     fontWeight: "600",
     marginBottom: 4,
     letterSpacing: 0.5,
   },
-  textSectionContent: { color: COLORS.secondary, fontSize: 13, lineHeight: 19 },
+  textSectionContent: { fontSize: 13, lineHeight: 19 },
 
   actionRow: { flexDirection: "row", gap: 10, marginTop: 4 },
   rejectButton: {

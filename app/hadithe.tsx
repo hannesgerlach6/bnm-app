@@ -11,10 +11,12 @@ import { useRouter } from "expo-router";
 import { COLORS } from "../constants/Colors";
 import { MOCK_HADITHE } from "../data/mockData";
 import { useLanguage } from "../contexts/LanguageContext";
+import { useThemeColors } from "../contexts/ThemeContext";
 
 export default function HaditheScreen() {
   const router = useRouter();
   const { t } = useLanguage();
+  const themeColors = useThemeColors();
 
   // "Hadith des Tages" basierend auf aktuellem Datum (modulo Anzahl)
   const today = new Date();
@@ -34,16 +36,16 @@ export default function HaditheScreen() {
   }
 
   return (
-    <ScrollView style={styles.scrollView}>
+    <ScrollView style={[styles.scrollView, { backgroundColor: themeColors.background }]}>
       <View style={styles.page}>
         {/* Header */}
         <TouchableOpacity style={styles.backRow} onPress={() => router.back()}>
-          <Text style={styles.backArrow}>‹</Text>
-          <Text style={styles.backText}>{t("hadithe.back")}</Text>
+          <Text style={[styles.backArrow, { color: themeColors.text }]}>‹</Text>
+          <Text style={[styles.backText, { color: themeColors.text }]}>{t("hadithe.back")}</Text>
         </TouchableOpacity>
 
-        <Text style={styles.pageTitle}>{t("hadithe.title")}</Text>
-        <Text style={styles.pageSubtitle}>
+        <Text style={[styles.pageTitle, { color: themeColors.text }]}>{t("hadithe.title")}</Text>
+        <Text style={[styles.pageSubtitle, { color: themeColors.textSecondary }]}>
           {t("hadithe.subtitle")}
         </Text>
 
@@ -64,17 +66,17 @@ export default function HaditheScreen() {
         </View>
 
         {/* Weitere Hadithe */}
-        <Text style={styles.sectionLabel}>{t("hadithe.moreHadithe")}</Text>
+        <Text style={[styles.sectionLabel, { color: themeColors.textTertiary }]}>{t("hadithe.moreHadithe")}</Text>
         {otherHadithe.map((hadith, idx) => (
-          <View key={idx} style={styles.hadithCard}>
-            <Text style={styles.hadithText}>"{hadith.text}"</Text>
-            <View style={styles.hadithFooter}>
-              <Text style={styles.hadithQuelle}>— {hadith.quelle}</Text>
+          <View key={idx} style={[styles.hadithCard, { backgroundColor: themeColors.card, borderColor: themeColors.border }]}>
+            <Text style={[styles.hadithText, { color: themeColors.text }]}>"{hadith.text}"</Text>
+            <View style={[styles.hadithFooter, { borderTopColor: themeColors.border }]}>
+              <Text style={[styles.hadithQuelle, { color: themeColors.textTertiary }]}>— {hadith.quelle}</Text>
               <TouchableOpacity
-                style={styles.hadithShareButton}
+                style={[styles.hadithShareButton, { backgroundColor: themeColors.background, borderColor: themeColors.border }]}
                 onPress={() => handleShare(hadith.text, hadith.quelle)}
               >
-                <Text style={styles.hadithShareText}>{t("hadithe.share")}</Text>
+                <Text style={[styles.hadithShareText, { color: themeColors.textSecondary }]}>{t("hadithe.share")}</Text>
               </TouchableOpacity>
             </View>
           </View>
@@ -85,13 +87,13 @@ export default function HaditheScreen() {
 }
 
 const styles = StyleSheet.create({
-  scrollView: { flex: 1, backgroundColor: COLORS.bg },
+  scrollView: { flex: 1 },
   page: { padding: 24 },
   backRow: { flexDirection: "row", alignItems: "center", marginBottom: 16 },
-  backArrow: { color: COLORS.primary, fontSize: 24, marginRight: 4 },
-  backText: { color: COLORS.primary, fontWeight: "600", fontSize: 16 },
-  pageTitle: { fontSize: 24, fontWeight: "bold", color: COLORS.primary, marginBottom: 4 },
-  pageSubtitle: { color: COLORS.secondary, fontSize: 14, marginBottom: 24 },
+  backArrow: { fontSize: 24, marginRight: 4 },
+  backText: { fontWeight: "600", fontSize: 16 },
+  pageTitle: { fontSize: 24, fontWeight: "bold", marginBottom: 4 },
+  pageSubtitle: { fontSize: 14, marginBottom: 24 },
 
   todayCard: {
     backgroundColor: COLORS.primary,
@@ -121,21 +123,17 @@ const styles = StyleSheet.create({
   sectionLabel: {
     fontSize: 12,
     fontWeight: "600",
-    color: COLORS.tertiary,
     letterSpacing: 1,
     marginBottom: 12,
   },
 
   hadithCard: {
-    backgroundColor: COLORS.white,
     borderRadius: 8,
     borderWidth: 1,
-    borderColor: COLORS.border,
     padding: 14,
     marginBottom: 12,
   },
   hadithText: {
-    color: COLORS.primary,
     fontSize: 14,
     lineHeight: 22,
     fontStyle: "italic",
@@ -146,17 +144,14 @@ const styles = StyleSheet.create({
     justifyContent: "space-between",
     alignItems: "center",
     borderTopWidth: 1,
-    borderTopColor: COLORS.border,
     paddingTop: 10,
   },
-  hadithQuelle: { color: COLORS.tertiary, fontSize: 12 },
+  hadithQuelle: { fontSize: 12 },
   hadithShareButton: {
-    backgroundColor: COLORS.bg,
     borderWidth: 1,
-    borderColor: COLORS.border,
     borderRadius: 8,
     paddingHorizontal: 12,
     paddingVertical: 6,
   },
-  hadithShareText: { color: COLORS.secondary, fontSize: 12, fontWeight: "600" },
+  hadithShareText: { fontSize: 12, fontWeight: "600" },
 });

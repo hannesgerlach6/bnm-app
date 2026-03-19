@@ -16,6 +16,7 @@ import { useLanguage } from "../../contexts/LanguageContext";
 import { COLORS } from "../../constants/Colors";
 import { showConfirm, showError, showSuccess } from "../../lib/errorHandler";
 import { Container } from "../../components/Container";
+import { useThemeColors } from "../../contexts/ThemeContext";
 import type { UserRole, Gender } from "../../types";
 
 const ROLES: { key: UserRole; labelKey: "editUser.roleMentor" | "editUser.roleMentee" | "editUser.roleAdmin" | "editUser.roleOffice" }[] = [
@@ -31,6 +32,7 @@ export default function EditUserScreen() {
   const { user: authUser } = useAuth();
   const { getUserById, updateUser, setUserActive } = useData();
   const { t } = useLanguage();
+  const themeColors = useThemeColors();
 
   const target = getUserById(id);
 
@@ -38,8 +40,8 @@ export default function EditUserScreen() {
   if (!authUser || (authUser.role !== "admin" && authUser.role !== "office")) {
     return (
       <Container>
-        <View style={styles.center}>
-          <Text style={styles.denied}>{t("editUser.accessDenied")}</Text>
+        <View style={[styles.center, { backgroundColor: themeColors.background }]}>
+          <Text style={[styles.denied, { color: themeColors.error }]}>{t("editUser.accessDenied")}</Text>
         </View>
       </Container>
     );
@@ -48,8 +50,8 @@ export default function EditUserScreen() {
   if (!target) {
     return (
       <Container>
-        <View style={styles.center}>
-          <Text style={styles.denied}>{t("editUser.notFound")}</Text>
+        <View style={[styles.center, { backgroundColor: themeColors.background }]}>
+          <Text style={[styles.denied, { color: themeColors.error }]}>{t("editUser.notFound")}</Text>
         </View>
       </Container>
     );
@@ -62,6 +64,7 @@ function EditUserForm({ userId }: { userId: string }) {
   const router = useRouter();
   const { getUserById, updateUser, setUserActive } = useData();
   const { t } = useLanguage();
+  const themeColors = useThemeColors();
 
   const target = getUserById(userId)!;
 
@@ -136,15 +139,15 @@ function EditUserForm({ userId }: { userId: string }) {
         behavior={Platform.OS === "ios" ? "padding" : "height"}
       >
         {/* Header */}
-        <View style={styles.header}>
+        <View style={[styles.header, { backgroundColor: themeColors.card, borderBottomColor: themeColors.border }]}>
           <TouchableOpacity onPress={() => router.back()} style={styles.backBtn}>
-            <Text style={styles.backBtnText}>{t("editUser.back")}</Text>
+            <Text style={[styles.backBtnText, { color: themeColors.text }]}>{t("editUser.back")}</Text>
           </TouchableOpacity>
-          <Text style={styles.headerTitle}>{t("editUser.title")}</Text>
+          <Text style={[styles.headerTitle, { color: themeColors.text }]}>{t("editUser.title")}</Text>
           <View style={styles.headerRight} />
         </View>
 
-        <ScrollView style={styles.scrollView} contentContainerStyle={styles.content}>
+        <ScrollView style={[styles.scrollView, { backgroundColor: themeColors.background }]} contentContainerStyle={styles.content}>
 
           {/* Gesperrt-Badge */}
           {isBlocked && (
@@ -154,65 +157,65 @@ function EditUserForm({ userId }: { userId: string }) {
           )}
 
           {/* Profil-Avatar */}
-          <View style={styles.avatarRow}>
+          <View style={[styles.avatarRow, { backgroundColor: themeColors.card, borderColor: themeColors.border }]}>
             <View style={styles.avatarCircle}>
               <Text style={styles.avatarText}>
                 {target.name.split(" ").map((n) => n[0]).join("").toUpperCase().slice(0, 2)}
               </Text>
             </View>
             <View>
-              <Text style={styles.avatarName}>{target.name}</Text>
-              <Text style={styles.avatarEmail}>{target.email}</Text>
+              <Text style={[styles.avatarName, { color: themeColors.text }]}>{target.name}</Text>
+              <Text style={[styles.avatarEmail, { color: themeColors.textSecondary }]}>{target.email}</Text>
             </View>
           </View>
 
           {/* Formular */}
-          <Text style={styles.sectionLabel}>PROFILDATEN</Text>
+          <Text style={[styles.sectionLabel, { color: themeColors.textTertiary }]}>PROFILDATEN</Text>
 
           <FormField label={t("editUser.name")} error={errors.name}>
             <TextInput
-              style={[styles.input, errors.name ? styles.inputError : {}]}
+              style={[styles.input, { backgroundColor: themeColors.card, borderColor: themeColors.border, color: themeColors.text }, errors.name ? styles.inputError : {}]}
               value={name}
               onChangeText={setName}
               placeholder={t("editUser.namePlaceholder")}
-              placeholderTextColor={COLORS.tertiary}
+              placeholderTextColor={themeColors.textTertiary}
             />
           </FormField>
 
           <FormField label={t("editUser.city")} error={errors.city}>
             <TextInput
-              style={[styles.input, errors.city ? styles.inputError : {}]}
+              style={[styles.input, { backgroundColor: themeColors.card, borderColor: themeColors.border, color: themeColors.text }, errors.city ? styles.inputError : {}]}
               value={city}
               onChangeText={setCity}
               placeholder={t("editUser.cityPlaceholder")}
-              placeholderTextColor={COLORS.tertiary}
+              placeholderTextColor={themeColors.textTertiary}
             />
           </FormField>
 
           <FormField label={t("editUser.age")} error={errors.age}>
             <TextInput
-              style={[styles.input, errors.age ? styles.inputError : {}]}
+              style={[styles.input, { backgroundColor: themeColors.card, borderColor: themeColors.border, color: themeColors.text }, errors.age ? styles.inputError : {}]}
               value={age}
               onChangeText={setAge}
               placeholder={t("editUser.agePlaceholder")}
-              placeholderTextColor={COLORS.tertiary}
+              placeholderTextColor={themeColors.textTertiary}
               keyboardType="numeric"
             />
           </FormField>
 
           <FormField label={t("editUser.phone")}>
             <TextInput
-              style={styles.input}
+              style={[styles.input, { backgroundColor: themeColors.card, borderColor: themeColors.border, color: themeColors.text }]}
               value={phone}
               onChangeText={setPhone}
               placeholder="+49 ..."
-              placeholderTextColor={COLORS.tertiary}
+              placeholderTextColor={themeColors.textTertiary}
               keyboardType="phone-pad"
             />
           </FormField>
 
           {/* Geschlecht */}
-          <Text style={styles.sectionLabel}>{t("editUser.gender").toUpperCase()}</Text>
+          <Text style={[styles.sectionLabel, { color: themeColors.textTertiary }]}>{t("editUser.gender").toUpperCase()}</Text>
           <View style={styles.pillRow}>
             {(["male", "female"] as Gender[]).map((g) => (
               <TouchableOpacity
@@ -223,11 +226,11 @@ function EditUserForm({ userId }: { userId: string }) {
                     ? g === "male"
                       ? styles.pillActiveMale
                       : styles.pillActiveFemale
-                    : styles.pillInactive,
+                    : [styles.pillInactive, { backgroundColor: themeColors.card, borderColor: themeColors.border }],
                 ]}
                 onPress={() => setGender(g)}
               >
-                <Text style={[styles.pillText, gender === g ? styles.pillTextActive : styles.pillTextInactive]}>
+                <Text style={[styles.pillText, gender === g ? styles.pillTextActive : [styles.pillTextInactive, { color: themeColors.textSecondary }]]}>
                   {g === "male" ? t("editUser.male") : t("editUser.female")}
                 </Text>
               </TouchableOpacity>
@@ -235,18 +238,18 @@ function EditUserForm({ userId }: { userId: string }) {
           </View>
 
           {/* Rolle */}
-          <Text style={styles.sectionLabel}>{t("editUser.role").toUpperCase()}</Text>
+          <Text style={[styles.sectionLabel, { color: themeColors.textTertiary }]}>{t("editUser.role").toUpperCase()}</Text>
           <View style={styles.pillRow}>
             {ROLES.map(({ key, labelKey }) => (
               <TouchableOpacity
                 key={key}
                 style={[
                   styles.pill,
-                  role === key ? styles.pillActiveRole : styles.pillInactive,
+                  role === key ? styles.pillActiveRole : [styles.pillInactive, { backgroundColor: themeColors.card, borderColor: themeColors.border }],
                 ]}
                 onPress={() => setRole(key)}
               >
-                <Text style={[styles.pillText, role === key ? styles.pillTextActive : styles.pillTextInactive]}>
+                <Text style={[styles.pillText, role === key ? styles.pillTextActive : [styles.pillTextInactive, { color: themeColors.textSecondary }]]}>
                   {t(labelKey)}
                 </Text>
               </TouchableOpacity>
@@ -290,9 +293,10 @@ function FormField({
   error?: string;
   children: React.ReactNode;
 }) {
+  const themeColors = useThemeColors();
   return (
     <View style={fieldStyles.container}>
-      <Text style={fieldStyles.label}>{label}</Text>
+      <Text style={[fieldStyles.label, { color: themeColors.textSecondary }]}>{label}</Text>
       {children}
       {error ? <Text style={fieldStyles.error}>{error}</Text> : null}
     </View>
@@ -301,29 +305,27 @@ function FormField({
 
 const fieldStyles = StyleSheet.create({
   container: { marginBottom: 12 },
-  label: { color: COLORS.secondary, fontSize: 13, fontWeight: "500", marginBottom: 4 },
+  label: { fontSize: 13, fontWeight: "500", marginBottom: 4 },
   error: { color: COLORS.error, fontSize: 12, marginTop: 4 },
 });
 
 const styles = StyleSheet.create({
   flex1: { flex: 1 },
   center: { flex: 1, alignItems: "center", justifyContent: "center", padding: 32 },
-  denied: { color: COLORS.error, textAlign: "center", fontSize: 14 },
+  denied: { textAlign: "center", fontSize: 14 },
   header: {
     flexDirection: "row",
     alignItems: "center",
     paddingHorizontal: 16,
     paddingTop: 56,
     paddingBottom: 16,
-    backgroundColor: COLORS.white,
     borderBottomWidth: 1,
-    borderBottomColor: COLORS.border,
   },
   backBtn: { flex: 1 },
-  backBtnText: { color: COLORS.primary, fontSize: 16, fontWeight: "500" },
-  headerTitle: { fontWeight: "bold", color: COLORS.primary, fontSize: 16 },
+  backBtnText: { fontSize: 16, fontWeight: "500" },
+  headerTitle: { fontWeight: "bold", fontSize: 16 },
   headerRight: { flex: 1 },
-  scrollView: { flex: 1, backgroundColor: COLORS.bg },
+  scrollView: { flex: 1 },
   content: { padding: 20, paddingBottom: 40 },
   blockedBanner: {
     backgroundColor: "#fee2e2",
@@ -339,10 +341,8 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     gap: 12,
-    backgroundColor: COLORS.white,
     borderRadius: 8,
     borderWidth: 1,
-    borderColor: COLORS.border,
     padding: 14,
     marginBottom: 20,
   },
@@ -350,29 +350,25 @@ const styles = StyleSheet.create({
     width: 52,
     height: 52,
     borderRadius: 26,
-    backgroundColor: COLORS.primary,
+    backgroundColor: COLORS.gradientStart,
     alignItems: "center",
     justifyContent: "center",
   },
   avatarText: { color: COLORS.white, fontWeight: "bold", fontSize: 18 },
-  avatarName: { fontWeight: "700", color: COLORS.primary, fontSize: 16 },
-  avatarEmail: { color: COLORS.secondary, fontSize: 12, marginTop: 2 },
+  avatarName: { fontWeight: "700", fontSize: 16 },
+  avatarEmail: { fontSize: 12, marginTop: 2 },
   sectionLabel: {
     fontSize: 11,
     fontWeight: "600",
-    color: COLORS.tertiary,
     letterSpacing: 1,
     marginBottom: 10,
     marginTop: 4,
   },
   input: {
-    backgroundColor: COLORS.white,
     borderWidth: 1,
-    borderColor: COLORS.border,
     borderRadius: 6,
     paddingHorizontal: 12,
     paddingVertical: 9,
-    color: COLORS.primary,
     fontSize: 14,
   },
   inputError: { borderColor: COLORS.error },
@@ -383,13 +379,13 @@ const styles = StyleSheet.create({
     borderRadius: 9999,
     borderWidth: 1,
   },
-  pillActiveMale: { backgroundColor: COLORS.primary, borderColor: COLORS.primary },
+  pillActiveMale: { backgroundColor: COLORS.gradientStart, borderColor: COLORS.gradientStart },
   pillActiveFemale: { backgroundColor: "#7e22ce", borderColor: "#7e22ce" },
   pillActiveRole: { backgroundColor: COLORS.gradientStart, borderColor: COLORS.gradientStart },
-  pillInactive: { backgroundColor: COLORS.white, borderColor: COLORS.border },
+  pillInactive: {},
   pillText: { fontSize: 13, fontWeight: "500" },
   pillTextActive: { color: COLORS.white },
-  pillTextInactive: { color: COLORS.secondary },
+  pillTextInactive: {},
   saveButton: {
     backgroundColor: COLORS.cta,
     borderRadius: 6,

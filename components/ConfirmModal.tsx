@@ -8,6 +8,7 @@ import {
 } from "react-native";
 import { COLORS } from "../constants/Colors";
 import { useLanguage } from "../contexts/LanguageContext";
+import { useThemeColors } from "../contexts/ThemeContext";
 
 export type ModalType = "confirm" | "info" | "success" | "error";
 
@@ -54,6 +55,7 @@ export function ConfirmModal({
   onCancel,
 }: ConfirmModalProps) {
   const { t } = useLanguage();
+  const themeColors = useThemeColors();
   if (!visible) return null;
 
   const isConfirm = type === "confirm";
@@ -61,20 +63,20 @@ export function ConfirmModal({
   return (
     <View style={styles.overlay}>
       <Pressable style={styles.backdrop} onPress={isConfirm ? onCancel : onConfirm} />
-      <View style={styles.card}>
+      <View style={[styles.card, { backgroundColor: themeColors.card }]}>
         {type !== "confirm" ? <TypeIcon type={type} /> : null}
 
-        <Text style={styles.title}>{title}</Text>
-        <Text style={styles.message}>{message}</Text>
+        <Text style={[styles.title, { color: themeColors.text }]}>{title}</Text>
+        <Text style={[styles.message, { color: themeColors.textSecondary }]}>{message}</Text>
 
         <View style={styles.buttonRow}>
           {isConfirm && onCancel && (
             <TouchableOpacity
-              style={styles.cancelButton}
+              style={[styles.cancelButton, { borderColor: themeColors.border }]}
               onPress={onCancel}
               activeOpacity={0.7}
             >
-              <Text style={styles.cancelButtonText}>{t("common.cancel")}</Text>
+              <Text style={[styles.cancelButtonText, { color: themeColors.textSecondary }]}>{t("common.cancel")}</Text>
             </TouchableOpacity>
           )}
           <TouchableOpacity
@@ -118,7 +120,6 @@ const styles = StyleSheet.create({
     backgroundColor: "rgba(0,0,0,0.5)",
   },
   card: {
-    backgroundColor: COLORS.white,
     borderRadius: 12,
     padding: 24,
     width: "100%",
@@ -145,13 +146,11 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 17,
     fontWeight: "700",
-    color: COLORS.gradientStart,
     textAlign: "center",
     marginBottom: 8,
   },
   message: {
     fontSize: 14,
-    color: COLORS.secondary,
     textAlign: "center",
     lineHeight: 20,
   },
@@ -164,14 +163,12 @@ const styles = StyleSheet.create({
   cancelButton: {
     flex: 1,
     borderWidth: 1,
-    borderColor: COLORS.border,
     borderRadius: 6,
     paddingVertical: 10,
     alignItems: "center",
     backgroundColor: "transparent",
   },
   cancelButtonText: {
-    color: COLORS.secondary,
     fontWeight: "600",
     fontSize: 14,
   },

@@ -15,6 +15,7 @@ import { useData } from "../contexts/DataContext";
 import { useLanguage, type Language } from "../contexts/LanguageContext";
 import { COLORS } from "../constants/Colors";
 import { Container } from "../components/Container";
+import { useThemeColors } from "../contexts/ThemeContext";
 
 const LANGUAGES: { key: Language; label: string; native: string }[] = [
   { key: "de", label: "Deutsch", native: "Deutsch" },
@@ -29,6 +30,7 @@ export default function SettingsScreen() {
   const { logout } = useAuth();
   const { language, setLanguage, t } = useLanguage();
   const { mentorOfMonthVisible, toggleMentorOfMonth } = useData();
+  const themeColors = useThemeColors();
 
   const [pushEnabled, setPushEnabled] = useState(true);
   const isAdminOrOffice = user?.role === "admin" || user?.role === "office";
@@ -54,30 +56,30 @@ export default function SettingsScreen() {
 
   return (
     <Container>
-      <View style={styles.root}>
+      <View style={[styles.root, { backgroundColor: themeColors.background }]}>
         {/* Header */}
-        <View style={styles.header}>
+        <View style={[styles.header, { backgroundColor: themeColors.card, borderBottomColor: themeColors.border }]}>
           <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
-            <Text style={styles.backText}>‹ {t("common.back")}</Text>
+            <Text style={[styles.backText, { color: themeColors.text }]}>‹ {t("common.back")}</Text>
           </TouchableOpacity>
-          <Text style={styles.headerTitle}>{t("settings.title")}</Text>
+          <Text style={[styles.headerTitle, { color: themeColors.text }]}>{t("settings.title")}</Text>
           <View style={styles.headerRight} />
         </View>
 
         <ScrollView style={styles.scrollView} contentContainerStyle={styles.content}>
 
           {/* Sektion: Benachrichtigungen */}
-          <Text style={styles.sectionLabel}>{t("settings.notifications")}</Text>
-          <View style={styles.card}>
+          <Text style={[styles.sectionLabel, { color: themeColors.textTertiary }]}>{t("settings.notifications")}</Text>
+          <View style={[styles.card, { backgroundColor: themeColors.card, borderColor: themeColors.border }]}>
             <View style={styles.toggleRow}>
               <View style={styles.toggleInfo}>
-                <Text style={styles.toggleTitle}>{t("settings.pushNotifications")}</Text>
-                <Text style={styles.toggleSubtitle}>{t("settings.pushSubtitle")}</Text>
+                <Text style={[styles.toggleTitle, { color: themeColors.text }]}>{t("settings.pushNotifications")}</Text>
+                <Text style={[styles.toggleSubtitle, { color: themeColors.textTertiary }]}>{t("settings.pushSubtitle")}</Text>
               </View>
               <Switch
                 value={pushEnabled}
                 onValueChange={setPushEnabled}
-                trackColor={{ false: COLORS.border, true: COLORS.cta }}
+                trackColor={{ false: themeColors.border, true: COLORS.cta }}
                 thumbColor={COLORS.white}
               />
             </View>
@@ -86,17 +88,17 @@ export default function SettingsScreen() {
           {/* Sektion: Admin-Einstellungen */}
           {isAdminOrOffice && (
             <>
-              <Text style={styles.sectionLabel}>{t("settings.title")}</Text>
-              <View style={styles.card}>
+              <Text style={[styles.sectionLabel, { color: themeColors.textTertiary }]}>{t("settings.title")}</Text>
+              <View style={[styles.card, { backgroundColor: themeColors.card, borderColor: themeColors.border }]}>
                 <View style={styles.toggleRow}>
                   <View style={styles.toggleInfo}>
-                    <Text style={styles.toggleTitle}>{t("settings.showMentorOfMonth")}</Text>
-                    <Text style={styles.toggleSubtitle}>{t("settings.mentorOfMonthDesc")}</Text>
+                    <Text style={[styles.toggleTitle, { color: themeColors.text }]}>{t("settings.showMentorOfMonth")}</Text>
+                    <Text style={[styles.toggleSubtitle, { color: themeColors.textTertiary }]}>{t("settings.mentorOfMonthDesc")}</Text>
                   </View>
                   <Switch
                     value={mentorOfMonthVisible}
                     onValueChange={toggleMentorOfMonth}
-                    trackColor={{ false: COLORS.border, true: COLORS.gold }}
+                    trackColor={{ false: themeColors.border, true: COLORS.gold }}
                     thumbColor={COLORS.white}
                   />
                 </View>
@@ -105,14 +107,14 @@ export default function SettingsScreen() {
           )}
 
           {/* Sektion: Sprache */}
-          <Text style={styles.sectionLabel}>{t("settings.language")}</Text>
-          <View style={styles.card}>
+          <Text style={[styles.sectionLabel, { color: themeColors.textTertiary }]}>{t("settings.language")}</Text>
+          <View style={[styles.card, { backgroundColor: themeColors.card, borderColor: themeColors.border }]}>
             {LANGUAGES.map((lang, idx) => (
               <TouchableOpacity
                 key={lang.key}
                 style={[
                   styles.languageRow,
-                  idx < LANGUAGES.length - 1 && styles.languageRowBorder,
+                  idx < LANGUAGES.length - 1 && [styles.languageRowBorder, { borderBottomColor: themeColors.border }],
                   language === lang.key && styles.languageRowActive,
                 ]}
                 onPress={() => handleLanguageSelect(lang.key)}
@@ -121,13 +123,14 @@ export default function SettingsScreen() {
                 <View style={styles.languageLabelGroup}>
                   <Text style={[
                     styles.languageLabel,
+                    { color: themeColors.text },
                     language === lang.key && styles.languageLabelSelected,
                   ]}>
                     {lang.native}
                   </Text>
                   {/* RTL-Hinweis für Arabisch */}
                   {lang.key === "ar" && language !== "ar" && (
-                    <Text style={styles.rtlHint}>{t("settings.rtlHint")}</Text>
+                    <Text style={[styles.rtlHint, { color: themeColors.textTertiary }]}>{t("settings.rtlHint")}</Text>
                   )}
                 </View>
                 {language === lang.key && (
@@ -140,18 +143,18 @@ export default function SettingsScreen() {
           </View>
 
           {/* Sektion: Über BNM */}
-          <Text style={styles.sectionLabel}>{t("settings.aboutBNM")}</Text>
-          <View style={styles.card}>
-            <View style={[styles.infoRow, styles.rowBorder]}>
-              <Text style={styles.infoLabel}>{t("settings.version")}</Text>
-              <Text style={styles.infoValue}>1.0.0</Text>
+          <Text style={[styles.sectionLabel, { color: themeColors.textTertiary }]}>{t("settings.aboutBNM")}</Text>
+          <View style={[styles.card, { backgroundColor: themeColors.card, borderColor: themeColors.border }]}>
+            <View style={[styles.infoRow, styles.rowBorder, { borderBottomColor: themeColors.border }]}>
+              <Text style={[styles.infoLabel, { color: themeColors.textSecondary }]}>{t("settings.version")}</Text>
+              <Text style={[styles.infoValue, { color: themeColors.text }]}>1.0.0</Text>
             </View>
             <TouchableOpacity
-              style={[styles.infoRow, styles.rowBorder]}
+              style={[styles.infoRow, styles.rowBorder, { borderBottomColor: themeColors.border }]}
               onPress={handleSupportMail}
             >
-              <Text style={styles.infoLabel}>{t("settings.support")}</Text>
-              <Text style={[styles.infoValue, { color: COLORS.link }]}>
+              <Text style={[styles.infoLabel, { color: themeColors.textSecondary }]}>{t("settings.support")}</Text>
+              <Text style={[styles.infoValue, { color: themeColors.link }]}>
                 support@bnm-program.de
               </Text>
             </TouchableOpacity>
@@ -159,19 +162,19 @@ export default function SettingsScreen() {
               style={styles.infoRow}
               onPress={handleWebsite}
             >
-              <Text style={styles.infoLabel}>{t("settings.website")}</Text>
-              <Text style={[styles.infoValue, { color: COLORS.link }]}>
+              <Text style={[styles.infoLabel, { color: themeColors.textSecondary }]}>{t("settings.website")}</Text>
+              <Text style={[styles.infoValue, { color: themeColors.link }]}>
                 bnm-program.de ↗
               </Text>
             </TouchableOpacity>
           </View>
 
           {/* Sektion: Datenschutz */}
-          <Text style={styles.sectionLabel}>{t("settings.privacy")}</Text>
-          <View style={styles.card}>
-            <Text style={styles.privacyText}>{t("settings.privacyText1")}</Text>
-            <View style={styles.privacyDivider} />
-            <Text style={styles.privacyText}>{t("settings.privacyText2")}</Text>
+          <Text style={[styles.sectionLabel, { color: themeColors.textTertiary }]}>{t("settings.privacy")}</Text>
+          <View style={[styles.card, { backgroundColor: themeColors.card, borderColor: themeColors.border }]}>
+            <Text style={[styles.privacyText, { color: themeColors.textSecondary }]}>{t("settings.privacyText1")}</Text>
+            <View style={[styles.privacyDivider, { backgroundColor: themeColors.border }]} />
+            <Text style={[styles.privacyText, { color: themeColors.textSecondary }]}>{t("settings.privacyText2")}</Text>
           </View>
 
           {/* Konto löschen */}
@@ -182,7 +185,7 @@ export default function SettingsScreen() {
             <Text style={styles.deleteButtonText}>{t("settings.deleteAccount")}</Text>
           </TouchableOpacity>
 
-          <Text style={styles.footerText}>{t("settings.footer")}</Text>
+          <Text style={[styles.footerText, { color: themeColors.textTertiary }]}>{t("settings.footer")}</Text>
         </ScrollView>
       </View>
     </Container>
@@ -190,36 +193,31 @@ export default function SettingsScreen() {
 }
 
 const styles = StyleSheet.create({
-  root: { flex: 1, backgroundColor: COLORS.bg },
+  root: { flex: 1 },
   header: {
     flexDirection: "row",
     alignItems: "center",
     paddingHorizontal: 16,
     paddingTop: 56,
     paddingBottom: 16,
-    backgroundColor: COLORS.white,
     borderBottomWidth: 1,
-    borderBottomColor: COLORS.border,
   },
   backButton: { flex: 1 },
-  backText: { color: COLORS.primary, fontSize: 16, fontWeight: "500" },
-  headerTitle: { fontWeight: "bold", color: COLORS.primary, fontSize: 16 },
+  backText: { fontSize: 16, fontWeight: "500" },
+  headerTitle: { fontWeight: "bold", fontSize: 16 },
   headerRight: { flex: 1 },
   scrollView: { flex: 1 },
   content: { padding: 16, paddingBottom: 40 },
   sectionLabel: {
     fontSize: 11,
     fontWeight: "600",
-    color: COLORS.tertiary,
     letterSpacing: 1,
     marginBottom: 6,
     marginTop: 4,
   },
   card: {
-    backgroundColor: COLORS.white,
     borderRadius: 8,
     borderWidth: 1,
-    borderColor: COLORS.border,
     overflow: "hidden",
     marginBottom: 14,
   },
@@ -230,8 +228,8 @@ const styles = StyleSheet.create({
     padding: 14,
   },
   toggleInfo: { flex: 1, marginRight: 12 },
-  toggleTitle: { fontWeight: "600", color: COLORS.primary, fontSize: 14 },
-  toggleSubtitle: { color: COLORS.tertiary, fontSize: 12, marginTop: 1 },
+  toggleTitle: { fontWeight: "600", fontSize: 14 },
+  toggleSubtitle: { fontSize: 12, marginTop: 1 },
   languageRow: {
     flexDirection: "row",
     alignItems: "center",
@@ -241,16 +239,14 @@ const styles = StyleSheet.create({
   },
   languageRowBorder: {
     borderBottomWidth: 1,
-    borderBottomColor: COLORS.border,
   },
   languageRowActive: {
     backgroundColor: "rgba(238,167,27,0.06)",
   },
   languageLabelGroup: { flex: 1 },
-  languageLabel: { color: COLORS.primary, fontSize: 14 },
+  languageLabel: { fontSize: 14 },
   languageLabelSelected: { fontWeight: "600", color: COLORS.gradientStart },
   rtlHint: {
-    color: COLORS.tertiary,
     fontSize: 11,
     marginTop: 2,
   },
@@ -272,12 +268,10 @@ const styles = StyleSheet.create({
   },
   rowBorder: {
     borderBottomWidth: 1,
-    borderBottomColor: COLORS.border,
   },
-  infoLabel: { color: COLORS.secondary, fontSize: 13 },
-  infoValue: { color: COLORS.primary, fontSize: 13, fontWeight: "500" },
+  infoLabel: { fontSize: 13 },
+  infoValue: { fontSize: 13, fontWeight: "500" },
   privacyText: {
-    color: COLORS.secondary,
     fontSize: 13,
     lineHeight: 19,
     paddingHorizontal: 16,
@@ -285,7 +279,6 @@ const styles = StyleSheet.create({
   },
   privacyDivider: {
     height: 1,
-    backgroundColor: COLORS.border,
     marginHorizontal: 16,
   },
   deleteButton: {
@@ -299,7 +292,6 @@ const styles = StyleSheet.create({
   },
   deleteButtonText: { color: COLORS.error, fontWeight: "600", fontSize: 14 },
   footerText: {
-    color: COLORS.tertiary,
     fontSize: 12,
     textAlign: "center",
   },

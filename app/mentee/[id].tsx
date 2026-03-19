@@ -12,11 +12,13 @@ import { useAuth } from "../../contexts/AuthContext";
 import { COLORS } from "../../constants/Colors";
 import { Container } from "../../components/Container";
 import { useLanguage } from "../../contexts/LanguageContext";
+import { useThemeColors } from "../../contexts/ThemeContext";
 
 export default function MenteeDetailScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const router = useRouter();
   const { t } = useLanguage();
+  const themeColors = useThemeColors();
   const { user: authUser } = useAuth();
   const isAdminOrOffice = authUser?.role === "admin" || authUser?.role === "office";
 
@@ -45,16 +47,16 @@ export default function MenteeDetailScreen() {
   if (!mentee) {
     return (
       <Container>
-        <View style={styles.root}>
-          <View style={styles.header}>
+        <View style={[styles.root, { backgroundColor: themeColors.background }]}>
+          <View style={[styles.header, { backgroundColor: themeColors.card, borderBottomColor: themeColors.border }]}>
             <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
-              <Text style={styles.backText}>{t("menteeDetail.back")}</Text>
+              <Text style={[styles.backText, { color: themeColors.text }]}>{t("menteeDetail.back")}</Text>
             </TouchableOpacity>
-            <Text style={styles.headerTitle}>{t("menteeDetail.headerTitle")}</Text>
+            <Text style={[styles.headerTitle, { color: themeColors.text }]}>{t("menteeDetail.headerTitle")}</Text>
             <View style={styles.headerRight} />
           </View>
           <View style={styles.emptyBox}>
-            <Text style={styles.emptyText}>{t("menteeDetail.notFound")}</Text>
+            <Text style={[styles.emptyText, { color: themeColors.textTertiary }]}>{t("menteeDetail.notFound")}</Text>
           </View>
         </View>
       </Container>
@@ -94,25 +96,25 @@ export default function MenteeDetailScreen() {
 
   return (
     <Container>
-      <View style={styles.root}>
+      <View style={[styles.root, { backgroundColor: themeColors.background }]}>
         {/* Header */}
-        <View style={styles.header}>
+        <View style={[styles.header, { backgroundColor: themeColors.card, borderBottomColor: themeColors.border }]}>
           <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
-            <Text style={styles.backText}>{t("menteeDetail.back")}</Text>
+            <Text style={[styles.backText, { color: themeColors.text }]}>{t("menteeDetail.back")}</Text>
           </TouchableOpacity>
-          <Text style={styles.headerTitle}>{t("menteeDetail.title")}</Text>
+          <Text style={[styles.headerTitle, { color: themeColors.text }]}>{t("menteeDetail.title")}</Text>
           <View style={styles.headerRight} />
         </View>
 
         <ScrollView style={styles.scrollView} contentContainerStyle={styles.content}>
 
           {/* Profil-Card */}
-          <View style={styles.profileCard}>
+          <View style={[styles.profileCard, { backgroundColor: themeColors.card, borderColor: themeColors.border }]}>
             <View style={styles.avatarCircle}>
               <Text style={styles.avatarText}>{initials}</Text>
             </View>
-            <Text style={styles.profileName}>{mentee.name}</Text>
-            <Text style={styles.profileSub}>
+            <Text style={[styles.profileName, { color: themeColors.text }]}>{mentee.name}</Text>
+            <Text style={[styles.profileSub, { color: themeColors.textSecondary }]}>
               {mentee.city} · {mentee.age} Jahre ·{" "}
               {mentee.gender === "male" ? t("menteeDetail.brother") : t("menteeDetail.sister")}
             </Text>
@@ -124,8 +126,8 @@ export default function MenteeDetailScreen() {
           </View>
 
           {/* Kontaktinformationen */}
-          <Text style={styles.sectionLabel}>{t("menteeDetail.contactInfo")}</Text>
-          <View style={styles.card}>
+          <Text style={[styles.sectionLabel, { color: themeColors.textTertiary }]}>{t("menteeDetail.contactInfo")}</Text>
+          <View style={[styles.card, { backgroundColor: themeColors.card, borderColor: themeColors.border }]}>
             <InfoRow label={t("menteeDetail.email")} value={mentee.email} />
             {mentee.phone && <InfoRow label={t("menteeDetail.phone")} value={mentee.phone} />}
             <InfoRow
@@ -138,8 +140,8 @@ export default function MenteeDetailScreen() {
           {/* Zugewiesener Mentor */}
           {mentor && (
             <>
-              <Text style={styles.sectionLabel}>{t("menteeDetail.assignedMentor")}</Text>
-              <View style={styles.card}>
+              <Text style={[styles.sectionLabel, { color: themeColors.textTertiary }]}>{t("menteeDetail.assignedMentor")}</Text>
+              <View style={[styles.card, { backgroundColor: themeColors.card, borderColor: themeColors.border }]}>
                 <View style={styles.mentorRow}>
                   <View style={styles.mentorAvatar}>
                     <Text style={styles.mentorAvatarText}>
@@ -147,16 +149,16 @@ export default function MenteeDetailScreen() {
                     </Text>
                   </View>
                   <View style={styles.mentorInfo}>
-                    <Text style={styles.mentorName}>{mentor.name}</Text>
-                    <Text style={styles.mentorSub}>
+                    <Text style={[styles.mentorName, { color: themeColors.text }]}>{mentor.name}</Text>
+                    <Text style={[styles.mentorSub, { color: themeColors.textTertiary }]}>
                       {mentor.city} · {mentor.gender === "male" ? t("menteeDetail.brother") : t("menteeDetail.sister")}
                     </Text>
                   </View>
                   <TouchableOpacity
-                    style={styles.mentorDetailButton}
+                    style={[styles.mentorDetailButton, { backgroundColor: themeColors.background, borderColor: themeColors.border }]}
                     onPress={() => router.push({ pathname: "/mentor/[id]", params: { id: mentor.id } })}
                   >
-                    <Text style={styles.mentorDetailText}>{t("menteeDetail.mentorProfile")}</Text>
+                    <Text style={[styles.mentorDetailText, { color: themeColors.text }]}>{t("menteeDetail.mentorProfile")}</Text>
                   </TouchableOpacity>
                 </View>
               </View>
@@ -166,22 +168,22 @@ export default function MenteeDetailScreen() {
           {/* Mentoring-Fortschritt */}
           {mentorship && (
             <>
-              <Text style={styles.sectionLabel}>{t("menteeDetail.mentoringProgress")}</Text>
-              <View style={styles.card}>
+              <Text style={[styles.sectionLabel, { color: themeColors.textTertiary }]}>{t("menteeDetail.mentoringProgress")}</Text>
+              <View style={[styles.card, { backgroundColor: themeColors.card, borderColor: themeColors.border }]}>
                 <View style={styles.progressHeaderRow}>
-                  <Text style={styles.progressLabel}>{t("menteeDetail.progress")}</Text>
+                  <Text style={[styles.progressLabel, { color: themeColors.text }]}>{t("menteeDetail.progress")}</Text>
                   <Text style={styles.progressValue}>{progress}%</Text>
                 </View>
-                <View style={styles.progressTrack}>
+                <View style={[styles.progressTrack, { backgroundColor: themeColors.background }]}>
                   <View style={[styles.progressFill, { width: `${progress}%` as any }]} />
                 </View>
-                <Text style={styles.progressSub}>
+                <Text style={[styles.progressSub, { color: themeColors.textTertiary }]}>
                   {t("menteeDetail.stepsCompleted")
                     .replace("{0}", String(completedStepIds.length))
                     .replace("{1}", String(sessionTypes.length))}
                 </Text>
 
-                <View style={styles.stepsList}>
+                <View style={[styles.stepsList, { borderTopColor: themeColors.border }]}>
                   {sortedSteps.map((step, idx) => {
                     const isDone = completedStepIds.includes(step.id);
                     const isCurrent = !isDone && idx === completedStepIds.length;
@@ -190,7 +192,7 @@ export default function MenteeDetailScreen() {
                         key={step.id}
                         style={[
                           styles.stepRow,
-                          idx < sortedSteps.length - 1 && styles.stepRowBorder,
+                          idx < sortedSteps.length - 1 && [styles.stepRowBorder, { borderBottomColor: themeColors.border }],
                         ]}
                       >
                         <View
@@ -200,7 +202,7 @@ export default function MenteeDetailScreen() {
                               ? { backgroundColor: COLORS.cta }
                               : isCurrent
                               ? { backgroundColor: COLORS.gold }
-                              : { backgroundColor: COLORS.bg, borderWidth: 1, borderColor: COLORS.border },
+                              : { backgroundColor: themeColors.background, borderWidth: 1, borderColor: themeColors.border },
                           ]}
                         >
                           <Text
@@ -220,8 +222,8 @@ export default function MenteeDetailScreen() {
                             isDone
                               ? { color: COLORS.cta }
                               : isCurrent
-                              ? { color: COLORS.primary }
-                              : { color: COLORS.tertiary },
+                              ? { color: themeColors.text }
+                              : { color: themeColors.textTertiary },
                           ]}
                         >
                           {step.name}
@@ -240,7 +242,7 @@ export default function MenteeDetailScreen() {
           )}
 
           {/* Aktionen */}
-          <Text style={styles.sectionLabel}>{t("menteeDetail.actions")}</Text>
+          <Text style={[styles.sectionLabel, { color: themeColors.textTertiary }]}>{t("menteeDetail.actions")}</Text>
           <View style={styles.actionsCard}>
             {isAdminOrOffice && (
               <TouchableOpacity
@@ -274,12 +276,12 @@ export default function MenteeDetailScreen() {
             )}
             {mentorship && (
               <TouchableOpacity
-                style={[styles.actionButton, { backgroundColor: COLORS.bg, borderWidth: 1, borderColor: COLORS.border }]}
+                style={[styles.actionButton, { backgroundColor: themeColors.background, borderWidth: 1, borderColor: themeColors.border }]}
                 onPress={() =>
                   router.push({ pathname: "/mentorship/[id]", params: { id: mentorship.id } })
                 }
               >
-                <Text style={[styles.actionButtonText, { color: COLORS.primary }]}>
+                <Text style={[styles.actionButtonText, { color: themeColors.text }]}>
                   {t("menteeDetail.viewMentorship")}
                 </Text>
               </TouchableOpacity>
@@ -301,34 +303,33 @@ function InfoRow({
   value: string;
   isLast?: boolean;
 }) {
+  const themeColors = useThemeColors();
   return (
     <View
       style={[
         styles.infoRow,
-        !isLast && { borderBottomWidth: 1, borderBottomColor: COLORS.border },
+        !isLast && { borderBottomWidth: 1, borderBottomColor: themeColors.border },
       ]}
     >
-      <Text style={styles.infoLabel}>{label}</Text>
-      <Text style={styles.infoValue}>{value}</Text>
+      <Text style={[styles.infoLabel, { color: themeColors.textSecondary }]}>{label}</Text>
+      <Text style={[styles.infoValue, { color: themeColors.text }]}>{value}</Text>
     </View>
   );
 }
 
 const styles = StyleSheet.create({
-  root: { flex: 1, backgroundColor: COLORS.bg },
+  root: { flex: 1 },
   header: {
     flexDirection: "row",
     alignItems: "center",
     paddingHorizontal: 16,
     paddingTop: 56,
     paddingBottom: 16,
-    backgroundColor: COLORS.white,
     borderBottomWidth: 1,
-    borderBottomColor: COLORS.border,
   },
   backButton: { flex: 1 },
-  backText: { color: COLORS.primary, fontSize: 16, fontWeight: "500" },
-  headerTitle: { fontWeight: "bold", color: COLORS.primary, fontSize: 16 },
+  backText: { fontSize: 16, fontWeight: "500" },
+  headerTitle: { fontWeight: "bold", fontSize: 16 },
   headerRight: { flex: 1 },
   scrollView: { flex: 1 },
   content: { padding: 20, paddingBottom: 40 },
@@ -338,12 +339,10 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     padding: 32,
   },
-  emptyText: { color: COLORS.tertiary, fontSize: 16 },
+  emptyText: { fontSize: 16 },
   profileCard: {
-    backgroundColor: COLORS.white,
     borderRadius: 8,
     borderWidth: 1,
-    borderColor: COLORS.border,
     padding: 14,
     alignItems: "center",
     marginBottom: 20,
@@ -358,23 +357,20 @@ const styles = StyleSheet.create({
     marginBottom: 12,
   },
   avatarText: { color: COLORS.white, fontSize: 22, fontWeight: "bold" },
-  profileName: { fontSize: 20, fontWeight: "bold", color: COLORS.primary, marginBottom: 4 },
-  profileSub: { color: COLORS.secondary, fontSize: 14, marginBottom: 10 },
+  profileName: { fontSize: 20, fontWeight: "bold", marginBottom: 4 },
+  profileSub: { fontSize: 14, marginBottom: 10 },
   statusBadge: { paddingHorizontal: 12, paddingVertical: 4, borderRadius: 9999 },
   statusText: { fontSize: 13, fontWeight: "600" },
   sectionLabel: {
     fontSize: 12,
     fontWeight: "600",
-    color: COLORS.tertiary,
     letterSpacing: 1,
     marginBottom: 8,
     marginTop: 4,
   },
   card: {
-    backgroundColor: COLORS.white,
     borderRadius: 8,
     borderWidth: 1,
-    borderColor: COLORS.border,
     overflow: "hidden",
     marginBottom: 20,
   },
@@ -385,9 +381,8 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
     paddingVertical: 13,
   },
-  infoLabel: { color: COLORS.secondary, fontSize: 14 },
+  infoLabel: { fontSize: 14 },
   infoValue: {
-    color: COLORS.primary,
     fontSize: 14,
     fontWeight: "500",
     maxWidth: "55%",
@@ -410,17 +405,15 @@ const styles = StyleSheet.create({
   },
   mentorAvatarText: { color: COLORS.white, fontWeight: "bold", fontSize: 14 },
   mentorInfo: { flex: 1 },
-  mentorName: { fontWeight: "700", color: COLORS.primary, fontSize: 15 },
-  mentorSub: { color: COLORS.tertiary, fontSize: 12, marginTop: 2 },
+  mentorName: { fontWeight: "700", fontSize: 15 },
+  mentorSub: { fontSize: 12, marginTop: 2 },
   mentorDetailButton: {
-    backgroundColor: COLORS.bg,
     borderWidth: 1,
-    borderColor: COLORS.border,
     borderRadius: 8,
     paddingHorizontal: 10,
     paddingVertical: 6,
   },
-  mentorDetailText: { color: COLORS.primary, fontSize: 12, fontWeight: "600" },
+  mentorDetailText: { fontSize: 12, fontWeight: "600" },
   progressHeaderRow: {
     flexDirection: "row",
     justifyContent: "space-between",
@@ -429,11 +422,10 @@ const styles = StyleSheet.create({
     paddingTop: 14,
     paddingBottom: 10,
   },
-  progressLabel: { fontWeight: "600", color: COLORS.primary },
+  progressLabel: { fontWeight: "600" },
   progressValue: { fontWeight: "bold", color: COLORS.cta, fontSize: 16 },
   progressTrack: {
     height: 8,
-    backgroundColor: COLORS.bg,
     borderRadius: 9999,
     overflow: "hidden",
     marginHorizontal: 16,
@@ -441,14 +433,12 @@ const styles = StyleSheet.create({
   },
   progressFill: { height: "100%", backgroundColor: COLORS.cta, borderRadius: 9999 },
   progressSub: {
-    color: COLORS.tertiary,
     fontSize: 12,
     paddingHorizontal: 16,
     paddingBottom: 14,
   },
   stepsList: {
     borderTopWidth: 1,
-    borderTopColor: COLORS.border,
   },
   stepRow: {
     flexDirection: "row",
