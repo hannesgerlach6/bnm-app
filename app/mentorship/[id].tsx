@@ -6,6 +6,7 @@ import {
   TouchableOpacity,
   StyleSheet,
   TextInput,
+  Modal,
 } from "react-native";
 import { showConfirm, showError, showSuccess } from "../../lib/errorHandler";
 import { useRouter, useLocalSearchParams } from "expo-router";
@@ -28,15 +29,25 @@ export default function MentorshipDetailScreen() {
     sessionTypes,
     updateMentorshipStatus,
     updateMentorshipNotes,
+    cancelMentorship,
+    deleteSession,
   } = useData();
   const [notesText, setNotesText] = useState<string | null>(null);
   const [isSavingNotes, setIsSavingNotes] = useState(false);
+
+  // Abbruch-Flow State
+  const [showCancelModal, setShowCancelModal] = useState(false);
+  const [cancelReason, setCancelReason] = useState("");
+  const [isCancelling, setIsCancelling] = useState(false);
 
   const { id } = useLocalSearchParams<{ id: string }>();
 
   const mentorship = id ? getMentorshipById(id) : undefined;
   const sessions = id ? getSessionsByMentorshipId(id) : [];
   const completedStepIds = id ? getCompletedStepIds(id) : [];
+  const menteeConfirmedSteps = mentorship?.mentee_confirmed_steps ?? [];
+  // Steps die der Mentee bestätigt hat, der Mentor aber noch nicht dokumentiert hat
+  const discrepancyStepIds = menteeConfirmedSteps.filter((sid) => !completedStepIds.includes(sid));
 
   // Notizen initialisieren (einmalig bei erstem Laden)
   const currentNotes = mentorship?.notes ?? "";
@@ -111,11 +122,18 @@ export default function MentorshipDetailScreen() {
   }
 
   async function handleCancel() {
-    const ok = await showConfirm(t("mentorship.cancelTitle"), t("mentorship.cancelText"));
-    if (!ok) return;
-    setIsUpdatingStatus(true);
+    // Zeigt Modal mit Textarea für Abbruch-Grund
+    setShowCancelModal(true);
+  }
+
+  async function handleCancelConfirm() {
+    if (!cancelReason.trim()) {
+      showError(t("cancel.reasonRequired"));
+      return;
+    }
+    setIsCancelling(true);
     try {
-      await updateMentorshipStatus(mentorshipId, "cancelled");
+      await cancelMentorship(mentorshipId, cancelReason.trim());
       if (mentorship?.mentee_id) {
         await supabase.from("notifications").insert({
           user_id: mentorship?.mentee_id,
@@ -125,11 +143,28 @@ export default function MentorshipDetailScreen() {
           related_id: mentorshipId,
         });
       }
-      showSuccess(t("mentorship.cancelSuccess"), () => router.back());
+      setShowCancelModal(false);
+      showSuccess(t("cancel.cancelled"), () =>
+        router.replace({
+          pathname: "/feedback",
+          params: { mentorshipId: mentorshipId, type: "cancellation" },
+        })
+      );
     } catch {
       showError(t("mentorship.cancelError"));
     } finally {
-      setIsUpdatingStatus(false);
+      setIsCancelling(false);
+    }
+  }
+
+  async function handleDeleteSession(sessionId: string) {
+    const ok = await showConfirm(t("sessionEdit.delete"), t("sessionEdit.confirmDelete"));
+    if (!ok) return;
+    try {
+      await deleteSession(sessionId);
+      showSuccess(t("sessionEdit.deleted"));
+    } catch {
+      showError(t("common.error"));
     }
   }
 
@@ -155,6 +190,7 @@ export default function MentorshipDetailScreen() {
   const sortedSessionTypes = [...sessionTypes].sort((a, b) => a.sort_order - b.sort_order);
 
   return (
+    <>
     <ScrollView style={styles.scrollView}>
       <View style={styles.page}>
         {/* Status-Badge */}
@@ -206,6 +242,20 @@ export default function MentorshipDetailScreen() {
               .replace("{1}", String(sessionTypes.length))}
           </Text>
         </View>
+
+        {/* Diskrepanz-Warnung: Mentee hat bestätigt, Mentor noch nicht dokumentiert */}
+        {(user?.role === "admin" || user?.role === "office" || user?.id === mentorship.mentor_id) && discrepancyStepIds.length > 0 && (
+          <View style={styles.discrepancyBanner}>
+            <Text style={styles.discrepancyTitle}>⚠ {t("menteeProgress.discrepancy")}</Text>
+            {discrepancyStepIds.map((sid) => {
+              const step = sessionTypes.find((st) => st.id === sid);
+              if (!step) return null;
+              return (
+                <Text key={sid} style={styles.discrepancyItem}>· {step.name}</Text>
+              );
+            })}
+          </View>
+        )}
 
         {/* Session-Timeline */}
         <Text style={styles.sectionLabel}>{t("mentorship.sessionHistory")}</Text>
@@ -285,6 +335,27 @@ export default function MentorshipDetailScreen() {
                       </Text>
                       {session.details && (
                         <Text style={styles.sessionDetails}>"{session.details}"</Text>
+                      )}
+                      {canDocumentSession && (
+                        <View style={styles.sessionActionRow}>
+                          <TouchableOpacity
+                            style={styles.sessionEditButton}
+                            onPress={() =>
+                              router.push({
+                                pathname: "/document-session",
+                                params: { mentorshipId: mentorship.id, editSessionId: session.id },
+                              })
+                            }
+                          >
+                            <Text style={styles.sessionEditText}>✏️ {t("sessionEdit.edit")}</Text>
+                          </TouchableOpacity>
+                          <TouchableOpacity
+                            style={styles.sessionDeleteButton}
+                            onPress={() => handleDeleteSession(session.id)}
+                          >
+                            <Text style={styles.sessionDeleteText}>🗑 {t("sessionEdit.delete")}</Text>
+                          </TouchableOpacity>
+                        </View>
                       )}
                     </>
                   )}
@@ -410,6 +481,52 @@ export default function MentorshipDetailScreen() {
         )}
       </View>
     </ScrollView>
+
+    {/* Abbruch-Modal mit Pflichtfeld Grund */}
+    <Modal
+      visible={showCancelModal}
+      transparent
+      animationType="fade"
+      onRequestClose={() => setShowCancelModal(false)}
+    >
+      <View style={styles.modalOverlay}>
+        <View style={styles.modalCard}>
+          <Text style={styles.modalTitle}>{t("cancel.title")}</Text>
+          <Text style={styles.modalSubtitle}>{t("cancel.confirm")}</Text>
+          <Text style={styles.modalLabel}>{t("cancel.reason")}</Text>
+          <TextInput
+            style={styles.modalTextInput}
+            value={cancelReason}
+            onChangeText={setCancelReason}
+            placeholder={t("cancel.reasonPlaceholder")}
+            placeholderTextColor={COLORS.tertiary}
+            multiline
+            numberOfLines={3}
+            textAlignVertical="top"
+            autoFocus
+          />
+          <View style={styles.modalButtonRow}>
+            <TouchableOpacity
+              style={styles.modalCancelButton}
+              onPress={() => { setShowCancelModal(false); setCancelReason(""); }}
+              disabled={isCancelling}
+            >
+              <Text style={styles.modalCancelText}>{t("common.back")}</Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={[styles.modalConfirmButton, isCancelling ? { opacity: 0.6 } : {}]}
+              onPress={handleCancelConfirm}
+              disabled={isCancelling}
+            >
+              <Text style={styles.modalConfirmText}>
+                {isCancelling ? "..." : t("cancel.title")}
+              </Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </View>
+    </Modal>
+    </>
   );
 }
 
@@ -487,6 +604,17 @@ const styles = StyleSheet.create({
   completedAtText: { color: COLORS.tertiary, fontSize: 12, textAlign: "center" },
   infoChip: { backgroundColor: COLORS.bg, paddingHorizontal: 12, paddingVertical: 4, borderRadius: 9999 },
   infoChipText: { color: COLORS.secondary, fontSize: 12, fontWeight: "500" },
+  discrepancyBanner: {
+    backgroundColor: "#fffbeb",
+    borderWidth: 1,
+    borderColor: "#fde68a",
+    borderRadius: 8,
+    padding: 14,
+    marginBottom: 16,
+  },
+  discrepancyTitle: { color: "#92400e", fontWeight: "700", fontSize: 14, marginBottom: 6 },
+  discrepancyItem: { color: "#b45309", fontSize: 13, marginTop: 2 },
+
   allDoneBanner: {
     backgroundColor: "#dcfce7",
     borderWidth: 1,
@@ -537,4 +665,74 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   notesSaveButtonText: { color: COLORS.white, fontWeight: "600", fontSize: 14 },
+
+  // Session-Bearbeiten/Löschen in Timeline
+  sessionActionRow: { flexDirection: "row", gap: 8, marginTop: 6 },
+  sessionEditButton: {
+    paddingHorizontal: 8,
+    paddingVertical: 3,
+    backgroundColor: "#eff6ff",
+    borderRadius: 4,
+    borderWidth: 1,
+    borderColor: "#bfdbfe",
+  },
+  sessionEditText: { color: "#2563eb", fontSize: 11, fontWeight: "500" },
+  sessionDeleteButton: {
+    paddingHorizontal: 8,
+    paddingVertical: 3,
+    backgroundColor: "#fef2f2",
+    borderRadius: 4,
+    borderWidth: 1,
+    borderColor: "#fecaca",
+  },
+  sessionDeleteText: { color: "#dc2626", fontSize: 11, fontWeight: "500" },
+
+  // Abbruch-Modal
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: "rgba(0,0,0,0.5)",
+    alignItems: "center",
+    justifyContent: "center",
+    paddingHorizontal: 24,
+  },
+  modalCard: {
+    backgroundColor: COLORS.white,
+    borderRadius: 12,
+    padding: 20,
+    width: "100%",
+    maxWidth: 400,
+  },
+  modalTitle: { fontWeight: "700", color: COLORS.primary, fontSize: 16, marginBottom: 6 },
+  modalSubtitle: { color: COLORS.secondary, fontSize: 13, marginBottom: 14 },
+  modalLabel: { color: COLORS.secondary, fontSize: 13, fontWeight: "500", marginBottom: 6 },
+  modalTextInput: {
+    borderWidth: 1,
+    borderColor: COLORS.border,
+    borderRadius: 6,
+    paddingHorizontal: 12,
+    paddingVertical: 8,
+    color: COLORS.primary,
+    fontSize: 14,
+    minHeight: 72,
+    textAlignVertical: "top",
+    marginBottom: 14,
+  },
+  modalButtonRow: { flexDirection: "row", gap: 10 },
+  modalCancelButton: {
+    flex: 1,
+    borderWidth: 1,
+    borderColor: COLORS.border,
+    borderRadius: 6,
+    paddingVertical: 9,
+    alignItems: "center",
+  },
+  modalCancelText: { color: COLORS.secondary, fontWeight: "600" },
+  modalConfirmButton: {
+    flex: 1,
+    backgroundColor: COLORS.error,
+    borderRadius: 6,
+    paddingVertical: 9,
+    alignItems: "center",
+  },
+  modalConfirmText: { color: COLORS.white, fontWeight: "700" },
 });

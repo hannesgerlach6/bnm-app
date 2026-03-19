@@ -20,12 +20,13 @@ export default function FeedbackScreen() {
   const { user } = useAuth();
   const { t } = useLanguage();
   const { addFeedback, getMentorshipById } = useData();
-  const params = useLocalSearchParams<{ mentorshipId?: string }>();
+  const params = useLocalSearchParams<{ mentorshipId?: string; type?: string }>();
 
   const [rating, setRating] = useState<number>(0);
   const [comment, setComment] = useState<string>("");
   const [isSaving, setIsSaving] = useState(false);
 
+  const isCancellation = params.type === "cancellation";
   const mentorship = params.mentorshipId
     ? getMentorshipById(params.mentorshipId)
     : undefined;
@@ -85,9 +86,11 @@ export default function FeedbackScreen() {
         {/* Header */}
         <View style={styles.headerCard}>
           <Text style={styles.headerEmoji}>
-            {mentorship?.status === "completed" ? "🎉" : "📝"}
+            {isCancellation ? "📝" : mentorship?.status === "completed" ? "🎉" : "📝"}
           </Text>
-          <Text style={styles.headerTitle}>{t("feedback.headerTitle").replace("{0}", statusLabel)}</Text>
+          <Text style={styles.headerTitle}>
+            {isCancellation ? t("feedback.cancellationTitle") : t("feedback.headerTitle").replace("{0}", statusLabel)}
+          </Text>
           {mentorship && (
             <Text style={styles.headerSub}>
               {mentorship.mentee?.name} & {mentorship.mentor?.name}
@@ -96,7 +99,7 @@ export default function FeedbackScreen() {
         </View>
 
         <Text style={styles.subText}>
-          {t("feedback.helpText")}
+          {isCancellation ? t("feedback.cancellationHelp") : t("feedback.helpText")}
         </Text>
 
         {/* Sternbewertung */}

@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   View,
   Text,
@@ -8,7 +8,7 @@ import {
   StyleSheet,
   Platform,
 } from "react-native";
-import { showError, showSuccess } from "../lib/errorHandler";
+import { showError, showSuccess, showConfirm } from "../lib/errorHandler";
 import { useRouter, useLocalSearchParams } from "expo-router";
 import { useAuth } from "../contexts/AuthContext";
 import { useData } from "../contexts/DataContext";
@@ -31,10 +31,11 @@ export default function DocumentSessionScreen() {
     sessionTypes,
     addSession,
     updateSession,
+    deleteSession,
     mentorships,
   } = useData();
 
-  const params = useLocalSearchParams<{ mentorshipId?: string }>();
+  const params = useLocalSearchParams<{ mentorshipId?: string; editSessionId?: string }>();
 
   const isAdmin = user?.role === "admin" || user?.role === "office";
 
@@ -58,7 +59,28 @@ export default function DocumentSessionScreen() {
   const [isSaving, setIsSaving] = useState(false);
 
   // Edit-Mode: ID der Session die bearbeitet wird (null = neue Session)
-  const [editingSessionId, setEditingSessionId] = useState<string | null>(null);
+  const [editingSessionId, setEditingSessionId] = useState<string | null>(
+    params.editSessionId ?? null
+  );
+
+  // Wenn editSessionId per URL übergeben: Felder vorausfüllen
+  useEffect(() => {
+    if (!params.editSessionId) return;
+    const allSessionsForMentorship = params.mentorshipId
+      ? getSessionsByMentorshipId(params.mentorshipId)
+      : [];
+    const sessionToEdit = allSessionsForMentorship.find((s) => s.id === params.editSessionId);
+    if (!sessionToEdit) return;
+    const isoDateStr = sessionToEdit.date
+      ? new Date(sessionToEdit.date).toISOString().split("T")[0]
+      : todayIso;
+    setDate(isoDateStr);
+    setIsOnline(sessionToEdit.is_online);
+    setDetails(sessionToEdit.details ?? "");
+    setDurationMinutes(sessionToEdit.duration_minutes ? String(sessionToEdit.duration_minutes) : "");
+    if (isAdmin) setAdminSelectedTypeId(sessionToEdit.session_type_id);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [params.editSessionId]);
 
   const [adminSelectedTypeId, setAdminSelectedTypeId] = useState<string>("");
   const [attemptNumber, setAttemptNumber] = useState<string>("");
@@ -585,18 +607,37 @@ export default function DocumentSessionScreen() {
                 </TouchableOpacity>
 
                 {editingSessionId && (
-                  <TouchableOpacity
-                    style={styles.cancelEditButton}
-                    onPress={() => {
-                      setEditingSessionId(null);
-                      setDate(todayIso);
-                      setDetails("");
-                      setDurationMinutes("");
-                      setIsOnline(false);
-                    }}
-                  >
-                    <Text style={styles.cancelEditButtonText}>{t("docSession.cancelMore")}</Text>
-                  </TouchableOpacity>
+                  <>
+                    <TouchableOpacity
+                      style={styles.cancelEditButton}
+                      onPress={() => {
+                        setEditingSessionId(null);
+                        setDate(todayIso);
+                        setDetails("");
+                        setDurationMinutes("");
+                        setIsOnline(false);
+                        if (params.editSessionId) router.back();
+                      }}
+                    >
+                      <Text style={styles.cancelEditButtonText}>{t("docSession.cancelMore")}</Text>
+                    </TouchableOpacity>
+                    <TouchableOpacity
+                      style={styles.deleteSessionButton}
+                      onPress={async () => {
+                        const ok = await showConfirm(t("sessionEdit.delete"), t("sessionEdit.confirmDelete"));
+                        if (!ok) return;
+                        try {
+                          await deleteSession(editingSessionId);
+                          showSuccess(t("sessionEdit.deleted"), () => router.back());
+                        } catch (err) {
+                          const msg = err instanceof Error ? err.message : "Fehler";
+                          showError(`Session konnte nicht gelöscht werden: ${msg}`);
+                        }
+                      }}
+                    >
+                      <Text style={styles.deleteSessionButtonText}>{t("sessionEdit.delete")}</Text>
+                    </TouchableOpacity>
+                  </>
                 )}
               </>
             )}
@@ -911,9 +952,18 @@ const styles = StyleSheet.create({
     paddingVertical: 8,
     alignItems: "center",
     marginTop: 8,
-    marginBottom: 12,
+    marginBottom: 8,
   },
   cancelEditButtonText: { color: COLORS.secondary, fontWeight: "600", fontSize: 13 },
+  deleteSessionButton: {
+    borderWidth: 1,
+    borderColor: COLORS.error,
+    borderRadius: 5,
+    paddingVertical: 8,
+    alignItems: "center",
+    marginBottom: 12,
+  },
+  deleteSessionButtonText: { color: COLORS.error, fontWeight: "600", fontSize: 13 },
 
   historyBox: {
     backgroundColor: COLORS.white,

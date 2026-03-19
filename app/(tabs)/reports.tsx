@@ -442,7 +442,7 @@ export default function ReportsScreen() {
             </Text>
           </TouchableOpacity>
 
-          {/* Spenderbericht visuell erstellen */}
+          {/* Spenderbericht visuell erstellen (einfache Version) */}
           <TouchableOpacity
             style={styles.donorReportButton}
             onPress={() => router.push("/donor-report" as never)}
@@ -451,6 +451,18 @@ export default function ReportsScreen() {
               {t("reports.donorReportVisual")}
             </Text>
           </TouchableOpacity>
+
+          {/* Erweitertes Spender-Bericht Dashboard (nur Admin) */}
+          {user?.role === "admin" && (
+            <TouchableOpacity
+              style={styles.donorDashboardButton}
+              onPress={() => router.push("/admin/donor-report" as never)}
+            >
+              <Text style={styles.donorDashboardButtonText}>
+                Spender-Bericht Dashboard →
+              </Text>
+            </TouchableOpacity>
+          )}
 
           {/* Bericht drucken (nur Web) */}
           {Platform.OS === "web" && (
@@ -656,6 +668,17 @@ const styles = StyleSheet.create({
     marginBottom: 10,
   },
   donorReportButtonText: { color: COLORS.white, fontWeight: "700", fontSize: 14 },
+  donorDashboardButton: {
+    backgroundColor: COLORS.gradientStart,
+    borderRadius: 5,
+    paddingVertical: 9,
+    paddingHorizontal: 16,
+    alignItems: "center",
+    marginBottom: 10,
+    borderWidth: 1,
+    borderColor: COLORS.gold,
+  },
+  donorDashboardButtonText: { color: COLORS.gold, fontWeight: "700", fontSize: 14 },
   printButton: {
     borderWidth: 1,
     borderColor: COLORS.secondary,

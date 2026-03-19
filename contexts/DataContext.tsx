@@ -59,6 +59,8 @@ export interface DataContextValue {
   // Session actions
   addSession: (session: Omit<Session, "id" | "session_type">) => Promise<void>;
   updateSession: (sessionId: string, data: Partial<Pick<Session, "date" | "is_online" | "details" | "attempt_number" | "duration_minutes">>) => Promise<void>;
+  deleteSession: (sessionId: string) => Promise<void>;
+  cancelMentorship: (mentorshipId: string, reason: string) => Promise<void>;
 
   // SessionType actions
   addSessionType: (sessionType: Omit<SessionType, "id">) => Promise<void>;
@@ -89,6 +91,10 @@ export interface DataContextValue {
 
   // Mentorship Notes
   updateMentorshipNotes: (mentorshipId: string, notes: string) => Promise<void>;
+
+  // Mentee step confirmation
+  confirmStepAsMentee: (mentorshipId: string, sessionTypeId: string) => Promise<void>;
+  unconfirmStepAsMentee: (mentorshipId: string, sessionTypeId: string) => Promise<void>;
 
   // Computed helpers
   getMentorshipsByMentorId: (mentorId: string) => Mentorship[];
@@ -262,6 +268,7 @@ export function DataProvider({ children }: { children: ReactNode }) {
           notes: (row.notes as string) ?? "",
           mentor: profileMap[row.mentor_id as string],
           mentee: profileMap[row.mentee_id as string],
+          mentee_confirmed_steps: (row.mentee_confirmed_steps as string[]) ?? [],
         }));
         setMentorships(ms);
       }
@@ -560,6 +567,7 @@ export function DataProvider({ children }: { children: ReactNode }) {
               completed_at: (row.completed_at as string) ?? undefined,
               mentor: users.find((u) => u.id === row.mentor_id),
               mentee: users.find((u) => u.id === row.mentee_id),
+              mentee_confirmed_steps: (row.mentee_confirmed_steps as string[]) ?? [],
             };
             setMentorships((prev) => {
               if (prev.some((m) => m.id === newM.id)) return prev;
@@ -570,7 +578,12 @@ export function DataProvider({ children }: { children: ReactNode }) {
             setMentorships((prev) =>
               prev.map((m) =>
                 m.id === row.id
-                  ? { ...m, status: row.status as MentorshipStatus, completed_at: (row.completed_at as string) ?? undefined }
+                  ? {
+                      ...m,
+                      status: row.status as MentorshipStatus,
+                      completed_at: (row.completed_at as string) ?? undefined,
+                      mentee_confirmed_steps: (row.mentee_confirmed_steps as string[]) ?? m.mentee_confirmed_steps ?? [],
+                    }
                   : m
               )
             );
@@ -946,6 +959,65 @@ export function DataProvider({ children }: { children: ReactNode }) {
       );
     },
     []
+  );
+
+  const deleteSession = useCallback(async (sessionId: string) => {
+    const { error } = await supabase
+      .from("sessions")
+      .delete()
+      .eq("id", sessionId);
+
+    if (error) {
+      throw new Error(error.message);
+    }
+
+    setSessions((prev) => prev.filter((s) => s.id !== sessionId));
+  }, []);
+
+  const cancelMentorship = useCallback(
+    async (mentorshipId: string, reason: string) => {
+      const now = new Date().toISOString();
+      const { error } = await supabase
+        .from("mentorships")
+        .update({ status: "cancelled", cancelled_at: now, cancel_reason: reason })
+        .eq("id", mentorshipId);
+
+      if (error) {
+        throw new Error(error.message);
+      }
+
+      setMentorships((prev) =>
+        prev.map((m) =>
+          m.id === mentorshipId
+            ? { ...m, status: "cancelled" as MentorshipStatus, completed_at: now }
+            : m
+        )
+      );
+
+      // Admin-Notification bei Abbruch
+      const admins = users.filter((u) => u.role === "admin" || u.role === "office");
+      const mentorship = mentorships.find((m) => m.id === mentorshipId);
+      for (const admin of admins) {
+        await createNotification(
+          admin.id,
+          "assignment",
+          "Betreuung abgebrochen",
+          `${mentorship?.mentor?.name ?? "Mentor"} hat die Betreuung von ${mentorship?.mentee?.name ?? "Mentee"} abgebrochen. Grund: ${reason}`,
+          mentorshipId
+        );
+      }
+
+      // E-Mail an Admin
+      if (mentorship) {
+        sendMentorshipStatusChangeNotification(
+          "",
+          mentorship.mentor?.name ?? "Unbekannt",
+          mentorship.mentee?.name ?? "Unbekannt",
+          "cancelled"
+        ).catch(() => {});
+      }
+    },
+    [users, mentorships, createNotification]
   );
 
   // ─── SessionType Actions ──────────────────────────────────────────────────────
@@ -1416,6 +1488,51 @@ export function DataProvider({ children }: { children: ReactNode }) {
     );
   }, []);
 
+  const confirmStepAsMentee = useCallback(async (mentorshipId: string, sessionTypeId: string) => {
+    const mentorship = mentorships.find((m) => m.id === mentorshipId);
+    if (!mentorship) return;
+    const current = mentorship.mentee_confirmed_steps ?? [];
+    if (current.includes(sessionTypeId)) return;
+    const updated = [...current, sessionTypeId];
+
+    const { error } = await supabase
+      .from("mentorships")
+      .update({ mentee_confirmed_steps: updated })
+      .eq("id", mentorshipId);
+
+    if (error) {
+      throw new Error(error.message);
+    }
+
+    setMentorships((prev) =>
+      prev.map((m) =>
+        m.id === mentorshipId ? { ...m, mentee_confirmed_steps: updated } : m
+      )
+    );
+  }, [mentorships]);
+
+  const unconfirmStepAsMentee = useCallback(async (mentorshipId: string, sessionTypeId: string) => {
+    const mentorship = mentorships.find((m) => m.id === mentorshipId);
+    if (!mentorship) return;
+    const current = mentorship.mentee_confirmed_steps ?? [];
+    const updated = current.filter((id) => id !== sessionTypeId);
+
+    const { error } = await supabase
+      .from("mentorships")
+      .update({ mentee_confirmed_steps: updated })
+      .eq("id", mentorshipId);
+
+    if (error) {
+      throw new Error(error.message);
+    }
+
+    setMentorships((prev) =>
+      prev.map((m) =>
+        m.id === mentorshipId ? { ...m, mentee_confirmed_steps: updated } : m
+      )
+    );
+  }, [mentorships]);
+
   // ─── refreshData ──────────────────────────────────────────────────────────────
 
   // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -1545,6 +1662,8 @@ export function DataProvider({ children }: { children: ReactNode }) {
         getPendingApprovalsCount,
         addSession,
         updateSession,
+        deleteSession,
+        cancelMentorship,
         addSessionType,
         updateSessionTypeOrder,
         deleteSessionType,
@@ -1561,6 +1680,8 @@ export function DataProvider({ children }: { children: ReactNode }) {
         updateUser,
         setUserActive,
         updateMentorshipNotes,
+        confirmStepAsMentee,
+        unconfirmStepAsMentee,
         getMentorshipsByMentorId,
         getMentorshipByMenteeId,
         getMentorshipById,

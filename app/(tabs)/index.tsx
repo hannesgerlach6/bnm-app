@@ -9,6 +9,7 @@ import { COLORS } from "../../constants/Colors";
 import { Container } from "../../components/Container";
 import { MOCK_HADITHE } from "../../data/mockData";
 import { BNMLogo } from "../../components/BNMLogo";
+import { showConfirm } from "../../lib/errorHandler";
 
 export default function DashboardScreen() {
   const { user } = useAuth();
@@ -294,6 +295,18 @@ function AdminDashboard({ showSystemSettings = true }: { showSystemSettings?: bo
           </TouchableOpacity>
         )}
 
+        {/* Spender-Bericht Dashboard */}
+        <TouchableOpacity
+          style={styles.applicationsButton}
+          onPress={() => router.push("/admin/donor-report" as never)}
+        >
+          <View style={styles.applicationsButtonContent}>
+            <Text style={styles.applicationsButtonText}>{t("donorDashboard.title")}</Text>
+            <Text style={styles.applicationsButtonSub}>{t("donorDashboard.subtitle")}</Text>
+          </View>
+          <Text style={styles.applicationsArrow}>›</Text>
+        </TouchableOpacity>
+
         {/* CSV Import */}
         <TouchableOpacity
           style={styles.applicationsButton}
@@ -571,8 +584,9 @@ function MenteeDashboard() {
   const { user } = useAuth();
   const router = useRouter();
   const { t } = useLanguage();
-  const { getMentorshipByMenteeId, getCompletedStepIds, sessionTypes, refreshData, getUnreadMessagesCount } = useData();
+  const { getMentorshipByMenteeId, getCompletedStepIds, sessionTypes, refreshData, getUnreadMessagesCount, confirmStepAsMentee, unconfirmStepAsMentee } = useData();
   const [refreshing, setRefreshing] = useState(false);
+  const [confirmingStep, setConfirmingStep] = useState<string | null>(null);
   const onRefresh = useCallback(async () => {
     setRefreshing(true);
     await refreshData();
@@ -583,7 +597,27 @@ function MenteeDashboard() {
 
   const mentorship = getMentorshipByMenteeId(user.id);
   const completedStepIds = mentorship ? getCompletedStepIds(mentorship.id) : [];
+  const menteeConfirmedSteps = mentorship?.mentee_confirmed_steps ?? [];
   const sortedSessionTypes = [...sessionTypes].sort((a, b) => a.sort_order - b.sort_order);
+
+  async function handleToggleStep(step: { id: string; name: string }) {
+    if (!mentorship) return;
+    const isConfirmed = menteeConfirmedSteps.includes(step.id);
+    const title = isConfirmed ? t("menteeProgress.unconfirmTitle") : t("menteeProgress.confirmTitle");
+    const text = (isConfirmed ? t("menteeProgress.unconfirmText") : t("menteeProgress.confirmText")).replace("{0}", step.name);
+    const ok = await showConfirm(title, text);
+    if (!ok) return;
+    setConfirmingStep(step.id);
+    try {
+      if (isConfirmed) {
+        await unconfirmStepAsMentee(mentorship.id, step.id);
+      } else {
+        await confirmStepAsMentee(mentorship.id, step.id);
+      }
+    } finally {
+      setConfirmingStep(null);
+    }
+  }
 
   return (
     <ScrollView
@@ -693,42 +727,57 @@ function MenteeDashboard() {
               </View>
             )}
 
-            {/* 10-Schritte-Gamification */}
-            <Text style={styles.sectionTitle}>{t("dashboard.your10Steps")}</Text>
+            {/* 10-Schritte-Gamification mit Mentee-Abhak-System */}
+            <Text style={styles.sectionTitle}>{t("menteeProgress.title")}</Text>
+            {/* Fortschritts-Motivationstext */}
+            <Text style={styles.progressMotivation}>
+              {menteeConfirmedSteps.length === sessionTypes.length
+                ? t("menteeProgress.allDone")
+                : t("menteeProgress.progress")
+                    .replace("{0}", String(menteeConfirmedSteps.length))
+                    .replace("{1}", String(sessionTypes.length))}
+            </Text>
             <View style={[styles.card, { padding: 0, overflow: "hidden", marginBottom: 16 }]}>
               {sortedSessionTypes.map((step, idx) => {
-                const isDone = completedStepIds.includes(step.id);
-                const allComplete = completedStepIds.length === sessionTypes.length;
-                const isCurrent = !isDone && !allComplete && idx === completedStepIds.length;
+                // Mentor hat dokumentiert (offiziell erledigt)
+                const mentorDone = completedStepIds.includes(step.id);
+                // Mentee hat selbst bestätigt
+                const menteeDone = menteeConfirmedSteps.includes(step.id);
+                // Mentee bestätigt, Mentor noch nicht → gelb/orange
+                const pendingMentor = menteeDone && !mentorDone;
+                const isConfirming = confirmingStep === step.id;
 
                 return (
-                  <View
+                  <TouchableOpacity
                     key={step.id}
                     style={[
                       styles.stepRow,
                       idx < sessionTypes.length - 1 ? styles.stepRowBorder : {},
-                      isCurrent ? { backgroundColor: "#f0fdf4" } : {},
+                      mentorDone ? { backgroundColor: "#f0fdf4" } : pendingMentor ? { backgroundColor: "#fffbeb" } : {},
                     ]}
+                    onPress={() => !mentorDone && handleToggleStep(step)}
+                    disabled={isConfirming}
+                    activeOpacity={mentorDone ? 1 : 0.7}
                   >
                     {/* Schritt-Indikator */}
                     <View
                       style={[
                         styles.stepIndicator,
-                        isDone
+                        mentorDone
                           ? { backgroundColor: COLORS.cta }
-                          : isCurrent
-                          ? { backgroundColor: COLORS.gold }
+                          : pendingMentor
+                          ? { backgroundColor: "#f59e0b" }
+                          : menteeDone
+                          ? { backgroundColor: "#f59e0b" }
                           : { backgroundColor: COLORS.bg, borderWidth: 1, borderColor: COLORS.border },
                       ]}
                     >
-                      {isDone ? (
+                      {mentorDone ? (
+                        <Text style={styles.stepIndicatorTextWhite}>✓</Text>
+                      ) : menteeDone ? (
                         <Text style={styles.stepIndicatorTextWhite}>✓</Text>
                       ) : (
-                        <Text
-                          style={isCurrent ? styles.stepIndicatorTextWhite : styles.stepIndicatorTextTertiary}
-                        >
-                          {idx + 1}
-                        </Text>
+                        <Text style={styles.stepIndicatorTextTertiary}>{idx + 1}</Text>
                       )}
                     </View>
 
@@ -736,26 +785,39 @@ function MenteeDashboard() {
                       <Text
                         style={[
                           styles.stepName,
-                          isDone
+                          mentorDone
                             ? { color: COLORS.cta }
-                            : isCurrent
-                            ? { color: COLORS.primary }
+                            : pendingMentor
+                            ? { color: "#92400e" }
                             : { color: COLORS.tertiary },
                         ]}
                       >
                         {step.name}
                       </Text>
-                      {isCurrent && (
-                        <Text style={styles.currentStepLabel}>{t("dashboard.currentSession")}</Text>
+                      {pendingMentor && (
+                        <Text style={styles.stepWaitingLabel}>{t("menteeProgress.waiting")}</Text>
                       )}
                     </View>
 
-                    {isDone && (
+                    {/* Status-Chip rechts */}
+                    {mentorDone ? (
                       <View style={styles.doneChip}>
-                        <Text style={styles.doneChipText}>{t("dashboard.done")}</Text>
+                        <Text style={styles.doneChipText}>{t("menteeProgress.completed")}</Text>
+                      </View>
+                    ) : pendingMentor ? (
+                      <View style={styles.waitingChip}>
+                        <Text style={styles.waitingChipText}>{t("menteeProgress.discrepancyBadge")}</Text>
+                      </View>
+                    ) : (
+                      <View style={styles.checkboxOuter}>
+                        {isConfirming ? (
+                          <Text style={styles.checkboxLoading}>...</Text>
+                        ) : (
+                          <Text style={styles.checkboxIcon}>{menteeDone ? "☑" : "☐"}</Text>
+                        )}
                       </View>
                     )}
-                  </View>
+                  </TouchableOpacity>
                 );
               })}
             </View>
@@ -1189,6 +1251,7 @@ const styles = StyleSheet.create({
   stepIndicatorTextTertiary: { color: COLORS.tertiary, fontSize: 14, fontWeight: "700" },
   stepName: { fontWeight: "500", fontSize: 15 },
   currentStepLabel: { color: COLORS.secondary, fontSize: 12, marginTop: 2 },
+  stepWaitingLabel: { color: "#92400e", fontSize: 12, marginTop: 2 },
   doneChip: {
     backgroundColor: "#dcfce7",
     paddingHorizontal: 8,
@@ -1196,6 +1259,24 @@ const styles = StyleSheet.create({
     borderRadius: 4,
   },
   doneChipText: { color: "#15803d", fontSize: 12 },
+  waitingChip: {
+    backgroundColor: "#fef3c7",
+    paddingHorizontal: 8,
+    paddingVertical: 3,
+    borderRadius: 4,
+    borderWidth: 1,
+    borderColor: "#fde68a",
+  },
+  waitingChipText: { color: "#92400e", fontSize: 12, fontWeight: "600" },
+  checkboxOuter: { width: 28, alignItems: "center", justifyContent: "center" },
+  checkboxIcon: { fontSize: 22, color: COLORS.tertiary },
+  checkboxLoading: { fontSize: 14, color: COLORS.tertiary },
+  progressMotivation: {
+    color: COLORS.secondary,
+    fontSize: 13,
+    marginBottom: 10,
+    fontStyle: "italic",
+  },
   chartCard: {
     backgroundColor: COLORS.white,
     borderRadius: 8,

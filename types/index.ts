@@ -30,6 +30,7 @@ export interface Mentorship {
   notes?: string;
   mentor?: User;
   mentee?: User;
+  mentee_confirmed_steps?: string[];
 }
 
 export interface SessionType {
