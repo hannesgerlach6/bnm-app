@@ -36,12 +36,16 @@ export default function ChatScreen() {
   const mentorship = mentorshipId ? getMentorshipById(mentorshipId) : undefined;
   const messages = mentorshipId ? getMessagesByMentorshipId(mentorshipId) : [];
 
-  // Beim Öffnen des Chats: alle Nachrichten als gelesen markieren
+  // Beim Öffnen des Chats UND bei neuen eingehenden Nachrichten: als gelesen markieren.
+  // Zweite Dependency `messages` stellt sicher, dass auch Realtime-Nachrichten die
+  // während der Chat-Screen offen ist reinkommen, sofort als gelesen markiert werden
+  // und der Badge in der Chats-Liste nicht fälschlicherweise erscheint.
   useEffect(() => {
     if (mentorshipId) {
       markChatAsRead(mentorshipId);
     }
-  }, [mentorshipId, markChatAsRead]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [mentorshipId, markChatAsRead, messages.length]);
 
   async function handleSend() {
     if (!inputText.trim() || !user || !mentorshipId) return;

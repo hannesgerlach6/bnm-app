@@ -1,14 +1,43 @@
 import { supabase } from "./supabase";
 
 // ============================================================
-// E-Mail Service — schreibt ausschließlich in die email_queue.
+// E-Mail Service — schreibt in die email_queue UND sendet
+// direkt über die Resend API (Client-seitiger Fallback).
 //
-// Der tatsächliche Versand erfolgt serverseitig über eine
-// Supabase Edge Function (siehe supabase/resend-edge-function.ts).
-// Der Resend API-Key darf NIEMALS im Client-Code stehen.
+// WICHTIG: Der API-Key unten gehört langfristig serverseitig
+// in eine Supabase Edge Function oder einen sicheren Proxy.
+// Er ist hier nur als Übergangslösung hinterlegt, bis eine
+// Edge Function deployt werden kann (erfordert Supabase CLI).
 // ============================================================
 
 const OVERRIDE_RECIPIENT = "hasan.sevenler@partner.ki";
+
+// Resend-Versand direkt vom Client (Übergangslösung).
+// API-Key MUSS später serverseitig verwaltet werden.
+async function sendViaResend(
+  to: string,
+  subject: string,
+  htmlBody: string
+): Promise<boolean> {
+  try {
+    const res = await fetch("https://api.resend.com/emails", {
+      method: "POST",
+      headers: {
+        "Authorization": "Bearer re_6mXaja3u_DF424Shzf42tKVP1Zk2qeyRo",
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        from: "BNM <onboarding@resend.dev>",
+        to: [to],
+        subject,
+        html: htmlBody,
+      }),
+    });
+    return res.ok;
+  } catch {
+    return false;
+  }
+}
 
 /** HTML-Sonderzeichen escapen um XSS in E-Mails zu verhindern */
 function escapeHtml(str: string): string {
@@ -25,6 +54,7 @@ export async function sendEmail(
   subject: string,
   body: string
 ): Promise<boolean> {
+  // 1) In die Queue schreiben (Audit-Trail)
   const { error } = await supabase.from("email_queue").insert({
     to_email: to,
     subject,
@@ -33,6 +63,10 @@ export async function sendEmail(
     status: "pending",
     sent_at: null,
   });
+
+  // 2) Direkt versenden — Empfänger ist immer OVERRIDE_RECIPIENT
+  // fire-and-forget: Fehler beim Versand blockieren nicht den Rückgabewert
+  sendViaResend(OVERRIDE_RECIPIENT, subject, body).catch(() => {});
 
   return !error;
 }
