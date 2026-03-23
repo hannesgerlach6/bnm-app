@@ -1976,9 +1976,32 @@ export function DataProvider({ children }: { children: ReactNode }) {
   const markChatAsRead = useCallback(
     async (mentorshipId: string) => {
       if (!authUser) return;
+
+      // Prüfen ob überhaupt ungelesene Nachrichten vorhanden sind (Performance)
+      const hasUnread = messages.some(
+        (m) =>
+          m.mentorship_id === mentorshipId &&
+          m.sender_id !== authUser.id &&
+          !m.read_at
+      );
+      if (!hasUnread) return;
+
       const now = new Date().toISOString();
 
-      // Optimistic update
+      // DB Update zuerst — nur bei Erfolg optimistic update anwenden
+      const { error } = await supabase
+        .from("messages")
+        .update({ read_at: now })
+        .eq("mentorship_id", mentorshipId)
+        .neq("sender_id", authUser.id)
+        .is("read_at", null);
+
+      if (error) {
+        // Update fehlgeschlagen (z.B. RLS) — State nicht ändern, sonst Badge bei Refresh zurück
+        return;
+      }
+
+      // State erst nach erfolgreichem DB-Update aktualisieren
       setMessages((prev) =>
         prev.map((m) =>
           m.mentorship_id === mentorshipId &&
@@ -1988,16 +2011,8 @@ export function DataProvider({ children }: { children: ReactNode }) {
             : m
         )
       );
-
-      // DB Update
-      await supabase
-        .from("messages")
-        .update({ read_at: now })
-        .eq("mentorship_id", mentorshipId)
-        .neq("sender_id", authUser.id)
-        .is("read_at", null);
     },
-    [authUser]
+    [authUser, messages]
   );
 
   // ─── Render ───────────────────────────────────────────────────────────────────

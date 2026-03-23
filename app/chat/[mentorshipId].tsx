@@ -9,6 +9,7 @@ import {
   Platform,
   StyleSheet,
 } from "react-native";
+import { Ionicons } from "@expo/vector-icons";
 import { useLocalSearchParams } from "expo-router";
 import { useAuth } from "../../contexts/AuthContext";
 import { useData } from "../../contexts/DataContext";
@@ -192,7 +193,7 @@ export default function ChatScreen() {
       {mentorship && (mentorship.status === "active" || mentorship.status === "completed") ? (
         <View style={[styles.inputContainer, { backgroundColor: themeColors.card, borderTopColor: themeColors.border }]}>
           <TextInput
-            style={[styles.textInput, { backgroundColor: themeColors.background, borderColor: themeColors.border, color: themeColors.text }]}
+            style={[styles.textInput, { backgroundColor: themeColors.elevated, borderColor: themeColors.border, color: themeColors.text }]}
             value={inputText}
             onChangeText={setInputText}
             placeholder={t("chat.placeholder")}
@@ -203,12 +204,12 @@ export default function ChatScreen() {
           <TouchableOpacity
             style={[
               styles.sendButton,
-              { backgroundColor: inputText.trim() ? COLORS.primary : themeColors.border },
+              { backgroundColor: inputText.trim() ? themeColors.primary : themeColors.border },
             ]}
             onPress={handleSend}
             disabled={!inputText.trim()}
           >
-            <Text style={styles.sendButtonText}>→</Text>
+            <Ionicons name="send" size={18} color={COLORS.white} />
           </TouchableOpacity>
         </View>
       ) : (
@@ -229,16 +230,16 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
     paddingVertical: 12,
   },
-  chatHeaderName: { fontWeight: "600", textAlign: "center" },
-  chatHeaderSub: { fontSize: 12, textAlign: "center" },
+  chatHeaderName: { fontWeight: "600", textAlign: "center", fontSize: 15 },
+  chatHeaderSub: { fontSize: 12, textAlign: "center", marginTop: 2 },
   messagesScroll: { flex: 1 },
   emptyMessages: { flex: 1, alignItems: "center", justifyContent: "center", paddingVertical: 64 },
   emptyText: { textAlign: "center", fontSize: 14 },
-  messageBubbleWrapper: { marginBottom: 12, maxWidth: "80%" },
-  senderName: { fontSize: 12, marginBottom: 4, marginLeft: 4 },
-  messageBubble: { paddingHorizontal: 16, paddingVertical: 12, borderRadius: 16 },
+  messageBubbleWrapper: { marginBottom: 10, maxWidth: "80%" },
+  senderName: { fontSize: 11, marginBottom: 3, marginLeft: 12, opacity: 0.7 },
+  messageBubble: { paddingHorizontal: 14, paddingVertical: 10, borderRadius: 18 },
   ownBubble: {
-    backgroundColor: COLORS.primary,
+    backgroundColor: COLORS.gradientStart,
     borderTopRightRadius: 4,
   },
   otherBubble: {
@@ -246,32 +247,31 @@ const styles = StyleSheet.create({
     borderTopLeftRadius: 4,
   },
   messageText: { fontSize: 14, lineHeight: 20 },
-  timeText: { fontSize: 12, marginTop: 4 },
+  timeText: { fontSize: 11, marginTop: 3, opacity: 0.6 },
   inputContainer: {
     borderTopWidth: 1,
-    paddingHorizontal: 14,
+    paddingHorizontal: 12,
     paddingVertical: 10,
     flexDirection: "row",
     alignItems: "flex-end",
-    gap: 10,
+    gap: 8,
   },
   textInput: {
     flex: 1,
     borderWidth: 1,
-    borderRadius: 8,
-    paddingHorizontal: 12,
-    paddingVertical: 9,
+    borderRadius: 24,
+    paddingHorizontal: 16,
+    paddingVertical: 10,
     fontSize: 14,
-    maxHeight: 100,
-    minHeight: 38,
+    maxHeight: 120,
+    minHeight: 44,
   },
   sendButton: {
-    width: 38,
-    height: 38,
-    borderRadius: 9999,
+    width: 44,
+    height: 44,
+    borderRadius: 22,
     alignItems: "center",
     justifyContent: "center",
   },
-  sendButtonText: { color: COLORS.white, fontWeight: "bold", fontSize: 16 },
   inactiveHint: { flex: 1, textAlign: "center", fontSize: 13, paddingVertical: 4 },
 });
