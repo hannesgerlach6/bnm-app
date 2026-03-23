@@ -248,8 +248,8 @@ export default function CSVImportScreen() {
             result.errors.push(`${parsed.name}: ${signUpError.message}`);
           }
         } else if (signUpData?.user) {
-          // Zugangsdaten per E-Mail versenden
-          await sendCredentialsEmail(parsed.email, parsed.name, tempPassword);
+          // Zugangsdaten-E-Mail: fire-and-forget (RLS erlaubt nur Admin-Session)
+          sendCredentialsEmail(parsed.email, parsed.name, tempPassword).catch(() => {});
           result.created++;
         } else {
           result.failed++;
@@ -269,15 +269,17 @@ export default function CSVImportScreen() {
     }
 
     // Admin-Session EINMAL wiederherstellen am Ende
-    if (adminSession) {
-      await supabase.auth.setSession({
-        access_token: adminSession.access_token,
-        refresh_token: adminSession.refresh_token,
-      });
+    try {
+      if (adminSession) {
+        await supabase.auth.setSession({
+          access_token: adminSession.access_token,
+          refresh_token: adminSession.refresh_token,
+        });
+      }
+      await refreshData();
+    } catch {
+      // Session-Restore fehlgeschlagen — User muss sich ggf. neu einloggen
     }
-
-    // Daten neu laden
-    await refreshData();
 
     setIsImporting(false);
     setImportResult(result);
