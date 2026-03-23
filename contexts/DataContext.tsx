@@ -422,7 +422,7 @@ export function DataProvider({ children }: { children: ReactNode }) {
             mentorship_id: row.mentorship_id as string,
             sender_id: row.sender_id as string,
             content: row.content as string,
-            read_at: (row.read_at as string) ?? undefined,
+            read_at: (row.read_at as string) || undefined,
             created_at: row.created_at as string,
             sender: profileMap[row.sender_id as string],
           }));
@@ -569,7 +569,7 @@ export function DataProvider({ children }: { children: ReactNode }) {
             mentorship_id: incomingMentorshipId,
             sender_id: row.sender_id as string,
             content: row.content as string,
-            read_at: (row.read_at as string) ?? undefined,
+            read_at: (row.read_at as string) || undefined,
             created_at: row.created_at as string,
             sender,
           };
