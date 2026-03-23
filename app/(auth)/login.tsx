@@ -163,38 +163,7 @@ export default function LoginScreen() {
             </TouchableOpacity>
           </View>
 
-          {/* Test-Schnellzugang — nur in Development */}
-          {__DEV__ && (
-            <View style={[styles.quickSection, { borderTopColor: themeColors.border }]}>
-              <Text style={[styles.quickLabel, { color: themeColors.textTertiary }]}>{t("login.quickAccess")}</Text>
-              <View style={styles.quickRow}>
-                <TouchableOpacity
-                  style={[styles.quickButton, { backgroundColor: themeColors.card, borderColor: themeColors.border }]}
-                  onPress={() => handleQuickLogin("admin")}
-                >
-                  <Text style={[styles.quickButtonText, { color: themeColors.textSecondary }]}>Admin</Text>
-                </TouchableOpacity>
-                <TouchableOpacity
-                  style={[styles.quickButton, { backgroundColor: themeColors.card, borderColor: themeColors.border }]}
-                  onPress={() => handleQuickLogin("mentor")}
-                >
-                  <Text style={[styles.quickButtonText, { color: themeColors.textSecondary }]}>Mentor</Text>
-                </TouchableOpacity>
-                <TouchableOpacity
-                  style={[styles.quickButton, { backgroundColor: themeColors.card, borderColor: themeColors.border }]}
-                  onPress={() => handleQuickLogin("mentee")}
-                >
-                  <Text style={[styles.quickButtonText, { color: themeColors.textSecondary }]}>Mentee</Text>
-                </TouchableOpacity>
-                <TouchableOpacity
-                  style={[styles.quickButton, { backgroundColor: themeColors.card, borderColor: themeColors.border }]}
-                  onPress={handleQuickOffice}
-                >
-                  <Text style={[styles.quickButtonText, { color: themeColors.textSecondary }]}>Office</Text>
-                </TouchableOpacity>
-              </View>
-            </View>
-          )}
+          {/* Schnellzugang entfernt */}
         </View>
       </ScrollView>
     </KeyboardAvoidingView>

@@ -58,12 +58,11 @@ export function ConfirmModal({
   const { t } = useLanguage();
   const themeColors = useThemeColors();
   const { isDark } = useTheme();
-  if (!visible) return null;
 
   const isConfirm = type === "confirm";
 
   return (
-    <Modal visible={visible} transparent animationType="fade" statusBarTranslucent>
+    <Modal visible={visible} transparent animationType="fade" statusBarTranslucent onRequestClose={isConfirm ? onCancel : onConfirm}>
     <View style={styles.overlay}>
       <Pressable style={styles.backdrop} onPress={isConfirm ? onCancel : onConfirm} />
       <View style={[styles.card, { backgroundColor: themeColors.card }]}>

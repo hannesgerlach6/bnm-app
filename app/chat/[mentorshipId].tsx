@@ -189,8 +189,8 @@ export default function ChatScreen() {
         <View style={{ height: 16 }} />
       </ScrollView>
 
-      {/* Input-Bereich — nur bei aktiver Betreuung */}
-      {mentorship && (mentorship.status === "active" || mentorship.status === "completed") ? (
+      {/* Input-Bereich — nur bei aktiver Betreuung, nicht für Admin (nur Lesen) */}
+      {mentorship && (mentorship.status === "active" || mentorship.status === "completed") && user?.role !== "admin" && user?.role !== "office" ? (
         <View style={[styles.inputContainer, { backgroundColor: themeColors.card, borderTopColor: themeColors.border }]}>
           <TextInput
             style={[styles.textInput, { backgroundColor: themeColors.elevated, borderColor: themeColors.border, color: themeColors.text }]}
