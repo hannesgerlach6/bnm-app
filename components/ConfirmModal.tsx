@@ -5,6 +5,7 @@ import {
   TouchableOpacity,
   StyleSheet,
   Pressable,
+  Modal,
 } from "react-native";
 import { COLORS } from "../constants/Colors";
 import { useLanguage } from "../contexts/LanguageContext";
@@ -62,6 +63,7 @@ export function ConfirmModal({
   const isConfirm = type === "confirm";
 
   return (
+    <Modal visible={visible} transparent animationType="fade" statusBarTranslucent>
     <View style={styles.overlay}>
       <Pressable style={styles.backdrop} onPress={isConfirm ? onCancel : onConfirm} />
       <View style={[styles.card, { backgroundColor: themeColors.card }]}>
@@ -97,6 +99,7 @@ export function ConfirmModal({
         </View>
       </View>
     </View>
+    </Modal>
   );
 }
 
