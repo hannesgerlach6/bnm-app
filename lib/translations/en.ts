@@ -826,6 +826,24 @@ const en: Record<TranslationKeys, string> = {
   // Admin Chat
   "admin.viewChat": "View Chat",
 
+  // Admin Multi-Select & Delete
+  "admin.selectMode": "Select",
+  "admin.selectModeExit": "Cancel",
+  "admin.selectAll": "Select all",
+  "admin.selectNone": "Deselect all",
+  "admin.deleteSelected": "Delete {0}",
+  "admin.deleteConfirmTitle": "Delete users?",
+  "admin.deleteConfirmMessage": "Do you really want to delete {0} users? This action cannot be undone.",
+  "admin.deleteConfirmSecond": "WARNING: Final confirmation",
+  "admin.deleteConfirmSecondMessage": "This action cannot be undone. Type DELETE to confirm.",
+  "admin.deleteConfirmInput": "DELETE",
+  "admin.deleteConfirmPlaceholder": "Type here...",
+  "admin.deleting": "Deleting...",
+  "admin.deleteSuccess": "{0} users successfully deleted.",
+  "admin.deleteFailed": "{0} users could not be deleted.",
+  "admin.deletePartial": "{0} deleted, {1} failed.",
+  "admin.xSelected": "{0} selected",
+
   // Chats Tab
   "tabs.chats": "Chats",
   "chats.title": "Chats",

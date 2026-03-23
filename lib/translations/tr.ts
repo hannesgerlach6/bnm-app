@@ -826,6 +826,24 @@ const tr: Record<TranslationKeys, string> = {
   // Admin Chat
   "admin.viewChat": "Sohbeti Görüntüle",
 
+  // Admin Multi-Select & Delete
+  "admin.selectMode": "Seç",
+  "admin.selectModeExit": "İptal",
+  "admin.selectAll": "Tümünü seç",
+  "admin.selectNone": "Seçimi kaldır",
+  "admin.deleteSelected": "{0} kişiyi sil",
+  "admin.deleteConfirmTitle": "Kullanıcılar silinsin mi?",
+  "admin.deleteConfirmMessage": "{0} kullanıcıyı gerçekten silmek istiyor musunuz? Bu işlem geri alınamaz.",
+  "admin.deleteConfirmSecond": "UYARI: Son onay",
+  "admin.deleteConfirmSecondMessage": "Bu işlem geri alınamaz. Onaylamak için SİL yazın.",
+  "admin.deleteConfirmInput": "SİL",
+  "admin.deleteConfirmPlaceholder": "Buraya yazın...",
+  "admin.deleting": "Siliniyor...",
+  "admin.deleteSuccess": "{0} kullanıcı başarıyla silindi.",
+  "admin.deleteFailed": "{0} kullanıcı silinemedi.",
+  "admin.deletePartial": "{0} silindi, {1} başarısız.",
+  "admin.xSelected": "{0} seçildi",
+
   // Chats Tab
   "tabs.chats": "Sohbetler",
   "chats.title": "Sohbetler",

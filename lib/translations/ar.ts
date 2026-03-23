@@ -826,6 +826,24 @@ const ar: Record<TranslationKeys, string> = {
   // Admin Chat
   "admin.viewChat": "عرض المحادثة",
 
+  // Admin Multi-Select & Delete
+  "admin.selectMode": "تحديد",
+  "admin.selectModeExit": "إلغاء",
+  "admin.selectAll": "تحديد الكل",
+  "admin.selectNone": "إلغاء التحديد",
+  "admin.deleteSelected": "حذف {0}",
+  "admin.deleteConfirmTitle": "حذف المستخدمين؟",
+  "admin.deleteConfirmMessage": "هل تريد حذف {0} مستخدم؟ لا يمكن التراجع عن هذا الإجراء.",
+  "admin.deleteConfirmSecond": "تحذير: التأكيد النهائي",
+  "admin.deleteConfirmSecondMessage": "لا يمكن التراجع عن هذا الإجراء. اكتب احذف للتأكيد.",
+  "admin.deleteConfirmInput": "احذف",
+  "admin.deleteConfirmPlaceholder": "اكتب هنا...",
+  "admin.deleting": "جارٍ الحذف...",
+  "admin.deleteSuccess": "تم حذف {0} مستخدم بنجاح.",
+  "admin.deleteFailed": "فشل حذف {0} مستخدم.",
+  "admin.deletePartial": "تم حذف {0}، فشل {1}.",
+  "admin.xSelected": "تم تحديد {0}",
+
   // تبويب المحادثات
   "tabs.chats": "المحادثات",
   "chats.title": "المحادثات",

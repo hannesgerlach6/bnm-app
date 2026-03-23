@@ -114,6 +114,8 @@ export interface DataContextValue {
   // User actions
   updateUser: (userId: string, data: Partial<Pick<User, "name" | "city" | "plz" | "age" | "phone" | "contact_preference" | "avatar_url" | "role" | "gender">>) => Promise<void>;
   setUserActive: (userId: string, isActive: boolean) => Promise<void>;
+  deleteUser: (userId: string) => Promise<boolean>;
+  bulkDeleteUsers: (userIds: string[]) => Promise<{ success: number; failed: number }>;
 
   // Mentorship Notes
   updateMentorshipNotes: (mentorshipId: string, notes: string) => Promise<void>;
@@ -1571,6 +1573,71 @@ export function DataProvider({ children }: { children: ReactNode }) {
     );
   }, []);
 
+  // deleteUser: Soft-Delete — alle zugehörigen Daten löschen, Profil deaktivieren
+  const deleteUser = useCallback(async (userId: string): Promise<boolean> => {
+    try {
+      // 1. Alle Sessions löschen die zu Mentorships des Users gehören
+      const userMentorships = mentorships.filter(
+        (m) => m.mentor_id === userId || m.mentee_id === userId
+      );
+      const mentorshipIds = userMentorships.map((m) => m.id);
+
+      if (mentorshipIds.length > 0) {
+        // Sessions löschen
+        await supabase.from("sessions").delete().in("mentorship_id", mentorshipIds);
+        // Messages löschen
+        await supabase.from("messages").delete().in("mentorship_id", mentorshipIds);
+        // Feedback löschen
+        await supabase.from("feedback").delete().in("mentorship_id", mentorshipIds);
+        // Mentorships löschen
+        await supabase.from("mentorships").delete().in("id", mentorshipIds);
+      }
+
+      // 2. Notifications löschen
+      await supabase.from("notifications").delete().eq("user_id", userId);
+
+      // 3. Profil deaktivieren + E-Mail verschleiern (Auth-User bleibt, kann sich nicht mehr sinnvoll einloggen)
+      const timestamp = Date.now();
+      const { error } = await supabase
+        .from("profiles")
+        .update({
+          is_active: false,
+          email: `deleted_${timestamp}_${userId}@deleted.invalid`,
+          name: `[gelöscht]`,
+        })
+        .eq("id", userId);
+
+      if (error) {
+        return false;
+      }
+
+      // State bereinigen
+      setUsers((prev) => prev.filter((u) => u.id !== userId));
+      setSessions((prev) => prev.filter((s) => !mentorshipIds.includes(s.mentorship_id)));
+      setMessages((prev) => prev.filter((m) => !mentorshipIds.includes(m.mentorship_id)));
+      setFeedback((prev) => prev.filter((f) => !mentorshipIds.includes(f.mentorship_id)));
+      setMentorships((prev) => prev.filter((m) => !mentorshipIds.includes(m.id)));
+
+      return true;
+    } catch {
+      return false;
+    }
+  }, [mentorships]);
+
+  const bulkDeleteUsers = useCallback(
+    async (userIds: string[]): Promise<{ success: number; failed: number }> => {
+      let success = 0;
+      let failed = 0;
+      for (const id of userIds) {
+        const ok = await deleteUser(id);
+        if (ok) success++;
+        else failed++;
+      }
+      return { success, failed };
+    },
+    [deleteUser]
+  );
+
   const updateMentorshipNotes = useCallback(async (mentorshipId: string, notes: string) => {
     const { error } = await supabase
       .from("mentorships")
@@ -1971,6 +2038,8 @@ export function DataProvider({ children }: { children: ReactNode }) {
         submitApplication,
         updateUser,
         setUserActive,
+        deleteUser,
+        bulkDeleteUsers,
         updateMentorshipNotes,
         confirmStepAsMentee,
         unconfirmStepAsMentee,

@@ -824,6 +824,24 @@ const de = {
   // Admin Chat
   "admin.viewChat": "Chat ansehen",
 
+  // Admin Multi-Select & Delete
+  "admin.selectMode": "Auswählen",
+  "admin.selectModeExit": "Abbrechen",
+  "admin.selectAll": "Alle auswählen",
+  "admin.selectNone": "Keine auswählen",
+  "admin.deleteSelected": "{0} löschen",
+  "admin.deleteConfirmTitle": "User löschen?",
+  "admin.deleteConfirmMessage": "Möchtest du {0} User wirklich löschen? Diese Aktion kann nicht rückgängig gemacht werden.",
+  "admin.deleteConfirmSecond": "ACHTUNG: Letzte Bestätigung",
+  "admin.deleteConfirmSecondMessage": "Diese Aktion kann nicht rückgängig gemacht werden. Tippe LÖSCHEN ein um zu bestätigen.",
+  "admin.deleteConfirmInput": "LÖSCHEN",
+  "admin.deleteConfirmPlaceholder": "Hier eingeben...",
+  "admin.deleting": "Wird gelöscht...",
+  "admin.deleteSuccess": "{0} User erfolgreich gelöscht.",
+  "admin.deleteFailed": "{0} User konnten nicht gelöscht werden.",
+  "admin.deletePartial": "{0} gelöscht, {1} fehlgeschlagen.",
+  "admin.xSelected": "{0} ausgewählt",
+
   // Chats Tab
   "tabs.chats": "Chats",
   "chats.title": "Chats",
