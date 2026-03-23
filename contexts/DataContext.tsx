@@ -1573,20 +1573,19 @@ export function DataProvider({ children }: { children: ReactNode }) {
     );
   }, []);
 
-  // deleteUser: Hard-Delete — Profil löschen, CASCADE löscht alle verknüpften Daten
+  // deleteUser: Vollständiges Löschen (Auth + Profil + Daten) via DB-Funktion
   const deleteUser = useCallback(async (userId: string): Promise<boolean> => {
     try {
       const userMentorshipIds = mentorships
         .filter((m) => m.mentor_id === userId || m.mentee_id === userId)
         .map((m) => m.id);
 
-      // Profil löschen — ON DELETE CASCADE entfernt Sessions, Messages, Feedback, Mentorships, Notifications
-      const { error } = await supabase
-        .from("profiles")
-        .delete()
-        .eq("id", userId);
+      // Serverseitige Funktion: löscht Auth-User + Profil + CASCADE-Daten
+      const { data, error } = await supabase.rpc("delete_user_completely", {
+        target_user_id: userId,
+      });
 
-      if (error) {
+      if (error || data === false) {
         return false;
       }
 
@@ -1596,7 +1595,6 @@ export function DataProvider({ children }: { children: ReactNode }) {
       setMessages((prev) => prev.filter((m) => !userMentorshipIds.includes(m.mentorship_id)));
       setFeedback((prev) => prev.filter((f) => !userMentorshipIds.includes(f.mentorship_id)));
       setMentorships((prev) => prev.filter((m) => !userMentorshipIds.includes(m.id)));
-      setNotifications([]);
 
       return true;
     } catch {
