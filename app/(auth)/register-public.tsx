@@ -12,7 +12,7 @@ import {
 import { showError } from "../../lib/errorHandler";
 import { useRouter } from "expo-router";
 import { COLORS } from "../../constants/Colors";
-import { useThemeColors } from "../../contexts/ThemeContext";
+import { useTheme, useThemeColors } from "../../contexts/ThemeContext";
 import type { Gender, ContactPreference } from "../../types";
 import { Container } from "../../components/Container";
 import { supabase } from "../../lib/supabase";
@@ -38,6 +38,7 @@ export default function RegisterPublicScreen() {
   const router = useRouter();
   const { t } = useLanguage();
   const themeColors = useThemeColors();
+  const { isDark } = useTheme();
   const [step, setStep] = useState<Step>("form");
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -386,8 +387,8 @@ export default function RegisterPublicScreen() {
             </FormField>
 
             {/* Hinweis */}
-            <View style={styles.infoBox}>
-              <Text style={styles.infoBoxText}>
+            <View style={[styles.infoBox, { backgroundColor: isDark ? "#1e2d4a" : "#eff6ff", borderColor: isDark ? "#2d4a7a" : "#dbeafe" }]}>
+              <Text style={[styles.infoBoxText, { color: isDark ? "#93c5fd" : "#1e40af" }]}>
                 {t("register.infoBox")}
               </Text>
             </View>
@@ -520,15 +521,13 @@ const styles = StyleSheet.create({
   pillTextInactive: { fontSize: 13 },
 
   infoBox: {
-    backgroundColor: "#eff6ff",
     borderWidth: 1,
-    borderColor: "#dbeafe",
     borderRadius: 6,
     padding: 12,
     marginBottom: 16,
     marginTop: 4,
   },
-  infoBoxText: { color: "#1e40af", fontSize: 13, lineHeight: 19 },
+  infoBoxText: { fontSize: 13, lineHeight: 19 },
 
   submitButton: {
     backgroundColor: COLORS.cta,

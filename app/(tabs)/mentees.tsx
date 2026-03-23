@@ -12,6 +12,7 @@ import {
   KeyboardAvoidingView,
 } from "react-native";
 import { useRouter } from "expo-router";
+import { Ionicons } from "@expo/vector-icons";
 import { useAuth } from "../../contexts/AuthContext";
 import { useData } from "../../contexts/DataContext";
 import { useLanguage } from "../../contexts/LanguageContext";
@@ -620,7 +621,7 @@ function MentorMenteesView() {
 
         {myMentorships.length === 0 ? (
           <View style={[styles.emptyCard, { backgroundColor: themeColors.card }]}>
-            <Text style={{ fontSize: 36, marginBottom: 12 }}>🤝</Text>
+            <Ionicons name="people-outline" size={36} color={themeColors.textTertiary} style={{ marginBottom: 12 }} />
             <Text style={[styles.meneeName, { textAlign: "center", marginBottom: 8, color: themeColors.text }]}>
               {t("mentees.noMenteesYet")}
             </Text>
@@ -810,7 +811,7 @@ function MenteeProgressView() {
         <View style={styles.page}>
           <Text style={[styles.pageTitle, { color: themeColors.text }]}>{t("mentees.myProgress")}</Text>
           <View style={[styles.emptyCard, { backgroundColor: themeColors.card }]}>
-            <Text style={{ fontSize: 36, marginBottom: 12 }}>🌱</Text>
+            <Ionicons name="leaf-outline" size={36} color={themeColors.textTertiary} style={{ marginBottom: 12 }} />
             <Text style={[styles.meneeName, { textAlign: "center", marginBottom: 8, color: themeColors.text }]}>
               {t("mentees.noAssignmentYet")}
             </Text>

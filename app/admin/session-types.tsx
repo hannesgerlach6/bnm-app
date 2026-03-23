@@ -14,13 +14,14 @@ import { useData } from "../../contexts/DataContext";
 import type { SessionType } from "../../types";
 import { COLORS } from "../../constants/Colors";
 import { useLanguage } from "../../contexts/LanguageContext";
-import { useThemeColors } from "../../contexts/ThemeContext";
+import { useTheme, useThemeColors } from "../../contexts/ThemeContext";
 
 export default function SessionTypesScreen() {
   const router = useRouter();
   const { user } = useAuth();
   const { t } = useLanguage();
   const themeColors = useThemeColors();
+  const { isDark } = useTheme();
   const { sessionTypes, addSessionType, updateSessionTypeOrder, deleteSessionType } = useData();
 
   const [showAddForm, setShowAddForm] = useState(false);
@@ -92,9 +93,9 @@ export default function SessionTypesScreen() {
         </Text>
 
         {/* Hinweis */}
-        <View style={styles.blueBox}>
-          <Text style={styles.blueTitle}>{t("sessionTypes.infoTitle")}</Text>
-          <Text style={styles.blueText}>
+        <View style={[styles.blueBox, { backgroundColor: isDark ? "#1e2d4a" : "#eff6ff", borderColor: isDark ? "#2d4a7a" : "#dbeafe" }]}>
+          <Text style={[styles.blueTitle, { color: isDark ? "#93c5fd" : "#1e40af" }]}>{t("sessionTypes.infoTitle")}</Text>
+          <Text style={[styles.blueText, { color: isDark ? "#93c5fd" : "#2563eb" }]}>
             {t("sessionTypes.infoText")}
           </Text>
         </View>
@@ -234,15 +235,13 @@ const styles = StyleSheet.create({
   pageTitle: { fontSize: 24, fontWeight: "bold", marginBottom: 4 },
   pageSubtitle: { marginBottom: 24 },
   blueBox: {
-    backgroundColor: "#eff6ff",
     borderWidth: 1,
-    borderColor: "#dbeafe",
     borderRadius: 8,
     padding: 14,
     marginBottom: 24,
   },
-  blueTitle: { color: "#1e40af", fontSize: 14, fontWeight: "500", marginBottom: 4 },
-  blueText: { color: "#2563eb", fontSize: 12 },
+  blueTitle: { fontSize: 14, fontWeight: "500", marginBottom: 4 },
+  blueText: { fontSize: 12 },
   listCard: {
     borderRadius: 8,
     borderWidth: 1,

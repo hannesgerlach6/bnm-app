@@ -26,6 +26,8 @@ const tr: Record<TranslationKeys, string> = {
   "dashboard.yourProgress": "İlerlemeniz",
   "dashboard.your10Steps": "10 Adımın",
   "dashboard.viewMentorship": "Danışmanlığı Görüntüle",
+  "dashboard.viewProfile": "Profili Görüntüle",
+  "dashboard.since": "Tarihinden beri",
   "dashboard.openChat": "Sohbeti Aç",
   "dashboard.sessionTypes": "Oturum Türlerini Yönet",
   "dashboard.reports": "Aylık Raporlar",
@@ -1325,6 +1327,8 @@ const tr: Record<TranslationKeys, string> = {
   "hadithe.empty": "Mevcut hadis yok",
 
   // Hadis Yönetimi (Admin)
+  "haditheMgmt.singular": "Hadis",
+  "haditheMgmt.plural": "Hadisler",
   "haditheMgmt.title": "Hadisleri Yönet",
   "haditheMgmt.addNew": "Yeni Hadis",
   "haditheMgmt.csvImport": "CSV İçe Aktar",

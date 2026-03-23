@@ -26,6 +26,8 @@ const en: Record<TranslationKeys, string> = {
   "dashboard.yourProgress": "Your Progress",
   "dashboard.your10Steps": "Your 10 Steps",
   "dashboard.viewMentorship": "View Mentorship",
+  "dashboard.viewProfile": "View Profile",
+  "dashboard.since": "Since",
   "dashboard.openChat": "Open Chat",
   "dashboard.sessionTypes": "Manage Session Types",
   "dashboard.reports": "Monthly Reports",
@@ -1325,6 +1327,8 @@ const en: Record<TranslationKeys, string> = {
   "hadithe.empty": "No hadiths available",
 
   // Hadith Management (Admin)
+  "haditheMgmt.singular": "Hadith",
+  "haditheMgmt.plural": "Hadiths",
   "haditheMgmt.title": "Manage Hadiths",
   "haditheMgmt.addNew": "New Hadith",
   "haditheMgmt.csvImport": "CSV Import",

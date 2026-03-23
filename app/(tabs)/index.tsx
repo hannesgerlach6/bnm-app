@@ -1,6 +1,7 @@
 import React, { useMemo, useState, useCallback, useEffect } from "react";
 import { View, Text, ScrollView, TouchableOpacity, StyleSheet, RefreshControl, Platform, TextInput } from "react-native";
 import { useRouter } from "expo-router";
+import { Ionicons } from "@expo/vector-icons";
 import { useAuth } from "../../contexts/AuthContext";
 import { useData } from "../../contexts/DataContext";
 import { useLanguage } from "../../contexts/LanguageContext";
@@ -321,7 +322,7 @@ function AdminDashboard({ showSystemSettings = true }: { showSystemSettings?: bo
                 <Text style={[styles.momAdminStatLabel, { color: themeColors.textSecondary }]}>{t("leaderboard.sessions")}</Text>
               </View>
             </View>
-            <Text style={styles.momAdminArrow}>Profil ansehen ›</Text>
+            <Text style={styles.momAdminArrow}>{t("dashboard.viewProfile")} ›</Text>
           </TouchableOpacity>
         )}
 
@@ -494,7 +495,7 @@ function AdminDashboard({ showSystemSettings = true }: { showSystemSettings?: bo
             <View style={styles.applicationsButtonContent}>
               <Text style={[styles.applicationsButtonText, { color: themeColors.text }]}>{t("haditheMgmt.title")}</Text>
               <Text style={[styles.applicationsButtonSub, { color: themeColors.textTertiary }]}>
-                {hadithe.length} {hadithe.length === 1 ? "Hadith" : "Hadithe"}
+                {hadithe.length} {hadithe.length === 1 ? t("haditheMgmt.singular") : t("haditheMgmt.plural")}
               </Text>
             </View>
             <Text style={[styles.applicationsArrow, { color: themeColors.textTertiary }]}>›</Text>
@@ -540,7 +541,7 @@ function AdminDashboard({ showSystemSettings = true }: { showSystemSettings?: bo
           <Text style={[styles.cardTitle, { color: themeColors.text }]}>{t("dashboard.activeMentorships")}</Text>
           {activeMentorships.length === 0 ? (
             <View style={{ alignItems: "center", paddingVertical: 16 }}>
-              <Text style={{ fontSize: 28, marginBottom: 8 }}>👥</Text>
+              <Ionicons name="people-outline" size={28} color={themeColors.textTertiary} style={{ marginBottom: 8 }} />
               <Text style={[styles.emptyText, { color: themeColors.textTertiary, marginBottom: 8 }]}>
                 {t("dashboard.noActiveMentorships")}
               </Text>
@@ -683,7 +684,7 @@ function MentorDashboard() {
                   <View>
                     <Text style={[styles.boldPrimary, { color: themeColors.text }]}>{m.mentee?.name}</Text>
                     <Text style={[styles.tertiaryXs, { color: themeColors.textTertiary }]}>
-                      {m.mentee?.city} · Seit{" "}
+                      {m.mentee?.city} · {t("dashboard.since")}{" "}
                       {new Date(m.assigned_at).toLocaleDateString("de-DE")}
                     </Text>
                   </View>
@@ -977,7 +978,7 @@ function MenteeDashboard() {
             {/* Glückwunsch-Banner wenn alle Steps erledigt */}
             {completedStepIds.length === sessionTypes.length && (
               <View style={[styles.congratsBanner, { backgroundColor: isDark ? "#1a3a2a" : "#dcfce7", borderColor: isDark ? "#2d6a4a" : "#86efac" }]}>
-                <Text style={styles.congratsEmoji}>🎉</Text>
+                <Ionicons name="ribbon-outline" size={32} color={isDark ? "#4ade80" : "#15803d"} style={{ marginBottom: 6 }} />
                 <Text style={[styles.congratsTitle, { color: isDark ? "#4ade80" : "#15803d" }]}>{t("mentorship.congratulations")}</Text>
                 <Text style={[styles.congratsText, { color: isDark ? "#4ade80" : "#16a34a" }]}>{t("mentorship.allStepsDone")}</Text>
               </View>

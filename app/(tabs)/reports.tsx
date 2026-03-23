@@ -514,7 +514,7 @@ export default function ReportsScreen() {
                 }
               }}
             >
-              <Text style={styles.printButtonText}>🖨 {t("reports.print")}</Text>
+              <Text style={styles.printButtonText}>{t("reports.print")}</Text>
             </TouchableOpacity>
           )}
         </View>

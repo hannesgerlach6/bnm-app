@@ -13,13 +13,14 @@ import { useRouter } from "expo-router";
 import { COLORS } from "../constants/Colors";
 import { Container } from "../components/Container";
 import { useLanguage } from "../contexts/LanguageContext";
-import { useThemeColors } from "../contexts/ThemeContext";
+import { useTheme, useThemeColors } from "../contexts/ThemeContext";
 import { supabase } from "../lib/supabase";
 
 export default function ChangePasswordScreen() {
   const router = useRouter();
   const { t } = useLanguage();
   const themeColors = useThemeColors();
+  const { isDark } = useTheme();
 
   const [oldPassword, setOldPassword] = useState("");
   const [newPassword, setNewPassword] = useState("");
@@ -96,8 +97,8 @@ export default function ChangePasswordScreen() {
 
         <ScrollView style={styles.scrollView} contentContainerStyle={styles.content}>
 
-          <View style={styles.infoBox}>
-            <Text style={styles.infoText}>
+          <View style={[styles.infoBox, { backgroundColor: isDark ? "#1e2d4a" : "#eff6ff", borderColor: isDark ? "#2d4a7a" : "#dbeafe" }]}>
+            <Text style={[styles.infoText, { color: isDark ? "#93c5fd" : "#1e40af" }]}>
               {t("changePassword.info")}
             </Text>
           </View>
@@ -257,14 +258,12 @@ const styles = StyleSheet.create({
   scrollView: { flex: 1 },
   content: { padding: 16, paddingBottom: 40 },
   infoBox: {
-    backgroundColor: "#eff6ff",
     borderWidth: 1,
-    borderColor: "#dbeafe",
     borderRadius: 6,
     padding: 12,
     marginBottom: 14,
   },
-  infoText: { color: "#1e40af", fontSize: 13 },
+  infoText: { fontSize: 13 },
   fieldLabel: {
     fontSize: 13,
     fontWeight: "500",

@@ -18,13 +18,14 @@ import { COLORS } from "../constants/Colors";
 import { Container } from "../components/Container";
 import { uploadAvatar } from "../lib/storage";
 import { useLanguage } from "../contexts/LanguageContext";
-import { useThemeColors } from "../contexts/ThemeContext";
+import { useTheme, useThemeColors } from "../contexts/ThemeContext";
 
 export default function EditProfileScreen() {
   const router = useRouter();
   const { user } = useAuth();
   const { t } = useLanguage();
   const themeColors = useThemeColors();
+  const { isDark } = useTheme();
   const { updateUser } = useData();
 
   const CONTACT_OPTIONS: { key: ContactPreference; label: string }[] = [
@@ -252,12 +253,12 @@ export default function EditProfileScreen() {
           </View>
 
           {/* Unveränderliche Info */}
-          <View style={styles.infoBox}>
-            <Text style={styles.infoBoxTitle}>{t("editProfile.unchangeable")}</Text>
-            <Text style={styles.infoBoxText}>
+          <View style={[styles.infoBox, { backgroundColor: isDark ? "#1e2d4a" : "#eff6ff", borderColor: isDark ? "#2d4a7a" : "#dbeafe" }]}>
+            <Text style={[styles.infoBoxTitle, { color: isDark ? "#93c5fd" : "#1e40af" }]}>{t("editProfile.unchangeable")}</Text>
+            <Text style={[styles.infoBoxText, { color: isDark ? "#93c5fd" : "#2563eb" }]}>
               {t("editProfile.unchangeableText")}
             </Text>
-            <Text style={styles.infoBoxValue}>{safeUser.email}</Text>
+            <Text style={[styles.infoBoxValue, { color: isDark ? "#93c5fd" : "#1e40af" }]}>{safeUser.email}</Text>
           </View>
 
           {/* Speichern */}
@@ -330,16 +331,14 @@ const styles = StyleSheet.create({
   contactChipTextActive: { color: COLORS.white, fontWeight: "600", fontSize: 13 },
   contactChipTextInactive: { fontWeight: "500", fontSize: 13 },
   infoBox: {
-    backgroundColor: "#eff6ff",
     borderWidth: 1,
-    borderColor: "#dbeafe",
     borderRadius: 8,
     padding: 12,
     marginBottom: 16,
   },
-  infoBoxTitle: { fontWeight: "700", color: "#1e40af", fontSize: 13, marginBottom: 4 },
-  infoBoxText: { color: "#2563eb", fontSize: 13, lineHeight: 18, marginBottom: 6 },
-  infoBoxValue: { color: "#1e40af", fontSize: 13, fontWeight: "600" },
+  infoBoxTitle: { fontWeight: "700", fontSize: 13, marginBottom: 4 },
+  infoBoxText: { fontSize: 13, lineHeight: 18, marginBottom: 6 },
+  infoBoxValue: { fontSize: 13, fontWeight: "600" },
   saveButton: {
     backgroundColor: COLORS.cta,
     borderRadius: 5,

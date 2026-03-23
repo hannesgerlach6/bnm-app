@@ -9,6 +9,7 @@ import {
 } from "react-native";
 import { showError, showSuccess } from "../lib/errorHandler";
 import { useRouter, useLocalSearchParams } from "expo-router";
+import { Ionicons } from "@expo/vector-icons";
 import { useAuth } from "../contexts/AuthContext";
 import { useData } from "../contexts/DataContext";
 import { COLORS } from "../constants/Colors";
@@ -92,7 +93,7 @@ export default function FeedbackScreen() {
         {/* Header */}
         <View style={styles.headerCard}>
           <Text style={styles.headerEmoji}>
-            {isCancellation ? "📝" : mentorship?.status === "completed" ? "🎉" : "📝"}
+            {isCancellation ? <Ionicons name="document-text-outline" size={28} color={COLORS.gold} /> : mentorship?.status === "completed" ? <Ionicons name="ribbon-outline" size={28} color={COLORS.cta} /> : <Ionicons name="document-text-outline" size={28} color={COLORS.gold} />}
           </Text>
           <Text style={styles.headerTitle}>
             {isCancellation ? t("feedback.cancellationTitle") : t("feedback.headerTitle").replace("{0}", statusLabel)}

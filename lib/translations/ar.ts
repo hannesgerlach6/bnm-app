@@ -26,6 +26,8 @@ const ar: Record<TranslationKeys, string> = {
   "dashboard.yourProgress": "تقدمك",
   "dashboard.your10Steps": "خطواتك العشر",
   "dashboard.viewMentorship": "عرض الإرشاد",
+  "dashboard.viewProfile": "عرض الملف الشخصي",
+  "dashboard.since": "منذ",
   "dashboard.openChat": "فتح المحادثة",
   "dashboard.sessionTypes": "إدارة أنواع الجلسات",
   "dashboard.reports": "التقارير الشهرية",
@@ -1325,6 +1327,8 @@ const ar: Record<TranslationKeys, string> = {
   "hadithe.empty": "لا توجد أحاديث متاحة",
 
   // إدارة الأحاديث (المشرف)
+  "haditheMgmt.singular": "حديث",
+  "haditheMgmt.plural": "أحاديث",
   "haditheMgmt.title": "إدارة الأحاديث",
   "haditheMgmt.addNew": "حديث جديد",
   "haditheMgmt.csvImport": "استيراد CSV",

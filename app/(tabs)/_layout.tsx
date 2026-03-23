@@ -28,7 +28,7 @@ function BellButton() {
       onPress={() => router.push("/notifications")}
       style={tabStyles.bellWrapper}
     >
-      <Text style={tabStyles.bellIcon}>🔔</Text>
+      <Ionicons name="notifications-outline" size={22} color={COLORS.gold} />
       {unreadCount > 0 && (
         <View style={tabStyles.badge}>
           <Text style={tabStyles.badgeText}>

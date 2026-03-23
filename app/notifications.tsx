@@ -7,6 +7,7 @@ import {
   StyleSheet,
 } from "react-native";
 import { useRouter } from "expo-router";
+import { Ionicons } from "@expo/vector-icons";
 import { useData } from "../contexts/DataContext";
 import type { Notification, NotificationType } from "../types";
 import { COLORS } from "../constants/Colors";
@@ -100,7 +101,7 @@ export default function NotificationsScreen() {
         <ScrollView style={styles.scrollView} contentContainerStyle={styles.list}>
           {sorted.length === 0 ? (
             <View style={styles.emptyBox}>
-              <Text style={styles.emptyIcon}>🔔</Text>
+              <Ionicons name="notifications-outline" size={36} color={themeColors.textTertiary} style={{ marginBottom: 8 }} />
               <Text style={[styles.emptyTitle, { color: themeColors.text }]}>{t("notifications.emptyTitle")}</Text>
               <Text style={[styles.emptyText, { color: themeColors.textTertiary }]}>
                 {t("notifications.emptyText")}

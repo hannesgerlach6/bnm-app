@@ -24,6 +24,8 @@ const de = {
   "dashboard.yourProgress": "Dein Fortschritt",
   "dashboard.your10Steps": "Deine 10 Schritte",
   "dashboard.viewMentorship": "Betreuung ansehen",
+  "dashboard.viewProfile": "Profil ansehen",
+  "dashboard.since": "Seit",
   "dashboard.openChat": "Chat öffnen",
   "dashboard.sessionTypes": "Session-Typen verwalten",
   "dashboard.reports": "Monatsberichte",
@@ -1325,6 +1327,8 @@ const de = {
   "hadithe.empty": "Keine Hadithe vorhanden",
 
   // Hadithe-Verwaltung (Admin)
+  "haditheMgmt.singular": "Hadith",
+  "haditheMgmt.plural": "Hadithe",
   "haditheMgmt.title": "Hadithe verwalten",
   "haditheMgmt.addNew": "Neuer Hadith",
   "haditheMgmt.csvImport": "CSV Import",

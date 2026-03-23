@@ -14,7 +14,7 @@ import { useRouter } from "expo-router";
 import { COLORS } from "../constants/Colors";
 import { Container } from "../components/Container";
 import { useLanguage } from "../contexts/LanguageContext";
-import { useThemeColors } from "../contexts/ThemeContext";
+import { useTheme, useThemeColors } from "../contexts/ThemeContext";
 
 const { width: SCREEN_WIDTH } = Dimensions.get("window");
 
@@ -53,6 +53,7 @@ export default function OnboardingScreen() {
   const router = useRouter();
   const { t } = useLanguage();
   const themeColors = useThemeColors();
+  const { isDark } = useTheme();
 
   const SESSION_STEPS = [
     "Registrierung", "Zuweisung", "Erstkontakt", "Ersttreffen", "BNM-Box",
@@ -203,8 +204,8 @@ export default function OnboardingScreen() {
                 ))}
               </View>
 
-              <View style={styles.noteBox}>
-                <Text style={styles.noteText}>
+              <View style={[styles.noteBox, { backgroundColor: isDark ? "#1e2d4a" : "#eff6ff", borderColor: isDark ? "#2d4a7a" : "#dbeafe" }]}>
+                <Text style={[styles.noteText, { color: isDark ? "#93c5fd" : "#1e40af" }]}>
                   {t("onboarding.slide2Note")}
                 </Text>
               </View>
@@ -414,14 +415,11 @@ const styles = StyleSheet.create({
     fontSize: 14,
   },
   noteBox: {
-    backgroundColor: "#eff6ff",
     borderWidth: 1,
-    borderColor: "#dbeafe",
     borderRadius: 10,
     padding: 14,
   },
   noteText: {
-    color: "#1e40af",
     fontSize: 13,
     lineHeight: 19,
   },
