@@ -43,6 +43,9 @@ export function parseCSV(text: string): CSVRow[] {
     "tel": "Telefon",
     "kontaktpräferenz": "Kontaktpräferenz",
     "kontaktpraferenz": "Kontaktpräferenz",
+    "plz": "PLZ",
+    "postleitzahl": "PLZ",
+    "zip": "PLZ",
     "kontakt": "Kontaktpräferenz",
     "contact": "Kontaktpräferenz",
     "erfahrung": "Erfahrung",
@@ -138,6 +141,7 @@ export interface ParsedMentee {
   email: string;
   gender: "male" | "female" | null;
   city: string;
+  plz: string;
   age: number | null;
   phone: string;
   contactPreference: string;
@@ -203,6 +207,7 @@ export function parseMenteeRow(row: CSVRow): ParsedMentee {
     email: (row["E-Mail"] || row["Email"] || row["E-mail"] || "").trim(),
     gender: mapGender(row["Geschlecht"] || row["Gender"] || ""),
     city: (row["Stadt"] || row["City"] || "").trim(),
+    plz: (row["PLZ"] || row["Postleitzahl"] || "").trim(),
     age: parseInt(row["Alter"] || row["Age"] || "", 10) || null,
     phone: (row["Telefon"] || row["Phone"] || "").trim(),
     contactPreference: mapContactPreference(row["Kontaktpräferenz"] || row["Kontaktpraferenz"] || row["Contact"] || ""),

@@ -43,6 +43,7 @@ interface PreviewRow {
   email: string;
   gender: string;
   city: string;
+  plz: string;
   age: string;
 }
 
@@ -146,6 +147,7 @@ export default function CSVImportScreen() {
           email: parsed.email,
           gender: parsed.gender === "male" ? "Bruder" : parsed.gender === "female" ? "Schwester" : "?",
           city: parsed.city,
+          plz: parsed.plz || "",
           age: parsed.age != null ? String(parsed.age) : "?",
         };
       });
@@ -229,6 +231,7 @@ export default function CSVImportScreen() {
               role,
               gender: parsed.gender ?? "male",
               city: parsed.city,
+              plz: parsed.plz || "",
               age: parsed.age ?? 0,
             },
           },
