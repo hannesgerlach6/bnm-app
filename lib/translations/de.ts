@@ -99,6 +99,7 @@ const de = {
   "mentees.noMenteesYet": "Noch keine Mentees",
   "mentees.noMenteesText": "Dir sind noch keine Mentees zugewiesen. Du kannst einen nicht zugewiesenen Mentee selbst übernehmen.",
   "mentees.takeMenteeButton": "Mentee übernehmen",
+  "mentees.noCompletedYet": "Noch keine abgeschlossenen Betreuungen.",
   "mentees.myProgress": "Mein Fortschritt",
   "mentees.noAssignmentYet": "Noch keine Zuweisung",
   "mentees.noAssignmentText": "Das BNM-Team prüft deine Anmeldung und weist dir bald einen passenden Mentor zu.",

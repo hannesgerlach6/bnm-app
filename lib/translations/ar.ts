@@ -101,6 +101,7 @@ const ar: Record<TranslationKeys, string> = {
   "mentees.noMenteesYet": "لا يوجد متعلمون بعد",
   "mentees.noMenteesText": "لم يتم تعيين أي متعلمين بعد. يمكنك استلام متعلم غير معين بنفسك.",
   "mentees.takeMenteeButton": "استلام متعلم",
+  "mentees.noCompletedYet": "لا توجد إشرافات مكتملة بعد.",
   "mentees.myProgress": "تقدمي",
   "mentees.noAssignmentYet": "لا يوجد تعيين بعد",
   "mentees.noAssignmentText": "يراجع فريق BNM طلبك وسيعيّن لك مرشداً مناسباً قريباً.",

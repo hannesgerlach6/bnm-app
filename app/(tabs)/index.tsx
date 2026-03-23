@@ -10,7 +10,6 @@ import type { Mentorship } from "../../types";
 import { COLORS } from "../../constants/Colors";
 import { Container } from "../../components/Container";
 import { BNMLogo } from "../../components/BNMLogo";
-import { showConfirm } from "../../lib/errorHandler";
 import { useTheme, useThemeColors } from "../../contexts/ThemeContext";
 
 export default function DashboardScreen() {
@@ -764,32 +763,6 @@ function MentorDashboard() {
           })
         )}
 
-        {/* Abgeschlossene Betreuungen (read-only) */}
-        {completedMentorships.length > 0 && (
-          <>
-            <Text style={[styles.sectionTitle, { color: themeColors.text, marginTop: 16 }]}>{t("dashboard.completed")}</Text>
-            {completedMentorships.map((m) => {
-              const completedSteps = getCompletedStepIds(m.id);
-              return (
-                <TouchableOpacity
-                  key={m.id}
-                  style={[styles.menteeCard, { backgroundColor: themeColors.card, borderColor: themeColors.border }]}
-                  onPress={() => router.push({ pathname: "/mentorship/[id]", params: { id: m.id } })}
-                >
-                  <View style={styles.rowBetweenMb2}>
-                    <Text style={[styles.semiboldPrimary, { color: themeColors.text }]}>{m.mentee?.name}</Text>
-                    <View style={{ backgroundColor: isDark ? "#1a3a2a" : "#dcfce7", paddingHorizontal: 8, paddingVertical: 2, borderRadius: 8 }}>
-                      <Text style={{ color: isDark ? "#4ade80" : "#15803d", fontSize: 11, fontWeight: "600" }}>{t("mentorship.complete")}</Text>
-                    </View>
-                  </View>
-                  <Text style={[styles.tertiaryXs, { color: themeColors.textTertiary }]}>
-                    {completedSteps.length}/{sessionTypes.length} Steps
-                  </Text>
-                </TouchableOpacity>
-              );
-            })}
-          </>
-        )}
       </View>
     </ScrollView>
   );
@@ -801,9 +774,8 @@ function MenteeDashboard() {
   const { t } = useLanguage();
   const themeColors = useThemeColors();
   const { isDark } = useTheme();
-  const { getMentorshipByMenteeId, getCompletedStepIds, sessionTypes, hadithe, refreshData, getUnreadMessagesCount, confirmStepAsMentee, unconfirmStepAsMentee, mentorships, feedback } = useData();
+  const { getMentorshipByMenteeId, getCompletedStepIds, sessionTypes, hadithe, refreshData, getUnreadMessagesCount, mentorships, feedback } = useData();
   const [refreshing, setRefreshing] = useState(false);
-  const [confirmingStep, setConfirmingStep] = useState<string | null>(null);
   const [hadithOffset, setHadithOffset] = useState(0);
   const onRefresh = useCallback(async () => {
     setRefreshing(true);
@@ -821,7 +793,6 @@ function MenteeDashboard() {
 
   const mentorship = getMentorshipByMenteeId(user.id);
   const completedStepIds = mentorship ? getCompletedStepIds(mentorship.id) : [];
-  const menteeConfirmedSteps = mentorship?.mentee_confirmed_steps ?? [];
   const sortedSessionTypes = [...sessionTypes].sort((a, b) => a.sort_order - b.sort_order);
 
   // Prüfe ob es abgeschlossene Betreuungen ohne Feedback gibt
@@ -829,24 +800,6 @@ function MenteeDashboard() {
     (m) => m.mentee_id === user.id && m.status === "completed" && !feedback.some((f) => f.mentorship_id === m.id && f.submitted_by === user.id)
   );
 
-  async function handleToggleStep(step: { id: string; name: string }) {
-    if (!mentorship) return;
-    const isConfirmed = menteeConfirmedSteps.includes(step.id);
-    const title = isConfirmed ? t("menteeProgress.unconfirmTitle") : t("menteeProgress.confirmTitle");
-    const text = (isConfirmed ? t("menteeProgress.unconfirmText") : t("menteeProgress.confirmText")).replace("{0}", step.name);
-    const ok = await showConfirm(title, text);
-    if (!ok) return;
-    setConfirmingStep(step.id);
-    try {
-      if (isConfirmed) {
-        await unconfirmStepAsMentee(mentorship.id, step.id);
-      } else {
-        await confirmStepAsMentee(mentorship.id, step.id);
-      }
-    } finally {
-      setConfirmingStep(null);
-    }
-  }
 
   return (
     <ScrollView
@@ -1008,57 +961,44 @@ function MenteeDashboard() {
               </View>
             )}
 
-            {/* 10-Schritte-Gamification mit Mentee-Abhak-System */}
+            {/* Schritte-Übersicht (read-only) */}
             <Text style={styles.sectionTitle}>{t("menteeProgress.title")}</Text>
-            {/* Fortschritts-Motivationstext */}
             <Text style={styles.progressMotivation}>
-              {menteeConfirmedSteps.length === sessionTypes.length
+              {completedStepIds.length === sessionTypes.length
                 ? t("menteeProgress.allDone")
                 : t("menteeProgress.progress")
-                    .replace("{0}", String(menteeConfirmedSteps.length))
+                    .replace("{0}", String(completedStepIds.length))
                     .replace("{1}", String(sessionTypes.length))}
             </Text>
             <View style={[styles.card, { padding: 0, overflow: "hidden", marginBottom: 16 }]}>
               {sortedSessionTypes.map((step, idx) => {
-                // Mentor hat dokumentiert (offiziell erledigt)
-                const mentorDone = completedStepIds.includes(step.id);
-                // Mentee hat selbst bestätigt
-                const menteeDone = menteeConfirmedSteps.includes(step.id);
-                // Mentee bestätigt, Mentor noch nicht → gelb/orange
-                const pendingMentor = menteeDone && !mentorDone;
-                const isConfirming = confirmingStep === step.id;
+                const isDone = completedStepIds.includes(step.id);
+                const isCurrent = !isDone && idx === completedStepIds.length;
 
                 return (
-                  <TouchableOpacity
+                  <View
                     key={step.id}
                     style={[
                       styles.stepRow,
                       idx < sessionTypes.length - 1 ? styles.stepRowBorder : {},
-                      mentorDone ? { backgroundColor: isDark ? "#1a3a2a" : "#f0fdf4" } : pendingMentor ? { backgroundColor: isDark ? "#2a2218" : "#fffbeb" } : {},
+                      isDone ? { backgroundColor: isDark ? "#1a3a2a" : "#f0fdf4" } : isCurrent ? { backgroundColor: isDark ? "#2a2218" : "#fffbeb" } : {},
                     ]}
-                    onPress={() => !mentorDone && handleToggleStep(step)}
-                    disabled={isConfirming}
-                    activeOpacity={mentorDone ? 1 : 0.7}
                   >
                     {/* Schritt-Indikator */}
                     <View
                       style={[
                         styles.stepIndicator,
-                        mentorDone
+                        isDone
                           ? { backgroundColor: COLORS.cta }
-                          : pendingMentor
-                          ? { backgroundColor: "#f59e0b" }
-                          : menteeDone
-                          ? { backgroundColor: "#f59e0b" }
+                          : isCurrent
+                          ? { backgroundColor: COLORS.gold }
                           : { backgroundColor: COLORS.bg, borderWidth: 1, borderColor: COLORS.border },
                       ]}
                     >
-                      {mentorDone ? (
-                        <Text style={styles.stepIndicatorTextWhite}>✓</Text>
-                      ) : menteeDone ? (
+                      {isDone ? (
                         <Text style={styles.stepIndicatorTextWhite}>✓</Text>
                       ) : (
-                        <Text style={styles.stepIndicatorTextTertiary}>{idx + 1}</Text>
+                        <Text style={isCurrent ? styles.stepIndicatorTextWhite : styles.stepIndicatorTextTertiary}>{idx + 1}</Text>
                       )}
                     </View>
 
@@ -1066,39 +1006,28 @@ function MenteeDashboard() {
                       <Text
                         style={[
                           styles.stepName,
-                          mentorDone
+                          isDone
                             ? { color: COLORS.cta }
-                            : pendingMentor
-                            ? { color: isDark ? "#fbbf24" : "#92400e" }
+                            : isCurrent
+                            ? { color: themeColors.text }
                             : { color: COLORS.tertiary },
                         ]}
                       >
                         {step.name}
                       </Text>
-                      {pendingMentor && (
-                        <Text style={[styles.stepWaitingLabel, { color: isDark ? "#fbbf24" : "#92400e" }]}>{t("menteeProgress.waiting")}</Text>
-                      )}
                     </View>
 
                     {/* Status-Chip rechts */}
-                    {mentorDone ? (
+                    {isDone ? (
                       <View style={[styles.doneChip, { backgroundColor: isDark ? "#1a3a2a" : "#dcfce7" }]}>
                         <Text style={[styles.doneChipText, { color: isDark ? "#4ade80" : "#15803d" }]}>{t("menteeProgress.completed")}</Text>
                       </View>
-                    ) : pendingMentor ? (
+                    ) : isCurrent ? (
                       <View style={[styles.waitingChip, { backgroundColor: isDark ? "#3a2e1a" : "#fef3c7", borderColor: isDark ? "#6b4e1a" : "#fde68a" }]}>
-                        <Text style={[styles.waitingChipText, { color: isDark ? "#fbbf24" : "#92400e" }]}>{t("menteeProgress.discrepancyBadge")}</Text>
+                        <Text style={[styles.waitingChipText, { color: isDark ? "#fbbf24" : "#92400e" }]}>{t("mentorship.nextStep")}</Text>
                       </View>
-                    ) : (
-                      <View style={styles.checkboxOuter}>
-                        {isConfirming ? (
-                          <Text style={styles.checkboxLoading}>...</Text>
-                        ) : (
-                          <Text style={styles.checkboxIcon}>{menteeDone ? "☑" : "☐"}</Text>
-                        )}
-                      </View>
-                    )}
-                  </TouchableOpacity>
+                    ) : null}
+                  </View>
                 );
               })}
             </View>

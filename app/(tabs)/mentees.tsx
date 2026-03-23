@@ -595,8 +595,10 @@ function MentorMenteesView() {
   const { user } = useAuth();
   const { t } = useLanguage();
   const themeColors = useThemeColors();
-  const { getMentorshipsByMentorId, refreshData } = useData();
+  const { isDark } = useTheme();
+  const { getMentorshipsByMentorId, getCompletedStepIds, sessionTypes, refreshData } = useData();
   const [refreshing, setRefreshing] = useState(false);
+  const [activeTab, setActiveTab] = useState<"active" | "completed">("active");
   const onRefresh = useCallback(async () => {
     setRefreshing(true);
     await refreshData();
@@ -612,6 +614,8 @@ function MentorMenteesView() {
   if (!user) return null;
 
   const myMentorships = getMentorshipsByMentorId(user.id);
+  const activeMentorships = myMentorships.filter((m) => m.status === "active");
+  const completedMentorships = myMentorships.filter((m) => m.status === "completed");
 
   return (
     <ScrollView
@@ -621,39 +625,114 @@ function MentorMenteesView() {
       <View style={styles.page}>
         <Text style={[styles.pageTitle, { color: themeColors.text }]}>{t("mentees.myMentees")}</Text>
         <Text style={[styles.pageSubtitle, { color: themeColors.textSecondary }]}>
-          {myMentorships.filter((m) => m.status === "active").length} {t("mentees.activeMentorships")}
+          {activeMentorships.length} {t("mentees.activeMentorships")}
         </Text>
 
-        {/* Mentor kann selbst Mentee übernehmen */}
-        <TouchableOpacity
-          style={styles.selfAssignButton}
-          onPress={() => router.push("/assign")}
-        >
-          <Text style={styles.selfAssignText}>{t("mentees.takeMentee")}</Text>
-        </TouchableOpacity>
+        {/* Tab-Switcher: Aktiv | Abgeschlossen */}
+        <View style={[styles.tabSwitcher, { backgroundColor: themeColors.card, borderColor: themeColors.border }]}>
+          <TouchableOpacity
+            style={[styles.tabSwitcherBtn, activeTab === "active" && styles.tabSwitcherBtnActive]}
+            onPress={() => setActiveTab("active")}
+          >
+            <Text style={[styles.tabSwitcherText, activeTab === "active" ? styles.tabSwitcherTextActive : { color: themeColors.textSecondary }]}>
+              {t("mentees.active")}
+              {activeMentorships.length > 0 && (
+                <Text style={[styles.tabSwitcherCount, activeTab === "active" ? { color: COLORS.white } : { color: themeColors.textTertiary }]}>
+                  {" "}{activeMentorships.length}
+                </Text>
+              )}
+            </Text>
+          </TouchableOpacity>
+          <TouchableOpacity
+            style={[styles.tabSwitcherBtn, activeTab === "completed" && styles.tabSwitcherBtnActive]}
+            onPress={() => setActiveTab("completed")}
+          >
+            <Text style={[styles.tabSwitcherText, activeTab === "completed" ? styles.tabSwitcherTextActive : { color: themeColors.textSecondary }]}>
+              {t("mentees.completedStatus")}
+              {completedMentorships.length > 0 && (
+                <Text style={[styles.tabSwitcherCount, activeTab === "completed" ? { color: COLORS.white } : { color: themeColors.textTertiary }]}>
+                  {" "}{completedMentorships.length}
+                </Text>
+              )}
+            </Text>
+          </TouchableOpacity>
+        </View>
 
-        {myMentorships.length === 0 ? (
-          <View style={[styles.emptyCard, { backgroundColor: themeColors.card }]}>
-            <Ionicons name="people-outline" size={36} color={themeColors.textTertiary} style={{ marginBottom: 12 }} />
-            <Text style={[styles.meneeName, { textAlign: "center", marginBottom: 8, color: themeColors.text }]}>
-              {t("mentees.noMenteesYet")}
-            </Text>
-            <Text style={[styles.emptyText, { marginTop: 0, marginBottom: 12, color: themeColors.textTertiary }]}>
-              {t("mentees.noMenteesText")}
-            </Text>
+        {activeTab === "active" ? (
+          <>
+            {/* Mentor kann selbst Mentee übernehmen */}
             <TouchableOpacity
-              style={{ backgroundColor: COLORS.gradientStart, borderRadius: 5, paddingVertical: 9, paddingHorizontal: 20 }}
+              style={styles.selfAssignButton}
               onPress={() => router.push("/assign")}
             >
-              <Text style={{ color: COLORS.white, fontWeight: "600", fontSize: 14 }}>
-                {t("mentees.takeMenteeButton")}
-              </Text>
+              <Text style={styles.selfAssignText}>{t("mentees.takeMentee")}</Text>
             </TouchableOpacity>
-          </View>
+
+            {activeMentorships.length === 0 ? (
+              <View style={[styles.emptyCard, { backgroundColor: themeColors.card }]}>
+                <Ionicons name="people-outline" size={36} color={themeColors.textTertiary} style={{ marginBottom: 12 }} />
+                <Text style={[styles.meneeName, { textAlign: "center", marginBottom: 8, color: themeColors.text }]}>
+                  {t("mentees.noMenteesYet")}
+                </Text>
+                <Text style={[styles.emptyText, { marginTop: 0, marginBottom: 12, color: themeColors.textTertiary }]}>
+                  {t("mentees.noMenteesText")}
+                </Text>
+                <TouchableOpacity
+                  style={{ backgroundColor: COLORS.gradientStart, borderRadius: 5, paddingVertical: 9, paddingHorizontal: 20 }}
+                  onPress={() => router.push("/assign")}
+                >
+                  <Text style={{ color: COLORS.white, fontWeight: "600", fontSize: 14 }}>
+                    {t("mentees.takeMenteeButton")}
+                  </Text>
+                </TouchableOpacity>
+              </View>
+            ) : (
+              activeMentorships.map((mentorship) => (
+                <MentorMenteeCard key={mentorship.id} mentorship={mentorship} />
+              ))
+            )}
+          </>
         ) : (
-          myMentorships.map((mentorship) => (
-            <MentorMenteeCard key={mentorship.id} mentorship={mentorship} />
-          ))
+          <>
+            {completedMentorships.length === 0 ? (
+              <View style={[styles.emptyCard, { backgroundColor: themeColors.card }]}>
+                <Ionicons name="checkmark-circle-outline" size={36} color={themeColors.textTertiary} style={{ marginBottom: 12 }} />
+                <Text style={[styles.emptyText, { marginTop: 0, color: themeColors.textTertiary }]}>
+                  {t("mentees.noCompletedYet")}
+                </Text>
+              </View>
+            ) : (
+              completedMentorships.map((mentorship) => {
+                const completedSteps = getCompletedStepIds(mentorship.id);
+                return (
+                  <TouchableOpacity
+                    key={mentorship.id}
+                    style={[styles.completedCompactCard, { backgroundColor: themeColors.card, borderColor: isDark ? "#2d6a4a" : "#bbf7d0" }]}
+                    onPress={() => router.push({ pathname: "/mentorship/[id]", params: { id: mentorship.id } })}
+                  >
+                    <View style={styles.completedCardRow}>
+                      <View style={{ flex: 1 }}>
+                        <Text style={[styles.completedCardName, { color: themeColors.text }]}>{mentorship.mentee?.name}</Text>
+                        {mentorship.completed_at && (
+                          <Text style={[styles.completedCardDate, { color: themeColors.textTertiary }]}>
+                            {new Date(mentorship.completed_at).toLocaleDateString("de-DE")}
+                          </Text>
+                        )}
+                      </View>
+                      <View style={styles.completedCardRight}>
+                        <View style={[styles.completedBadge, { backgroundColor: isDark ? "#1a3a2a" : "#dcfce7" }]}>
+                          <Text style={[styles.completedBadgeText, { color: isDark ? "#4ade80" : "#15803d" }]}>
+                            {completedSteps.length}/{sessionTypes.length}
+                          </Text>
+                        </View>
+                        <Text style={[styles.completedArrow, { color: themeColors.textTertiary }]}>›</Text>
+                      </View>
+                    </View>
+                  </TouchableOpacity>
+                );
+              })
+            )}
+          </>
         )}
       </View>
     </ScrollView>
@@ -1233,4 +1312,78 @@ const styles = StyleSheet.create({
   stepIndicatorTextTertiary: { fontSize: 14, fontWeight: "700" },
   stepDetailName: { fontWeight: "600", fontSize: 15 },
   stepDetailDesc: { fontSize: 12 },
+
+  // Tab-Switcher (Mentor Mentees Aktiv/Abgeschlossen)
+  tabSwitcher: {
+    flexDirection: "row",
+    borderRadius: 8,
+    borderWidth: 1,
+    overflow: "hidden",
+    marginBottom: 16,
+    marginTop: 8,
+  },
+  tabSwitcherBtn: {
+    flex: 1,
+    paddingVertical: 10,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  tabSwitcherBtnActive: {
+    backgroundColor: COLORS.gradientStart,
+  },
+  tabSwitcherText: {
+    fontSize: 14,
+    fontWeight: "600",
+  },
+  tabSwitcherTextActive: {
+    color: COLORS.white,
+  },
+  tabSwitcherCount: {
+    fontSize: 13,
+    fontWeight: "700",
+  },
+
+  // Kompakte Karte für abgeschlossene Mentees
+  completedCompactCard: {
+    borderRadius: 8,
+    padding: 14,
+    marginBottom: 10,
+    borderLeftWidth: 3,
+    borderWidth: 1,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.05,
+    shadowRadius: 4,
+    elevation: 1,
+  },
+  completedCardRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 12,
+  },
+  completedCardName: {
+    fontWeight: "600",
+    fontSize: 15,
+    marginBottom: 2,
+  },
+  completedCardDate: {
+    fontSize: 12,
+  },
+  completedCardRight: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 8,
+  },
+  completedBadge: {
+    paddingHorizontal: 8,
+    paddingVertical: 3,
+    borderRadius: 4,
+  },
+  completedBadgeText: {
+    fontSize: 12,
+    fontWeight: "600",
+  },
+  completedArrow: {
+    fontSize: 18,
+  },
 });

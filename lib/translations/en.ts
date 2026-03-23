@@ -101,6 +101,7 @@ const en: Record<TranslationKeys, string> = {
   "mentees.noMenteesYet": "No Mentees Yet",
   "mentees.noMenteesText": "No mentees have been assigned yet. You can take on an unassigned mentee yourself.",
   "mentees.takeMenteeButton": "Take on Mentee",
+  "mentees.noCompletedYet": "No completed mentorships yet.",
   "mentees.myProgress": "My Progress",
   "mentees.noAssignmentYet": "No Assignment Yet",
   "mentees.noAssignmentText": "The BNM team is reviewing your application and will assign a suitable mentor soon.",

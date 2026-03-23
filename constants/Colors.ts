@@ -45,20 +45,21 @@ export const LIGHT_COLORS = {
   headerBackground: "#FFFFFF",
   headerText: "#101828",
   statItem: "#F9FAFB",
+  input: "#FFFFFF",
 } as const;
 
 // Dark Theme Farbpalette
 export const DARK_COLORS = {
   // Backgrounds
-  background: "#0F1117",
-  card: "#1A1D28",
-  elevated: "#1A1D28",
+  background: "#1A1B2E",
+  card: "#232540",
+  elevated: "#232540",
   // Text
-  text: "#F5F5F7",
-  textSecondary: "#9CA3AF",
-  textTertiary: "#6B7280",
+  text: "#E8E8ED",
+  textSecondary: "#9A9AB0",
+  textTertiary: "#6B6B85",
   // Borders
-  border: "#2D3140",
+  border: "#2E3050",
   // Brand (unveränderlich)
   primary: "#0A3A5A",
   primaryDark: "#012A46",
@@ -68,15 +69,16 @@ export const DARK_COLORS = {
   error: "#dc2626",
   link: "#818CF8",
   // Misc
-  white: "#F5F5F7",
-  black: "#0F1117",
-  tabBar: "#12151F",
-  tabBarBorder: "#2D3140",
-  tabIconActive: "#F5F5F7",
-  tabIconInactive: "#6B7280",
-  headerBackground: "#12151F",
-  headerText: "#F5F5F7",
-  statItem: "#0F1117",
+  white: "#E8E8ED",
+  black: "#1A1B2E",
+  tabBar: "#1E1F35",
+  tabBarBorder: "#2E3050",
+  tabIconActive: "#E8E8ED",
+  tabIconInactive: "#6B6B85",
+  headerBackground: "#1E1F35",
+  headerText: "#E8E8ED",
+  statItem: "#1A1B2E",
+  input: "#2A2C48",
 } as const;
 
 // Lockerer Typ für Theme-Farben (string statt Literal-Typen, damit Light + Dark zuweisbar sind)

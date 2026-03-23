@@ -101,6 +101,7 @@ const tr: Record<TranslationKeys, string> = {
   "mentees.noMenteesYet": "Henüz danışan yok",
   "mentees.noMenteesText": "Henüz danışan atanmadı. Atanmamış bir danışanı kendin üstlenebilirsin.",
   "mentees.takeMenteeButton": "Danışan Üstlen",
+  "mentees.noCompletedYet": "Henüz tamamlanmış bir beraberlik yok.",
   "mentees.myProgress": "İlerleme Durumum",
   "mentees.noAssignmentYet": "Henüz Atama Yok",
   "mentees.noAssignmentText": "BNM ekibi başvurunu inceliyor ve yakında uygun bir mentor atayacak.",
