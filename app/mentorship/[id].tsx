@@ -360,12 +360,14 @@ export default function MentorshipDetailScreen() {
                           >
                             <Text style={[styles.sessionEditText, { color: isDark ? "#93c5fd" : "#2563eb" }]}>✏️ {t("sessionEdit.edit")}</Text>
                           </TouchableOpacity>
+                          {(user?.role === "admin") && (
                           <TouchableOpacity
                             style={[styles.sessionDeleteButton, { backgroundColor: isDark ? "#3a1a1a" : "#fef2f2", borderColor: isDark ? "#7a2a2a" : "#fecaca" }]}
                             onPress={() => handleDeleteSession(session.id)}
                           >
                             <Text style={[styles.sessionDeleteText, { color: isDark ? "#f87171" : "#dc2626" }]}>🗑 {t("sessionEdit.delete")}</Text>
                           </TouchableOpacity>
+                          )}
                         </View>
                       )}
                     </>
