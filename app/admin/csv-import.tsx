@@ -482,7 +482,7 @@ export default function CSVImportScreen() {
                   </View>
                 </View>
                 <Text style={[styles.previewRowMeta, { color: themeColors.textTertiary }]}>
-                  {row.email} · {row.gender} · {row.city} · {row.age} J.
+                  {row.email} · {row.gender} · {row.city}{row.plz ? ` (${row.plz})` : ""} · {row.age} J.
                 </Text>
                 {row.errors.length > 0 && (
                   <Text style={styles.previewRowErrors}>
