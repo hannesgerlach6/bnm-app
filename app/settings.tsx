@@ -178,14 +178,6 @@ export default function SettingsScreen() {
             <Text style={[styles.privacyText, { color: themeColors.textSecondary }]}>{t("settings.privacyText2")}</Text>
           </View>
 
-          {/* Konto löschen */}
-          <TouchableOpacity
-            style={[styles.deleteButton, { backgroundColor: isDark ? "#3a1a1a" : "#fef2f2", borderColor: isDark ? "#7a2a2a" : "#fecaca" }]}
-            onPress={handleDeleteAccount}
-          >
-            <Text style={styles.deleteButtonText}>{t("settings.deleteAccount")}</Text>
-          </TouchableOpacity>
-
           <Text style={[styles.footerText, { color: themeColors.textTertiary }]}>{t("settings.footer")}</Text>
         </ScrollView>
       </View>

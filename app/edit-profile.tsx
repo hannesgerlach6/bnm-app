@@ -22,7 +22,7 @@ import { useTheme, useThemeColors } from "../contexts/ThemeContext";
 
 export default function EditProfileScreen() {
   const router = useRouter();
-  const { user } = useAuth();
+  const { user, refreshUser } = useAuth();
   const { t } = useLanguage();
   const themeColors = useThemeColors();
   const { isDark } = useTheme();
@@ -104,6 +104,8 @@ export default function EditProfileScreen() {
       phone: phone.trim() || undefined,
       contact_preference: contactPref,
     });
+    // AuthContext-User aktualisieren damit Profil-Seite die neuen Werte zeigt
+    await refreshUser();
     setIsSaving(false);
     showSuccess(t("editProfile.successMsg"), () => router.back());
   }

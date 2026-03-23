@@ -13,6 +13,7 @@ import {
 import { useRouter } from "expo-router";
 import { COLORS } from "../constants/Colors";
 import { Container } from "../components/Container";
+import { BNMLogo } from "../components/BNMLogo";
 import { useLanguage } from "../contexts/LanguageContext";
 import { useTheme, useThemeColors } from "../contexts/ThemeContext";
 
@@ -134,12 +135,15 @@ export default function OnboardingScreen() {
           contentContainerStyle={styles.scrollContent}
         >
           {/* Slide 1: Willkommen */}
-          <View style={[styles.slide, { width: SCREEN_WIDTH }]}>
+          <ScrollView
+            style={[styles.slide, { width: SCREEN_WIDTH }]}
+            contentContainerStyle={styles.slideScrollContent}
+            showsVerticalScrollIndicator={false}
+            scrollEnabled={true}
+          >
             <View style={styles.slideInner}>
               <View style={styles.iconContainer}>
-                <View style={styles.iconCircle}>
-                  <Text style={styles.iconText}>☪</Text>
-                </View>
+                <BNMLogo size={80} showSubtitle={false} />
               </View>
 
               <View style={styles.headerBadge}>
@@ -176,10 +180,15 @@ export default function OnboardingScreen() {
                 </View>
               </View>
             </View>
-          </View>
+          </ScrollView>
 
           {/* Slide 2: So funktioniert's */}
-          <View style={[styles.slide, { width: SCREEN_WIDTH }]}>
+          <ScrollView
+            style={[styles.slide, { width: SCREEN_WIDTH }]}
+            contentContainerStyle={styles.slideScrollContent}
+            showsVerticalScrollIndicator={false}
+            scrollEnabled={true}
+          >
             <View style={styles.slideInner}>
               <View style={styles.headerBadge}>
                 <Text style={styles.headerBadgeText}>{t("onboarding.slide2Badge")}</Text>
@@ -210,15 +219,18 @@ export default function OnboardingScreen() {
                 </Text>
               </View>
             </View>
-          </View>
+          </ScrollView>
 
           {/* Slide 3: Los geht's */}
-          <View style={[styles.slide, { width: SCREEN_WIDTH }]}>
+          <ScrollView
+            style={[styles.slide, { width: SCREEN_WIDTH }]}
+            contentContainerStyle={styles.slideScrollContent}
+            showsVerticalScrollIndicator={false}
+            scrollEnabled={true}
+          >
             <View style={styles.slideInner}>
               <View style={styles.iconContainer}>
-                <View style={[styles.iconCircle, { backgroundColor: COLORS.cta }]}>
-                  <Text style={styles.iconText}>★</Text>
-                </View>
+                <BNMLogo size={80} showSubtitle={false} />
               </View>
 
               <View style={[styles.headerBadge, { backgroundColor: "rgba(238,167,27,0.15)", borderColor: "rgba(238,167,27,0.4)" }]}>
@@ -247,7 +259,7 @@ export default function OnboardingScreen() {
                 </Text>
               </View>
             </View>
-          </View>
+          </ScrollView>
         </ScrollView>
 
         {/* Dots-Indikator */}
@@ -302,6 +314,9 @@ const styles = StyleSheet.create({
     flex: 1,
     paddingTop: 80,
   },
+  slideScrollContent: {
+    flexGrow: 1,
+  },
   slideInner: {
     paddingHorizontal: 24,
     paddingBottom: 24,
@@ -309,18 +324,6 @@ const styles = StyleSheet.create({
   iconContainer: {
     alignItems: "center",
     marginBottom: 24,
-  },
-  iconCircle: {
-    width: 80,
-    height: 80,
-    borderRadius: 40,
-    backgroundColor: COLORS.primary,
-    alignItems: "center",
-    justifyContent: "center",
-  },
-  iconText: {
-    fontSize: 36,
-    color: COLORS.white,
   },
   headerBadge: {
     alignSelf: "flex-start",

@@ -1968,6 +1968,9 @@ export function DataProvider({ children }: { children: ReactNode }) {
 
   const getTotalUnreadMessages = useCallback(() => {
     if (!authUser) return 0;
+    // Admin/Office sehen alle Chats zur Überwachung — Badge wäre irreführend,
+    // da niemand direkt den Admin in Mentorship-Chats anschreibt.
+    if (authUser.role === "admin" || authUser.role === "office") return 0;
     return messages.filter(
       (m) => m.sender_id !== authUser.id && !m.read_at
     ).length;

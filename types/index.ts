@@ -99,6 +99,7 @@ export interface AuthContextValue {
   login: (email: string, password: string) => Promise<boolean>;
   loginAs: (role: UserRole) => Promise<{ success: boolean; error?: string }>;
   logout: () => void;
+  refreshUser: () => Promise<void>;
 }
 
 export type NotificationType = "assignment" | "reminder" | "progress" | "message" | "feedback" | "system";

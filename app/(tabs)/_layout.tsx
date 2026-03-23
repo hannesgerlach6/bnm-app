@@ -307,6 +307,7 @@ function TabsLayout() {
   const isOffice = user?.role === "office";
   const showLeaderboard = !isMentee;
   const showChats = !isOffice;
+  const showMentees = !isMentee;
 
   return (
     <Tabs
@@ -341,6 +342,7 @@ function TabsLayout() {
         name="mentees"
         options={{
           title: t("tabs.mentees"),
+          href: showMentees ? undefined : null,
           tabBarIcon: ({ color }) => (
             <SymbolView
               name={"person.2.fill" as any}

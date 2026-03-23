@@ -263,8 +263,8 @@ export default function ProfileScreen() {
           </View>
         )}
 
-        {/* Kontaktinfo Mentorship-Partner */}
-        {partnerContact && (
+        {/* Kontaktinfo Mentorship-Partner — nur für Mentees sichtbar */}
+        {partnerContact && user.role === "mentee" && (
           <View style={[styles.infoCard, { backgroundColor: themeColors.card }]}>
             <Text style={[styles.sectionLabel, { color: themeColors.textTertiary }]}>{t("profile.partnerInfo")}</Text>
             <Text style={[styles.infoValue, { textAlign: "left", maxWidth: "100%", fontWeight: "700", color: themeColors.text, marginBottom: 8 }]}>

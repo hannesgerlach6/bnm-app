@@ -7,7 +7,6 @@ import {
   TextInput,
   StyleSheet,
   Platform,
-  FlatList,
 } from "react-native";
 import { showError, showSuccess, showConfirm } from "../lib/errorHandler";
 import { useRouter, useLocalSearchParams } from "expo-router";
@@ -628,15 +627,13 @@ export default function DocumentSessionScreen() {
                       {/* Dropdown für Tag */}
                       {openPickerCol === "day" && (
                         <View style={[styles.datePickerDropdown, { backgroundColor: themeColors.card, borderColor: themeColors.border }]}>
-                          <FlatList
-                            data={Array.from({ length: maxDayForMonth(pickerMonth, pickerYear) }, (_, i) => i + 1)}
-                            keyExtractor={(item) => String(item)}
-                            style={styles.datePickerList}
-                            renderItem={({ item }) => {
+                          <ScrollView style={styles.datePickerList} nestedScrollEnabled>
+                            {Array.from({ length: maxDayForMonth(pickerMonth, pickerYear) }, (_, i) => i + 1).map((item) => {
                               const isFuture = isPickerDateFuture(item, pickerMonth, pickerYear);
                               const isSelected = item === pickerDay;
                               return (
                                 <TouchableOpacity
+                                  key={item}
                                   style={[
                                     styles.datePickerItem,
                                     isSelected && styles.datePickerItemSelected,
@@ -659,23 +656,21 @@ export default function DocumentSessionScreen() {
                                   </Text>
                                 </TouchableOpacity>
                               );
-                            }}
-                          />
+                            })}
+                          </ScrollView>
                         </View>
                       )}
 
                       {/* Dropdown für Monat */}
                       {openPickerCol === "month" && (
                         <View style={[styles.datePickerDropdown, { backgroundColor: themeColors.card, borderColor: themeColors.border }]}>
-                          <FlatList
-                            data={Array.from({ length: 12 }, (_, i) => i + 1)}
-                            keyExtractor={(item) => String(item)}
-                            style={styles.datePickerList}
-                            renderItem={({ item }) => {
+                          <ScrollView style={styles.datePickerList} nestedScrollEnabled>
+                            {Array.from({ length: 12 }, (_, i) => i + 1).map((item) => {
                               const isFuture = isPickerDateFuture(pickerDay, item, pickerYear);
                               const isSelected = item === pickerMonth;
                               return (
                                 <TouchableOpacity
+                                  key={item}
                                   style={[
                                     styles.datePickerItem,
                                     isSelected && styles.datePickerItemSelected,
@@ -700,23 +695,21 @@ export default function DocumentSessionScreen() {
                                   </Text>
                                 </TouchableOpacity>
                               );
-                            }}
-                          />
+                            })}
+                          </ScrollView>
                         </View>
                       )}
 
                       {/* Dropdown für Jahr */}
                       {openPickerCol === "year" && (
                         <View style={[styles.datePickerDropdown, { backgroundColor: themeColors.card, borderColor: themeColors.border }]}>
-                          <FlatList
-                            data={YEAR_OPTIONS}
-                            keyExtractor={(item) => String(item)}
-                            style={styles.datePickerList}
-                            renderItem={({ item }) => {
+                          <ScrollView style={styles.datePickerList} nestedScrollEnabled>
+                            {YEAR_OPTIONS.map((item) => {
                               const isFuture = isPickerDateFuture(pickerDay, pickerMonth, item);
                               const isSelected = item === pickerYear;
                               return (
                                 <TouchableOpacity
+                                  key={item}
                                   style={[
                                     styles.datePickerItem,
                                     isSelected && styles.datePickerItemSelected,
@@ -741,8 +734,8 @@ export default function DocumentSessionScreen() {
                                   </Text>
                                 </TouchableOpacity>
                               );
-                            }}
-                          />
+                            })}
+                          </ScrollView>
                         </View>
                       )}
                     </>
@@ -883,24 +876,25 @@ export default function DocumentSessionScreen() {
                           <Text style={[styles.historyDetails, { color: themeColors.textTertiary }]} numberOfLines={1}>{s.details}</Text>
                         ) : null}
                       </View>
-                      <TouchableOpacity
-                        style={[styles.historyEditButton, { backgroundColor: themeColors.background, borderColor: themeColors.border }]}
-                        onPress={() => {
-                          // Felder vorausfüllen
-                          const isoDateStr = s.date
-                            ? new Date(s.date).toISOString().split("T")[0]
-                            : todayIso;
-                          setDate(isoDateStr);
-                          setIsOnline(s.is_online);
-                          setDetails(s.details ?? "");
-                          setDurationMinutes(s.duration_minutes ? String(s.duration_minutes) : "");
-                          setEditingSessionId(s.id);
-                          // AdminSelectedTypeId setzen falls admin
-                          if (isAdmin) setAdminSelectedTypeId(s.session_type_id);
-                        }}
-                      >
-                        <Text style={[styles.historyEditText, { color: themeColors.textSecondary }]}>{t("docSession.historyEdit")} ✏️</Text>
-                      </TouchableOpacity>
+                      {isAdmin && (
+                        <TouchableOpacity
+                          style={[styles.historyEditButton, { backgroundColor: themeColors.background, borderColor: themeColors.border }]}
+                          onPress={() => {
+                            // Felder vorausfüllen
+                            const isoDateStr = s.date
+                              ? new Date(s.date).toISOString().split("T")[0]
+                              : todayIso;
+                            setDate(isoDateStr);
+                            setIsOnline(s.is_online);
+                            setDetails(s.details ?? "");
+                            setDurationMinutes(s.duration_minutes ? String(s.duration_minutes) : "");
+                            setEditingSessionId(s.id);
+                            setAdminSelectedTypeId(s.session_type_id);
+                          }}
+                        >
+                          <Text style={[styles.historyEditText, { color: themeColors.textSecondary }]}>{t("docSession.historyEdit")} ✏️</Text>
+                        </TouchableOpacity>
+                      )}
                     </View>
                   );
                 })}

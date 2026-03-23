@@ -63,7 +63,9 @@ export default function FeedbackScreen() {
         ).catch(() => {});
       }
 
-      showSuccess(t("feedback.successMsg"), () => router.replace("/(tabs)"));
+      // Direkt zum Dashboard navigieren — nicht erst auf Modal-Dismiss warten
+      router.replace("/(tabs)");
+      showSuccess(t("feedback.successMsg"));
     } catch {
       showError(t("feedback.errorMissing"));
     } finally {

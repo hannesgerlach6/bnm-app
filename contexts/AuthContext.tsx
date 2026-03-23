@@ -180,8 +180,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setUser(null);
   }, [user?.id]);
 
+  const refreshUser = useCallback(async () => {
+    if (!user?.id) return;
+    const profile = await loadProfile(user.id);
+    if (profile) setUser(profile);
+  }, [user?.id]);
+
   return (
-    <AuthContext.Provider value={{ user, isLoading, login, loginAs, logout }}>
+    <AuthContext.Provider value={{ user, isLoading, login, loginAs, logout, refreshUser }}>
       {children}
     </AuthContext.Provider>
   );
