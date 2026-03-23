@@ -9,8 +9,10 @@ export interface CSVRow {
 }
 
 export function parseCSV(text: string): CSVRow[] {
+  // BOM entfernen (Excel/Windows fügt unsichtbare Zeichen am Anfang hinzu)
+  const cleaned = text.replace(/^\uFEFF/, "").replace(/^\xEF\xBB\xBF/, "");
   // Zeilenumbrüche normalisieren
-  const lines = text.replace(/\r\n/g, "\n").replace(/\r/g, "\n").split("\n");
+  const lines = cleaned.replace(/\r\n/g, "\n").replace(/\r/g, "\n").split("\n");
 
   // Leere Zeilen herausfiltern
   const nonEmpty = lines.filter((l) => l.trim().length > 0);
@@ -22,8 +24,32 @@ export function parseCSV(text: string): CSVRow[] {
   const commaCount = (header.match(/,/g) || []).length;
   const delimiter = semicolonCount >= commaCount ? ";" : ",";
 
-  // Header parsen
-  const headers = parseLine(header, delimiter).map((h) => h.trim());
+  // Header parsen + normalisieren (flexible Zuordnung)
+  const HEADER_MAP: Record<string, string> = {
+    "name": "Name",
+    "vorname": "Name",
+    "e-mail": "E-Mail",
+    "email": "E-Mail",
+    "mail": "E-Mail",
+    "geschlecht": "Geschlecht",
+    "gender": "Geschlecht",
+    "stadt": "Stadt",
+    "city": "Stadt",
+    "ort": "Stadt",
+    "alter": "Alter",
+    "age": "Alter",
+    "telefon": "Telefon",
+    "phone": "Telefon",
+    "tel": "Telefon",
+    "kontaktpräferenz": "Kontaktpräferenz",
+    "kontaktpraferenz": "Kontaktpräferenz",
+    "kontakt": "Kontaktpräferenz",
+    "contact": "Kontaktpräferenz",
+    "erfahrung": "Erfahrung",
+    "experience": "Erfahrung",
+  };
+  const rawHeaders = parseLine(header, delimiter).map((h) => h.trim());
+  const headers = rawHeaders.map((h) => HEADER_MAP[h.toLowerCase()] || h);
 
   const rows: CSVRow[] = [];
 
