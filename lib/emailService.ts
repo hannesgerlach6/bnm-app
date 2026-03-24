@@ -23,7 +23,7 @@ async function sendViaResend(
     const res = await fetch("https://api.resend.com/emails", {
       method: "POST",
       headers: {
-        "Authorization": "Bearer re_6mXaja3u_DF424Shzf42tKVP1Zk2qeyRo",
+        "Authorization": "Bearer re_VsfpM6qP_5GZdMEN3FETajnjmJpbDnAdc",
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
