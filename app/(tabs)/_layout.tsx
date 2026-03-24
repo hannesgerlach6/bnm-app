@@ -134,9 +134,11 @@ function AdminSidebar() {
   const pathname = usePathname();
   const themeColors = useThemeColors();
   const { t } = useLanguage();
-  const { getUnreadCount } = useData();
+  const { getUnreadCount, getTotalUnreadMessages } = useData();
   const { user } = useAuth();
   const unreadCount = getUnreadCount();
+  const isAdminOrOffice = user?.role === "admin" || user?.role === "office";
+  const chatUnread = isAdminOrOffice ? 0 : getTotalUnreadMessages();
 
   const isOffice = user?.role === "office";
 
@@ -157,7 +159,7 @@ function AdminSidebar() {
     { key: "index", label: t("tabs.dashboard"), iconName: "home-outline", iconNameActive: "home", href: "/(tabs)/" },
     { key: "mentees", label: t("tabs.mentees"), iconName: "people-outline", iconNameActive: "people", href: "/(tabs)/mentees" },
     ...(!isOffice
-      ? [{ key: "chats", label: t("tabs.chats"), iconName: "chatbubbles-outline", iconNameActive: "chatbubbles", href: "/(tabs)/chats", badge: unreadCount }]
+      ? [{ key: "chats", label: t("tabs.chats"), iconName: "chatbubbles-outline", iconNameActive: "chatbubbles", href: "/(tabs)/chats", badge: chatUnread }]
       : []),
     { key: "reports", label: t("tabs.reports"), iconName: "bar-chart-outline", iconNameActive: "bar-chart", href: "/(tabs)/reports" },
     { key: "profile", label: t("tabs.profile"), iconName: "person-outline", iconNameActive: "person", href: "/(tabs)/profile" },
