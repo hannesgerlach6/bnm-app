@@ -5,12 +5,13 @@ import {
   ScrollView,
   TouchableOpacity,
   StyleSheet,
+  Alert,
 } from "react-native";
 import { useRouter, useLocalSearchParams } from "expo-router";
 import { useAuth } from "../contexts/AuthContext";
 import type { TranslationKeys } from "../lib/translations/de";
 import { useData } from "../contexts/DataContext";
-import { showConfirm, showSuccess, showError } from "../lib/errorHandler";
+import { showSuccess, showError } from "../lib/errorHandler";
 import type { User } from "../types";
 import { COLORS } from "../constants/Colors";
 import { sendMenteeAssignedNotification } from "../lib/emailService";
@@ -102,11 +103,19 @@ export default function AssignScreen() {
   const { isDark } = useTheme();
   const { users, mentorships, assignMentorship, getUnassignedMentees } = useData();
   const params = useLocalSearchParams<{ menteeId?: string }>();
-  const confirm = showConfirm;
-  const alert = async (title: string, msg: string, _type?: string) => { showSuccess(msg); };
 
   const isMentor = user?.role === "mentor";
   const isAdmin = user?.role === "admin" || user?.role === "office";
+
+  // Native Alert-based confirm (iOS-kompatibel, kein Modal-Hänger)
+  function nativeConfirm(title: string, message: string): Promise<boolean> {
+    return new Promise<boolean>((resolve) => {
+      Alert.alert(title, message, [
+        { text: t("common.cancel"), onPress: () => resolve(false), style: "cancel" },
+        { text: t("common.confirm"), onPress: () => resolve(true) },
+      ]);
+    });
+  }
 
   // FIX 5: Mentor sieht nur nicht zugewiesene Mentees des GLEICHEN Geschlechts
   const unassignedMentees = useMemo(() => {
@@ -127,6 +136,7 @@ export default function AssignScreen() {
   const [isAssigning, setIsAssigning] = useState(false);
 
   const selectedMentee = users.find((u) => u.id === selectedMenteeId);
+
 
   const matchedMentors: MatchScore[] = useMemo(() => {
     if (!selectedMentee || isMentor) return [];
@@ -154,7 +164,7 @@ export default function AssignScreen() {
       ? t("assign.confirmTakeMenteeText").replace("{0}", mentee.name)
       : t("assign.confirmAssignText").replace("{0}", mentee.name).replace("{1}", mentor.name);
 
-    const confirmed = await confirm(confirmTitle, confirmText);
+    const confirmed = await nativeConfirm(confirmTitle, confirmText);
     if (!confirmed) return;
 
     setIsAssigning(true);
@@ -162,7 +172,7 @@ export default function AssignScreen() {
       if (isMentor) {
         // Mentor-Selbst-Zuweisung: Status "pending_approval" → Admin muss bestätigen
         await assignMentorship(selectedMenteeId, mentorId, user.id, "pending_approval");
-        await alert(t("assign.pendingSuccessTitle"), t("assign.pendingSuccessText"), "success");
+        showSuccess(t("assign.pendingSuccessText"));
         router.back();
       } else {
         // Admin/Office-Zuweisung: direkt "active"
@@ -177,7 +187,7 @@ export default function AssignScreen() {
           );
         }
 
-        await alert(t("assign.successTitle"), t("assign.successText"), "success");
+        showSuccess(t("assign.successText"));
         router.back();
       }
     } catch (err) {

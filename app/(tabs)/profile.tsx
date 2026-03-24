@@ -8,10 +8,10 @@ import {
   TouchableOpacity,
   RefreshControl,
   StyleSheet,
+  Alert,
 } from "react-native";
 import { useRouter } from "expo-router";
 import { useAuth } from "../../contexts/AuthContext";
-import { showConfirm } from "../../lib/errorHandler";
 import { useData } from "../../contexts/DataContext";
 import { useLanguage } from "../../contexts/LanguageContext";
 import { useTheme, useThemeColors } from "../../contexts/ThemeContext";
@@ -112,7 +112,12 @@ export default function ProfileScreen() {
   if (!user) return null;
 
   async function handleLogout() {
-    const ok = await showConfirm(t("profile.logoutTitle"), t("profile.logoutConfirm"));
+    const ok = await new Promise<boolean>((resolve) => {
+      Alert.alert(t("profile.logoutTitle"), t("profile.logoutConfirm"), [
+        { text: t("common.cancel"), onPress: () => resolve(false), style: "cancel" },
+        { text: t("common.confirm"), onPress: () => resolve(true) },
+      ]);
+    });
     if (ok) logout();
   }
 

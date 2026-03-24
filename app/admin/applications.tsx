@@ -7,8 +7,9 @@ import {
   TextInput,
   StyleSheet,
   Modal,
+  Alert,
 } from "react-native";
-import { showError, showSuccess, showConfirm } from "../../lib/errorHandler";
+import { showError, showSuccess } from "../../lib/errorHandler";
 import { useRouter } from "expo-router";
 import { useAuth } from "../../contexts/AuthContext";
 import { useData } from "../../contexts/DataContext";
@@ -88,7 +89,12 @@ export default function ApplicationsScreen() {
   const unassignedMenteeApps = menteeApps.filter((a) => a.status === "approved");
 
   async function handleApproveMentor(app: MentorApplication) {
-    const ok = await showConfirm(t("applications.approveTitle"), t("applications.confirmApprove").replace("{0}", app.name));
+    const ok = await new Promise<boolean>((resolve) => {
+      Alert.alert(t("applications.approveTitle"), t("applications.confirmApprove").replace("{0}", app.name), [
+        { text: t("common.cancel"), onPress: () => resolve(false), style: "cancel" },
+        { text: t("common.confirm"), onPress: () => resolve(true) },
+      ]);
+    });
     if (ok) {
       try {
         await approveApplication(app.id);
@@ -157,7 +163,12 @@ export default function ApplicationsScreen() {
   }
 
   async function handleAcceptMenteeRegistration(app: MentorApplication) {
-    const ok = await showConfirm(t("applications.createAccountTitle"), t("applications.confirmCreateAccount").replace("{0}", app.name).replace("{1}", app.email));
+    const ok = await new Promise<boolean>((resolve) => {
+      Alert.alert(t("applications.createAccountTitle"), t("applications.confirmCreateAccount").replace("{0}", app.name).replace("{1}", app.email), [
+        { text: t("common.cancel"), onPress: () => resolve(false), style: "cancel" },
+        { text: t("common.confirm"), onPress: () => resolve(true) },
+      ]);
+    });
     if (!ok) return;
 
     // Temporäres Passwort generieren: "BNM-" + 6 Zufallsziffern
@@ -210,7 +221,12 @@ export default function ApplicationsScreen() {
   }
 
   async function handleRejectMenteeRegistration(app: MentorApplication) {
-    const ok = await showConfirm(t("applications.rejectMenteeTitle"), t("applications.confirmRejectMentee").replace("{0}", app.name));
+    const ok = await new Promise<boolean>((resolve) => {
+      Alert.alert(t("applications.rejectMenteeTitle"), t("applications.confirmRejectMentee").replace("{0}", app.name), [
+        { text: t("common.cancel"), onPress: () => resolve(false), style: "cancel" },
+        { text: t("common.confirm"), onPress: () => resolve(true) },
+      ]);
+    });
     if (ok) {
       await rejectApplication(app.id);
     }

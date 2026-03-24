@@ -10,11 +10,12 @@ import {
   TextInput,
   KeyboardAvoidingView,
   Platform,
+  Alert,
 } from "react-native";
 import { useRouter } from "expo-router";
 import { useAuth } from "../../contexts/AuthContext";
 import { useData } from "../../contexts/DataContext";
-import { showConfirm, showError, showSuccess } from "../../lib/errorHandler";
+import { showError, showSuccess } from "../../lib/errorHandler";
 import { COLORS } from "../../constants/Colors";
 import { Container } from "../../components/Container";
 import { useLanguage } from "../../contexts/LanguageContext";
@@ -26,7 +27,6 @@ export default function PendingApprovalsScreen() {
   const { t } = useLanguage();
   const themeColors = useThemeColors();
   const { mentorships, approveMentorship, rejectMentorship, refreshData } = useData();
-  const confirm = showConfirm;
   const [refreshing, setRefreshing] = useState(false);
   const [rejectModalVisible, setRejectModalVisible] = useState(false);
   const [rejectTargetId, setRejectTargetId] = useState<string | null>(null);
@@ -54,12 +54,18 @@ export default function PendingApprovalsScreen() {
     const m = pendingList.find((ms) => ms.id === mentorshipId);
     if (!m) return;
 
-    const confirmed = await confirm(
-      t("pendingApprovals.approveTitle"),
-      t("pendingApprovals.approveText")
-        .replace("{0}", m.mentor?.name ?? "?")
-        .replace("{1}", m.mentee?.name ?? "?")
-    );
+    const confirmed = await new Promise<boolean>((resolve) => {
+      Alert.alert(
+        t("pendingApprovals.approveTitle"),
+        t("pendingApprovals.approveText")
+          .replace("{0}", m.mentor?.name ?? "?")
+          .replace("{1}", m.mentee?.name ?? "?"),
+        [
+          { text: t("common.cancel"), onPress: () => resolve(false), style: "cancel" },
+          { text: t("common.confirm"), onPress: () => resolve(true) },
+        ]
+      );
+    });
     if (!confirmed) return;
 
     try {
@@ -167,7 +173,7 @@ export default function PendingApprovalsScreen() {
       <Modal
         visible={rejectModalVisible}
         transparent
-        animationType="fade"
+        animationType="slide"
         onRequestClose={() => setRejectModalVisible(false)}
       >
         <KeyboardAvoidingView

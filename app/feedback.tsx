@@ -6,6 +6,7 @@ import {
   TouchableOpacity,
   TextInput,
   StyleSheet,
+  Alert,
 } from "react-native";
 import { showError, showSuccess } from "../lib/errorHandler";
 import { useRouter, useLocalSearchParams } from "expo-router";
@@ -63,9 +64,14 @@ export default function FeedbackScreen() {
         ).catch(() => {});
       }
 
-      // Direkt zum Dashboard navigieren — nicht erst auf Modal-Dismiss warten
-      router.replace("/(tabs)");
-      showSuccess(t("feedback.successMsg"));
+      // Erfolgs-Meldung anzeigen, dann nach 1,5 Sekunden zum Dashboard navigieren
+      Alert.alert(t("feedback.successMsg"), "", [
+        {
+          text: "OK",
+          onPress: () => router.replace("/(tabs)"),
+        },
+      ]);
+      setTimeout(() => router.replace("/(tabs)"), 1500);
     } catch {
       showError(t("feedback.errorMissing"));
     } finally {

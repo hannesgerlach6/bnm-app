@@ -8,13 +8,14 @@ import {
   StyleSheet,
   KeyboardAvoidingView,
   Platform,
+  Alert,
 } from "react-native";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { useAuth } from "../../contexts/AuthContext";
 import { useData } from "../../contexts/DataContext";
 import { useLanguage } from "../../contexts/LanguageContext";
 import { COLORS } from "../../constants/Colors";
-import { showConfirm, showError, showSuccess } from "../../lib/errorHandler";
+import { showError, showSuccess } from "../../lib/errorHandler";
 import { Container } from "../../components/Container";
 import { useTheme, useThemeColors } from "../../contexts/ThemeContext";
 import type { UserRole, Gender } from "../../types";
@@ -120,7 +121,12 @@ function EditUserForm({ userId }: { userId: string }) {
       ? t("editUser.unblockText").replace("{0}", target.name)
       : t("editUser.blockText").replace("{0}", target.name);
 
-    const ok = await showConfirm(confirmTitle, confirmText);
+    const ok = await new Promise<boolean>((resolve) => {
+      Alert.alert(confirmTitle, confirmText, [
+        { text: t("common.cancel"), onPress: () => resolve(false), style: "cancel" },
+        { text: t("common.confirm"), onPress: () => resolve(true) },
+      ]);
+    });
     if (!ok) return;
 
     setIsBlocking(true);

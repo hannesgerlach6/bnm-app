@@ -1305,6 +1305,7 @@ const ar: Record<TranslationKeys, string> = {
   // Chat – send error
   "chat.sendError": "تعذّر إرسال الرسالة.",
   "chat.notActiveHint": "الدردشة متاحة فقط عند الإشراف النشط.",
+  "chat.adminReadOnly": "للقراءة فقط – عرض المشرف",
 
   // Motivation / حديث اليوم
   "motivation.title": "دافع اليوم",

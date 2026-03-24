@@ -8,12 +8,13 @@ import {
   KeyboardAvoidingView,
   Platform,
   StyleSheet,
+  Alert,
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { useLocalSearchParams } from "expo-router";
 import { useAuth } from "../../contexts/AuthContext";
 import { useData } from "../../contexts/DataContext";
-import { showError, showConfirm } from "../../lib/errorHandler";
+import { showError } from "../../lib/errorHandler";
 import { COLORS } from "../../constants/Colors";
 import { useLanguage } from "../../contexts/LanguageContext";
 import { useThemeColors } from "../../contexts/ThemeContext";
@@ -66,10 +67,16 @@ export default function ChatScreen() {
   async function handleLongPress(messageId: string, isOwn: boolean) {
     if (!isOwn) return; // Nur eigene Nachrichten löschbar
 
-    const ok = await showConfirm(
-      t("chat.deleteConfirmTitle"),
-      t("chat.deleteConfirmText")
-    );
+    const ok = await new Promise<boolean>((resolve) => {
+      Alert.alert(
+        t("chat.deleteConfirmTitle"),
+        t("chat.deleteConfirmText"),
+        [
+          { text: t("common.cancel"), onPress: () => resolve(false), style: "cancel" },
+          { text: t("common.confirm"), onPress: () => resolve(true) },
+        ]
+      );
+    });
     if (!ok) return;
 
     try {
@@ -189,8 +196,14 @@ export default function ChatScreen() {
         <View style={{ height: 16 }} />
       </ScrollView>
 
-      {/* Input-Bereich — nur bei aktiver Betreuung, nicht für Admin (nur Lesen) */}
-      {mentorship && (mentorship.status === "active" || mentorship.status === "completed") && user?.role !== "admin" && user?.role !== "office" ? (
+      {/* Input-Bereich — nur bei aktiver Betreuung, nicht für Admin/Office (nur Lesen) */}
+      {user?.role === "admin" || user?.role === "office" ? (
+        <View style={[styles.inputContainer, { backgroundColor: themeColors.card, borderTopColor: themeColors.border }]}>
+          <Text style={[styles.inactiveHint, { color: themeColors.textTertiary }]}>
+            {t("chat.adminReadOnly")}
+          </Text>
+        </View>
+      ) : mentorship && (mentorship.status === "active" || mentorship.status === "completed") ? (
         <View style={[styles.inputContainer, { backgroundColor: themeColors.card, borderTopColor: themeColors.border }]}>
           <TextInput
             style={[styles.textInput, { backgroundColor: themeColors.elevated, borderColor: themeColors.border, color: themeColors.text }]}

@@ -1251,6 +1251,7 @@ const en: Record<TranslationKeys, string> = {
   // Chat – send error
   "chat.sendError": "Could not send message.",
   "chat.notActiveHint": "Chat is only available during an active mentorship.",
+  "chat.adminReadOnly": "Read Only – Admin View",
 
   // Motivation / Hadith of the Day
   "motivation.title": "Motivation of the Day",

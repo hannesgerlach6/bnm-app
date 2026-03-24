@@ -1251,6 +1251,7 @@ const de = {
   // Chat – send error
   "chat.sendError": "Nachricht konnte nicht gesendet werden.",
   "chat.notActiveHint": "Der Chat ist nur bei aktiver Betreuung verfügbar.",
+  "chat.adminReadOnly": "Nur Lesen – Admin-Ansicht",
 
   // Motivation / Hadith des Tages
   "motivation.title": "Motivation des Tages",

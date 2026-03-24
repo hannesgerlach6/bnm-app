@@ -1305,6 +1305,7 @@ const tr: Record<TranslationKeys, string> = {
   // Chat – send error
   "chat.sendError": "Mesaj gönderilemedi.",
   "chat.notActiveHint": "Sohbet yalnızca aktif mentorluk sürecinde kullanılabilir.",
+  "chat.adminReadOnly": "Yalnızca Okuma – Yönetici Görünümü",
 
   // Motivation / Günün Hadisi
   "motivation.title": "Günün Motivasyonu",

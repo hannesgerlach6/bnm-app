@@ -17,7 +17,7 @@ import { useData, type Hadith } from "../../contexts/DataContext";
 import { useLanguage } from "../../contexts/LanguageContext";
 import { useThemeColors } from "../../contexts/ThemeContext";
 import { COLORS } from "../../constants/Colors";
-import { showError, showConfirm, showSuccess } from "../../lib/errorHandler";
+import { showError, showSuccess } from "../../lib/errorHandler";
 
 type FormData = {
   text_ar: string;
@@ -126,7 +126,12 @@ export default function HaditheManagementScreen() {
   }
 
   async function handleDelete(h: Hadith) {
-    const ok = await showConfirm(t("haditheMgmt.delete"), t("haditheMgmt.confirmDelete"));
+    const ok = await new Promise<boolean>((resolve) => {
+      Alert.alert(t("haditheMgmt.delete"), t("haditheMgmt.confirmDelete"), [
+        { text: t("common.cancel"), onPress: () => resolve(false), style: "cancel" },
+        { text: t("common.confirm"), onPress: () => resolve(true) },
+      ]);
+    });
     if (!ok) return;
     try {
       await deleteHadith(h.id);
@@ -445,7 +450,7 @@ export default function HaditheManagementScreen() {
 const styles = StyleSheet.create({
   centerContainer: { flex: 1, alignItems: "center", justifyContent: "center" },
   accessText: { fontSize: 16 },
-  page: { padding: 16, paddingBottom: 40 },
+  page: { padding: 16, paddingBottom: 40, paddingTop: Platform.OS === "ios" ? 50 : 16 },
   headerRow: { flexDirection: "row", alignItems: "center", gap: 10, marginBottom: 16 },
   backButton: { paddingVertical: 4, paddingRight: 8 },
   backText: { fontSize: 16 },

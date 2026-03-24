@@ -6,8 +6,9 @@ import {
   TouchableOpacity,
   TextInput,
   StyleSheet,
+  Alert,
 } from "react-native";
-import { showError, showConfirm } from "../../lib/errorHandler";
+import { showError } from "../../lib/errorHandler";
 import { useRouter } from "expo-router";
 import { useAuth } from "../../contexts/AuthContext";
 import { useData } from "../../contexts/DataContext";
@@ -53,7 +54,12 @@ export default function SessionTypesScreen() {
       showError(t("sessionTypes.errorDefault"));
       return;
     }
-    const ok = await showConfirm(t("sessionTypes.deleteTitle"), t("sessionTypes.deleteText").replace("{0}", `"${st.name}"`));
+    const ok = await new Promise<boolean>((resolve) => {
+      Alert.alert(t("sessionTypes.deleteTitle"), t("sessionTypes.deleteText").replace("{0}", `"${st.name}"`), [
+        { text: t("common.cancel"), onPress: () => resolve(false), style: "cancel" },
+        { text: t("common.confirm"), onPress: () => resolve(true) },
+      ]);
+    });
     if (ok) deleteSessionType(st.id);
   }
 
