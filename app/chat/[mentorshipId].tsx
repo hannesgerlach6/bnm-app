@@ -200,13 +200,13 @@ export default function ChatScreen() {
 
       {/* Input-Bereich — nur bei aktiver Betreuung, nicht für Admin/Office (nur Lesen) */}
       {user?.role === "admin" || user?.role === "office" ? (
-        <View style={[styles.inputContainer, { backgroundColor: themeColors.card, borderTopColor: themeColors.border, paddingBottom: Platform.OS !== "web" ? insets.bottom + 8 : 10 }]}>
+        <View style={[styles.inputContainer, { backgroundColor: themeColors.card, borderTopColor: themeColors.border, paddingBottom: Platform.OS !== "web" ? Math.max(insets.bottom, 16) + 12 : 10 }]}>
           <Text style={[styles.inactiveHint, { color: themeColors.textTertiary }]}>
             {t("chat.adminReadOnly")}
           </Text>
         </View>
       ) : mentorship && (mentorship.status === "active" || mentorship.status === "completed") ? (
-        <View style={[styles.inputContainer, { backgroundColor: themeColors.card, borderTopColor: themeColors.border, paddingBottom: Platform.OS !== "web" ? insets.bottom + 8 : 10 }]}>
+        <View style={[styles.inputContainer, { backgroundColor: themeColors.card, borderTopColor: themeColors.border, paddingBottom: Platform.OS !== "web" ? Math.max(insets.bottom, 16) + 12 : 10 }]}>
           <TextInput
             style={[styles.textInput, { backgroundColor: themeColors.elevated, borderColor: themeColors.border, color: themeColors.text }]}
             value={inputText}
@@ -228,7 +228,7 @@ export default function ChatScreen() {
           </TouchableOpacity>
         </View>
       ) : (
-        <View style={[styles.inputContainer, { backgroundColor: themeColors.card, borderTopColor: themeColors.border, paddingBottom: Platform.OS !== "web" ? insets.bottom + 8 : 10 }]}>
+        <View style={[styles.inputContainer, { backgroundColor: themeColors.card, borderTopColor: themeColors.border, paddingBottom: Platform.OS !== "web" ? Math.max(insets.bottom, 16) + 12 : 10 }]}>
           <Text style={[styles.inactiveHint, { color: themeColors.textTertiary }]}>
             {t("chat.notActiveHint")}
           </Text>
