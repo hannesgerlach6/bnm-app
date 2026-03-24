@@ -6,12 +6,13 @@ import {
   TouchableOpacity,
   StyleSheet,
   Alert,
+  Platform,
 } from "react-native";
 import { useRouter, useLocalSearchParams } from "expo-router";
 import { useAuth } from "../contexts/AuthContext";
 import type { TranslationKeys } from "../lib/translations/de";
 import { useData } from "../contexts/DataContext";
-import { showSuccess, showError } from "../lib/errorHandler";
+import { showSuccess, showError, showConfirm } from "../lib/errorHandler";
 import type { User } from "../types";
 import { COLORS } from "../constants/Colors";
 import { sendMenteeAssignedNotification } from "../lib/emailService";
@@ -107,15 +108,7 @@ export default function AssignScreen() {
   const isMentor = user?.role === "mentor";
   const isAdmin = user?.role === "admin" || user?.role === "office";
 
-  // Native Alert-based confirm (iOS-kompatibel, kein Modal-Hänger)
-  function nativeConfirm(title: string, message: string): Promise<boolean> {
-    return new Promise<boolean>((resolve) => {
-      Alert.alert(title, message, [
-        { text: t("common.cancel"), onPress: () => resolve(false), style: "cancel" },
-        { text: t("common.confirm"), onPress: () => resolve(true) },
-      ]);
-    });
-  }
+  // Nutzt die globale showConfirm (Platform-aware: Web + Native)
 
   // FIX 5: Mentor sieht nur nicht zugewiesene Mentees des GLEICHEN Geschlechts
   const unassignedMentees = useMemo(() => {
@@ -164,7 +157,7 @@ export default function AssignScreen() {
       ? t("assign.confirmTakeMenteeText").replace("{0}", mentee.name)
       : t("assign.confirmAssignText").replace("{0}", mentee.name).replace("{1}", mentor.name);
 
-    const confirmed = await nativeConfirm(confirmTitle, confirmText);
+    const confirmed = await showConfirm(confirmTitle, confirmText);
     if (!confirmed) return;
 
     setIsAssigning(true);
