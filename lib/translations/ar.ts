@@ -883,6 +883,8 @@ const ar: Record<TranslationKeys, string> = {
 
   // لوحة الإدارة – الموافقات المعلقة
   "dashboard.pendingApprovals": "تعيينات في انتظار التأكيد",
+  "dashboard.openAssignments": "التعيينات المفتوحة",
+  "dashboard.menteesWithoutMentor": "طلاب بدون مرشد",
   "dashboard.pendingApprovalsCount": "{0} تعيين في انتظار التأكيد",
   "dashboard.reviewAssignments": "مراجعة التعيينات",
   "pendingApprovals.title": "التعيينات المعلقة",

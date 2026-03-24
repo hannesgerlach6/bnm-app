@@ -883,6 +883,8 @@ const en: Record<TranslationKeys, string> = {
 
   // Admin – pending approvals
   "dashboard.pendingApprovals": "Assignments awaiting confirmation",
+  "dashboard.openAssignments": "Open Assignments",
+  "dashboard.menteesWithoutMentor": "Mentees without mentor",
   "dashboard.pendingApprovalsCount": "{0} assignment{1} awaiting confirmation",
   "dashboard.reviewAssignments": "Review Assignments",
   "pendingApprovals.title": "Pending Assignments",

@@ -308,6 +308,23 @@ function AdminDashboard({ showSystemSettings = true }: { showSystemSettings?: bo
               </TouchableOpacity>
             )}
 
+            {/* Offene Zuweisungen Zusammenfassung */}
+            {(unassignedMentees.length > 0 || pendingApprovalsCount > 0) && (
+              <View style={[styles.openAssignmentsCard, { backgroundColor: isDark ? "#1a2a1a" : "#f0fdf4", borderColor: isDark ? "#2a5a2a" : "#bbf7d0", borderLeftColor: isDark ? "#4ade80" : "#22c55e" }]}>
+                <Text style={[styles.openAssignmentsTitle, { color: isDark ? "#4ade80" : "#166534" }]}>{t("dashboard.openAssignments")}</Text>
+                {unassignedMentees.length > 0 && (
+                  <Text style={[styles.openAssignmentsRow, { color: isDark ? "#86efac" : "#15803d" }]}>
+                    • {unassignedMentees.length} {t("dashboard.menteesWithoutMentor")}
+                  </Text>
+                )}
+                {pendingApprovalsCount > 0 && (
+                  <Text style={[styles.openAssignmentsRow, { color: isDark ? "#86efac" : "#15803d" }]}>
+                    • {pendingApprovalsCount} {t("dashboard.pendingApprovals")}
+                  </Text>
+                )}
+              </View>
+            )}
+
             {/* Frühwarnungen */}
             {earlyWarnings.length > 0 && (
               <View style={[styles.warningBox, { backgroundColor: isDark ? "#3a1a1a" : "#fff1f2", borderColor: isDark ? "#7a2a2a" : "#fecdd3", borderLeftColor: isDark ? "#f87171" : "#ef4444" }]}>
@@ -1794,6 +1811,17 @@ const styles = StyleSheet.create({
   momAdminStatValue: { fontSize: 18, fontWeight: "700", color: COLORS.gold },
   momAdminStatLabel: { color: COLORS.secondary, fontSize: 10, marginTop: 2 },
   momAdminArrow: { color: COLORS.link, fontSize: 13, fontWeight: "600" },
+
+  // Offene Zuweisungen
+  openAssignmentsCard: {
+    borderWidth: 1,
+    borderLeftWidth: 4,
+    borderRadius: 10,
+    padding: 14,
+    marginBottom: 14,
+  },
+  openAssignmentsTitle: { fontSize: 14, fontWeight: "700", marginBottom: 6 },
+  openAssignmentsRow: { fontSize: 13, marginBottom: 3 },
 
   // Motivationscard (Mentee)
   motivationCard: {

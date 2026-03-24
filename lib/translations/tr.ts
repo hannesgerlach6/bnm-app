@@ -883,6 +883,8 @@ const tr: Record<TranslationKeys, string> = {
 
   // Admin – bekleyen onaylar
   "dashboard.pendingApprovals": "Onay bekleyen atamalar",
+  "dashboard.openAssignments": "Açık Atamalar",
+  "dashboard.menteesWithoutMentor": "Mentörsüz öğrenciler",
   "dashboard.pendingApprovalsCount": "{0} atama onay bekliyor",
   "dashboard.reviewAssignments": "Atamaları İncele",
   "pendingApprovals.title": "Bekleyen Atamalar",
