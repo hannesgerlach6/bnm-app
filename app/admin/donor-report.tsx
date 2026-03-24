@@ -9,6 +9,7 @@ import {
   Platform,
 } from "react-native";
 import { useRouter } from "expo-router";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useData } from "../../contexts/DataContext";
 import { useAuth } from "../../contexts/AuthContext";
 import { COLORS } from "../../constants/Colors";
@@ -302,6 +303,7 @@ function LineChart({
 
 export default function AdminDonorReportScreen() {
   const router = useRouter();
+  const insets = useSafeAreaInsets();
   const { user } = useAuth();
   const { t } = useLanguage();
   const themeColors = useThemeColors();
@@ -584,7 +586,7 @@ export default function AdminDonorReportScreen() {
     <View style={[styles.flex1, { backgroundColor: themeColors.background }]}>
       <ScrollView style={[styles.scrollView, { backgroundColor: themeColors.background }]} showsVerticalScrollIndicator={false}>
         {/* ── Header ── */}
-        <View style={styles.header}>
+        <View style={[styles.header, { paddingTop: insets.top + 24 }]}>
           <TouchableOpacity style={styles.backBtn} onPress={() => router.back()}>
             <Text style={styles.backBtnText}>{t("donorDashboard.backToReports")}</Text>
           </TouchableOpacity>
@@ -952,7 +954,7 @@ const styles = StyleSheet.create({
   },
   accessText: { fontWeight: "600" },
 
-  // Header
+  // Header — paddingTop wird dynamisch via insets.top gesetzt
   header: {
     backgroundColor: COLORS.gradientStart,
     paddingTop: 44,

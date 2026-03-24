@@ -1,5 +1,5 @@
 import React, { useMemo, useState, useCallback, useEffect } from "react";
-import { View, Text, ScrollView, TouchableOpacity, StyleSheet, RefreshControl, Platform, TextInput } from "react-native";
+import { View, Text, ScrollView, TouchableOpacity, StyleSheet, RefreshControl, Platform, TextInput, Share } from "react-native";
 import { useFocusEffect } from "@react-navigation/native";
 import { useRouter } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
@@ -812,6 +812,14 @@ function MentorDashboard() {
   );
 }
 
+async function shareHadith(text: string, suffix: string) {
+  try {
+    await Share.share({ message: `${text}\n\n${suffix}` });
+  } catch {
+    // Teilen abgebrochen — ignorieren
+  }
+}
+
 function MenteeDashboard() {
   const { user } = useAuth();
   const router = useRouter();
@@ -875,12 +883,25 @@ function MenteeDashboard() {
               {hadith.source ? (
                 <Text style={styles.motivationSource}>{t("motivation.source")}: {hadith.source}</Text>
               ) : null}
-              <TouchableOpacity
-                style={styles.motivationNextBtn}
-                onPress={() => setHadithOffset((prev) => prev + 1)}
-              >
-                <Text style={styles.motivationNextText}>{t("motivation.next")}</Text>
-              </TouchableOpacity>
+              <View style={styles.motivationActionsRow}>
+                <TouchableOpacity
+                  style={styles.motivationNextBtn}
+                  onPress={() => setHadithOffset((prev) => prev + 1)}
+                >
+                  <Text style={styles.motivationNextText}>{t("motivation.next")}</Text>
+                </TouchableOpacity>
+                <TouchableOpacity
+                  style={styles.motivationShareBtn}
+                  onPress={() => {
+                    const shareText = hadith.text_ar
+                      ? `${hadith.text_ar}\n\n${hadith.text_de}`
+                      : hadith.text_de;
+                    shareHadith(shareText, t("share.suffix"));
+                  }}
+                >
+                  <Ionicons name="share-outline" size={18} color={COLORS.gold} />
+                </TouchableOpacity>
+              </View>
             </View>
           );
         })()}
@@ -1805,6 +1826,20 @@ const styles = StyleSheet.create({
     color: "rgba(255,255,255,0.55)",
     fontSize: 11,
     marginBottom: 12,
+  },
+  motivationActionsRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 12,
+    marginTop: 4,
+  },
+  motivationShareBtn: {
+    width: 32,
+    height: 32,
+    alignItems: "center",
+    justifyContent: "center",
+    backgroundColor: "rgba(238,167,27,0.15)",
+    borderRadius: 8,
   },
   motivationNextBtn: {
     alignSelf: "flex-start",

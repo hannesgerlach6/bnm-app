@@ -1409,6 +1409,25 @@ const de = {
 
   // Mentor Dashboard: abgeschlossene Mentees Link
   "dashboard.completedMenteesLink": "{0} abgeschlossene Betreuungen → Alle ansehen",
+
+  // Share (Hadith / Q&A)
+  "share.hadith": "Hadith teilen",
+  "share.answer": "Antwort teilen",
+  "share.suffix": "— BNM App (iman.ngo)",
+
+  // Notification Settings
+  "notifSettings.title": "Benachrichtigungen",
+  "notifSettings.subtitle": "Wähle, worüber du informiert werden möchtest.",
+  "notifSettings.chatMessages": "Chat-Nachrichten",
+  "notifSettings.chatMessagesSub": "Neue Nachrichten in deinem Chat",
+  "notifSettings.assignments": "Zuweisungen",
+  "notifSettings.assignmentsSub": "Wenn dir ein Mentor oder Mentee zugewiesen wird",
+  "notifSettings.applicationStatus": "Bewerbungsstatus",
+  "notifSettings.applicationStatusSub": "Annahme oder Ablehnung deiner Bewerbung",
+  "notifSettings.reminders": "Erinnerungen",
+  "notifSettings.remindersSub": "Erinnerungen an ausstehende Sessions",
+  "notifSettings.saved": "Einstellungen gespeichert.",
+  "notifSettings.back": "Zurück",
 } as const;
 
 export default de;

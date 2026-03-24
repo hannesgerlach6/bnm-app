@@ -7,6 +7,7 @@ import {
   StyleSheet,
 } from "react-native";
 import { useRouter } from "expo-router";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useAuth } from "../../contexts/AuthContext";
 import { useData } from "../../contexts/DataContext";
 import { useLanguage } from "../../contexts/LanguageContext";
@@ -34,6 +35,7 @@ export default function StatisticsScreen() {
 
 function StatisticsContent() {
   const router = useRouter();
+  const insets = useSafeAreaInsets();
   const { t } = useLanguage();
   const themeColors = useThemeColors();
   const { users, mentorships, sessions, feedback, sessionTypes } = useData();
@@ -116,7 +118,7 @@ function StatisticsContent() {
 
   return (
     <ScrollView style={[styles.scrollView, { backgroundColor: themeColors.background }]}>
-      <View style={styles.page}>
+      <View style={[styles.page, { paddingTop: insets.top + 12 }]}>
         {/* Header */}
         <View style={styles.header}>
           <TouchableOpacity onPress={() => router.back()} style={styles.backBtn}>

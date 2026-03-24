@@ -12,6 +12,7 @@ import {
   Alert,
 } from "react-native";
 import { useRouter } from "expo-router";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useAuth } from "../../contexts/AuthContext";
 import { useData, type Hadith } from "../../contexts/DataContext";
 import { useLanguage } from "../../contexts/LanguageContext";
@@ -55,6 +56,7 @@ function parseCSVContent(content: string): Array<{ text_ar: string; text_de: str
 
 export default function HaditheManagementScreen() {
   const router = useRouter();
+  const insets = useSafeAreaInsets();
   const { user } = useAuth();
   const { t } = useLanguage();
   const themeColors = useThemeColors();
@@ -223,7 +225,7 @@ export default function HaditheManagementScreen() {
         refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor={COLORS.gold} />}
         keyboardShouldPersistTaps="handled"
       >
-        <View style={styles.page}>
+        <View style={[styles.page, { paddingTop: insets.top + 12 }]}>
           {/* Header */}
           <View style={styles.headerRow}>
             <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>

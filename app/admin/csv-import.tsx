@@ -9,6 +9,7 @@ import {
   ActivityIndicator,
 } from "react-native";
 import { useRouter } from "expo-router";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useAuth } from "../../contexts/AuthContext";
 import { useData } from "../../contexts/DataContext";
 import { useLanguage } from "../../contexts/LanguageContext";
@@ -64,6 +65,7 @@ function generateTempPassword(): string {
 
 export default function CSVImportScreen() {
   const router = useRouter();
+  const insets = useSafeAreaInsets();
   const { t } = useLanguage();
   const { user } = useAuth();
   const themeColors = useThemeColors();
@@ -291,7 +293,7 @@ export default function CSVImportScreen() {
 
   return (
     <ScrollView style={[styles.scrollView, { backgroundColor: themeColors.background }]}>
-      <View style={styles.page}>
+      <View style={[styles.page, { paddingTop: insets.top + 12 }]}>
         {/* Header */}
         <View style={styles.headerRow}>
           <TouchableOpacity onPress={() => router.back()} style={styles.backBtn}>

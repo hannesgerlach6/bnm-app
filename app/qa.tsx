@@ -7,18 +7,30 @@ import {
   TouchableOpacity,
   StyleSheet,
   RefreshControl,
+  Share,
 } from "react-native";
 import { useRouter } from "expo-router";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
+import { Ionicons } from "@expo/vector-icons";
 import { useData } from "../contexts/DataContext";
 import { useLanguage } from "../contexts/LanguageContext";
 import { useThemeColors } from "../contexts/ThemeContext";
 import { COLORS } from "../constants/Colors";
 import { Container } from "../components/Container";
 
+async function shareAnswer(question: string, answer: string, suffix: string) {
+  try {
+    await Share.share({ message: `${question}\n\n${answer}\n\n${suffix}` });
+  } catch {
+    // Teilen abgebrochen — ignorieren
+  }
+}
+
 const CATEGORIES = ["Grundlagen", "Gebet", "Alltag", "Persönliches"];
 
 export default function QAScreen() {
   const router = useRouter();
+  const insets = useSafeAreaInsets();
   const { t } = useLanguage();
   const themeColors = useThemeColors();
   const { qaEntries, loadQAEntries } = useData();
@@ -66,7 +78,7 @@ export default function QAScreen() {
         }
         keyboardShouldPersistTaps="handled"
       >
-        <View style={styles.page}>
+        <View style={[styles.page, { paddingTop: insets.top + 12 }]}>
           {/* Header */}
           <TouchableOpacity style={styles.backRow} onPress={() => router.back()}>
             <Text style={[styles.backText, { color: themeColors.textSecondary }]}>
@@ -218,6 +230,17 @@ export default function QAScreen() {
                         <Text style={[styles.answerText, { color: themeColors.textSecondary }]}>
                           {entry.answer}
                         </Text>
+                        {/* Share-Button */}
+                        <TouchableOpacity
+                          style={[styles.shareBtn, { backgroundColor: themeColors.background }]}
+                          onPress={() => shareAnswer(entry.question, entry.answer, t("share.suffix"))}
+                          activeOpacity={0.7}
+                        >
+                          <Ionicons name="share-outline" size={15} color={themeColors.textSecondary} />
+                          <Text style={[styles.shareBtnText, { color: themeColors.textSecondary }]}>
+                            {t("share.answer")}
+                          </Text>
+                        </TouchableOpacity>
                         {entry.tags.length > 0 && (
                           <View style={styles.tagsRow}>
                             {entry.tags.map((tag) => (
@@ -307,4 +330,14 @@ const styles = StyleSheet.create({
   tagsRow: { flexDirection: "row", flexWrap: "wrap", gap: 6 },
   tagBadge: { paddingHorizontal: 8, paddingVertical: 3, borderRadius: 4 },
   tagText: { fontSize: 12 },
+  shareBtn: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 5,
+    alignSelf: "flex-start",
+    paddingHorizontal: 10,
+    paddingVertical: 6,
+    borderRadius: 6,
+  },
+  shareBtnText: { fontSize: 12 },
 });

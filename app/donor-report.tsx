@@ -9,6 +9,7 @@ import {
   Platform,
 } from "react-native";
 import { useRouter } from "expo-router";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useData } from "../contexts/DataContext";
 import { useAuth } from "../contexts/AuthContext";
 import { COLORS } from "../constants/Colors";
@@ -31,6 +32,7 @@ type PeriodMode = "quarter" | "year";
 
 export default function DonorReportScreen() {
   const router = useRouter();
+  const insets = useSafeAreaInsets();
   const { user } = useAuth();
   const { t } = useLanguage();
   const themeColors = useThemeColors();
@@ -194,7 +196,7 @@ export default function DonorReportScreen() {
     <View style={[styles.flex1, { backgroundColor: themeColors.background }]}>
       <ScrollView style={[styles.scrollView, { backgroundColor: themeColors.background }]}>
         {/* Header */}
-        <View style={styles.reportHeader}>
+        <View style={[styles.reportHeader, { paddingTop: insets.top + 28 }]}>
           <TouchableOpacity style={styles.backButton} onPress={() => router.back()}>
             <Text style={styles.backButtonText}>{t("donorReport.backToReports")}</Text>
           </TouchableOpacity>

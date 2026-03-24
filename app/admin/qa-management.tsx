@@ -13,6 +13,7 @@ import {
   KeyboardAvoidingView,
 } from "react-native";
 import { useRouter } from "expo-router";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useAuth } from "../../contexts/AuthContext";
 import { useData, type QAEntry } from "../../contexts/DataContext";
 import { useLanguage } from "../../contexts/LanguageContext";
@@ -40,6 +41,7 @@ const EMPTY_FORM: FormData = {
 
 export default function QAManagementScreen() {
   const router = useRouter();
+  const insets = useSafeAreaInsets();
   const { user } = useAuth();
   const { t } = useLanguage();
   const themeColors = useThemeColors();
@@ -309,7 +311,7 @@ export default function QAManagementScreen() {
           <RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor={COLORS.gold} />
         }
       >
-        <View style={styles.page}>
+        <View style={[styles.page, { paddingTop: insets.top + 12 }]}>
           {/* Header */}
           <TouchableOpacity style={styles.backRow} onPress={() => router.back()}>
             <Text style={[styles.backText, { color: themeColors.textSecondary }]}>
@@ -425,7 +427,7 @@ export default function QAManagementScreen() {
 
 const styles = StyleSheet.create({
   scrollView: { flex: 1 },
-  page: { padding: 20, paddingBottom: 40, paddingTop: Platform.OS === "ios" ? 50 : 20 },
+  page: { padding: 20, paddingBottom: 40 },
   backRow: { marginBottom: 8 },
   backText: { fontSize: 14 },
   headerRow: { flexDirection: "row", alignItems: "center", justifyContent: "space-between", marginBottom: 16 },

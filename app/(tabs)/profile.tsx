@@ -318,10 +318,17 @@ export default function ProfileScreen() {
             <Text style={[styles.menuArrow, { color: themeColors.textTertiary }]}>›</Text>
           </TouchableOpacity>
           <TouchableOpacity
-            style={[styles.menuItem, { borderBottomWidth: 0 }]}
+            style={[styles.menuItem, { borderBottomColor: themeColors.border }]}
             onPress={() => router.push("/settings")}
           >
             <Text style={[styles.menuItemText, { color: themeColors.text }]}>{t("profile.settings")}</Text>
+            <Text style={[styles.menuArrow, { color: themeColors.textTertiary }]}>›</Text>
+          </TouchableOpacity>
+          <TouchableOpacity
+            style={[styles.menuItem, { borderBottomWidth: 0 }]}
+            onPress={() => router.push("/notification-settings")}
+          >
+            <Text style={[styles.menuItemText, { color: themeColors.text }]}>{t("notifSettings.title")}</Text>
             <Text style={[styles.menuArrow, { color: themeColors.textTertiary }]}>›</Text>
           </TouchableOpacity>
         </View>

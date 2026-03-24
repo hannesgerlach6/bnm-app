@@ -7,6 +7,7 @@ import {
   StyleSheet,
 } from "react-native";
 import { useLocalSearchParams, useRouter } from "expo-router";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useData } from "../../contexts/DataContext";
 import { useAuth } from "../../contexts/AuthContext";
 import { COLORS } from "../../constants/Colors";
@@ -17,6 +18,7 @@ import { useTheme, useThemeColors } from "../../contexts/ThemeContext";
 export default function MenteeDetailScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const router = useRouter();
+  const insets = useSafeAreaInsets();
   const { t } = useLanguage();
   const themeColors = useThemeColors();
   const { isDark } = useTheme();
@@ -49,7 +51,7 @@ export default function MenteeDetailScreen() {
     return (
       <Container>
         <View style={[styles.root, { backgroundColor: themeColors.background }]}>
-          <View style={[styles.header, { backgroundColor: themeColors.card, borderBottomColor: themeColors.border }]}>
+          <View style={[styles.header, { backgroundColor: themeColors.card, borderBottomColor: themeColors.border, paddingTop: insets.top + 16 }]}>
             <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
               <Text style={[styles.backText, { color: themeColors.text }]}>{t("menteeDetail.back")}</Text>
             </TouchableOpacity>
@@ -105,7 +107,7 @@ export default function MenteeDetailScreen() {
     <Container>
       <View style={[styles.root, { backgroundColor: themeColors.background }]}>
         {/* Header */}
-        <View style={[styles.header, { backgroundColor: themeColors.card, borderBottomColor: themeColors.border }]}>
+        <View style={[styles.header, { backgroundColor: themeColors.card, borderBottomColor: themeColors.border, paddingTop: insets.top + 16 }]}>
           <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
             <Text style={[styles.backText, { color: themeColors.text }]}>{t("menteeDetail.back")}</Text>
           </TouchableOpacity>
@@ -330,7 +332,7 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     paddingHorizontal: 16,
-    paddingTop: 56,
+    paddingTop: 16,
     paddingBottom: 16,
     borderBottomWidth: 1,
   },

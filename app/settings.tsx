@@ -11,6 +11,7 @@ import {
 } from "react-native";
 import { showSuccess } from "../lib/errorHandler";
 import { useRouter } from "expo-router";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useAuth } from "../contexts/AuthContext";
 import { useData } from "../contexts/DataContext";
 import { useLanguage, type Language } from "../contexts/LanguageContext";
@@ -27,6 +28,7 @@ const LANGUAGES: { key: Language; label: string; native: string }[] = [
 
 export default function SettingsScreen() {
   const router = useRouter();
+  const insets = useSafeAreaInsets();
   const { user } = useAuth();
   const { logout } = useAuth();
   const { language, setLanguage, t } = useLanguage();

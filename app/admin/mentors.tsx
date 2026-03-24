@@ -12,6 +12,7 @@ import {
   KeyboardAvoidingView,
 } from "react-native";
 import { useRouter } from "expo-router";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useData } from "../../contexts/DataContext";
 import { useLanguage } from "../../contexts/LanguageContext";
 import { COLORS } from "../../constants/Colors";
@@ -22,6 +23,7 @@ import { useTheme, useThemeColors } from "../../contexts/ThemeContext";
 
 export default function AdminMentorsScreen() {
   const router = useRouter();
+  const insets = useSafeAreaInsets();
   const { t } = useLanguage();
   const { user } = useAuth();
   const themeColors = useThemeColors();
@@ -204,7 +206,7 @@ export default function AdminMentorsScreen() {
       style={[styles.scrollView, { backgroundColor: themeColors.background }]}
       refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor={COLORS.gold} />}
     >
-      <View style={styles.page}>
+      <View style={[styles.page, { paddingTop: insets.top + 12 }]}>
         {/* Header */}
         <View style={styles.headerRow}>
           <TouchableOpacity onPress={() => router.back()} style={styles.backBtn}>

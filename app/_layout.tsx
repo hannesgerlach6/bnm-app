@@ -185,6 +185,10 @@ function RootLayoutInner() {
           options={{ headerShown: false }}
         />
         <Stack.Screen
+          name="notification-settings"
+          options={{ headerShown: false }}
+        />
+        <Stack.Screen
           name="edit-profile"
           options={{ headerShown: false }}
         />

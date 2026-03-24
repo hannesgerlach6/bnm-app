@@ -11,6 +11,7 @@ import {
 } from "react-native";
 import { showError, showSuccess } from "../lib/errorHandler";
 import { useRouter } from "expo-router";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useAuth } from "../contexts/AuthContext";
 import { useData } from "../contexts/DataContext";
 import type { ContactPreference } from "../types";
@@ -22,6 +23,7 @@ import { useTheme, useThemeColors } from "../contexts/ThemeContext";
 
 export default function EditProfileScreen() {
   const router = useRouter();
+  const insets = useSafeAreaInsets();
   const { user, refreshUser } = useAuth();
   const { t } = useLanguage();
   const themeColors = useThemeColors();
@@ -114,7 +116,7 @@ export default function EditProfileScreen() {
     <Container>
       <View style={[styles.root, { backgroundColor: themeColors.background }]}>
         {/* Header */}
-        <View style={[styles.header, { backgroundColor: themeColors.card, borderBottomColor: themeColors.border }]}>
+        <View style={[styles.header, { backgroundColor: themeColors.card, borderBottomColor: themeColors.border, paddingTop: insets.top + 16 }]}>
           <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
             <Text style={[styles.backText, { color: themeColors.text }]}>{t("editProfile.back")}</Text>
           </TouchableOpacity>
@@ -290,7 +292,7 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     paddingHorizontal: 16,
-    paddingTop: 56,
+    paddingTop: 16,
     paddingBottom: 16,
     borderBottomWidth: 1,
   },

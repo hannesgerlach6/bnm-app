@@ -1409,6 +1409,25 @@ const ar: Record<TranslationKeys, string> = {
 
   // لوحة تحكم الموجه: رابط المتدربين المكتملين
   "dashboard.completedMenteesLink": "{0} إرشاد مكتمل → عرض الكل",
+
+  // مشاركة (الحديث / الأسئلة والأجوبة)
+  "share.hadith": "مشاركة الحديث",
+  "share.answer": "مشاركة الإجابة",
+  "share.suffix": "— تطبيق BNM (iman.ngo)",
+
+  // إعدادات الإشعارات
+  "notifSettings.title": "الإشعارات",
+  "notifSettings.subtitle": "اختر ما تريد أن يتم إخطارك به.",
+  "notifSettings.chatMessages": "رسائل الدردشة",
+  "notifSettings.chatMessagesSub": "رسائل جديدة في محادثتك",
+  "notifSettings.assignments": "التعيينات",
+  "notifSettings.assignmentsSub": "عند تعيين مرشد أو متدرب لك",
+  "notifSettings.applicationStatus": "حالة الطلب",
+  "notifSettings.applicationStatusSub": "قبول أو رفض طلبك",
+  "notifSettings.reminders": "التذكيرات",
+  "notifSettings.remindersSub": "تذكيرات للجلسات المعلقة",
+  "notifSettings.saved": "تم حفظ الإعدادات.",
+  "notifSettings.back": "رجوع",
 };
 
 export default ar;

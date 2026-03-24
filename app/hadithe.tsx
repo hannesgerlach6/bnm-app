@@ -9,6 +9,7 @@ import {
 } from "react-native";
 import { showSuccess } from "../lib/errorHandler";
 import { useRouter } from "expo-router";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { COLORS } from "../constants/Colors";
 import { useData } from "../contexts/DataContext";
 import { useLanguage } from "../contexts/LanguageContext";
@@ -16,6 +17,7 @@ import { useThemeColors } from "../contexts/ThemeContext";
 
 export default function HaditheScreen() {
   const router = useRouter();
+  const insets = useSafeAreaInsets();
   const { t } = useLanguage();
   const themeColors = useThemeColors();
   const { hadithe, isLoading } = useData();
@@ -39,7 +41,7 @@ export default function HaditheScreen() {
 
   return (
     <ScrollView style={[styles.scrollView, { backgroundColor: themeColors.background }]}>
-      <View style={styles.page}>
+      <View style={[styles.page, { paddingTop: insets.top + 12 }]}>
         {/* Header */}
         <TouchableOpacity style={styles.backRow} onPress={() => router.back()}>
           <Text style={[styles.backArrow, { color: themeColors.text }]}>‹</Text>

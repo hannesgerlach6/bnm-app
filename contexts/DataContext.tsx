@@ -31,7 +31,7 @@ import {
   sendFeedbackRequestEmail,
   sendApplicationRejectionEmail,
 } from "../lib/emailService";
-import { sendLocalNotification } from "../lib/notificationService";
+import { sendLocalNotification, notifyNewMessage, notifyMentorAssigned, notifyMenteeAssigned, notifyMentorshipCompleted, notifyFeedbackRequested } from "../lib/notificationService";
 
 export interface Hadith {
   id: string;
@@ -587,10 +587,7 @@ export function DataProvider({ children }: { children: ReactNode }) {
               (row.content as string).length > 60
                 ? (row.content as string).substring(0, 60) + "…"
                 : (row.content as string);
-            sendLocalNotification(
-              `Neue Nachricht von ${senderName}`,
-              preview
-            ).catch(() => {});
+            notifyNewMessage(senderName, row.content as string).catch(() => {});
           }
         }
       )
@@ -749,10 +746,7 @@ export function DataProvider({ children }: { children: ReactNode }) {
         );
         // Lokale Push Notification nur auf dem Gerät des Mentees selbst
         if (authUser?.id === menteeId) {
-          sendLocalNotification(
-            "Dir wurde ein Mentor zugewiesen!",
-            `${mentor?.name ?? "Ein Mentor"} ist ab sofort dein Mentor.`
-          ).catch(() => {});
+          notifyMentorAssigned(mentor?.name ?? "Ein Mentor").catch(() => {});
         }
       }
 
@@ -1222,7 +1216,8 @@ export function DataProvider({ children }: { children: ReactNode }) {
         const submitter = users.find((u) => u.id === feedbackData.submitted_by);
         sendLocalNotification(
           "Neues Feedback erhalten",
-          `${submitter?.name ?? "Dein Mentee"} hat Feedback hinterlassen (${feedbackData.rating}/5 Sterne).`
+          `${submitter?.name ?? "Dein Mentee"} hat Feedback hinterlassen (${feedbackData.rating}/5 Sterne).`,
+          "feedback"
         ).catch(() => {});
       }
     },

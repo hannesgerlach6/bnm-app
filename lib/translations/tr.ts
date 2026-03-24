@@ -1409,6 +1409,25 @@ const tr: Record<TranslationKeys, string> = {
 
   // Mentor Dashboard: tamamlanan mentiler linki
   "dashboard.completedMenteesLink": "{0} tamamlanan rehberlik → Tümünü görüntüle",
+
+  // Paylaş (Hadis / S&C)
+  "share.hadith": "Hadisi paylaş",
+  "share.answer": "Cevabı paylaş",
+  "share.suffix": "— BNM Uygulaması (iman.ngo)",
+
+  // Bildirim Ayarları
+  "notifSettings.title": "Bildirimler",
+  "notifSettings.subtitle": "Hangi konularda bildirim almak istediğini seç.",
+  "notifSettings.chatMessages": "Sohbet mesajları",
+  "notifSettings.chatMessagesSub": "Sohbetindeki yeni mesajlar",
+  "notifSettings.assignments": "Atamalar",
+  "notifSettings.assignmentsSub": "Sana bir mentor veya danışan atandığında",
+  "notifSettings.applicationStatus": "Başvuru durumu",
+  "notifSettings.applicationStatusSub": "Başvurunun kabul veya reddi",
+  "notifSettings.reminders": "Hatırlatmalar",
+  "notifSettings.remindersSub": "Bekleyen oturumlar için hatırlatmalar",
+  "notifSettings.saved": "Ayarlar kaydedildi.",
+  "notifSettings.back": "Geri",
 };
 
 export default tr;

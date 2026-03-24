@@ -1409,6 +1409,25 @@ const en: Record<TranslationKeys, string> = {
 
   // Mentor Dashboard: completed mentees link
   "dashboard.completedMenteesLink": "{0} completed mentorships → View all",
+
+  // Share (Hadith / Q&A)
+  "share.hadith": "Share hadith",
+  "share.answer": "Share answer",
+  "share.suffix": "— BNM App (iman.ngo)",
+
+  // Notification Settings
+  "notifSettings.title": "Notifications",
+  "notifSettings.subtitle": "Choose what you want to be notified about.",
+  "notifSettings.chatMessages": "Chat messages",
+  "notifSettings.chatMessagesSub": "New messages in your chat",
+  "notifSettings.assignments": "Assignments",
+  "notifSettings.assignmentsSub": "When a mentor or mentee is assigned to you",
+  "notifSettings.applicationStatus": "Application status",
+  "notifSettings.applicationStatusSub": "Acceptance or rejection of your application",
+  "notifSettings.reminders": "Reminders",
+  "notifSettings.remindersSub": "Reminders for pending sessions",
+  "notifSettings.saved": "Settings saved.",
+  "notifSettings.back": "Back",
 };
 
 export default en;
