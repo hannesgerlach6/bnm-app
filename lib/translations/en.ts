@@ -1408,6 +1408,18 @@ const en: Record<TranslationKeys, string> = {
   "applications.rejectConfirmButton": "Reject",
   "applications.rejectCancelButton": "Cancel",
 
+  // Extra data labels (JSON fields in mentor applications)
+  "applications.extraHoursPerWeek": "Hours/Week",
+  "applications.extraDriversLicense": "Driver's License",
+  "applications.extraTravelTime": "Willingness to Travel",
+  "applications.extraQualification": "Qualification",
+  "applications.extraHasMentoredBefore": "Previously Mentored",
+  "applications.extraMentoringExperience": "Experience",
+  "applications.extraInOrganization": "In Organization",
+  "applications.extraOrganizationName": "Organization",
+  "applications.extraCountry": "Country",
+  "applications.extraBirthdate": "Date of Birth",
+
   // Registration protection
   "register.botDetected": "Invalid request detected. Please try again.",
   "register.tooFast": "The form was filled out too quickly. Please take your time.",

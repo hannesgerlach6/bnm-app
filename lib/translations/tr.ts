@@ -1454,6 +1454,18 @@ const tr: Record<TranslationKeys, string> = {
   "applications.rejectConfirmButton": "Reddet",
   "applications.rejectCancelButton": "İptal",
 
+  // Ek veri etiketleri (Mentor başvurularındaki JSON alanları)
+  "applications.extraHoursPerWeek": "Saat/Hafta",
+  "applications.extraDriversLicense": "Ehliyet",
+  "applications.extraTravelTime": "Seyahat İstekliliği",
+  "applications.extraQualification": "Nitelik",
+  "applications.extraHasMentoredBefore": "Daha Önce Mentorluk Yaptı",
+  "applications.extraMentoringExperience": "Deneyim",
+  "applications.extraInOrganization": "Organizasyonda",
+  "applications.extraOrganizationName": "Organizasyon",
+  "applications.extraCountry": "Ülke",
+  "applications.extraBirthdate": "Doğum Tarihi",
+
   // Kayıt koruması
   "register.botDetected": "Geçersiz istek algılandı. Lütfen tekrar deneyin.",
   "register.tooFast": "Form çok hızlı dolduruldu. Lütfen biraz zaman ayırın.",

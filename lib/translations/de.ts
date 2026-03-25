@@ -1408,6 +1408,18 @@ const de = {
   "applications.rejectConfirmButton": "Ablehnen",
   "applications.rejectCancelButton": "Abbrechen",
 
+  // Zusatzdaten-Labels (JSON-Felder in Mentor-Bewerbungen)
+  "applications.extraHoursPerWeek": "Stunden/Woche",
+  "applications.extraDriversLicense": "Führerschein",
+  "applications.extraTravelTime": "Fahrtbereitschaft",
+  "applications.extraQualification": "Qualifikation",
+  "applications.extraHasMentoredBefore": "Bereits betreut",
+  "applications.extraMentoringExperience": "Erfahrung",
+  "applications.extraInOrganization": "In Organisation",
+  "applications.extraOrganizationName": "Organisation",
+  "applications.extraCountry": "Land",
+  "applications.extraBirthdate": "Geburtsdatum",
+
   // Registrierungs-Schutz
   "register.botDetected": "Ungültige Anfrage erkannt. Bitte versuche es erneut.",
   "register.tooFast": "Das Formular wurde zu schnell ausgefüllt. Bitte nimm dir etwas Zeit.",

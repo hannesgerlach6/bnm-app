@@ -10,34 +10,47 @@ import {
   Platform,
 } from "react-native";
 import { showError, showSuccess, showConfirm } from "../../lib/errorHandler";
-import { useRouter } from "expo-router";
 import { useAuth } from "../../contexts/AuthContext";
 import { useData } from "../../contexts/DataContext";
 import type { MentorApplication } from "../../types";
 import { COLORS } from "../../constants/Colors";
 import { Container } from "../../components/Container";
-import { supabase } from "../../lib/supabase";
-import { supabaseAnon } from "../../lib/supabaseAnon";
-import { sendCredentialsEmail, sendApplicationRejectionEmail } from "../../lib/emailService";
+import { sendApplicationRejectionEmail } from "../../lib/emailService";
 import { useLanguage } from "../../contexts/LanguageContext";
 import { useTheme, useThemeColors } from "../../contexts/ThemeContext";
 
 // Öffentliche Anmeldungen sind in mentor_applications mit diesem Motivation-Marker gespeichert
 const PUBLIC_REGISTRATION_MARKER = "Anmeldung als neuer Muslim (öffentliches Formular)";
 
-type MainTab = "mentors" | "mentees";
 type RejectReasonKey = "r1" | "r2" | "r3" | "r4" | "r5";
+
+// Parse JSON-Zusatzdaten aus dem experience-Feld
+function parseExtraData(experience: string): Record<string, string> | null {
+  try {
+    const data = JSON.parse(experience);
+    if (typeof data === "object" && data !== null) return data;
+  } catch {}
+  return null;
+}
+
+// Werte lesbar machen: yes/no → Ja/Nein, enum-Werte übersetzen
+function translateExtraValue(value: string): string {
+  if (value === "yes" || value === "true") return "Ja";
+  if (value === "no" || value === "false") return "Nein";
+  if (value === "public_transport") return "Öffentliche Verkehrsmittel";
+  if (value === "car") return "Auto";
+  if (value === "bicycle") return "Fahrrad";
+  if (value === "on_foot") return "Zu Fuß";
+  if (value === "none") return "Keine";
+  return value;
+}
 
 export default function ApplicationsTabScreen() {
   const { user } = useAuth();
-  const router = useRouter();
   const { t } = useLanguage();
   const themeColors = useThemeColors();
-  const { isDark } = useTheme();
   const { applications, approveApplication, rejectApplication, refreshData } = useData();
-  const [mainTab, setMainTab] = useState<MainTab>("mentors");
   const [mentorFilter, setMentorFilter] = useState<"pending" | "approved" | "rejected">("pending");
-  const [menteeFilter, setMenteeFilter] = useState<"pending" | "approved" | "rejected">("pending");
   const [search, setSearch] = useState("");
 
   // Ablehnung-Modal State
@@ -59,10 +72,6 @@ export default function ApplicationsTabScreen() {
   const mentorApps = applications.filter(
     (a) => a.motivation !== PUBLIC_REGISTRATION_MARKER
   );
-  // Mentee-Anmeldungen = alle mit Public-Marker
-  const menteeApps = applications.filter(
-    (a) => a.motivation === PUBLIC_REGISTRATION_MARKER
-  );
 
   const searchLower = search.toLowerCase();
   const filteredMentorApps = mentorApps.filter(
@@ -73,20 +82,8 @@ export default function ApplicationsTabScreen() {
         a.email.toLowerCase().includes(searchLower) ||
         a.city.toLowerCase().includes(searchLower))
   );
-  const filteredMenteeApps = menteeApps.filter(
-    (a) =>
-      a.status === menteeFilter &&
-      (search === "" ||
-        a.name.toLowerCase().includes(searchLower) ||
-        a.email.toLowerCase().includes(searchLower) ||
-        a.city.toLowerCase().includes(searchLower))
-  );
 
   const pendingMentorCount = mentorApps.filter((a) => a.status === "pending").length;
-  const pendingMenteeCount = menteeApps.filter((a) => a.status === "pending").length;
-
-  // Nicht-zugewiesene Mentees (haben pending status = noch kein Mentor)
-  const unassignedMenteeApps = menteeApps.filter((a) => a.status === "approved");
 
   async function handleApproveMentor(app: MentorApplication) {
     const ok = await showConfirm(t("applications.approveTitle"), t("applications.confirmApprove").replace("{0}", app.name));
@@ -157,66 +154,6 @@ export default function ApplicationsTabScreen() {
     }
   }
 
-  async function handleAcceptMenteeRegistration(app: MentorApplication) {
-    const ok = await showConfirm(t("applications.createAccountTitle"), t("applications.confirmCreateAccount").replace("{0}", app.name).replace("{1}", app.email));
-    if (!ok) return;
-
-    // Temporäres Passwort generieren: "BNM-" + 6 Zufallsziffern
-    const digits = Math.floor(100000 + Math.random() * 900000).toString();
-    const tempPassword = `BNM-${digits}`;
-
-    // Admin-Session sichern (signUp loggt sonst den Admin aus!)
-    const { data: adminSession } = await supabase.auth.getSession();
-
-    const { error: signUpError } = await supabaseAnon.auth.signUp({
-      email: app.email,
-      password: tempPassword,
-      options: {
-        data: {
-          name: app.name,
-          role: "mentee",
-          gender: app.gender,
-          city: app.city,
-          age: app.age,
-        },
-      },
-    });
-
-    // Admin-Session wiederherstellen
-    if (adminSession?.session) {
-      await supabase.auth.setSession({
-        access_token: adminSession.session.access_token,
-        refresh_token: adminSession.session.refresh_token,
-      });
-    }
-
-    if (signUpError) {
-      if (
-        signUpError.message.includes("already registered") ||
-        signUpError.message.includes("User already registered")
-      ) {
-        showSuccess(t("applications.alreadyAccount").replace("{0}", app.name));
-      } else {
-        showError(signUpError.message);
-        return;
-      }
-    }
-
-    // Anmeldung als approved markieren
-    await approveApplication(app.id);
-
-    // Zugangsdaten per E-Mail senden statt im Alert anzeigen
-    await sendCredentialsEmail(app.email, app.name, tempPassword);
-    showSuccess(t("applications.accountCreated"));
-  }
-
-  async function handleRejectMenteeRegistration(app: MentorApplication) {
-    const ok = await showConfirm(t("applications.rejectMenteeTitle"), t("applications.confirmRejectMentee").replace("{0}", app.name));
-    if (ok) {
-      await rejectApplication(app.id);
-    }
-  }
-
   // Vordefinierte Ablehnungsgründe
   const rejectReasons: { key: RejectReasonKey; label: string }[] = [
     { key: "r1", label: t("applications.rejectReason1") },
@@ -241,200 +178,64 @@ export default function ApplicationsTabScreen() {
             onChangeText={(v) => setSearch(v)}
           />
 
-          {/* Haupt-Tabs */}
-          <View style={styles.mainTabRow}>
-            <TouchableOpacity
-              style={[
-                styles.mainTab,
-                mainTab === "mentors" ? styles.mainTabActive : [styles.mainTabInactive, { backgroundColor: themeColors.card, borderColor: themeColors.border }],
-              ]}
-              onPress={() => setMainTab("mentors")}
-            >
-              <Text
-                style={mainTab === "mentors" ? styles.mainTabTextActive : [styles.mainTabTextInactive, { color: themeColors.textSecondary }]}
-              >
-                {t("applications.mentorTab")}
-              </Text>
-              {pendingMentorCount > 0 && (
-                <View style={styles.tabBadge}>
-                  <Text style={styles.tabBadgeText}>{pendingMentorCount}</Text>
-                </View>
-              )}
-            </TouchableOpacity>
-
-            <TouchableOpacity
-              style={[
-                styles.mainTab,
-                mainTab === "mentees" ? styles.mainTabActive : [styles.mainTabInactive, { backgroundColor: themeColors.card, borderColor: themeColors.border }],
-              ]}
-              onPress={() => setMainTab("mentees")}
-            >
-              <Text
-                style={mainTab === "mentees" ? styles.mainTabTextActive : [styles.mainTabTextInactive, { color: themeColors.textSecondary }]}
-              >
-                {t("applications.menteeTab")}
-              </Text>
-              {pendingMenteeCount > 0 && (
-                <View style={styles.tabBadge}>
-                  <Text style={styles.tabBadgeText}>{pendingMenteeCount}</Text>
-                </View>
-              )}
-            </TouchableOpacity>
+          {/* ─── Mentor-Bewerbungen ─── */}
+          <Text style={[styles.pageSubtitle, { color: themeColors.textSecondary }]}>
+            {t("applications.pendingMentor")
+              .replace("{0}", String(pendingMentorCount))
+              .replace("{1}", pendingMentorCount !== 1 ? "en" : "")}
+          </Text>
+          <View style={styles.filterRow}>
+            {(
+              [
+                { key: "pending", label: t("applications.filterOpen") },
+                { key: "approved", label: t("applications.filterApproved") },
+                { key: "rejected", label: t("applications.filterRejected") },
+              ] as const
+            ).map((tab) => {
+              const count = mentorApps.filter((a) => a.status === tab.key).length;
+              return (
+                <TouchableOpacity
+                  key={tab.key}
+                  style={[
+                    styles.filterChip,
+                    mentorFilter === tab.key ? styles.filterChipActive : [styles.filterChipInactive, { backgroundColor: themeColors.card, borderColor: themeColors.border }],
+                  ]}
+                  onPress={() => setMentorFilter(tab.key)}
+                >
+                  <Text
+                    style={
+                      mentorFilter === tab.key
+                        ? styles.filterChipTextActive
+                        : [styles.filterChipTextInactive, { color: themeColors.textSecondary }]
+                    }
+                  >
+                    {tab.label} ({count})
+                  </Text>
+                </TouchableOpacity>
+              );
+            })}
           </View>
 
-          {/* ─── Mentor-Bewerbungen ─── */}
-          {mainTab === "mentors" && (
-            <>
-              <Text style={[styles.pageSubtitle, { color: themeColors.textSecondary }]}>
-                {t("applications.pendingMentor")
-                  .replace("{0}", String(pendingMentorCount))
-                  .replace("{1}", pendingMentorCount !== 1 ? "en" : "")}
+          {filteredMentorApps.length === 0 ? (
+            <View style={[styles.emptyCard, { backgroundColor: themeColors.card, borderColor: themeColors.border }]}>
+              <Text style={[styles.emptyText, { color: themeColors.textTertiary }]}>
+                {mentorFilter === "pending"
+                  ? t("applications.noOpen")
+                  : mentorFilter === "approved"
+                  ? t("applications.noApproved")
+                  : t("applications.noRejected")}
               </Text>
-              <View style={styles.filterRow}>
-                {(
-                  [
-                    { key: "pending", label: t("applications.filterOpen") },
-                    { key: "approved", label: t("applications.filterApproved") },
-                    { key: "rejected", label: t("applications.filterRejected") },
-                  ] as const
-                ).map((tab) => {
-                  const count = mentorApps.filter((a) => a.status === tab.key).length;
-                  return (
-                    <TouchableOpacity
-                      key={tab.key}
-                      style={[
-                        styles.filterChip,
-                        mentorFilter === tab.key ? styles.filterChipActive : [styles.filterChipInactive, { backgroundColor: themeColors.card, borderColor: themeColors.border }],
-                      ]}
-                      onPress={() => setMentorFilter(tab.key)}
-                    >
-                      <Text
-                        style={
-                          mentorFilter === tab.key
-                            ? styles.filterChipTextActive
-                            : [styles.filterChipTextInactive, { color: themeColors.textSecondary }]
-                        }
-                      >
-                        {tab.label} ({count})
-                      </Text>
-                    </TouchableOpacity>
-                  );
-                })}
-              </View>
-
-              {filteredMentorApps.length === 0 ? (
-                <View style={[styles.emptyCard, { backgroundColor: themeColors.card, borderColor: themeColors.border }]}>
-                  <Text style={[styles.emptyText, { color: themeColors.textTertiary }]}>
-                    {mentorFilter === "pending"
-                      ? t("applications.noOpen")
-                      : mentorFilter === "approved"
-                      ? t("applications.noApproved")
-                      : t("applications.noRejected")}
-                  </Text>
-                </View>
-              ) : (
-                filteredMentorApps.map((app) => (
-                  <ApplicationCard
-                    key={app.id}
-                    application={app}
-                    type="mentor"
-                    onApprove={() => handleApproveMentor(app)}
-                    onReject={() => openRejectModal(app)}
-                  />
-                ))
-              )}
-            </>
-          )}
-
-          {/* ─── Mentee-Anmeldungen ─── */}
-          {mainTab === "mentees" && (
-            <>
-              {/* Info-Box: Mentees registrieren sich selbst, kein Genehmigen nötig */}
-              <View style={[styles.infoBox, { backgroundColor: isDark ? "#1e2d4a" : "#eff6ff", borderColor: isDark ? "#2d4a7a" : "#dbeafe" }]}>
-                <Text style={[styles.infoBoxText, { color: isDark ? "#93c5fd" : "#1e40af" }]}>
-                  {t("applications.infoBox")}
-                </Text>
-              </View>
-
-              {/* Nicht-zugewiesene Mentees direkt anzeigen */}
-              {unassignedMenteeApps.length > 0 && (
-                <View style={[styles.unassignedBox, { backgroundColor: isDark ? "#3a2e1a" : "#fffbeb", borderColor: isDark ? "#6b4e1a" : "#fde68a" }]}>
-                  <Text style={[styles.unassignedTitle, { color: isDark ? "#fbbf24" : "#92400e" }]}>
-                    {unassignedMenteeApps.length} {unassignedMenteeApps.length === 1 ? "Mentee" : "Mentees"} {t("dashboard.withoutAssignment")}
-                  </Text>
-                  {unassignedMenteeApps.map((app) => (
-                    <View key={app.id} style={[styles.unassignedRow, { borderBottomColor: isDark ? "#6b4e1a" : "#fef3c7" }]}>
-                      <View style={{ flex: 1 }}>
-                        <Text style={[styles.unassignedName, { color: themeColors.text }]}>{app.name}</Text>
-                        <Text style={[styles.unassignedSub, { color: themeColors.textTertiary }]}>
-                          {app.city} · {app.gender === "male" ? t("applications.brother") : t("applications.sister")} · {app.age} {t("common.yearsOld")}
-                        </Text>
-                      </View>
-                      <TouchableOpacity
-                        style={[styles.assignButton, { backgroundColor: COLORS.gradientStart }]}
-                        onPress={() => router.push({ pathname: "/assign", params: { menteeId: app.id } } as never)}
-                      >
-                        <Text style={styles.assignButtonText}>{t("dashboard.assign")}</Text>
-                      </TouchableOpacity>
-                    </View>
-                  ))}
-                </View>
-              )}
-
-              <View style={styles.filterRow}>
-                {(
-                  [
-                    { key: "pending", label: t("applications.filterOpen") },
-                    { key: "approved", label: t("applications.filterApproved") },
-                    { key: "rejected", label: t("applications.filterRejected") },
-                  ] as const
-                ).map((tab) => {
-                  const count = menteeApps.filter((a) => a.status === tab.key).length;
-                  return (
-                    <TouchableOpacity
-                      key={tab.key}
-                      style={[
-                        styles.filterChip,
-                        menteeFilter === tab.key ? styles.filterChipActive : [styles.filterChipInactive, { backgroundColor: themeColors.card, borderColor: themeColors.border }],
-                      ]}
-                      onPress={() => setMenteeFilter(tab.key)}
-                    >
-                      <Text
-                        style={
-                          menteeFilter === tab.key
-                            ? styles.filterChipTextActive
-                            : [styles.filterChipTextInactive, { color: themeColors.textSecondary }]
-                        }
-                      >
-                        {tab.label} ({count})
-                      </Text>
-                    </TouchableOpacity>
-                  );
-                })}
-              </View>
-
-              {filteredMenteeApps.length === 0 ? (
-                <View style={[styles.emptyCard, { backgroundColor: themeColors.card, borderColor: themeColors.border }]}>
-                  <Text style={[styles.emptyText, { color: themeColors.textTertiary }]}>
-                    {menteeFilter === "pending"
-                      ? t("applications.noOpenMentee")
-                      : menteeFilter === "approved"
-                      ? t("applications.noApprovedMentee")
-                      : t("applications.noRejectedMentee")}
-                  </Text>
-                </View>
-              ) : (
-                filteredMenteeApps.map((app) => (
-                  <ApplicationCard
-                    key={app.id}
-                    application={app}
-                    type="mentee"
-                    onApprove={() => handleAcceptMenteeRegistration(app)}
-                    onReject={() => handleRejectMenteeRegistration(app)}
-                  />
-                ))
-              )}
-            </>
+            </View>
+          ) : (
+            filteredMentorApps.map((app) => (
+              <ApplicationCard
+                key={app.id}
+                application={app}
+                type="mentor"
+                onApprove={() => handleApproveMentor(app)}
+                onReject={() => openRejectModal(app)}
+              />
+            ))
           )}
         </View>
       </ScrollView>
@@ -608,12 +409,46 @@ function ApplicationCard({
       {/* Erfahrung / Motivation (nur für Mentor-Bewerbungen) */}
       {type === "mentor" && (
         <>
-          {application.experience ? (
-            <View style={styles.textSection}>
-              <Text style={[styles.textSectionLabel, { color: themeColors.textTertiary }]}>{t("applications.experience")}</Text>
-              <Text style={[styles.textSectionContent, { color: themeColors.textSecondary }]}>{application.experience}</Text>
-            </View>
-          ) : null}
+          {application.experience ? (() => {
+            const extraData = parseExtraData(application.experience);
+            const extraLabels: Record<string, string> = {
+              hoursPerWeek: t("applications.extraHoursPerWeek"),
+              driversLicense: t("applications.extraDriversLicense"),
+              travelTime: t("applications.extraTravelTime"),
+              qualification: t("applications.extraQualification"),
+              hasMentoredBefore: t("applications.extraHasMentoredBefore"),
+              mentoringExperience: t("applications.extraMentoringExperience"),
+              inOrganization: t("applications.extraInOrganization"),
+              organizationName: t("applications.extraOrganizationName"),
+              country: t("applications.extraCountry"),
+              birthdate: t("applications.extraBirthdate"),
+            };
+            if (extraData) {
+              return (
+                <View style={styles.textSection}>
+                  <Text style={[styles.textSectionLabel, { color: themeColors.textTertiary }]}>{t("applications.experience")}</Text>
+                  <View style={[styles.extraDataTable, { backgroundColor: themeColors.background }]}>
+                    {Object.entries(extraData).map(([key, val]) => (
+                      <View key={key} style={[styles.extraDataRow, { borderBottomColor: themeColors.border }]}>
+                        <Text style={[styles.extraDataLabel, { color: themeColors.textTertiary }]}>
+                          {extraLabels[key] ?? key}
+                        </Text>
+                        <Text style={[styles.extraDataValue, { color: themeColors.text }]}>
+                          {translateExtraValue(String(val))}
+                        </Text>
+                      </View>
+                    ))}
+                  </View>
+                </View>
+              );
+            }
+            return (
+              <View style={styles.textSection}>
+                <Text style={[styles.textSectionLabel, { color: themeColors.textTertiary }]}>{t("applications.experience")}</Text>
+                <Text style={[styles.textSectionContent, { color: themeColors.textSecondary }]}>{application.experience}</Text>
+              </View>
+            );
+          })() : null}
           <View style={styles.textSection}>
             <Text style={[styles.textSectionLabel, { color: themeColors.textTertiary }]}>{t("applications.motivation")}</Text>
             <Text style={[styles.textSectionContent, { color: themeColors.textSecondary }]}>{application.motivation}</Text>
@@ -665,46 +500,6 @@ const styles = StyleSheet.create({
   pageTitle: { fontSize: 22, fontWeight: "bold", marginBottom: 12 },
   pageSubtitle: { marginBottom: 16, fontSize: 13 },
 
-  mainTabRow: {
-    flexDirection: "row",
-    gap: 8,
-    marginBottom: 16,
-  },
-  mainTab: {
-    flex: 1,
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "center",
-    paddingVertical: 10,
-    paddingHorizontal: 12,
-    borderRadius: 8,
-    borderWidth: 1,
-    gap: 6,
-  },
-  mainTabActive: {
-    backgroundColor: COLORS.gradientStart,
-    borderColor: COLORS.gradientStart,
-  },
-  mainTabInactive: {},
-  mainTabTextActive: {
-    color: COLORS.white,
-    fontWeight: "600",
-    fontSize: 13,
-  },
-  mainTabTextInactive: {
-    fontSize: 13,
-  },
-  tabBadge: {
-    backgroundColor: COLORS.error,
-    borderRadius: 9999,
-    minWidth: 18,
-    height: 18,
-    alignItems: "center",
-    justifyContent: "center",
-    paddingHorizontal: 4,
-  },
-  tabBadgeText: { color: COLORS.white, fontSize: 10, fontWeight: "700" },
-
   searchInput: {
     borderWidth: 1,
     borderRadius: 6,
@@ -719,38 +514,6 @@ const styles = StyleSheet.create({
   filterChipInactive: {},
   filterChipTextActive: { color: COLORS.white, fontSize: 12, fontWeight: "500" },
   filterChipTextInactive: { fontSize: 12, fontWeight: "500" },
-
-  infoBox: {
-    borderWidth: 1,
-    borderRadius: 6,
-    padding: 12,
-    marginBottom: 12,
-  },
-  infoBoxText: { fontSize: 12, lineHeight: 18 },
-
-  // Nicht-zugewiesene Mentees
-  unassignedBox: {
-    borderWidth: 1,
-    borderRadius: 8,
-    padding: 14,
-    marginBottom: 14,
-  },
-  unassignedTitle: { fontWeight: "600", fontSize: 14, marginBottom: 8 },
-  unassignedRow: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
-    paddingVertical: 8,
-    borderBottomWidth: 1,
-  },
-  unassignedName: { fontWeight: "500", fontSize: 14 },
-  unassignedSub: { fontSize: 12, marginTop: 1 },
-  assignButton: {
-    paddingHorizontal: 12,
-    paddingVertical: 6,
-    borderRadius: 5,
-  },
-  assignButtonText: { color: COLORS.white, fontSize: 12, fontWeight: "600" },
 
   emptyCard: {
     borderRadius: 8,
@@ -800,6 +563,29 @@ const styles = StyleSheet.create({
     letterSpacing: 0.5,
   },
   textSectionContent: { fontSize: 13, lineHeight: 19 },
+  extraDataTable: {
+    borderRadius: 6,
+    paddingHorizontal: 10,
+    paddingTop: 4,
+    paddingBottom: 4,
+  },
+  extraDataRow: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    paddingVertical: 5,
+    borderBottomWidth: StyleSheet.hairlineWidth,
+  },
+  extraDataLabel: {
+    fontSize: 12,
+    flex: 1,
+  },
+  extraDataValue: {
+    fontSize: 12,
+    fontWeight: "500",
+    maxWidth: "55%",
+    textAlign: "right",
+  },
 
   actionRow: { flexDirection: "row", gap: 10, marginTop: 4 },
   rejectButton: {

@@ -1454,6 +1454,18 @@ const ar: Record<TranslationKeys, string> = {
   "applications.rejectConfirmButton": "رفض",
   "applications.rejectCancelButton": "إلغاء",
 
+  // تسميات البيانات الإضافية (حقول JSON في طلبات المرشد)
+  "applications.extraHoursPerWeek": "ساعات/أسبوع",
+  "applications.extraDriversLicense": "رخصة القيادة",
+  "applications.extraTravelTime": "الاستعداد للسفر",
+  "applications.extraQualification": "المؤهل",
+  "applications.extraHasMentoredBefore": "قدّم إرشاداً سابقاً",
+  "applications.extraMentoringExperience": "الخبرة",
+  "applications.extraInOrganization": "في منظمة",
+  "applications.extraOrganizationName": "المنظمة",
+  "applications.extraCountry": "البلد",
+  "applications.extraBirthdate": "تاريخ الميلاد",
+
   // حماية التسجيل
   "register.botDetected": "تم اكتشاف طلب غير صالح. يرجى المحاولة مرة أخرى.",
   "register.tooFast": "تم ملء النموذج بسرعة كبيرة. يرجى أخذ وقتك.",

@@ -231,6 +231,33 @@ function AdminDashboard({ showSystemSettings = true }: { showSystemSettings?: bo
               />
             </KpiGrid>
 
+            {/* ── Neue Mentees warten auf Zuweisung (wichtigste Admin-Aktion) ── */}
+            {unassignedMentees.length > 0 && (
+              <View style={[styles.amberBox, { backgroundColor: isDark ? "#3a2e1a" : "#fffbeb", borderColor: isDark ? "#6b4e1a" : "#fde68a" }]}>
+                <Text style={[styles.amberTitle, { color: isDark ? "#fbbf24" : "#92400e" }]}>
+                  {t("dashboard.newMenteesWaiting").replace("{0}", String(unassignedMentees.length))}
+                </Text>
+                {unassignedMentees.map((mentee) => (
+                  <View key={mentee.id} style={[styles.amberRow, { borderBottomColor: isDark ? "#6b4e1a" : "#fef3c7" }]}>
+                    <View>
+                      <Text style={[styles.menteeNameText, { color: themeColors.text }]}>{mentee.name}</Text>
+                      <Text style={[styles.menteeSubText, { color: themeColors.textTertiary }]}>
+                        {mentee.city} · {mentee.gender === "male" ? t("dashboard.brother") : t("dashboard.sister")}
+                      </Text>
+                    </View>
+                    <TouchableOpacity
+                      style={styles.assignButton}
+                      onPress={() =>
+                        router.push({ pathname: "/assign", params: { menteeId: mentee.id } })
+                      }
+                    >
+                      <Text style={styles.assignButtonText}>{t("dashboard.assign")}</Text>
+                    </TouchableOpacity>
+                  </View>
+                ))}
+              </View>
+            )}
+
             {/* Mentor des Monats (Admin-Sicht) */}
             {mentorOfMonthVisible && topMentor && (
               <TouchableOpacity
@@ -327,34 +354,6 @@ function AdminDashboard({ showSystemSettings = true }: { showSystemSettings?: bo
                     </TouchableOpacity>
                   );
                 })}
-              </View>
-            )}
-
-            {/* ── VERWALTUNG ─────────────────────────────────────────── */}
-            {/* Nicht zugewiesene Mentees */}
-            {unassignedMentees.length > 0 && (
-              <View style={[styles.amberBox, { backgroundColor: isDark ? "#3a2e1a" : "#fffbeb", borderColor: isDark ? "#6b4e1a" : "#fde68a" }]}>
-                <Text style={[styles.amberTitle, { color: isDark ? "#fbbf24" : "#92400e" }]}>
-                  {t("dashboard.newMenteesWaiting").replace("{0}", String(unassignedMentees.length))}
-                </Text>
-                {unassignedMentees.map((mentee) => (
-                  <View key={mentee.id} style={[styles.amberRow, { borderBottomColor: isDark ? "#6b4e1a" : "#fef3c7" }]}>
-                    <View>
-                      <Text style={[styles.menteeNameText, { color: themeColors.text }]}>{mentee.name}</Text>
-                      <Text style={[styles.menteeSubText, { color: themeColors.textTertiary }]}>
-                        {mentee.city} · {mentee.gender === "male" ? t("dashboard.brother") : t("dashboard.sister")}
-                      </Text>
-                    </View>
-                    <TouchableOpacity
-                      style={styles.assignButton}
-                      onPress={() =>
-                        router.push({ pathname: "/assign", params: { menteeId: mentee.id } })
-                      }
-                    >
-                      <Text style={styles.assignButtonText}>{t("dashboard.assign")}</Text>
-                    </TouchableOpacity>
-                  </View>
-                ))}
               </View>
             )}
 
