@@ -1,5 +1,5 @@
 import React, { useMemo, useState, useCallback, useEffect } from "react";
-import { View, Text, ScrollView, TouchableOpacity, StyleSheet, RefreshControl, Platform, TextInput, Share } from "react-native";
+import { View, Text, ScrollView, TouchableOpacity, StyleSheet, RefreshControl, Platform, TextInput, Share, useWindowDimensions } from "react-native";
 import { useFocusEffect } from "@react-navigation/native";
 import { useRouter } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
@@ -267,17 +267,13 @@ function AdminDashboard({ showSystemSettings = true }: { showSystemSettings?: bo
               </View>
             )}
 
-            {/* KPI Karten – Reihe 1 */}
-            <View style={styles.row3}>
+            {/* KPI Karten – responsiv: 4 pro Reihe auf Desktop, 2 auf Mobile */}
+            <KpiGrid style={{ marginBottom: 16 }}>
               <StatCard label={t("dashboard.activeMentorships")} value={activeMentorships.length} color={COLORS.gradientStart} />
               <StatCard label={t("dashboard.completed")} value={completedMentorships.length} color={COLORS.cta} />
-            </View>
-
-            {/* KPI Karten – Reihe 2 */}
-            <View style={[styles.row3, { marginBottom: 16 }]}>
               <StatCard label={t("dashboard.mentors")} value={allMentors.length} color={COLORS.gradientStart} />
               <StatCard label={t("dashboard.totalMentees")} value={allMentees.length} color={COLORS.gold} />
-            </View>
+            </KpiGrid>
 
             {/* Mentor des Monats (Admin-Sicht) */}
             {mentorOfMonthVisible && topMentor && (
@@ -1157,6 +1153,27 @@ function MenteeDashboard() {
   );
 }
 
+function KpiGrid({ children, style }: { children: React.ReactNode; style?: object }) {
+  const { width } = useWindowDimensions();
+  const isDesktop = width > 768;
+  const childArray = React.Children.toArray(children);
+  return (
+    <View style={[{ flexDirection: "row", flexWrap: "wrap", gap: 10 }, style]}>
+      {childArray.map((child, idx) => (
+        <View
+          key={idx}
+          style={{
+            width: isDesktop ? "23.5%" : "48%",
+            marginBottom: isDesktop ? 0 : 0,
+          }}
+        >
+          {child}
+        </View>
+      ))}
+    </View>
+  );
+}
+
 function StatCard({
   label,
   value,
@@ -1387,6 +1404,7 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.08,
     shadowRadius: 8,
     elevation: 2,
+    minHeight: 70,
   },
   statLabel: { fontSize: 12, marginBottom: 2 },
   statValue: { fontSize: 26, fontWeight: "700" },

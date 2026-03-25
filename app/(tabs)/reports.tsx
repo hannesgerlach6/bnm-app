@@ -28,6 +28,7 @@ const QUARTER_MONTHS = [
 ] as const;
 
 type PeriodMode = "month" | "quarter" | "year";
+type QuickPeriod = "thisMonth" | "lastMonth" | "thisQuarter" | "thisYear" | "custom";
 
 function getQuarterIndex(month: number): number {
   return Math.floor(month / 3);
@@ -70,12 +71,38 @@ export default function ReportsScreen() {
   ];
 
   const now = new Date();
+  const [quickPeriod, setQuickPeriod] = useState<QuickPeriod>("thisMonth");
   const [periodMode, setPeriodMode] = useState<PeriodMode>("month");
   const [selectedMonth, setSelectedMonth] = useState(now.getMonth());
   const [selectedQuarter, setSelectedQuarter] = useState(getQuarterIndex(now.getMonth()));
   const [selectedYear, setSelectedYear] = useState(now.getFullYear());
 
   const years = [2024, 2025, 2026];
+
+  // Wenn Quick-Filter sich ändert, PeriodMode + Selektionen synchronisieren
+  function applyQuickPeriod(qp: QuickPeriod) {
+    setQuickPeriod(qp);
+    const n = new Date();
+    if (qp === "thisMonth") {
+      setPeriodMode("month");
+      setSelectedMonth(n.getMonth());
+      setSelectedYear(n.getFullYear());
+    } else if (qp === "lastMonth") {
+      setPeriodMode("month");
+      const lastMonth = n.getMonth() === 0 ? 11 : n.getMonth() - 1;
+      const lastMonthYear = n.getMonth() === 0 ? n.getFullYear() - 1 : n.getFullYear();
+      setSelectedMonth(lastMonth);
+      setSelectedYear(lastMonthYear);
+    } else if (qp === "thisQuarter") {
+      setPeriodMode("quarter");
+      setSelectedQuarter(getQuarterIndex(n.getMonth()));
+      setSelectedYear(n.getFullYear());
+    } else if (qp === "thisYear") {
+      setPeriodMode("year");
+      setSelectedYear(n.getFullYear());
+    }
+    // "custom" → nichts ändern, User wählt selbst
+  }
 
   const inPeriod = useMemo(() => {
     return (dateStr: string): boolean => {
@@ -262,26 +289,32 @@ export default function ReportsScreen() {
           <View style={[styles.card, { backgroundColor: themeColors.card }]}>
             <Text style={[styles.cardSectionLabel, { color: themeColors.textTertiary }]}>{t("reports.periodLabel")}</Text>
 
-            {/* Modus-Toggle */}
-            <View style={styles.modeRow}>
+            {/* Quick-Filter Buttons */}
+            <View style={styles.quickFilterRow}>
               {(
                 [
-                  { key: "month", label: t("reports.month") },
-                  { key: "quarter", label: t("reports.quarter") },
-                  { key: "year", label: t("reports.year") },
-                ] as const
+                  { key: "thisMonth" as QuickPeriod, label: t("reports.quickThisMonth") },
+                  { key: "lastMonth" as QuickPeriod, label: t("reports.quickLastMonth") },
+                  { key: "thisQuarter" as QuickPeriod, label: t("reports.quickThisQuarter") },
+                  { key: "thisYear" as QuickPeriod, label: t("reports.quickThisYear") },
+                  { key: "custom" as QuickPeriod, label: t("reports.quickCustom") },
+                ]
               ).map((opt) => (
                 <TouchableOpacity
                   key={opt.key}
                   style={[
-                    styles.modeButton,
-                    periodMode === opt.key ? styles.modeButtonActive : [styles.modeButtonInactive, { backgroundColor: themeColors.background, borderColor: themeColors.border }],
+                    styles.quickFilterBtn,
+                    quickPeriod === opt.key
+                      ? styles.quickFilterBtnActive
+                      : [styles.quickFilterBtnInactive, { backgroundColor: themeColors.background, borderColor: themeColors.border }],
                   ]}
-                  onPress={() => setPeriodMode(opt.key)}
+                  onPress={() => applyQuickPeriod(opt.key)}
                 >
                   <Text
                     style={
-                      periodMode === opt.key ? styles.modeTextActive : [styles.modeTextInactive, { color: themeColors.textSecondary }]
+                      quickPeriod === opt.key
+                        ? styles.quickFilterTextActive
+                        : [styles.quickFilterTextInactive, { color: themeColors.textSecondary }]
                     }
                   >
                     {opt.label}
@@ -290,74 +323,107 @@ export default function ReportsScreen() {
               ))}
             </View>
 
-            {/* Jahr-Auswahl */}
-            <View style={styles.yearRow}>
-              {years.map((year) => (
-                <TouchableOpacity
-                  key={year}
-                  style={[
-                    styles.yearButton,
-                    selectedYear === year ? styles.yearButtonActive : [styles.yearButtonInactive, { backgroundColor: themeColors.background, borderColor: themeColors.border }],
-                  ]}
-                  onPress={() => setSelectedYear(year)}
-                >
-                  <Text
-                    style={
-                      selectedYear === year ? styles.yearButtonTextActive : [styles.yearButtonTextInactive, { color: themeColors.textSecondary }]
-                    }
-                  >
-                    {year}
-                  </Text>
-                </TouchableOpacity>
-              ))}
-            </View>
-
-            {/* Monats-Auswahl */}
-            {periodMode === "month" && (
-              <View style={styles.monthRow}>
-                {MONTHS.map((month, idx) => (
-                  <TouchableOpacity
-                    key={month}
-                    style={[
-                      styles.monthChip,
-                      selectedMonth === idx ? styles.monthChipActive : [styles.monthChipInactive, { backgroundColor: themeColors.background, borderColor: themeColors.border }],
-                    ]}
-                    onPress={() => setSelectedMonth(idx)}
-                  >
-                    <Text
-                      style={
-                        selectedMonth === idx ? styles.monthChipTextActive : [styles.monthChipTextInactive, { color: themeColors.textSecondary }]
-                      }
+            {/* Custom-Picker: nur bei "Benutzerdefiniert" */}
+            {quickPeriod === "custom" && (
+              <>
+                {/* Modus-Toggle */}
+                <View style={[styles.modeRow, { marginTop: 12 }]}>
+                  {(
+                    [
+                      { key: "month", label: t("reports.month") },
+                      { key: "quarter", label: t("reports.quarter") },
+                      { key: "year", label: t("reports.year") },
+                    ] as const
+                  ).map((opt) => (
+                    <TouchableOpacity
+                      key={opt.key}
+                      style={[
+                        styles.modeButton,
+                        periodMode === opt.key ? styles.modeButtonActive : [styles.modeButtonInactive, { backgroundColor: themeColors.background, borderColor: themeColors.border }],
+                      ]}
+                      onPress={() => setPeriodMode(opt.key)}
                     >
-                      {month.slice(0, 3)}
-                    </Text>
-                  </TouchableOpacity>
-                ))}
-              </View>
-            )}
+                      <Text
+                        style={
+                          periodMode === opt.key ? styles.modeTextActive : [styles.modeTextInactive, { color: themeColors.textSecondary }]
+                        }
+                      >
+                        {opt.label}
+                      </Text>
+                    </TouchableOpacity>
+                  ))}
+                </View>
 
-            {/* Quartals-Auswahl */}
-            {periodMode === "quarter" && (
-              <View style={styles.quarterRow}>
-                {QUARTERS.map((q, idx) => (
-                  <TouchableOpacity
-                    key={q.label}
-                    style={[
-                      styles.quarterChip,
-                      selectedQuarter === idx ? styles.monthChipActive : [styles.monthChipInactive, { backgroundColor: themeColors.background, borderColor: themeColors.border }],
-                    ]}
-                    onPress={() => setSelectedQuarter(idx)}
-                  >
-                    <Text
-                      style={
-                        selectedQuarter === idx ? styles.monthChipTextActive : [styles.monthChipTextInactive, { color: themeColors.textSecondary }]
-                      }
+                {/* Jahr-Auswahl */}
+                <View style={styles.yearRow}>
+                  {years.map((year) => (
+                    <TouchableOpacity
+                      key={year}
+                      style={[
+                        styles.yearButton,
+                        selectedYear === year ? styles.yearButtonActive : [styles.yearButtonInactive, { backgroundColor: themeColors.background, borderColor: themeColors.border }],
+                      ]}
+                      onPress={() => setSelectedYear(year)}
                     >
-                      {q.label}
-                    </Text>
-                  </TouchableOpacity>
-                ))}
-              </View>
+                      <Text
+                        style={
+                          selectedYear === year ? styles.yearButtonTextActive : [styles.yearButtonTextInactive, { color: themeColors.textSecondary }]
+                        }
+                      >
+                        {year}
+                      </Text>
+                    </TouchableOpacity>
+                  ))}
+                </View>
+
+                {/* Monats-Auswahl */}
+                {periodMode === "month" && (
+                  <View style={styles.monthRow}>
+                    {MONTHS.map((month, idx) => (
+                      <TouchableOpacity
+                        key={month}
+                        style={[
+                          styles.monthChip,
+                          selectedMonth === idx ? styles.monthChipActive : [styles.monthChipInactive, { backgroundColor: themeColors.background, borderColor: themeColors.border }],
+                        ]}
+                        onPress={() => setSelectedMonth(idx)}
+                      >
+                        <Text
+                          style={
+                            selectedMonth === idx ? styles.monthChipTextActive : [styles.monthChipTextInactive, { color: themeColors.textSecondary }]
+                          }
+                        >
+                          {month.slice(0, 3)}
+                        </Text>
+                      </TouchableOpacity>
+                    ))}
+                  </View>
+                )}
+
+                {/* Quartals-Auswahl */}
+                {periodMode === "quarter" && (
+                  <View style={styles.quarterRow}>
+                    {QUARTERS.map((q, idx) => (
+                      <TouchableOpacity
+                        key={q.label}
+                        style={[
+                          styles.quarterChip,
+                          selectedQuarter === idx ? styles.monthChipActive : [styles.monthChipInactive, { backgroundColor: themeColors.background, borderColor: themeColors.border }],
+                        ]}
+                        onPress={() => setSelectedQuarter(idx)}
+                      >
+                        <Text
+                          style={
+                            selectedQuarter === idx ? styles.monthChipTextActive : [styles.monthChipTextInactive, { color: themeColors.textSecondary }]
+                          }
+                        >
+                          {q.label}
+                        </Text>
+                      </TouchableOpacity>
+                    ))}
+                  </View>
+                )}
+              </>
             )}
           </View>
 
@@ -566,6 +632,20 @@ const styles = StyleSheet.create({
     elevation: 2,
   },
   cardSectionLabel: { fontSize: 11, fontWeight: "600", letterSpacing: 1, marginBottom: 12 },
+  quickFilterRow: { flexDirection: "row", flexWrap: "wrap", gap: 8, marginBottom: 4 },
+  quickFilterBtn: {
+    paddingHorizontal: 12,
+    paddingVertical: 8,
+    borderRadius: 6,
+    borderWidth: 1,
+  },
+  quickFilterBtnActive: {
+    backgroundColor: COLORS.gradientStart,
+    borderColor: COLORS.gradientStart,
+  },
+  quickFilterBtnInactive: {},
+  quickFilterTextActive: { color: COLORS.white, fontWeight: "600", fontSize: 13 },
+  quickFilterTextInactive: { fontSize: 13 },
   modeRow: { flexDirection: "row", gap: 8, marginBottom: 12 },
   modeButton: { flex: 1, paddingVertical: 9, borderRadius: 5, borderWidth: 1, alignItems: "center" },
   modeButtonActive: { backgroundColor: COLORS.gradientStart, borderColor: COLORS.gradientStart },

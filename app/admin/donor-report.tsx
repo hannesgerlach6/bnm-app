@@ -44,6 +44,7 @@ const SESSION_COLORS = [
 ];
 
 type PeriodMode = "all" | "month" | "quarter" | "year";
+type QuickPeriodDonor = "thisMonth" | "lastMonth" | "thisQuarter" | "thisYear" | "custom";
 
 // ─── Hilfsfunktionen ─────────────────────────────────────────────────────────
 // formatPeriodLabel is defined inside the component to access t()
@@ -310,10 +311,35 @@ export default function AdminDonorReportScreen() {
   const { mentorships, sessions, sessionTypes, users } = useData();
 
   const now = new Date();
+  const [quickPeriod, setQuickPeriod] = useState<QuickPeriodDonor>("thisQuarter");
   const [periodMode, setPeriodMode] = useState<PeriodMode>("quarter");
   const [selectedYear, setSelectedYear] = useState(now.getFullYear());
   const [selectedMonth, setSelectedMonth] = useState(now.getMonth());
   const [selectedQuarter, setSelectedQuarter] = useState(Math.floor(now.getMonth() / 3));
+
+  function applyQuickPeriodDonor(qp: QuickPeriodDonor) {
+    setQuickPeriod(qp);
+    const n = new Date();
+    if (qp === "thisMonth") {
+      setPeriodMode("month");
+      setSelectedMonth(n.getMonth());
+      setSelectedYear(n.getFullYear());
+    } else if (qp === "lastMonth") {
+      setPeriodMode("month");
+      const lastMonth = n.getMonth() === 0 ? 11 : n.getMonth() - 1;
+      const lastMonthYear = n.getMonth() === 0 ? n.getFullYear() - 1 : n.getFullYear();
+      setSelectedMonth(lastMonth);
+      setSelectedYear(lastMonthYear);
+    } else if (qp === "thisQuarter") {
+      setPeriodMode("quarter");
+      setSelectedQuarter(Math.floor(n.getMonth() / 3));
+      setSelectedYear(n.getFullYear());
+    } else if (qp === "thisYear") {
+      setPeriodMode("year");
+      setSelectedYear(n.getFullYear());
+    }
+    // "custom" → User wählt selbst
+  }
 
   // Translated short month names (Jan–Dec) — memoized so useMemo deps stay stable
   const MONTHS_SHORT = useMemo(() => [
@@ -603,8 +629,45 @@ export default function AdminDonorReportScreen() {
           <View style={[styles.card, { backgroundColor: themeColors.card }]}>
             <Text style={[styles.sectionLabel, { color: themeColors.textTertiary }]}>{t("donorDashboard.periodSection")}</Text>
 
+            {/* Quick-Filter Buttons */}
+            <View style={styles.quickFilterRow}>
+              {(
+                [
+                  { key: "thisMonth" as QuickPeriodDonor, label: t("reports.quickThisMonth") },
+                  { key: "lastMonth" as QuickPeriodDonor, label: t("reports.quickLastMonth") },
+                  { key: "thisQuarter" as QuickPeriodDonor, label: t("reports.quickThisQuarter") },
+                  { key: "thisYear" as QuickPeriodDonor, label: t("reports.quickThisYear") },
+                  { key: "custom" as QuickPeriodDonor, label: t("reports.quickCustom") },
+                ]
+              ).map((opt) => (
+                <TouchableOpacity
+                  key={opt.key}
+                  style={[
+                    styles.quickFilterBtn,
+                    quickPeriod === opt.key
+                      ? styles.quickFilterBtnActive
+                      : [styles.quickFilterBtnInactive, { backgroundColor: themeColors.background, borderColor: themeColors.border }],
+                  ]}
+                  onPress={() => applyQuickPeriodDonor(opt.key)}
+                >
+                  <Text
+                    style={
+                      quickPeriod === opt.key
+                        ? styles.quickFilterTextActive
+                        : [styles.quickFilterTextInactive, { color: themeColors.textSecondary }]
+                    }
+                  >
+                    {opt.label}
+                  </Text>
+                </TouchableOpacity>
+              ))}
+            </View>
+
+            {/* Detaillierter Picker: nur bei "Benutzerdefiniert" */}
+            {quickPeriod === "custom" && (
+              <>
             {/* Modi */}
-            <View style={styles.modeRow}>
+            <View style={[styles.modeRow, { marginTop: 12 }]}>
               {(
                 [
                   { key: "all" as const, label: t("donorDashboard.periodAll") },
@@ -702,6 +765,8 @@ export default function AdminDonorReportScreen() {
                   </TouchableOpacity>
                 ))}
               </View>
+            )}
+              </>
             )}
           </View>
 
@@ -1007,6 +1072,20 @@ const styles = StyleSheet.create({
     letterSpacing: 1,
     marginBottom: 10,
   },
+  quickFilterRow: { flexDirection: "row", flexWrap: "wrap", gap: 8, marginBottom: 4 },
+  quickFilterBtn: {
+    paddingHorizontal: 12,
+    paddingVertical: 8,
+    borderRadius: 6,
+    borderWidth: 1,
+  },
+  quickFilterBtnActive: {
+    backgroundColor: COLORS.gradientStart,
+    borderColor: COLORS.gradientStart,
+  },
+  quickFilterBtnInactive: {},
+  quickFilterTextActive: { color: COLORS.white, fontWeight: "600", fontSize: 13 },
+  quickFilterTextInactive: { fontSize: 13 },
   modeRow: { flexDirection: "row", gap: 6, marginBottom: 10, flexWrap: "wrap" },
   modeBtn: {
     paddingVertical: 7,
