@@ -266,7 +266,6 @@ const tabStyles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
   },
-  bellIcon: { fontSize: 22 },
   chatIconWrapper: {
     position: "relative",
     width: 28,
@@ -302,18 +301,6 @@ const sidebarStyles = StyleSheet.create({
     borderBottomWidth: 1,
     borderBottomColor: "rgba(128,128,128,0.15)",
   },
-  logoText: {
-    fontSize: 28,
-    fontWeight: "800",
-    letterSpacing: 2,
-  },
-  logoSubtext: {
-    fontSize: 11,
-    fontWeight: "500",
-    letterSpacing: 1,
-    textTransform: "uppercase",
-    marginTop: 2,
-  },
   nav: {
     flex: 1,
     paddingTop: 12,
@@ -328,23 +315,10 @@ const sidebarStyles = StyleSheet.create({
     marginBottom: 4,
     gap: 12,
   },
-  itemActive: {
-    backgroundColor: COLORS.gold,
-  },
-  itemInactive: {
-    backgroundColor: "transparent",
-  },
   itemLabel: {
     fontSize: 14,
     fontWeight: "500",
     flex: 1,
-  },
-  itemLabelActive: {
-    color: COLORS.primary,
-    fontWeight: "600",
-  },
-  itemLabelInactive: {
-    color: "#98A2B3",
   },
   badge: {
     backgroundColor: COLORS.error,
@@ -392,9 +366,21 @@ function TabsLayout() {
   const isAdminOrOffice = user?.role === "admin" || user?.role === "office";
   const isMentee = user?.role === "mentee";
   const isOffice = user?.role === "office";
-  const showLeaderboard = !isMentee;
-  const showChats = !isOffice;
+  const isMobile = Platform.OS !== "web";
+
+  // Mobile TabBar: Max 5-6 Tabs anzeigen.
+  // Admin/Office auf Mobile: Dashboard, Mentees, Chats, Reports, Profile (5 Tabs).
+  // Mentors, Applications, Tools, Feedback, Leaderboard werden über Sidebar navigiert (Web)
+  // oder sind über Dashboard-Quicklinks erreichbar.
+  // Mentor auf Mobile: Dashboard, Mentees, Chats, Leaderboard, Profile (5 Tabs).
+  // Mentee auf Mobile: Dashboard, Chats, Profile (3 Tabs).
+
   const showMentees = !isMentee;
+  const showChats = !isOffice;
+  // Leaderboard: nur für Mentor auf Mobile; für Admin/Office auf Mobile ausblenden (zu viele Tabs)
+  const showLeaderboard = !isMentee && !(isAdminOrOffice && isMobile);
+  // Admin-only Tabs (Mentors, Applications, Tools, Reports, Feedback): auf Mobile ausblenden
+  const showAdminTabOnMobile = isAdminOrOffice && !isMobile;
 
   return (
     <Tabs
@@ -453,7 +439,8 @@ function TabsLayout() {
         name="mentors"
         options={{
           title: t("sidebar.mentors"),
-          href: isAdminOrOffice ? undefined : null,
+          // Nur auf Web für Admin/Office sichtbar; auf Mobile ausgeblendet (TabBar zu voll)
+          href: showAdminTabOnMobile ? undefined : null,
           tabBarIcon: ({ color }) => (
             Platform.OS === "ios" ? <SymbolView name={"person.badge.clock.fill" as any} tintColor={color} size={24} /> : <Ionicons name="school" size={22} color={color} />
           ),
@@ -463,7 +450,7 @@ function TabsLayout() {
         name="applications"
         options={{
           title: t("sidebar.applications"),
-          href: isAdminOrOffice ? undefined : null,
+          href: showAdminTabOnMobile ? undefined : null,
           tabBarIcon: ({ color }) => (
             Platform.OS === "ios" ? <SymbolView name={"doc.text.fill" as any} tintColor={color} size={24} /> : <Ionicons name="document-text" size={22} color={color} />
           ),
@@ -473,7 +460,7 @@ function TabsLayout() {
         name="tools"
         options={{
           title: "Tools",
-          href: isAdminOrOffice ? undefined : null,
+          href: showAdminTabOnMobile ? undefined : null,
           tabBarIcon: ({ color }) => (
             Platform.OS === "ios" ? <SymbolView name={"wrench.and.screwdriver.fill" as any} tintColor={color} size={24} /> : <Ionicons name="construct" size={22} color={color} />
           ),
@@ -483,6 +470,7 @@ function TabsLayout() {
         name="reports"
         options={{
           title: t("tabs.reports"),
+          // Reports auf Mobile für Admin sichtbar lassen (wichtig für unterwegs)
           href: isAdminOrOffice ? undefined : null,
           tabBarIcon: ({ color }) => (
             Platform.OS === "ios" ? <SymbolView name={"chart.bar.fill" as any} tintColor={color} size={24} /> : <Ionicons name="bar-chart" size={22} color={color} />
@@ -493,7 +481,7 @@ function TabsLayout() {
         name="feedback"
         options={{
           title: t("tabs.feedback"),
-          href: isAdminOrOffice ? undefined : null,
+          href: showAdminTabOnMobile ? undefined : null,
           tabBarIcon: ({ color }) => (
             <Ionicons name="star" size={22} color={color} />
           ),
