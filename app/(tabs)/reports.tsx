@@ -276,7 +276,7 @@ export default function ReportsScreen() {
   }
 
   return (
-    <Container>
+    <Container fullWidth={Platform.OS === "web"}>
       <ScrollView
         style={styles.scrollView}
         refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor={COLORS.gold} />}

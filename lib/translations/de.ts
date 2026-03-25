@@ -1178,6 +1178,10 @@ const de = {
 
   // Chats – relative time
   "chats.yesterday": "Gestern",
+  "chats.search": "Suchen...",
+  "chats.total": "Gesamt",
+  "chats.unread": "Ungelesen",
+  "chats.selectChat": "Wähle einen Chat aus",
 
   // Reports – months
   "reports.months.jan": "Januar",

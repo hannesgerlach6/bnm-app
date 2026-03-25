@@ -4,16 +4,25 @@ import { View, Platform, StyleSheet } from "react-native";
 interface ContainerProps {
   children: ReactNode;
   style?: object;
+  /** Wenn true, wird kein maxWidth angewendet — nutze das in breiten Layouts (z.B. Sidebar-Layout). */
+  fullWidth?: boolean;
 }
 
 /**
  * Responsive Wrapper-Komponente.
- * Auf Web: Content wird auf max. 600px begrenzt und zentriert.
+ * Auf Web ohne fullWidth: Content wird auf max. 900px begrenzt und zentriert.
+ * Auf Web mit fullWidth: volle Breite (für Sidebar-Layouts).
  * Auf Native: volle Breite (kein Wrapper-Overhead).
  */
-export function Container({ children, style }: ContainerProps) {
+export function Container({ children, style, fullWidth }: ContainerProps) {
   if (Platform.OS !== "web") {
     return <>{children}</>;
+  }
+
+  if (fullWidth) {
+    return (
+      <View style={[styles.outerWebFull, style]}>{children}</View>
+    );
   }
 
   return (
@@ -31,7 +40,11 @@ const styles = StyleSheet.create({
   },
   innerWeb: {
     width: "100%",
-    maxWidth: 600,
+    maxWidth: 900,
     flex: 1,
+  },
+  outerWebFull: {
+    flex: 1,
+    width: "100%",
   },
 });

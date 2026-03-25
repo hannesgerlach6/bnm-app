@@ -1232,6 +1232,10 @@ const ar: Record<TranslationKeys, string> = {
 
   // Chats – relative time
   "chats.yesterday": "أمس",
+  "chats.search": "بحث...",
+  "chats.total": "الإجمالي",
+  "chats.unread": "غير مقروء",
+  "chats.selectChat": "اختر محادثة",
 
   // Reports – months
   "reports.months.jan": "يناير",

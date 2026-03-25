@@ -16,8 +16,8 @@ export default function DashboardScreen() {
 
   if (!user) return null;
 
-  if (user.role === "admin") return <Container><AdminDashboard showSystemSettings /></Container>;
-  if (user.role === "office") return <Container><AdminDashboard showSystemSettings={false} /></Container>;
+  if (user.role === "admin") return <Container fullWidth={Platform.OS === "web"}><AdminDashboard showSystemSettings /></Container>;
+  if (user.role === "office") return <Container fullWidth={Platform.OS === "web"}><AdminDashboard showSystemSettings={false} /></Container>;
   if (user.role === "mentor") return <Container><MentorDashboard /></Container>;
   return <Container><MenteeDashboard /></Container>;
 }

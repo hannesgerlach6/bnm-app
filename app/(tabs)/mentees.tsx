@@ -28,7 +28,7 @@ export default function MenteesScreen() {
   const { user } = useAuth();
   if (!user) return null;
 
-  if (user.role === "admin" || user.role === "office") return <Container><AdminMenteesView /></Container>;
+  if (user.role === "admin" || user.role === "office") return <Container fullWidth={Platform.OS === "web"}><AdminMenteesView /></Container>;
   if (user.role === "mentor") return <Container><MentorMenteesView /></Container>;
   return <Container><MenteeProgressView /></Container>;
 }
