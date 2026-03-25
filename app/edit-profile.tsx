@@ -8,6 +8,7 @@ import {
   TextInput,
   Platform,
   StyleSheet,
+  KeyboardAvoidingView,
 } from "react-native";
 import { showError, showSuccess } from "../lib/errorHandler";
 import { useRouter } from "expo-router";
@@ -114,7 +115,10 @@ export default function EditProfileScreen() {
 
   return (
     <Container>
-      <View style={[styles.root, { backgroundColor: themeColors.background }]}>
+      <KeyboardAvoidingView
+        style={[styles.root, { backgroundColor: themeColors.background }]}
+        behavior={Platform.OS === "ios" ? "padding" : "height"}
+      >
         {/* Header */}
         <View style={[styles.header, { backgroundColor: themeColors.card, borderBottomColor: themeColors.border, paddingTop: insets.top + 16 }]}>
           <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
@@ -281,7 +285,7 @@ export default function EditProfileScreen() {
           </TouchableOpacity>
 
         </ScrollView>
-      </View>
+      </KeyboardAvoidingView>
     </Container>
   );
 }

@@ -8,6 +8,7 @@ import {
 } from "react-native";
 import { useRouter } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useData } from "../contexts/DataContext";
 import type { Notification, NotificationType } from "../types";
 import { COLORS } from "../constants/Colors";
@@ -28,6 +29,7 @@ function getTypeConfig(isDark: boolean): Record<NotificationType, { icon: string
 
 export default function NotificationsScreen() {
   const router = useRouter();
+  const insets = useSafeAreaInsets();
   const { t } = useLanguage();
   const themeColors = useThemeColors();
   const { isDark } = useTheme();
@@ -71,7 +73,7 @@ export default function NotificationsScreen() {
     <Container>
       <View style={[styles.root, { backgroundColor: themeColors.background }]}>
         {/* Header */}
-        <View style={[styles.header, { backgroundColor: themeColors.card, borderBottomColor: themeColors.border }]}>
+        <View style={[styles.header, { backgroundColor: themeColors.card, borderBottomColor: themeColors.border, paddingTop: insets.top + 12 }]}>
           <View style={styles.headerLeft}>
             <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
               <Text style={[styles.backText, { color: themeColors.text }]}>‹ {t("common.back")}</Text>
@@ -166,7 +168,7 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     paddingHorizontal: 16,
-    paddingTop: 56,
+    // paddingTop wird dynamisch via insets.top + 12 gesetzt
     paddingBottom: 16,
     borderBottomWidth: 1,
   },

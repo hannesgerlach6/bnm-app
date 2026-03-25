@@ -61,7 +61,7 @@ export default function SettingsScreen() {
     <Container>
       <View style={[styles.root, { backgroundColor: themeColors.background }]}>
         {/* Header */}
-        <View style={[styles.header, { backgroundColor: themeColors.card, borderBottomColor: themeColors.border }]}>
+        <View style={[styles.header, { backgroundColor: themeColors.card, borderBottomColor: themeColors.border, paddingTop: insets.top + 16 }]}>
           <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
             <Text style={[styles.backText, { color: themeColors.text }]}>‹ {t("common.back")}</Text>
           </TouchableOpacity>
@@ -193,7 +193,7 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     paddingHorizontal: 16,
-    paddingTop: 56,
+    // paddingTop wird dynamisch via insets.top + 16 gesetzt
     paddingBottom: 16,
     borderBottomWidth: 1,
   },

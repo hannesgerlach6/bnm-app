@@ -6,8 +6,11 @@ import {
   TouchableOpacity,
   TextInput,
   StyleSheet,
+  Platform,
+  KeyboardAvoidingView,
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { showError, showSuccess } from "../lib/errorHandler";
 import { useRouter } from "expo-router";
 import { COLORS } from "../constants/Colors";
@@ -18,6 +21,7 @@ import { supabase } from "../lib/supabase";
 
 export default function ChangePasswordScreen() {
   const router = useRouter();
+  const insets = useSafeAreaInsets();
   const { t } = useLanguage();
   const themeColors = useThemeColors();
   const { isDark } = useTheme();
@@ -85,9 +89,12 @@ export default function ChangePasswordScreen() {
 
   return (
     <Container>
-      <View style={[styles.root, { backgroundColor: themeColors.background }]}>
+      <KeyboardAvoidingView
+        style={[styles.root, { backgroundColor: themeColors.background }]}
+        behavior={Platform.OS === "ios" ? "padding" : "height"}
+      >
         {/* Header */}
-        <View style={[styles.header, { backgroundColor: themeColors.card, borderBottomColor: themeColors.border }]}>
+        <View style={[styles.header, { backgroundColor: themeColors.card, borderBottomColor: themeColors.border, paddingTop: insets.top + 16 }]}>
           <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
             <Text style={[styles.backText, { color: themeColors.text }]}>{t("changePassword.back")}</Text>
           </TouchableOpacity>
@@ -236,7 +243,7 @@ export default function ChangePasswordScreen() {
           </TouchableOpacity>
 
         </ScrollView>
-      </View>
+      </KeyboardAvoidingView>
     </Container>
   );
 }
@@ -247,7 +254,7 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     paddingHorizontal: 16,
-    paddingTop: 56,
+    // paddingTop wird dynamisch via insets.top + 16 gesetzt
     paddingBottom: 16,
     borderBottomWidth: 1,
   },

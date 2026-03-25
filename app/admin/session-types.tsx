@@ -6,6 +6,8 @@ import {
   TouchableOpacity,
   TextInput,
   StyleSheet,
+  Platform,
+  KeyboardAvoidingView,
 } from "react-native";
 import { showError, showConfirm } from "../../lib/errorHandler";
 import { useRouter } from "expo-router";
@@ -85,6 +87,10 @@ export default function SessionTypesScreen() {
   const isAdminRole = user?.role === "admin";
 
   return (
+    <KeyboardAvoidingView
+      style={[styles.flex1, { backgroundColor: themeColors.background }]}
+      behavior={Platform.OS === "ios" ? "padding" : "height"}
+    >
     <ScrollView style={[styles.scrollView, { backgroundColor: themeColors.background }]}>
       <View style={styles.page}>
         <Text style={[styles.pageTitle, { color: themeColors.text }]}>{t("sessionTypes.title")}</Text>
@@ -224,10 +230,12 @@ export default function SessionTypesScreen() {
         ) : null}
       </View>
     </ScrollView>
+    </KeyboardAvoidingView>
   );
 }
 
 const styles = StyleSheet.create({
+  flex1: { flex: 1 },
   scrollView: { flex: 1 },
   centerContainer: { flex: 1, alignItems: "center", justifyContent: "center", padding: 24 },
   accessText: { fontWeight: "600" },

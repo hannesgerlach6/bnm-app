@@ -11,6 +11,7 @@ import {
   Platform,
 } from "react-native";
 import { useRouter } from "expo-router";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { COLORS } from "../constants/Colors";
 import { Container } from "../components/Container";
 import { BNMLogo } from "../components/BNMLogo";
@@ -52,6 +53,7 @@ export async function hasSeenOnboarding(userId: string): Promise<boolean> {
 
 export default function OnboardingScreen() {
   const router = useRouter();
+  const insets = useSafeAreaInsets();
   const { t } = useLanguage();
   const themeColors = useThemeColors();
   const { isDark } = useTheme();
@@ -119,7 +121,7 @@ export default function OnboardingScreen() {
     <Container>
       <View style={[styles.root, { backgroundColor: themeColors.background }]}>
         {/* Überspringen-Link */}
-        <TouchableOpacity style={styles.skipButton} onPress={handleSkip}>
+        <TouchableOpacity style={[styles.skipButton, { top: insets.top + 12 }]} onPress={handleSkip}>
           <Text style={[styles.skipText, { color: themeColors.textSecondary }]}>{t("onboarding.skip")}</Text>
         </TouchableOpacity>
 
@@ -294,7 +296,7 @@ const styles = StyleSheet.create({
   },
   skipButton: {
     position: "absolute",
-    top: 52,
+    // top wird dynamisch via insets.top + 12 gesetzt (SafeAreaInsets-Fix für iOS)
     right: 20,
     zIndex: 10,
     paddingHorizontal: 12,

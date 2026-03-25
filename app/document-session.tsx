@@ -7,6 +7,7 @@ import {
   TextInput,
   StyleSheet,
   Platform,
+  KeyboardAvoidingView,
 } from "react-native";
 import { showError, showSuccess, showConfirm } from "../lib/errorHandler";
 import { useRouter, useLocalSearchParams } from "expo-router";
@@ -364,6 +365,10 @@ export default function DocumentSessionScreen() {
   }
 
   return (
+    <KeyboardAvoidingView
+      style={[styles.flex1, { backgroundColor: themeColors.background }]}
+      behavior={Platform.OS === "ios" ? "padding" : "height"}
+    >
     <ScrollView style={[styles.scrollView, { backgroundColor: themeColors.background }]}>
       <View style={styles.page}>
         {/* Mentee auswählen (wenn mehrere oder Admin) */}
@@ -1018,10 +1023,12 @@ export default function DocumentSessionScreen() {
         )}
       </View>
     </ScrollView>
+    </KeyboardAvoidingView>
   );
 }
 
 const styles = StyleSheet.create({
+  flex1: { flex: 1 },
   scrollView: { flex: 1 },
   centerContainer: { flex: 1, alignItems: "center", justifyContent: "center", padding: 24 },
   accessText: { fontWeight: "600" },

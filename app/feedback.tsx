@@ -7,6 +7,7 @@ import {
   TextInput,
   StyleSheet,
   Platform,
+  KeyboardAvoidingView,
 } from "react-native";
 import { showError, showSuccess } from "../lib/errorHandler";
 import { useRouter, useLocalSearchParams } from "expo-router";
@@ -93,6 +94,10 @@ export default function FeedbackScreen() {
   const isDisabled = isSaving || rating === 0;
 
   return (
+    <KeyboardAvoidingView
+      style={[styles.flex1, { backgroundColor: themeColors.background }]}
+      behavior={Platform.OS === "ios" ? "padding" : "height"}
+    >
     <ScrollView style={[styles.scrollView, { backgroundColor: themeColors.background }]}>
       <View style={styles.page}>
         {/* Header */}
@@ -178,10 +183,12 @@ export default function FeedbackScreen() {
         </TouchableOpacity>
       </View>
     </ScrollView>
+    </KeyboardAvoidingView>
   );
 }
 
 const styles = StyleSheet.create({
+  flex1: { flex: 1 },
   scrollView: { flex: 1 },
   page: { padding: 20 },
   headerCard: {
