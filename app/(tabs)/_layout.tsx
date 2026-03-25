@@ -155,14 +155,18 @@ function AdminSidebar() {
     ? "profile"
     : "index";
 
-  const items = [
-    { key: "index", label: t("tabs.dashboard"), iconName: "home-outline", iconNameActive: "home", href: "/(tabs)/" },
+  // Haupt-Navigation
+  const mainItems = [
+    { key: "index", label: t("tabs.dashboard"), iconName: "grid-outline", iconNameActive: "grid", href: "/(tabs)/" },
     { key: "mentees", label: t("tabs.mentees"), iconName: "people-outline", iconNameActive: "people", href: "/(tabs)/mentees" },
     ...(!isOffice
       ? [{ key: "chats", label: t("tabs.chats"), iconName: "chatbubbles-outline", iconNameActive: "chatbubbles", href: "/(tabs)/chats", badge: chatUnread }]
       : []),
-    { key: "reports", label: t("tabs.reports"), iconName: "bar-chart-outline", iconNameActive: "bar-chart", href: "/(tabs)/reports" },
-    { key: "profile", label: t("tabs.profile"), iconName: "person-outline", iconNameActive: "person", href: "/(tabs)/profile" },
+    { key: "reports", label: t("tabs.reports"), iconName: "stats-chart-outline", iconNameActive: "stats-chart", href: "/(tabs)/reports" },
+  ];
+  // Unten: Profil/Einstellungen
+  const bottomItems = [
+    { key: "profile", label: t("tabs.profile"), iconName: "settings-outline", iconNameActive: "settings", href: "/(tabs)/profile" },
   ];
 
   return (
@@ -172,17 +176,14 @@ function AdminSidebar() {
         { backgroundColor: themeColors.background, borderRightColor: themeColors.border },
       ]}
     >
-      {/* Logo / App-Titel */}
+      {/* Logo */}
       <View style={sidebarStyles.logoArea}>
         <BNMLogo size={36} showSubtitle={false} />
-        <Text style={[sidebarStyles.logoSubtext, { color: themeColors.textSecondary, marginTop: 4 }]}>
-          {user?.role === "admin" ? "Admin" : user?.role === "office" ? "Office" : user?.role === "mentor" ? "Mentor" : "Mentee"}
-        </Text>
       </View>
 
-      {/* Navigation Items */}
+      {/* Haupt-Navigation */}
       <View style={sidebarStyles.nav}>
-        {items.map((item) => (
+        {mainItems.map((item) => (
           <SidebarItem
             key={item.key}
             label={item.label}
@@ -196,8 +197,21 @@ function AdminSidebar() {
         ))}
       </View>
 
-      {/* Notifications Button unten */}
+      {/* Unten: Einstellungen + Bell */}
       <View style={sidebarStyles.bottomArea}>
+        <View style={{ borderTopWidth: 1, borderTopColor: themeColors.border, paddingTop: 8, width: "100%" }}>
+          {bottomItems.map((item) => (
+            <SidebarItem
+              key={item.key}
+              label={item.label}
+              href={item.href}
+              iconName={item.iconName}
+              iconNameActive={item.iconNameActive}
+              isActive={activeSegment === item.key}
+              onPress={() => router.push(item.href as any)}
+            />
+          ))}
+        </View>
         <BellButton />
       </View>
     </View>
