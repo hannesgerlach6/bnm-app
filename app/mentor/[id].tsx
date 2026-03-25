@@ -5,6 +5,7 @@ import {
   ScrollView,
   TouchableOpacity,
   StyleSheet,
+  Platform,
 } from "react-native";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
@@ -55,7 +56,7 @@ export default function MentorDetailScreen() {
 
   if (!mentor) {
     return (
-      <Container>
+      <Container fullWidth={Platform.OS === "web"}>
         <View style={[styles.root, { backgroundColor: themeColors.background }]}>
           <View style={[styles.header, { backgroundColor: themeColors.card, borderBottomColor: themeColors.border, paddingTop: insets.top + 16 }]}>
             <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>

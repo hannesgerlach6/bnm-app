@@ -57,7 +57,7 @@ export default function QAManagementScreen() {
   // Zugangskontrolle
   if (!user || (user.role !== "admin" && user.role !== "office")) {
     return (
-      <Container>
+      <Container fullWidth={Platform.OS === "web"}>
         <View style={styles.accessDeniedBox}>
           <Text style={[styles.accessDeniedText, { color: themeColors.text }]}>
             {t("qa.accessDenied")}
@@ -161,7 +161,7 @@ export default function QAManagementScreen() {
 
   if (showForm) {
     return (
-      <Container>
+      <Container fullWidth={Platform.OS === "web"}>
         <KeyboardAvoidingView
           style={{ flex: 1 }}
           behavior={Platform.OS === "ios" ? "padding" : undefined}

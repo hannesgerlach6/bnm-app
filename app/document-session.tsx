@@ -16,6 +16,7 @@ import { useData } from "../contexts/DataContext";
 import { COLORS } from "../constants/Colors";
 import { useLanguage } from "../contexts/LanguageContext";
 import { useTheme, useThemeColors } from "../contexts/ThemeContext";
+import { Container } from "../components/Container";
 
 const ERSTKONTAKT_TYPE_NAME = "Erstkontakt";
 const BNM_BOX_TYPE_NAME = "BNM-Box";
@@ -365,6 +366,7 @@ export default function DocumentSessionScreen() {
   }
 
   return (
+    <Container fullWidth={Platform.OS === "web"}>
     <KeyboardAvoidingView
       style={[styles.flex1, { backgroundColor: themeColors.background }]}
       behavior={Platform.OS === "ios" ? "padding" : "height"}
@@ -1024,6 +1026,7 @@ export default function DocumentSessionScreen() {
       </View>
     </ScrollView>
     </KeyboardAvoidingView>
+    </Container>
   );
 }
 

@@ -88,7 +88,7 @@ export default function ChangePasswordScreen() {
   })();
 
   return (
-    <Container>
+    <Container fullWidth={Platform.OS === "web"}>
       <KeyboardAvoidingView
         style={[styles.root, { backgroundColor: themeColors.background }]}
         behavior={Platform.OS === "ios" ? "padding" : "height"}

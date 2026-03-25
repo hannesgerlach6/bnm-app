@@ -118,7 +118,7 @@ export default function OnboardingScreen() {
   }
 
   return (
-    <Container>
+    <Container fullWidth={Platform.OS === "web"}>
       <View style={[styles.root, { backgroundColor: themeColors.background }]}>
         {/* Überspringen-Link */}
         <TouchableOpacity style={[styles.skipButton, { top: insets.top + 12 }]} onPress={handleSkip}>

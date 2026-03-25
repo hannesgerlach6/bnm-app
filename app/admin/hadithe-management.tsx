@@ -18,6 +18,7 @@ import { useLanguage } from "../../contexts/LanguageContext";
 import { useThemeColors } from "../../contexts/ThemeContext";
 import { COLORS } from "../../constants/Colors";
 import { showError, showSuccess, showConfirm } from "../../lib/errorHandler";
+import { Container } from "../../components/Container";
 
 type FormData = {
   text_ar: string;
@@ -210,6 +211,7 @@ export default function HaditheManagementScreen() {
   }
 
   return (
+    <Container fullWidth={Platform.OS === "web"}>
     <KeyboardAvoidingView
       style={{ flex: 1, backgroundColor: themeColors.background }}
       behavior={Platform.OS === "ios" ? "padding" : undefined}
@@ -440,6 +442,7 @@ export default function HaditheManagementScreen() {
         </View>
       </ScrollView>
     </KeyboardAvoidingView>
+    </Container>
   );
 }
 

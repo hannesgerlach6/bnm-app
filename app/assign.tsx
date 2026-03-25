@@ -18,6 +18,7 @@ import { sendMenteeAssignedNotification } from "../lib/emailService";
 import { useLanguage } from "../contexts/LanguageContext";
 import { useTheme, useThemeColors } from "../contexts/ThemeContext";
 import { getCoordinatesForPLZ, haversineDistance } from "../lib/plzCoordinates";
+import { Container } from "../components/Container";
 
 interface MatchScore {
   mentor: User;
@@ -217,6 +218,7 @@ export default function AssignScreen() {
   }
 
   return (
+    <Container fullWidth={Platform.OS === "web"}>
     <ScrollView style={[styles.scrollView, { backgroundColor: themeColors.background }]}>
       <View style={styles.page}>
         {/* Mentor-Modus Banner */}
@@ -395,6 +397,7 @@ export default function AssignScreen() {
         </TouchableOpacity>
       </View>
     </ScrollView>
+    </Container>
   );
 }
 

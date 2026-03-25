@@ -7,6 +7,7 @@ import {
   Switch,
   StyleSheet,
   Linking,
+  Platform,
 } from "react-native";
 import { showSuccess, showConfirm } from "../lib/errorHandler";
 import { useRouter } from "expo-router";
@@ -58,7 +59,7 @@ export default function SettingsScreen() {
   }
 
   return (
-    <Container>
+    <Container fullWidth={Platform.OS === "web"}>
       <View style={[styles.root, { backgroundColor: themeColors.background }]}>
         {/* Header */}
         <View style={[styles.header, { backgroundColor: themeColors.card, borderBottomColor: themeColors.border, paddingTop: insets.top + 16 }]}>

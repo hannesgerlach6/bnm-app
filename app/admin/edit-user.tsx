@@ -40,7 +40,7 @@ export default function EditUserScreen() {
   // Nur Admin/Office darf bearbeiten
   if (!authUser || (authUser.role !== "admin" && authUser.role !== "office")) {
     return (
-      <Container>
+      <Container fullWidth={Platform.OS === "web"}>
         <View style={[styles.center, { backgroundColor: themeColors.background }]}>
           <Text style={[styles.denied, { color: themeColors.error }]}>{t("editUser.accessDenied")}</Text>
         </View>
@@ -50,7 +50,7 @@ export default function EditUserScreen() {
 
   if (!target) {
     return (
-      <Container>
+      <Container fullWidth={Platform.OS === "web"}>
         <View style={[styles.center, { backgroundColor: themeColors.background }]}>
           <Text style={[styles.denied, { color: themeColors.error }]}>{t("editUser.notFound")}</Text>
         </View>

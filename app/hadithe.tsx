@@ -7,6 +7,7 @@ import {
   StyleSheet,
   ActivityIndicator,
   Share,
+  Platform,
 } from "react-native";
 import { useRouter } from "expo-router";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
@@ -14,6 +15,7 @@ import { COLORS } from "../constants/Colors";
 import { useData } from "../contexts/DataContext";
 import { useLanguage } from "../contexts/LanguageContext";
 import { useThemeColors } from "../contexts/ThemeContext";
+import { Container } from "../components/Container";
 
 export default function HaditheScreen() {
   const router = useRouter();
@@ -46,6 +48,7 @@ export default function HaditheScreen() {
   }
 
   return (
+    <Container fullWidth={Platform.OS === "web"}>
     <ScrollView style={[styles.scrollView, { backgroundColor: themeColors.background }]}>
       <View style={[styles.page, { paddingTop: insets.top + 12 }]}>
         {/* Header */}
@@ -119,6 +122,7 @@ export default function HaditheScreen() {
         )}
       </View>
     </ScrollView>
+    </Container>
   );
 }
 

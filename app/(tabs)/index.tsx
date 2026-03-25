@@ -1,5 +1,5 @@
 import React, { useMemo, useState, useCallback, useEffect } from "react";
-import { View, Text, ScrollView, TouchableOpacity, StyleSheet, RefreshControl, Platform, TextInput, Share, useWindowDimensions } from "react-native";
+import { View, Text, ScrollView, TouchableOpacity, StyleSheet, RefreshControl, Platform, Share, useWindowDimensions } from "react-native";
 import { useFocusEffect } from "@react-navigation/native";
 import { useRouter } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
@@ -18,8 +18,8 @@ export default function DashboardScreen() {
 
   if (user.role === "admin") return <Container fullWidth={Platform.OS === "web"}><AdminDashboard showSystemSettings /></Container>;
   if (user.role === "office") return <Container fullWidth={Platform.OS === "web"}><AdminDashboard showSystemSettings={false} /></Container>;
-  if (user.role === "mentor") return <Container><MentorDashboard /></Container>;
-  return <Container><MenteeDashboard /></Container>;
+  if (user.role === "mentor") return <Container fullWidth={Platform.OS === "web"}><MentorDashboard /></Container>;
+  return <Container fullWidth={Platform.OS === "web"}><MenteeDashboard /></Container>;
 }
 
 function AdminDashboard({ showSystemSettings = true }: { showSystemSettings?: boolean }) {
@@ -35,12 +35,10 @@ function AdminDashboard({ showSystemSettings = true }: { showSystemSettings?: bo
     hadithe,
     mentorOfMonthVisible,
     getUnassignedMentees,
-    getPendingApplicationsCount,
     getPendingApprovalsCount,
     refreshData,
   } = useData();
   const [refreshing, setRefreshing] = useState(false);
-  const [searchQuery, setSearchQuery] = useState("");
   const [activePeriod, setActivePeriod] = useState<"thisMonth" | "lastMonth" | "thisQuarter" | "thisYear">("thisMonth");
   const onRefresh = useCallback(async () => {
     setRefreshing(true);
@@ -61,26 +59,7 @@ function AdminDashboard({ showSystemSettings = true }: { showSystemSettings?: bo
     (m) => m.status === "completed"
   );
   const unassignedMentees = getUnassignedMentees();
-  const pendingAppsCount = getPendingApplicationsCount();
   const pendingApprovalsCount = getPendingApprovalsCount();
-
-  // Globale Suche
-  const searchResults = useMemo(() => {
-    const q = searchQuery.trim().toLowerCase();
-    if (!q) return null;
-    const foundMentees = allMentees.filter(
-      (u) => u.name.toLowerCase().includes(q) || u.city.toLowerCase().includes(q)
-    );
-    const foundMentors = allMentors.filter(
-      (u) => u.name.toLowerCase().includes(q) || u.city.toLowerCase().includes(q)
-    );
-    const foundMentorships = mentorships.filter((m) => {
-      const menteeName = m.mentee?.name?.toLowerCase() ?? "";
-      const mentorName = m.mentor?.name?.toLowerCase() ?? "";
-      return menteeName.includes(q) || mentorName.includes(q);
-    });
-    return { mentees: foundMentees, mentors: foundMentors, mentorships: foundMentorships };
-  }, [searchQuery, allMentees, allMentors, mentorships]);
 
   // Letzte 5 Aktivitäten: Sessions sortiert nach Datum absteigend
   const recentSessions = useMemo(() => {
@@ -217,74 +196,6 @@ function AdminDashboard({ showSystemSettings = true }: { showSystemSettings?: bo
 
         {/* ── ÜBERSICHT + VERWALTUNG + TOOLS (linear) ────────────────── */}
         <>
-            {/* Globale Suche */}
-            <TextInput
-              style={[styles.searchInput, { backgroundColor: themeColors.card, borderColor: isDark ? "#3A3520" : themeColors.border, color: themeColors.text }]}
-              placeholder={t("search.placeholder")}
-              placeholderTextColor={themeColors.textTertiary}
-              value={searchQuery}
-              onChangeText={setSearchQuery}
-            />
-
-            {/* Suchergebnisse */}
-            {searchResults && (
-              <View style={[styles.searchResultsBox, { backgroundColor: themeColors.card, borderColor: isDark ? "#3A3520" : themeColors.border }]}>
-                {searchResults.mentees.length === 0 && searchResults.mentors.length === 0 && searchResults.mentorships.length === 0 ? (
-                  <Text style={[styles.searchNoResults, { color: themeColors.textTertiary }]}>{t("search.noResults")}</Text>
-                ) : (
-                  <>
-                    {searchResults.mentees.length > 0 && (
-                      <View style={[styles.searchSection, { borderBottomColor: themeColors.border }]}>
-                        <Text style={[styles.searchSectionLabel, { color: themeColors.textTertiary }]}>{t("search.mentees")}</Text>
-                        {searchResults.mentees.slice(0, 3).map((u) => (
-                          <TouchableOpacity
-                            key={u.id}
-                            style={[styles.searchResultRow, { borderTopColor: themeColors.border }]}
-                            onPress={() => { setSearchQuery(""); router.push({ pathname: "/mentee/[id]", params: { id: u.id } }); }}
-                          >
-                            <Text style={[styles.searchResultName, { color: themeColors.text }]}>{u.name}</Text>
-                            <Text style={[styles.searchResultSub, { color: themeColors.textTertiary }]}>{u.city}</Text>
-                          </TouchableOpacity>
-                        ))}
-                      </View>
-                    )}
-                    {searchResults.mentors.length > 0 && (
-                      <View style={[styles.searchSection, { borderBottomColor: themeColors.border }]}>
-                        <Text style={[styles.searchSectionLabel, { color: themeColors.textTertiary }]}>{t("search.mentors")}</Text>
-                        {searchResults.mentors.slice(0, 3).map((u) => (
-                          <TouchableOpacity
-                            key={u.id}
-                            style={[styles.searchResultRow, { borderTopColor: themeColors.border }]}
-                            onPress={() => { setSearchQuery(""); router.push({ pathname: "/mentor/[id]", params: { id: u.id } }); }}
-                          >
-                            <Text style={[styles.searchResultName, { color: themeColors.text }]}>{u.name}</Text>
-                            <Text style={[styles.searchResultSub, { color: themeColors.textTertiary }]}>{u.city}</Text>
-                          </TouchableOpacity>
-                        ))}
-                      </View>
-                    )}
-                    {searchResults.mentorships.length > 0 && (
-                      <View style={[styles.searchSection, { borderBottomColor: themeColors.border }]}>
-                        <Text style={[styles.searchSectionLabel, { color: themeColors.textTertiary }]}>{t("search.mentorships")}</Text>
-                        {searchResults.mentorships.slice(0, 3).map((m) => (
-                          <TouchableOpacity
-                            key={m.id}
-                            style={[styles.searchResultRow, { borderTopColor: themeColors.border }]}
-                            onPress={() => { setSearchQuery(""); router.push({ pathname: "/mentorship/[id]", params: { id: m.id } }); }}
-                          >
-                            <Text style={[styles.searchResultName, { color: themeColors.text }]}>{m.mentee?.name} → {m.mentor?.name}</Text>
-                            <Text style={[styles.searchResultSub, { color: themeColors.textTertiary }]}>
-                              {m.status === "active" ? t("search.active") : t("search.completed")}
-                            </Text>
-                          </TouchableOpacity>
-                        ))}
-                      </View>
-                    )}
-                  </>
-                )}
-              </View>
-            )}
-
             {/* KPI Karten – responsiv: 4 pro Reihe auf Desktop, 2 auf Mobile */}
             <KpiGrid style={{ marginBottom: 16 }}>
               <StatCard
@@ -454,35 +365,6 @@ function AdminDashboard({ showSystemSettings = true }: { showSystemSettings?: bo
                 <Text style={[styles.applicationsArrow, { color: isDark ? "#fbbf24" : "#78350f" }]}>›</Text>
               </TouchableOpacity>
             )}
-
-            {/* Schnellzugriff: Bewerbungen */}
-            <TouchableOpacity
-              style={[styles.applicationsButton, { backgroundColor: themeColors.card }]}
-              onPress={() => router.push("/(tabs)/applications" as any)}
-            >
-              <View style={styles.applicationsButtonContent}>
-                <Text style={[styles.applicationsButtonText, { color: themeColors.text }]}>{t("dashboard.applications")}</Text>
-                <Text style={[styles.applicationsButtonSub, { color: themeColors.textTertiary }]}>{t("dashboard.checkApplications")}</Text>
-              </View>
-              {pendingAppsCount > 0 && (
-                <View style={styles.applicationsBadge}>
-                  <Text style={styles.applicationsBadgeText}>{pendingAppsCount}</Text>
-                </View>
-              )}
-              <Text style={[styles.applicationsArrow, { color: themeColors.textTertiary }]}>›</Text>
-            </TouchableOpacity>
-
-            {/* Mentoren-Übersicht */}
-            <TouchableOpacity
-              style={[styles.applicationsButton, { backgroundColor: themeColors.card }]}
-              onPress={() => router.push("/(tabs)/mentors" as any)}
-            >
-              <View style={styles.applicationsButtonContent}>
-                <Text style={[styles.applicationsButtonText, { color: themeColors.text }]}>{t("adminMentors.title")}</Text>
-                <Text style={[styles.applicationsButtonSub, { color: themeColors.textTertiary }]}>{allMentors.length} {t("adminMentors.mentors")}</Text>
-              </View>
-              <Text style={[styles.applicationsArrow, { color: themeColors.textTertiary }]}>›</Text>
-            </TouchableOpacity>
 
             {/* Letzte Aktivitäten */}
             <View style={[styles.card, { backgroundColor: themeColors.card }]}>

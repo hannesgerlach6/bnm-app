@@ -18,6 +18,7 @@ import { COLORS } from "../constants/Colors";
 import { sendNewFeedbackNotification } from "../lib/emailService";
 import { useLanguage } from "../contexts/LanguageContext";
 import { useThemeColors } from "../contexts/ThemeContext";
+import { Container } from "../components/Container";
 
 export default function FeedbackScreen() {
   const router = useRouter();
@@ -94,6 +95,7 @@ export default function FeedbackScreen() {
   const isDisabled = isSaving || rating === 0;
 
   return (
+    <Container fullWidth={Platform.OS === "web"}>
     <KeyboardAvoidingView
       style={[styles.flex1, { backgroundColor: themeColors.background }]}
       behavior={Platform.OS === "ios" ? "padding" : "height"}
@@ -184,6 +186,7 @@ export default function FeedbackScreen() {
       </View>
     </ScrollView>
     </KeyboardAvoidingView>
+    </Container>
   );
 }
 

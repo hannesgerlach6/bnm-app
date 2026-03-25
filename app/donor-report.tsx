@@ -15,6 +15,7 @@ import { useAuth } from "../contexts/AuthContext";
 import { COLORS } from "../constants/Colors";
 import { useLanguage } from "../contexts/LanguageContext";
 import { useThemeColors } from "../contexts/ThemeContext";
+import { Container } from "../components/Container";
 
 const MONTHS = [
   "Januar", "Februar", "März", "April", "Mai", "Juni",
@@ -193,6 +194,7 @@ export default function DonorReportScreen() {
   }, [kpis, periodMode, selectedQuarter, selectedYear]);
 
   return (
+    <Container fullWidth={Platform.OS === "web"}>
     <View style={[styles.flex1, { backgroundColor: themeColors.background }]}>
       <ScrollView style={[styles.scrollView, { backgroundColor: themeColors.background }]}>
         {/* Header */}
@@ -475,6 +477,7 @@ export default function DonorReportScreen() {
         </View>
       </ScrollView>
     </View>
+    </Container>
   );
 }
 

@@ -62,14 +62,6 @@ export default function ToolsTabScreen() {
 
             <TouchableOpacity
               style={[styles.toolItem, { backgroundColor: themeColors.card }]}
-              onPress={() => router.push("/admin/csv-import")}
-            >
-              <Ionicons name="download-outline" size={28} color={COLORS.gradientStart} />
-              <Text style={[styles.toolLabel, { color: themeColors.text }]}>{t("csvImport.title")}</Text>
-            </TouchableOpacity>
-
-            <TouchableOpacity
-              style={[styles.toolItem, { backgroundColor: themeColors.card }]}
               onPress={() => router.push("/admin/qa-management" as never)}
             >
               <Ionicons name="help-circle-outline" size={28} color={COLORS.gold} />

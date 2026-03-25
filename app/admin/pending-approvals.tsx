@@ -96,7 +96,7 @@ export default function PendingApprovalsScreen() {
   }
 
   return (
-    <Container>
+    <Container fullWidth={Platform.OS === "web"}>
       <ScrollView
         style={[styles.scrollView, { backgroundColor: themeColors.background }]}
         refreshControl={

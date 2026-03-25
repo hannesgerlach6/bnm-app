@@ -7,6 +7,7 @@ import {
   StyleSheet,
   TextInput,
   Modal,
+  Platform,
 } from "react-native";
 import { showError, showSuccess, showConfirm } from "../../lib/errorHandler";
 import { useRouter, useLocalSearchParams } from "expo-router";
@@ -16,6 +17,7 @@ import { COLORS } from "../../constants/Colors";
 import { useLanguage } from "../../contexts/LanguageContext";
 import { useTheme, useThemeColors } from "../../contexts/ThemeContext";
 import { supabase } from "../../lib/supabase";
+import { Container } from "../../components/Container";
 
 
 export default function MentorshipDetailScreen() {
@@ -201,6 +203,7 @@ export default function MentorshipDetailScreen() {
   const sortedSessionTypes = [...sessionTypes].sort((a, b) => a.sort_order - b.sort_order);
 
   return (
+    <Container fullWidth={Platform.OS === "web"}>
     <>
     <ScrollView style={[styles.scrollView, { backgroundColor: themeColors.background }]}>
       <View style={styles.page}>
@@ -527,6 +530,7 @@ export default function MentorshipDetailScreen() {
       </View>
     </Modal>
     </>
+    </Container>
   );
 }
 

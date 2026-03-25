@@ -10,6 +10,7 @@ import {
   KeyboardAvoidingView,
 } from "react-native";
 import { showError, showConfirm } from "../../lib/errorHandler";
+import { Container } from "../../components/Container";
 import { useRouter } from "expo-router";
 import { useAuth } from "../../contexts/AuthContext";
 import { useData } from "../../contexts/DataContext";
@@ -87,6 +88,7 @@ export default function SessionTypesScreen() {
   const isAdminRole = user?.role === "admin";
 
   return (
+    <Container fullWidth={Platform.OS === "web"}>
     <KeyboardAvoidingView
       style={[styles.flex1, { backgroundColor: themeColors.background }]}
       behavior={Platform.OS === "ios" ? "padding" : "height"}
@@ -231,6 +233,7 @@ export default function SessionTypesScreen() {
       </View>
     </ScrollView>
     </KeyboardAvoidingView>
+    </Container>
   );
 }
 

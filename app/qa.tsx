@@ -8,6 +8,7 @@ import {
   StyleSheet,
   RefreshControl,
   Share,
+  Platform,
 } from "react-native";
 import { useRouter } from "expo-router";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
@@ -70,7 +71,7 @@ export default function QAScreen() {
   }, [publishedEntries, activeCategory, searchQuery]);
 
   return (
-    <Container>
+    <Container fullWidth={Platform.OS === "web"}>
       <ScrollView
         style={[styles.scrollView, { backgroundColor: themeColors.background }]}
         refreshControl={

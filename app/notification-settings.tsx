@@ -12,6 +12,7 @@ import { useRouter } from "expo-router";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useLanguage } from "../contexts/LanguageContext";
 import { useThemeColors } from "../contexts/ThemeContext";
+import { Container } from "../components/Container";
 import { COLORS } from "../constants/Colors";
 import { showSuccess } from "../lib/errorHandler";
 
@@ -100,6 +101,7 @@ export default function NotificationSettingsScreen() {
   if (!loaded) return null;
 
   return (
+    <Container fullWidth={Platform.OS === "web"}>
     <ScrollView
       style={[styles.scrollView, { backgroundColor: themeColors.background }]}
       contentContainerStyle={{ paddingBottom: 40 }}
@@ -173,6 +175,7 @@ export default function NotificationSettingsScreen() {
         </TouchableOpacity>
       </View>
     </ScrollView>
+    </Container>
   );
 }
 

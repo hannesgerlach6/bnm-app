@@ -16,6 +16,7 @@ import { COLORS } from "../../constants/Colors";
 import { useLanguage } from "../../contexts/LanguageContext";
 import { showSuccess } from "../../lib/errorHandler";
 import { useThemeColors } from "../../contexts/ThemeContext";
+import { Container } from "../../components/Container";
 
 // ─── Konstanten ──────────────────────────────────────────────────────────────
 
@@ -609,6 +610,7 @@ export default function AdminDonorReportScreen() {
   const periodLabel = formatPeriodLabel(periodMode, selectedYear, selectedMonth, selectedQuarter);
 
   return (
+    <Container fullWidth={Platform.OS === "web"}>
     <View style={[styles.flex1, { backgroundColor: themeColors.background }]}>
       <ScrollView style={[styles.scrollView, { backgroundColor: themeColors.background }]} showsVerticalScrollIndicator={false}>
         {/* ── Header ── */}
@@ -962,6 +964,7 @@ export default function AdminDonorReportScreen() {
         </View>
       </ScrollView>
     </View>
+    </Container>
   );
 }
 
