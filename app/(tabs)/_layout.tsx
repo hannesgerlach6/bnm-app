@@ -5,6 +5,7 @@ import {
   Text,
   StyleSheet,
   Platform,
+  Alert,
   useWindowDimensions,
 } from "react-native";
 import { Tabs, useRouter, usePathname } from "expo-router";
@@ -89,29 +90,26 @@ function SidebarItem({
   badge,
 }: SidebarItemProps) {
   const themeColors = useThemeColors();
-
   return (
     <TouchableOpacity
       onPress={onPress}
       style={[
         sidebarStyles.item,
-        isActive && {
-          backgroundColor: themeColors.card,
-          borderLeftColor: COLORS.gold,
-        },
-        !isActive && { borderLeftColor: "transparent" },
+        isActive
+          ? sidebarStyles.itemActive
+          : { backgroundColor: "transparent" },
       ]}
       activeOpacity={0.7}
     >
       <Ionicons
         name={(isActive ? iconNameActive : iconName) as any}
         size={20}
-        color={isActive ? COLORS.gold : themeColors.textSecondary}
+        color={isActive ? COLORS.primary : themeColors.textSecondary}
       />
       <Text
         style={[
           sidebarStyles.itemLabel,
-          { color: isActive ? themeColors.text : themeColors.textSecondary },
+          { color: isActive ? COLORS.primary : themeColors.textSecondary },
         ]}
       >
         {label}
@@ -135,7 +133,7 @@ function AdminSidebar() {
   const themeColors = useThemeColors();
   const { t } = useLanguage();
   const { getUnreadCount, getTotalUnreadMessages } = useData();
-  const { user } = useAuth();
+  const { user, logout } = useAuth();
   const unreadCount = getUnreadCount();
   const isAdminOrOffice = user?.role === "admin" || user?.role === "office";
   const chatUnread = isAdminOrOffice ? 0 : getTotalUnreadMessages();
@@ -169,6 +167,21 @@ function AdminSidebar() {
     { key: "profile", label: t("tabs.profile"), iconName: "settings-outline", iconNameActive: "settings", href: "/(tabs)/profile" },
   ];
 
+  const handleLogout = () => {
+    if (Platform.OS === "web") {
+      logout();
+    } else {
+      Alert.alert(
+        t("sidebar.logoutConfirm"),
+        t("sidebar.logoutConfirmMsg"),
+        [
+          { text: t("common.cancel"), style: "cancel" },
+          { text: t("sidebar.logout"), style: "destructive", onPress: logout },
+        ]
+      );
+    }
+  };
+
   return (
     <View
       style={[
@@ -197,22 +210,46 @@ function AdminSidebar() {
         ))}
       </View>
 
-      {/* Unten: Einstellungen + Bell */}
-      <View style={sidebarStyles.bottomArea}>
-        <View style={{ borderTopWidth: 1, borderTopColor: themeColors.border, paddingTop: 8, width: "100%" }}>
-          {bottomItems.map((item) => (
-            <SidebarItem
-              key={item.key}
-              label={item.label}
-              href={item.href}
-              iconName={item.iconName}
-              iconNameActive={item.iconNameActive}
-              isActive={activeSegment === item.key}
-              onPress={() => router.push(item.href as any)}
-            />
-          ))}
-        </View>
-        <BellButton />
+      {/* Unten: Einstellungen + Notifications + Logout */}
+      <View style={[sidebarStyles.bottomArea, { borderTopColor: themeColors.border }]}>
+        {bottomItems.map((item) => (
+          <SidebarItem
+            key={item.key}
+            label={item.label}
+            href={item.href}
+            iconName={item.iconName}
+            iconNameActive={item.iconNameActive}
+            isActive={activeSegment === item.key}
+            onPress={() => router.push(item.href as any)}
+          />
+        ))}
+        {/* Benachrichtigungen als Sidebar-Item */}
+        <TouchableOpacity
+          style={[sidebarStyles.item, { backgroundColor: "transparent" }]}
+          onPress={() => router.push("/notifications" as any)}
+          activeOpacity={0.7}
+        >
+          <View style={{ position: "relative", width: 20, height: 20 }}>
+            <Ionicons name="notifications-outline" size={20} color={themeColors.textSecondary} />
+            {unreadCount > 0 && (
+              <View style={[sidebarStyles.badge, { position: "absolute", top: -4, right: -6 }]}>
+                <Text style={sidebarStyles.badgeText}>{unreadCount > 9 ? "9+" : String(unreadCount)}</Text>
+              </View>
+            )}
+          </View>
+          <Text style={[sidebarStyles.itemLabel, { color: themeColors.textSecondary }]}>
+            {t("notifications.title")}
+          </Text>
+        </TouchableOpacity>
+        {/* Logout-Button */}
+        <TouchableOpacity
+          style={sidebarStyles.logoutButton}
+          onPress={handleLogout}
+          activeOpacity={0.7}
+        >
+          <Ionicons name="log-out-outline" size={20} color={COLORS.error} />
+          <Text style={sidebarStyles.logoutLabel}>{t("sidebar.logout")}</Text>
+        </TouchableOpacity>
       </View>
     </View>
   );
@@ -263,7 +300,7 @@ const sidebarStyles = StyleSheet.create({
     paddingHorizontal: 20,
     paddingBottom: 24,
     borderBottomWidth: 1,
-    borderBottomColor: "rgba(255,255,255,0.08)",
+    borderBottomColor: "rgba(128,128,128,0.15)",
   },
   logoText: {
     fontSize: 28,
@@ -280,20 +317,34 @@ const sidebarStyles = StyleSheet.create({
   nav: {
     flex: 1,
     paddingTop: 12,
+    paddingHorizontal: 12,
   },
   item: {
     flexDirection: "row",
     alignItems: "center",
-    paddingVertical: 12,
-    paddingHorizontal: 20,
-    borderLeftWidth: 3,
+    paddingVertical: 11,
+    paddingHorizontal: 12,
+    borderRadius: 8,
     marginBottom: 2,
-    gap: 12,
+    gap: 10,
+  },
+  itemActive: {
+    backgroundColor: COLORS.gold,
+  },
+  itemInactive: {
+    backgroundColor: "transparent",
   },
   itemLabel: {
     fontSize: 14,
     fontWeight: "500",
     flex: 1,
+  },
+  itemLabelActive: {
+    color: COLORS.primary,
+    fontWeight: "600",
+  },
+  itemLabelInactive: {
+    color: "#98A2B3",
   },
   badge: {
     backgroundColor: COLORS.error,
@@ -310,10 +361,25 @@ const sidebarStyles = StyleSheet.create({
     fontWeight: "bold",
   },
   bottomArea: {
-    padding: 16,
+    padding: 12,
     borderTopWidth: 1,
-    borderTopColor: "rgba(255,255,255,0.08)",
     alignItems: "flex-start",
+  },
+  logoutButton: {
+    flexDirection: "row",
+    alignItems: "center",
+    paddingVertical: 11,
+    paddingHorizontal: 12,
+    borderRadius: 8,
+    gap: 10,
+    marginTop: 4,
+    width: "100%",
+  },
+  logoutLabel: {
+    fontSize: 14,
+    fontWeight: "500",
+    color: COLORS.error,
+    flex: 1,
   },
 });
 

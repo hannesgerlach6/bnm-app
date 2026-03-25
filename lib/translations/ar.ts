@@ -1436,6 +1436,18 @@ const ar: Record<TranslationKeys, string> = {
   "notifSettings.remindersSub": "تذكيرات للجلسات المعلقة",
   "notifSettings.saved": "تم حفظ الإعدادات.",
   "notifSettings.back": "رجوع",
+
+  // Admin Sidebar & Dashboard
+  "sidebar.logout": "تسجيل الخروج",
+  "sidebar.logoutConfirm": "تسجيل الخروج؟",
+  "sidebar.logoutConfirmMsg": "هل تريد حقاً تسجيل الخروج؟",
+  "dashboard.refresh": "تحديث",
+  "dashboard.subtitle": "نظرة عامة على برنامج BNM",
+  "dashboard.periodBar": "الفترة:",
+  "dashboard.periodThisMonth": "هذا الشهر",
+  "dashboard.periodLastMonth": "الشهر الماضي",
+  "dashboard.periodThisQuarter": "هذا الربع",
+  "dashboard.periodThisYear": "هذا العام",
 };
 
 export default ar;

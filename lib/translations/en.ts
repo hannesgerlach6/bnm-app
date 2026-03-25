@@ -1436,6 +1436,18 @@ const en: Record<TranslationKeys, string> = {
   "notifSettings.remindersSub": "Reminders for pending sessions",
   "notifSettings.saved": "Settings saved.",
   "notifSettings.back": "Back",
+
+  // Admin Sidebar & Dashboard
+  "sidebar.logout": "Sign Out",
+  "sidebar.logoutConfirm": "Sign out?",
+  "sidebar.logoutConfirmMsg": "Do you really want to sign out?",
+  "dashboard.refresh": "Refresh",
+  "dashboard.subtitle": "BNM Programme Overview",
+  "dashboard.periodBar": "Period:",
+  "dashboard.periodThisMonth": "This Month",
+  "dashboard.periodLastMonth": "Last Month",
+  "dashboard.periodThisQuarter": "This Quarter",
+  "dashboard.periodThisYear": "This Year",
 };
 
 export default en;

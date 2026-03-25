@@ -1436,6 +1436,18 @@ const tr: Record<TranslationKeys, string> = {
   "notifSettings.remindersSub": "Bekleyen oturumlar için hatırlatmalar",
   "notifSettings.saved": "Ayarlar kaydedildi.",
   "notifSettings.back": "Geri",
+
+  // Admin Sidebar & Dashboard
+  "sidebar.logout": "Çıkış Yap",
+  "sidebar.logoutConfirm": "Çıkış yapılsın mı?",
+  "sidebar.logoutConfirmMsg": "Gerçekten çıkış yapmak istiyor musunuz?",
+  "dashboard.refresh": "Yenile",
+  "dashboard.subtitle": "BNM Programı Genel Bakış",
+  "dashboard.periodBar": "Dönem:",
+  "dashboard.periodThisMonth": "Bu Ay",
+  "dashboard.periodLastMonth": "Geçen Ay",
+  "dashboard.periodThisQuarter": "Bu Çeyrek",
+  "dashboard.periodThisYear": "Bu Yıl",
 };
 
 export default tr;

@@ -1436,6 +1436,18 @@ const de = {
   "notifSettings.remindersSub": "Erinnerungen an ausstehende Sessions",
   "notifSettings.saved": "Einstellungen gespeichert.",
   "notifSettings.back": "Zurück",
+
+  // Admin Sidebar & Dashboard
+  "sidebar.logout": "Abmelden",
+  "sidebar.logoutConfirm": "Wirklich abmelden?",
+  "sidebar.logoutConfirmMsg": "Möchtest du dich wirklich abmelden?",
+  "dashboard.refresh": "Aktualisieren",
+  "dashboard.subtitle": "Gesamtübersicht BNM-Programm",
+  "dashboard.periodBar": "Zeitraum:",
+  "dashboard.periodThisMonth": "Dieser Monat",
+  "dashboard.periodLastMonth": "Letzter Monat",
+  "dashboard.periodThisQuarter": "Dieses Quartal",
+  "dashboard.periodThisYear": "Dieses Jahr",
 } as const;
 
 export default de;

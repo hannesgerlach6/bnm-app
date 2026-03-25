@@ -9,7 +9,6 @@ import { useLanguage } from "../../contexts/LanguageContext";
 import type { Mentorship } from "../../types";
 import { COLORS } from "../../constants/Colors";
 import { Container } from "../../components/Container";
-import { BNMLogo } from "../../components/BNMLogo";
 import { useTheme, useThemeColors } from "../../contexts/ThemeContext";
 
 export default function DashboardScreen() {
@@ -45,6 +44,7 @@ function AdminDashboard({ showSystemSettings = true }: { showSystemSettings?: bo
   const [refreshing, setRefreshing] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [activeTab, setActiveTab] = useState<"overview" | "manage" | "tools">("overview");
+  const [activePeriod, setActivePeriod] = useState<"thisMonth" | "lastMonth" | "thisQuarter" | "thisYear">("thisMonth");
   const onRefresh = useCallback(async () => {
     setRefreshing(true);
     await refreshData();
@@ -173,23 +173,59 @@ function AdminDashboard({ showSystemSettings = true }: { showSystemSettings?: bo
       refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor={COLORS.gold} />}
     >
       <View style={styles.page}>
-        <View style={styles.headerRow}>
-          <BNMLogo size={36} showSubtitle={false} />
-          <View style={styles.headerTextGroup}>
+        {/* ── Header ─────────────────────────────────────────────────────── */}
+        <View style={styles.adminHeader}>
+          <View style={styles.adminHeaderLeft}>
             <Text style={[styles.pageTitle, { color: themeColors.text }]}>{t("dashboard.admin")}</Text>
-            <Text style={[styles.pageSubtitle, { color: themeColors.textSecondary }]}>{t("dashboard.overview")}</Text>
+            <Text style={[styles.pageSubtitle, { color: themeColors.textSecondary }]}>{t("dashboard.subtitle")}</Text>
+          </View>
+          <TouchableOpacity
+            style={[styles.refreshButton, { backgroundColor: themeColors.card, borderColor: themeColors.border }]}
+            onPress={onRefresh}
+            activeOpacity={0.7}
+          >
+            <Ionicons name="refresh-outline" size={16} color={themeColors.textSecondary} />
+            <Text style={[styles.refreshButtonText, { color: themeColors.textSecondary }]}>{t("dashboard.refresh")}</Text>
+          </TouchableOpacity>
+        </View>
+
+        {/* ── Zeitraum-Bar ────────────────────────────────────────────────── */}
+        <View style={[styles.periodBar, { backgroundColor: themeColors.card, borderColor: themeColors.border }]}>
+          <View style={styles.periodBarLeft}>
+            <Ionicons name="calendar-outline" size={15} color={themeColors.textSecondary} />
+            <Text style={[styles.periodBarLabel, { color: themeColors.textSecondary }]}>{t("dashboard.periodBar")}</Text>
+          </View>
+          <View style={styles.periodBarButtons}>
+            {(["thisMonth", "lastMonth", "thisQuarter", "thisYear"] as const).map((p) => (
+              <TouchableOpacity
+                key={p}
+                style={[
+                  styles.periodBtn,
+                  activePeriod === p && { backgroundColor: COLORS.gold },
+                  activePeriod !== p && { backgroundColor: themeColors.background, borderColor: themeColors.border },
+                ]}
+                onPress={() => setActivePeriod(p)}
+              >
+                <Text style={[
+                  styles.periodBtnText,
+                  { color: activePeriod === p ? COLORS.primary : themeColors.textSecondary },
+                ]}>
+                  {t(`dashboard.period${p.charAt(0).toUpperCase() + p.slice(1)}` as any)}
+                </Text>
+              </TouchableOpacity>
+            ))}
           </View>
         </View>
 
-        {/* Tab-Switcher */}
+        {/* ── Tab-Switcher ─────────────────────────────────────────────────── */}
         <View style={[styles.adminTabRow, { backgroundColor: themeColors.card, borderColor: themeColors.border }]}>
           {(["overview", "manage", "tools"] as const).map((tab) => (
             <TouchableOpacity
               key={tab}
-              style={[styles.adminTabBtn, activeTab === tab && styles.adminTabBtnActive]}
+              style={[styles.adminTabBtn, activeTab === tab && { backgroundColor: COLORS.gold }]}
               onPress={() => setActiveTab(tab)}
             >
-              <Text style={[styles.adminTabBtnText, activeTab === tab ? styles.adminTabBtnTextActive : { color: themeColors.textSecondary }]}>
+              <Text style={[styles.adminTabBtnText, activeTab === tab ? { color: COLORS.primary, fontWeight: "700" } : { color: themeColors.textSecondary }]}>
                 {tab === "overview" ? t("admin.tabOverview") : tab === "manage" ? t("admin.tabManage") : t("admin.tabTools")}
               </Text>
             </TouchableOpacity>
@@ -269,10 +305,30 @@ function AdminDashboard({ showSystemSettings = true }: { showSystemSettings?: bo
 
             {/* KPI Karten – responsiv: 4 pro Reihe auf Desktop, 2 auf Mobile */}
             <KpiGrid style={{ marginBottom: 16 }}>
-              <StatCard label={t("dashboard.activeMentorships")} value={activeMentorships.length} color={COLORS.gradientStart} />
-              <StatCard label={t("dashboard.completed")} value={completedMentorships.length} color={COLORS.cta} />
-              <StatCard label={t("dashboard.mentors")} value={allMentors.length} color={COLORS.gradientStart} />
-              <StatCard label={t("dashboard.totalMentees")} value={allMentees.length} color={COLORS.gold} />
+              <StatCard
+                label={t("dashboard.activeMentorships")}
+                value={activeMentorships.length}
+                color={COLORS.gradientStart}
+                iconName="people-outline"
+              />
+              <StatCard
+                label={t("dashboard.completed")}
+                value={completedMentorships.length}
+                color={COLORS.cta}
+                iconName="checkmark-circle-outline"
+              />
+              <StatCard
+                label={t("dashboard.mentors")}
+                value={allMentors.length}
+                color={COLORS.gold}
+                iconName="person-outline"
+              />
+              <StatCard
+                label={t("dashboard.totalMentees")}
+                value={allMentees.length}
+                color="#6366f1"
+                iconName="school-outline"
+              />
             </KpiGrid>
 
             {/* Mentor des Monats (Admin-Sicht) */}
@@ -1178,16 +1234,28 @@ function StatCard({
   label,
   value,
   color,
+  iconName,
+  sublabel,
 }: {
   label: string;
   value: number;
   color: string;
+  iconName?: string;
+  sublabel?: string;
 }) {
   const themeColors = useThemeColors();
   return (
-    <View style={[styles.statCard, { backgroundColor: themeColors.card }]}>
+    <View style={[styles.statCard, { backgroundColor: themeColors.card, borderColor: themeColors.border }]}>
+      {iconName && (
+        <View style={[styles.statIconCircle, { backgroundColor: color + "22" }]}>
+          <Ionicons name={iconName as any} size={18} color={color} />
+        </View>
+      )}
+      <Text style={[styles.statValue, { color: themeColors.text }]}>{value}</Text>
       <Text style={[styles.statLabel, { color: themeColors.textSecondary }]}>{label}</Text>
-      <Text style={[styles.statValue, { color }]}>{value}</Text>
+      {sublabel && (
+        <Text style={[styles.statSublabel, { color: themeColors.textTertiary }]}>{sublabel}</Text>
+      )}
     </View>
   );
 }
@@ -1271,6 +1339,69 @@ const styles = StyleSheet.create({
   scrollView: { flex: 1, backgroundColor: COLORS.bg },
   page: { padding: 20 },
   headerRow: { flexDirection: "row", alignItems: "center", gap: 12, marginBottom: 12 },
+
+  // Admin Header (neu)
+  adminHeader: {
+    flexDirection: "row",
+    alignItems: "flex-start",
+    justifyContent: "space-between",
+    marginBottom: 16,
+    gap: 12,
+  },
+  adminHeaderLeft: {
+    flex: 1,
+  },
+  refreshButton: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 6,
+    paddingHorizontal: 12,
+    paddingVertical: 8,
+    borderRadius: 8,
+    borderWidth: 1,
+  },
+  refreshButtonText: {
+    fontSize: 13,
+    fontWeight: "500",
+  },
+
+  // Zeitraum-Bar (neu)
+  periodBar: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    borderRadius: 10,
+    borderWidth: 1,
+    paddingHorizontal: 14,
+    paddingVertical: 10,
+    marginBottom: 14,
+    flexWrap: "wrap",
+    gap: 8,
+  },
+  periodBarLeft: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 6,
+  },
+  periodBarLabel: {
+    fontSize: 13,
+    fontWeight: "500",
+  },
+  periodBarButtons: {
+    flexDirection: "row",
+    gap: 6,
+    flexWrap: "wrap",
+  },
+  periodBtn: {
+    paddingHorizontal: 10,
+    paddingVertical: 5,
+    borderRadius: 6,
+    borderWidth: 1,
+  },
+  periodBtnText: {
+    fontSize: 12,
+    fontWeight: "500",
+  },
 
   // Admin Dashboard Tabs
   adminTabRow: {
@@ -1395,19 +1526,27 @@ const styles = StyleSheet.create({
   percentBadgeText: { color: COLORS.primary, fontSize: 12, fontWeight: "700" },
   statCard: {
     flex: 1,
-    borderRadius: 8,
-    padding: 12,
-    borderLeftWidth: 4,
-    borderLeftColor: COLORS.gold,
+    borderRadius: 12,
+    padding: 16,
+    borderWidth: 1,
     shadowColor: "#000",
     shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.08,
-    shadowRadius: 8,
+    shadowOpacity: 0.06,
+    shadowRadius: 6,
     elevation: 2,
-    minHeight: 70,
+    minHeight: 100,
   },
-  statLabel: { fontSize: 12, marginBottom: 2 },
-  statValue: { fontSize: 26, fontWeight: "700" },
+  statIconCircle: {
+    width: 36,
+    height: 36,
+    borderRadius: 8,
+    alignItems: "center",
+    justifyContent: "center",
+    marginBottom: 10,
+  },
+  statLabel: { fontSize: 13, marginTop: 4 },
+  statSublabel: { fontSize: 11, marginTop: 2 },
+  statValue: { fontSize: 28, fontWeight: "700" },
   progressTrack: { height: 8, borderRadius: 4, overflow: "hidden" },
   progressFill: { height: "100%", backgroundColor: COLORS.cta, borderRadius: 4 },
   amberBox: {
