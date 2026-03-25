@@ -90,13 +90,18 @@ function SidebarItem({
   badge,
 }: SidebarItemProps) {
   const themeColors = useThemeColors();
+  const isDark = themeColors.background === "#0E0E14";
+  const activeColor = isDark ? "#FFCA28" : "#EEA71B";
+  const activeTextColor = "#0E0E14";
+  const inactiveIconColor = isDark ? "#5E5E6A" : themeColors.textSecondary;
+  const inactiveTextColor = isDark ? "#8E8E9A" : themeColors.textSecondary;
   return (
     <TouchableOpacity
       onPress={onPress}
       style={[
         sidebarStyles.item,
         isActive
-          ? sidebarStyles.itemActive
+          ? { backgroundColor: activeColor }
           : { backgroundColor: "transparent" },
       ]}
       activeOpacity={0.7}
@@ -104,12 +109,12 @@ function SidebarItem({
       <Ionicons
         name={(isActive ? iconNameActive : iconName) as any}
         size={20}
-        color={isActive ? COLORS.primary : themeColors.textSecondary}
+        color={isActive ? activeTextColor : inactiveIconColor}
       />
       <Text
         style={[
           sidebarStyles.itemLabel,
-          { color: isActive ? COLORS.primary : themeColors.textSecondary },
+          { color: isActive ? activeTextColor : inactiveTextColor },
         ]}
       >
         {label}
@@ -131,6 +136,7 @@ function AdminSidebar() {
   const router = useRouter();
   const pathname = usePathname();
   const themeColors = useThemeColors();
+  const isDark = themeColors.background === "#0E0E14";
   const { t } = useLanguage();
   const { getUnreadCount, getTotalUnreadMessages } = useData();
   const { user, logout } = useAuth();
@@ -186,7 +192,10 @@ function AdminSidebar() {
     <View
       style={[
         sidebarStyles.sidebar,
-        { backgroundColor: themeColors.background, borderRightColor: themeColors.border },
+        {
+          backgroundColor: isDark ? "#0D0D12" : themeColors.background,
+          borderRightColor: isDark ? "#1A1A24" : themeColors.border,
+        },
       ]}
     >
       {/* Logo */}

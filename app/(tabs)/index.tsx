@@ -180,20 +180,20 @@ function AdminDashboard({ showSystemSettings = true }: { showSystemSettings?: bo
             <Text style={[styles.pageSubtitle, { color: themeColors.textSecondary }]}>{t("dashboard.subtitle")}</Text>
           </View>
           <TouchableOpacity
-            style={[styles.refreshButton, { backgroundColor: themeColors.card, borderColor: themeColors.border }]}
-            onPress={onRefresh}
+            style={[styles.refreshButton, { backgroundColor: "transparent", borderColor: isDark ? "#FFCA28" : themeColors.border }]}
+            onPress={() => refreshData()}
             activeOpacity={0.7}
           >
-            <Ionicons name="refresh-outline" size={16} color={themeColors.textSecondary} />
-            <Text style={[styles.refreshButtonText, { color: themeColors.textSecondary }]}>{t("dashboard.refresh")}</Text>
+            <Ionicons name="reload-outline" size={16} color={isDark ? "#FFCA28" : themeColors.textSecondary} />
+            <Text style={[styles.refreshButtonText, { color: isDark ? "#FFCA28" : themeColors.textSecondary }]}>{t("dashboard.refresh")}</Text>
           </TouchableOpacity>
         </View>
 
         {/* ── Zeitraum-Bar ────────────────────────────────────────────────── */}
-        <View style={[styles.periodBar, { backgroundColor: themeColors.card, borderColor: themeColors.border }]}>
+        <View style={[styles.periodBar, { backgroundColor: themeColors.card, borderColor: isDark ? "#3A3520" : themeColors.border }]}>
           <View style={styles.periodBarLeft}>
-            <Ionicons name="calendar-outline" size={15} color={themeColors.textSecondary} />
-            <Text style={[styles.periodBarLabel, { color: themeColors.textSecondary }]}>{t("dashboard.periodBar")}</Text>
+            <Ionicons name="calendar-outline" size={15} color={isDark ? "#FFCA28" : themeColors.textSecondary} />
+            <Text style={[styles.periodBarLabel, { color: isDark ? "#FFCA28" : themeColors.textSecondary }]}>{t("dashboard.periodBar")}</Text>
           </View>
           <View style={styles.periodBarButtons}>
             {(["thisMonth", "lastMonth", "thisQuarter", "thisYear"] as const).map((p) => (
@@ -201,14 +201,15 @@ function AdminDashboard({ showSystemSettings = true }: { showSystemSettings?: bo
                 key={p}
                 style={[
                   styles.periodBtn,
-                  activePeriod === p && { backgroundColor: COLORS.gold },
-                  activePeriod !== p && { backgroundColor: themeColors.background, borderColor: themeColors.border },
+                  activePeriod === p
+                    ? { backgroundColor: isDark ? "#FFCA28" : COLORS.gold, borderColor: isDark ? "#FFCA28" : COLORS.gold }
+                    : { backgroundColor: "transparent", borderColor: isDark ? "#3A3520" : themeColors.border },
                 ]}
                 onPress={() => setActivePeriod(p)}
               >
                 <Text style={[
                   styles.periodBtnText,
-                  { color: activePeriod === p ? COLORS.primary : themeColors.textSecondary },
+                  { color: activePeriod === p ? "#0E0E14" : themeColors.textSecondary },
                 ]}>
                   {t(`dashboard.period${p.charAt(0).toUpperCase() + p.slice(1)}` as any)}
                 </Text>
@@ -218,7 +219,7 @@ function AdminDashboard({ showSystemSettings = true }: { showSystemSettings?: bo
         </View>
 
         {/* ── Tab-Switcher ─────────────────────────────────────────────────── */}
-        <View style={[styles.adminTabRow, { backgroundColor: themeColors.card, borderColor: themeColors.border }]}>
+        <View style={[styles.adminTabRow, { backgroundColor: themeColors.card, borderColor: isDark ? "#3A3520" : themeColors.border }]}>
           {(["overview", "manage", "tools"] as const).map((tab) => (
             <TouchableOpacity
               key={tab}
@@ -237,7 +238,7 @@ function AdminDashboard({ showSystemSettings = true }: { showSystemSettings?: bo
           <>
             {/* Globale Suche */}
             <TextInput
-              style={[styles.searchInput, { backgroundColor: themeColors.card, borderColor: themeColors.border, color: themeColors.text }]}
+              style={[styles.searchInput, { backgroundColor: themeColors.card, borderColor: isDark ? "#3A3520" : themeColors.border, color: themeColors.text }]}
               placeholder={t("search.placeholder")}
               placeholderTextColor={themeColors.textTertiary}
               value={searchQuery}
@@ -246,7 +247,7 @@ function AdminDashboard({ showSystemSettings = true }: { showSystemSettings?: bo
 
             {/* Suchergebnisse */}
             {searchResults && (
-              <View style={[styles.searchResultsBox, { backgroundColor: themeColors.card, borderColor: themeColors.border }]}>
+              <View style={[styles.searchResultsBox, { backgroundColor: themeColors.card, borderColor: isDark ? "#3A3520" : themeColors.border }]}>
                 {searchResults.mentees.length === 0 && searchResults.mentors.length === 0 && searchResults.mentorships.length === 0 ? (
                   <Text style={[styles.searchNoResults, { color: themeColors.textTertiary }]}>{t("search.noResults")}</Text>
                 ) : (
@@ -1236,22 +1237,26 @@ function StatCard({
   color,
   iconName,
   sublabel,
+  highlight,
 }: {
   label: string;
   value: number;
   color: string;
   iconName?: string;
   sublabel?: string;
+  highlight?: boolean;
 }) {
   const themeColors = useThemeColors();
+  const { isDark } = useTheme();
+  const valueColor = isDark ? (highlight ? "#FFCA28" : themeColors.text) : themeColors.text;
   return (
-    <View style={[styles.statCard, { backgroundColor: themeColors.card, borderColor: themeColors.border }]}>
+    <View style={[styles.statCard, { backgroundColor: themeColors.card, borderColor: isDark ? "#3A3520" : themeColors.border }]}>
       {iconName && (
-        <View style={[styles.statIconCircle, { backgroundColor: color + "22" }]}>
+        <View style={[styles.statIconCircle, { backgroundColor: color + "33" }]}>
           <Ionicons name={iconName as any} size={18} color={color} />
         </View>
       )}
-      <Text style={[styles.statValue, { color: themeColors.text }]}>{value}</Text>
+      <Text style={[styles.statValue, { color: valueColor }]}>{value}</Text>
       <Text style={[styles.statLabel, { color: themeColors.textSecondary }]}>{label}</Text>
       {sublabel && (
         <Text style={[styles.statSublabel, { color: themeColors.textTertiary }]}>{sublabel}</Text>
@@ -1539,14 +1544,14 @@ const styles = StyleSheet.create({
   statIconCircle: {
     width: 36,
     height: 36,
-    borderRadius: 8,
+    borderRadius: 18,
     alignItems: "center",
     justifyContent: "center",
     marginBottom: 10,
   },
   statLabel: { fontSize: 13, marginTop: 4 },
   statSublabel: { fontSize: 11, marginTop: 2 },
-  statValue: { fontSize: 28, fontWeight: "700" },
+  statValue: { fontSize: 32, fontWeight: "800" },
   progressTrack: { height: 8, borderRadius: 4, overflow: "hidden" },
   progressFill: { height: "100%", backgroundColor: COLORS.cta, borderRadius: 4 },
   amberBox: {

@@ -48,37 +48,37 @@ export const LIGHT_COLORS = {
   input: "#FFFFFF",
 } as const;
 
-// Dark Theme Farbpalette — echtes Dunkel (kein Blau)
+// Dark Theme Farbpalette — SaaS Panel Stil (Alpha Gym Referenz)
 export const DARK_COLORS = {
-  // Backgrounds — Material Dark, neutral-grau
-  background: "#121212",
-  card: "#1E1E1E",
-  elevated: "#252525",
-  // Text — gut lesbar auf dunklem Hintergrund
-  text: "#F0F0F0",
-  textSecondary: "#A0A0A0",
-  textTertiary: "#707070",
+  // Backgrounds — tiefes Blau-Schwarz
+  background: "#0E0E14",
+  card: "#1A1A24",
+  elevated: "#1E1E2A",
+  // Text
+  text: "#F5F5F7",
+  textSecondary: "#8E8E9A",
+  textTertiary: "#5E5E6A",
   // Borders
-  border: "#2C2C2C",
+  border: "#2A2A35",
   // Brand (unveränderlich)
   primary: "#0A3A5A",
   primaryDark: "#012A46",
-  accent: "#EEA71B",
-  // Semantic — etwas heller für Dark Mode Kontrast
+  accent: "#FFCA28",
+  // Semantic
   success: "#4CAF50",
   error: "#EF5350",
-  link: "#64B5F6",
+  link: "#42A5F5",
   // Misc
-  white: "#F0F0F0",
-  black: "#121212",
-  tabBar: "#181818",
-  tabBarBorder: "#2C2C2C",
-  tabIconActive: "#F0F0F0",
-  tabIconInactive: "#707070",
-  headerBackground: "#181818",
-  headerText: "#F0F0F0",
-  statItem: "#1A1A1A",
-  input: "#2A2A2A",
+  white: "#F5F5F7",
+  black: "#0E0E14",
+  tabBar: "#0D0D12",
+  tabBarBorder: "#1A1A24",
+  tabIconActive: "#F5F5F7",
+  tabIconInactive: "#5E5E6A",
+  headerBackground: "#0D0D12",
+  headerText: "#F5F5F7",
+  statItem: "#1A1A24",
+  input: "#1E1E2A",
 } as const;
 
 // Lockerer Typ für Theme-Farben (string statt Literal-Typen, damit Light + Dark zuweisbar sind)
