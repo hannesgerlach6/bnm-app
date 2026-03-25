@@ -8,6 +8,7 @@ import {
   Platform,
   RefreshControl,
   StyleSheet,
+  Share,
 } from "react-native";
 import { showSuccess } from "../../lib/errorHandler";
 import { useRouter } from "expo-router";
@@ -225,7 +226,7 @@ export default function ReportsScreen() {
     }, 1000);
   }
 
-  function handleExport() {
+  async function handleExport() {
     const header = t("reports.csvKpiHeader");
     const row = [
       `"${periodLabel}"`,
@@ -254,11 +255,13 @@ export default function ReportsScreen() {
       document.body.removeChild(link);
       URL.revokeObjectURL(url);
     } else {
-      showSuccess(t("reports.csvExportSuccess").replace("{0}", periodLabel));
+      try {
+        await Share.share({ message: csvContent, title: `BNM-Bericht-${periodLabel}` });
+      } catch {}
     }
   }
 
-  function handleSpendenReport() {
+  async function handleSpendenReport() {
     const header = `${t("reports.csvMonthColumn")},${t("reports.csvSessionsColumn")}`;
     const rows = monthlyData.map((d) => `"${d.month} ${selectedYear}",${d.count}`).join("\n");
     const total = monthlyData.reduce((s, d) => s + d.count, 0);
@@ -276,10 +279,9 @@ export default function ReportsScreen() {
       document.body.removeChild(link);
       URL.revokeObjectURL(url);
     } else {
-      const report = monthlyData
-        .map((d) => `${d.month}: ${d.count} ${t("common.sessions")}`)
-        .join("\n");
-      showSuccess(`${report}\n\n${t("reports.total")}: ${total} ${t("common.sessions")}`);
+      try {
+        await Share.share({ message: csvContent, title: `BNM-Spenderbericht-${selectedYear}` });
+      } catch {}
     }
   }
 

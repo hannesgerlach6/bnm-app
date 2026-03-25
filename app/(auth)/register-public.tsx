@@ -283,18 +283,18 @@ export default function RegisterPublicScreen() {
             <FormField label={t("register.gender")} error={errors.gender}>
               <View style={styles.pillRow}>
                 <TouchableOpacity
-                  style={[styles.pill, gender === "male" ? styles.pillActive : [styles.pillInactive, { backgroundColor: themeColors.card, borderColor: themeColors.border }]]}
+                  style={[styles.pill, gender === "male" ? { backgroundColor: isDark ? "#FFCA28" : COLORS.primary, borderColor: isDark ? "#FFCA28" : COLORS.primary } : [styles.pillInactive, { backgroundColor: themeColors.card, borderColor: themeColors.border }]]}
                   onPress={() => setGender("male")}
                 >
-                  <Text style={gender === "male" ? styles.pillTextActive : [styles.pillTextInactive, { color: themeColors.textSecondary }]}>
+                  <Text style={gender === "male" ? { color: isDark ? "#0E0E14" : COLORS.white, fontWeight: "600", fontSize: 13 } : [styles.pillTextInactive, { color: themeColors.textSecondary }]}>
                     {t("register.brother")}
                   </Text>
                 </TouchableOpacity>
                 <TouchableOpacity
-                  style={[styles.pill, gender === "female" ? styles.pillActiveFemale : [styles.pillInactive, { backgroundColor: themeColors.card, borderColor: themeColors.border }]]}
+                  style={[styles.pill, gender === "female" ? { backgroundColor: isDark ? "#c084fc" : "#7e22ce", borderColor: isDark ? "#c084fc" : "#7e22ce" } : [styles.pillInactive, { backgroundColor: themeColors.card, borderColor: themeColors.border }]]}
                   onPress={() => setGender("female")}
                 >
-                  <Text style={gender === "female" ? styles.pillTextActive : [styles.pillTextInactive, { color: themeColors.textSecondary }]}>
+                  <Text style={gender === "female" ? { color: isDark ? "#0E0E14" : COLORS.white, fontWeight: "600", fontSize: 13 } : [styles.pillTextInactive, { color: themeColors.textSecondary }]}>
                     {t("register.sister")}
                   </Text>
                 </TouchableOpacity>
@@ -352,14 +352,14 @@ export default function RegisterPublicScreen() {
                     key={opt.key}
                     style={[
                       styles.pill,
-                      contactPref === opt.key ? styles.pillActive : [styles.pillInactive, { backgroundColor: themeColors.card, borderColor: themeColors.border }],
+                      contactPref === opt.key ? { backgroundColor: isDark ? "#FFCA28" : COLORS.primary, borderColor: isDark ? "#FFCA28" : COLORS.primary } : [styles.pillInactive, { backgroundColor: themeColors.card, borderColor: themeColors.border }],
                     ]}
                     onPress={() => setContactPref(opt.key)}
                   >
                     <Text
                       style={
                         contactPref === opt.key
-                          ? styles.pillTextActive
+                          ? { color: isDark ? "#0E0E14" : COLORS.white, fontWeight: "600" as const, fontSize: 13 }
                           : [styles.pillTextInactive, { color: themeColors.textSecondary }]
                       }
                     >

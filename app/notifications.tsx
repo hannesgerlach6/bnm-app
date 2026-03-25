@@ -90,6 +90,17 @@ export default function NotificationsScreen() {
           </View>
         </View>
 
+        {Platform.OS !== "web" && (
+          <TouchableOpacity
+            style={[styles.settingsLink, { borderBottomColor: themeColors.border }]}
+            onPress={() => router.push("/notification-settings")}
+          >
+            <Ionicons name="settings-outline" size={16} color={themeColors.textSecondary} />
+            <Text style={[styles.settingsLinkText, { color: themeColors.textSecondary }]}>{t("notifSettings.title")}</Text>
+            <Text style={{ color: themeColors.textTertiary }}>›</Text>
+          </TouchableOpacity>
+        )}
+
         {unreadCount > 0 && (
           <View style={[styles.unreadBanner, {
             backgroundColor: isDark ? "#1e2d4a" : "#eff6ff",
@@ -175,6 +186,8 @@ const styles = StyleSheet.create({
   },
   headerLeft: { flex: 1 },
   headerRight: { flex: 1, alignItems: "flex-end" },
+  settingsLink: { flexDirection: "row", alignItems: "center", gap: 8, paddingHorizontal: 16, paddingVertical: 10, borderBottomWidth: 1 },
+  settingsLinkText: { flex: 1, fontSize: 13, fontWeight: "500" },
   backButton: { paddingVertical: 4 },
   backText: { fontSize: 16, fontWeight: "500" },
   headerTitle: { fontWeight: "bold", fontSize: 16 },
