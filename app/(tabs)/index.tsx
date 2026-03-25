@@ -181,7 +181,7 @@ function AdminDashboard({ showSystemSettings = true }: { showSystemSettings?: bo
           </View>
           <TouchableOpacity
             style={[styles.refreshButton, { backgroundColor: "transparent", borderColor: isDark ? "#FFCA28" : themeColors.border }]}
-            onPress={() => refreshData()}
+            onPress={() => refreshData(true)}
             activeOpacity={0.7}
           >
             <Ionicons name="reload-outline" size={16} color={isDark ? "#FFCA28" : themeColors.textSecondary} />

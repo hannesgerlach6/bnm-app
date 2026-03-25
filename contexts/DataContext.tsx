@@ -153,7 +153,7 @@ export interface DataContextValue {
   markChatAsRead: (mentorshipId: string) => Promise<void>;
 
   // Refresh
-  refreshData: () => Promise<void>;
+  refreshData: (force?: boolean) => Promise<void>;
 
   // Loading
   isLoading: boolean;
@@ -1894,10 +1894,10 @@ export function DataProvider({ children }: { children: ReactNode }) {
   // Throttled refresh: nur wenn letzte Ladung > 10s her ist
   const lastLoadRef = React.useRef<number>(0);
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  const refreshData = useCallback(async () => {
+  const refreshData = useCallback(async (force?: boolean) => {
     if (!authUser) return;
     const now = Date.now();
-    if (now - lastLoadRef.current < 10000) return; // 10s Throttle
+    if (!force && now - lastLoadRef.current < 10000) return; // 10s Throttle
     lastLoadRef.current = now;
     await loadAllData();
   }, [authUser?.id]); // intentionally only depends on authUser to avoid infinite re-creation

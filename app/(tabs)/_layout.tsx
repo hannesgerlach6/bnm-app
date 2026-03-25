@@ -219,38 +219,17 @@ function AdminSidebar() {
         ))}
       </View>
 
-      {/* Unten: Einstellungen + Notifications + Logout */}
-      <View style={[sidebarStyles.bottomArea, { borderTopColor: themeColors.border }]}>
-        {bottomItems.map((item) => (
-          <SidebarItem
-            key={item.key}
-            label={item.label}
-            href={item.href}
-            iconName={item.iconName}
-            iconNameActive={item.iconNameActive}
-            isActive={activeSegment === item.key}
-            onPress={() => router.push(item.href as any)}
-          />
-        ))}
-        {/* Benachrichtigungen als Sidebar-Item */}
-        <TouchableOpacity
-          style={[sidebarStyles.item, { backgroundColor: "transparent" }]}
-          onPress={() => router.push("/notifications" as any)}
-          activeOpacity={0.7}
-        >
-          <View style={{ position: "relative", width: 20, height: 20 }}>
-            <Ionicons name="notifications-outline" size={20} color={themeColors.textSecondary} />
-            {unreadCount > 0 && (
-              <View style={[sidebarStyles.badge, { position: "absolute", top: -4, right: -6 }]}>
-                <Text style={sidebarStyles.badgeText}>{unreadCount > 9 ? "9+" : String(unreadCount)}</Text>
-              </View>
-            )}
-          </View>
-          <Text style={[sidebarStyles.itemLabel, { color: themeColors.textSecondary }]}>
-            {t("notifications.title")}
-          </Text>
-        </TouchableOpacity>
-        {/* Logout-Button */}
+      {/* Unten: Profil/Einstellungen + Logout */}
+      <View style={[sidebarStyles.bottomArea, { borderTopColor: isDark ? "#1A1A24" : themeColors.border }]}>
+        <SidebarItem
+          key="profile"
+          label={t("tabs.profile")}
+          href="/(tabs)/profile"
+          iconName="settings-outline"
+          iconNameActive="settings"
+          isActive={activeSegment === "profile"}
+          onPress={() => router.push("/(tabs)/profile" as any)}
+        />
         <TouchableOpacity
           style={sidebarStyles.logoutButton}
           onPress={handleLogout}
@@ -326,16 +305,16 @@ const sidebarStyles = StyleSheet.create({
   nav: {
     flex: 1,
     paddingTop: 12,
-    paddingHorizontal: 12,
+    paddingHorizontal: 8,
   },
   item: {
     flexDirection: "row",
     alignItems: "center",
-    paddingVertical: 11,
-    paddingHorizontal: 12,
-    borderRadius: 8,
-    marginBottom: 2,
-    gap: 10,
+    paddingVertical: 12,
+    paddingHorizontal: 16,
+    borderRadius: 10,
+    marginBottom: 4,
+    gap: 12,
   },
   itemActive: {
     backgroundColor: COLORS.gold,
@@ -370,17 +349,17 @@ const sidebarStyles = StyleSheet.create({
     fontWeight: "bold",
   },
   bottomArea: {
-    padding: 12,
+    paddingHorizontal: 8,
+    paddingVertical: 12,
     borderTopWidth: 1,
-    alignItems: "flex-start",
   },
   logoutButton: {
     flexDirection: "row",
     alignItems: "center",
-    paddingVertical: 11,
-    paddingHorizontal: 12,
-    borderRadius: 8,
-    gap: 10,
+    paddingVertical: 12,
+    paddingHorizontal: 16,
+    borderRadius: 10,
+    gap: 12,
     marginTop: 4,
     width: "100%",
   },
