@@ -6,8 +6,8 @@ import {
   TouchableOpacity,
   StyleSheet,
   ActivityIndicator,
+  Share,
 } from "react-native";
-import { showSuccess } from "../lib/errorHandler";
 import { useRouter } from "expo-router";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { COLORS } from "../constants/Colors";
@@ -35,8 +35,14 @@ export default function HaditheScreen() {
     return hadithe.filter((_, idx) => idx !== todayHadithIndex);
   }, [hadithe, todayHadithIndex]);
 
-  function handleShare(text: string, quelle: string) {
-    showSuccess(`"${text}"\n\n— ${quelle}\n\n(${t("hadithe.shareNotice")})`);
+  async function handleShare(text: string, quelle: string) {
+    try {
+      await Share.share({
+        message: `"${text}"\n\n— ${quelle}\n\n(${t("hadithe.shareNotice")})`,
+      });
+    } catch {
+      // Teilen abgebrochen — ignorieren
+    }
   }
 
   return (
