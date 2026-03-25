@@ -122,7 +122,7 @@ function AdminMenteesView() {
   function handleExportCsv() {
     try {
       const header = t("mentees.csvHeaderRow");
-      const rows = allMentees.map((mentee) => {
+      const rows = filteredMentees.map((mentee) => {
         const mentorship = mentorships.find((m) => m.mentee_id === mentee.id);
         const status = mentorship
           ? mentorship.status === "active" ? t("mentees.csvStatusActive")
@@ -140,12 +140,24 @@ function AdminMenteesView() {
       }).join("\n");
       const csvContent = `${header}\n${rows}`;
 
+      // Dateiname anhand des aktiven Filters bestimmen
+      let filenamePart: string;
+      if (assignFilter === "unassigned") {
+        filenamePart = t("mentees.csvFileWithoutMentor");
+      } else if (statusFilter === "active") {
+        filenamePart = t("mentees.csvFileActive");
+      } else if (statusFilter === "completed") {
+        filenamePart = t("mentees.csvFileCompleted");
+      } else {
+        filenamePart = t("mentees.csvFileAll");
+      }
+
       if (Platform.OS === "web") {
         const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
         const url = URL.createObjectURL(blob);
         const link = document.createElement("a");
         link.href = url;
-        link.download = `BNM-Mentees-${new Date().toISOString().split("T")[0]}.csv`;
+        link.download = `${filenamePart}.csv`;
         document.body.appendChild(link);
         link.click();
         document.body.removeChild(link);

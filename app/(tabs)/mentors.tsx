@@ -108,7 +108,7 @@ export default function MentorsTabScreen() {
   function handleExportCsv() {
     try {
       const header = t("adminMentors.csvHeaderRow");
-      const rows = allMentors.map((mentor) => {
+      const rows = filtered.map((mentor) => {
         const myMentorships = mentorships.filter((m) => m.mentor_id === mentor.id);
         const active = myMentorships.filter((m) => m.status === "active").length;
         const completed = myMentorships.filter((m) => m.status === "completed").length;
@@ -117,12 +117,17 @@ export default function MentorsTabScreen() {
       }).join("\n");
       const csvContent = `${header}\n${rows}`;
 
+      // Dateiname: bei aktiver Suche wird der Suchbegriff angehängt
+      const filenamePart = search.trim()
+        ? `${t("adminMentors.csvFileAll")}_${search.trim().replace(/\s+/g, "_")}`
+        : t("adminMentors.csvFileAll");
+
       if (Platform.OS === "web") {
         const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
         const url = URL.createObjectURL(blob);
         const link = document.createElement("a");
         link.href = url;
-        link.download = `BNM-Mentoren-${new Date().toISOString().split("T")[0]}.csv`;
+        link.download = `${filenamePart}.csv`;
         document.body.appendChild(link);
         link.click();
         document.body.removeChild(link);

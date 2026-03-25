@@ -206,6 +206,25 @@ export default function ReportsScreen() {
     return `${t("reports.year")} ${selectedYear}`;
   }, [periodMode, selectedMonth, selectedQuarter, selectedYear]);
 
+  function handlePrint() {
+    if (Platform.OS !== "web") return;
+    const style = document.createElement("style");
+    style.id = "print-styles";
+    style.textContent = `
+      @media print {
+        body * { visibility: hidden; }
+        #print-content, #print-content * { visibility: visible; }
+        #print-content { position: absolute; left: 0; top: 0; width: 100%; }
+      }
+    `;
+    document.head.appendChild(style);
+    window.print();
+    setTimeout(() => {
+      const el = document.getElementById("print-styles");
+      if (el) el.remove();
+    }, 1000);
+  }
+
   function handleExport() {
     const header = t("reports.csvKpiHeader");
     const row = [
@@ -282,7 +301,12 @@ export default function ReportsScreen() {
         refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor={COLORS.gold} />}
       >
         <View style={styles.page}>
-          <Text style={[styles.pageTitle, { color: themeColors.text }]}>{t("reports.title")}</Text>
+          <View style={styles.titleRow}>
+            <Text style={[styles.pageTitle, { color: themeColors.text }]}>{t("reports.title")}</Text>
+            <View style={styles.betaBadge}>
+              <Text style={styles.betaBadgeText}>{t("reports.betaBadge")}</Text>
+            </View>
+          </View>
           <Text style={[styles.pageSubtitle, { color: themeColors.textSecondary }]}>{t("reports.subtitle")}</Text>
 
           {/* Zeitraum-Auswahl */}
@@ -430,6 +454,9 @@ export default function ReportsScreen() {
           {/* Ausgewählter Zeitraum */}
           <Text style={[styles.periodTitle, { color: themeColors.text }]}>{periodLabel}</Text>
 
+          {/* Druckbarer Inhalt-Bereich */}
+          <View nativeID="print-content">
+
           {/* Empty State: Noch keine Daten in diesem Zeitraum */}
           {kpis.totalSessions === 0 && kpis.totalAssigned === 0 && mentorships.length === 0 && (
             <View style={[styles.emptyDataBox, {
@@ -535,6 +562,8 @@ export default function ReportsScreen() {
             </TouchableOpacity>
           )}
 
+          </View>{/* Ende print-content */}
+
           {/* Export-Button – Primär */}
           <TouchableOpacity
             style={styles.exportButton}
@@ -581,13 +610,9 @@ export default function ReportsScreen() {
           {Platform.OS === "web" && (
             <TouchableOpacity
               style={styles.printButton}
-              onPress={() => {
-                if (typeof window !== "undefined") {
-                  (window as Window).print();
-                }
-              }}
+              onPress={handlePrint}
             >
-              <Text style={styles.printButtonText}>{t("reports.print")}</Text>
+              <Text style={styles.printButtonText}>{t("reports.printBeta")}</Text>
             </TouchableOpacity>
           )}
         </View>
@@ -619,7 +644,16 @@ const styles = StyleSheet.create({
   centerContainer: { flex: 1, alignItems: "center", justifyContent: "center", padding: 24 },
   accessDeniedText: { fontWeight: "600" },
   page: { padding: 20 },
-  pageTitle: { fontSize: 24, fontWeight: "700", marginBottom: 2 },
+  titleRow: { flexDirection: "row", alignItems: "center", gap: 8, marginBottom: 2 },
+  pageTitle: { fontSize: 24, fontWeight: "700" },
+  betaBadge: {
+    backgroundColor: "#f59e0b",
+    borderRadius: 6,
+    paddingHorizontal: 7,
+    paddingVertical: 2,
+    alignSelf: "center",
+  },
+  betaBadgeText: { color: "#1c1400", fontSize: 10, fontWeight: "700" },
   pageSubtitle: { fontSize: 13, marginBottom: 16 },
   card: {
     borderRadius: 8,
