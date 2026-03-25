@@ -8,116 +8,101 @@ import {
   Text,
   ScrollView,
   StyleSheet,
-  Dimensions,
+  useWindowDimensions,
 } from "react-native";
-import { useThemeColors } from "../contexts/ThemeContext";
+import { useThemeColors, useTheme } from "../contexts/ThemeContext";
 
 interface SlideOverPanelProps {
   visible: boolean;
   onClose: () => void;
   children: React.ReactNode;
-  width?: number;
+  title?: string;
 }
 
-export function SlideOverPanel({ visible, onClose, children }: SlideOverPanelProps) {
+export function SlideOverPanel({ visible, onClose, children, title }: SlideOverPanelProps) {
   const themeColors = useThemeColors();
+  const { isDark } = useTheme();
+  const { width: screenWidth, height: screenHeight } = useWindowDimensions();
 
-  // Breite: 40% des Screens, min 500, max 700
-  const screenWidth = Dimensions.get("window").width;
-  const panelWidth = Math.min(700, Math.max(500, screenWidth * 0.4));
+  // Modal-Größe: responsive
+  const modalWidth = Math.min(560, screenWidth * 0.5);
+  const modalMaxHeight = screenHeight * 0.85;
 
-  const slideAnim = useRef(new Animated.Value(panelWidth)).current;
-  const overlayAnim = useRef(new Animated.Value(0)).current;
+  const scaleAnim = useRef(new Animated.Value(0.9)).current;
+  const opacityAnim = useRef(new Animated.Value(0)).current;
 
   useEffect(() => {
     if (visible) {
       Animated.parallel([
-        Animated.timing(slideAnim, {
-          toValue: 0,
-          duration: 300,
-          useNativeDriver: true,
-        }),
-        Animated.timing(overlayAnim, {
-          toValue: 1,
-          duration: 300,
-          useNativeDriver: true,
-        }),
+        Animated.timing(scaleAnim, { toValue: 1, duration: 250, useNativeDriver: true }),
+        Animated.timing(opacityAnim, { toValue: 1, duration: 250, useNativeDriver: true }),
       ]).start();
     } else {
       Animated.parallel([
-        Animated.timing(slideAnim, {
-          toValue: panelWidth,
-          duration: 250,
-          useNativeDriver: true,
-        }),
-        Animated.timing(overlayAnim, {
-          toValue: 0,
-          duration: 250,
-          useNativeDriver: true,
-        }),
+        Animated.timing(scaleAnim, { toValue: 0.9, duration: 200, useNativeDriver: true }),
+        Animated.timing(opacityAnim, { toValue: 0, duration: 200, useNativeDriver: true }),
       ]).start();
     }
   }, [visible]);
 
   if (Platform.OS !== "web") return null;
+  if (!visible) return null;
 
-  if (!visible) {
-    return null;
-  }
-
-  const shadowStyle =
-    Platform.OS === "web"
-      ? ({
-          boxShadow: "-8px 0 32px rgba(0,0,0,0.28)",
-        } as any)
-      : {
-          shadowColor: "#000",
-          shadowOffset: { width: -4, height: 0 },
-          shadowOpacity: 0.22,
-          shadowRadius: 20,
-          elevation: 16,
-        };
+  const goldBorder = isDark ? "#3A3520" : themeColors.border;
 
   return (
     <View style={styles.container}>
       {/* Overlay */}
       <TouchableWithoutFeedback onPress={onClose}>
-        <Animated.View
-          style={[
-            styles.overlay,
-            { opacity: overlayAnim },
-          ]}
-        />
+        <Animated.View style={[styles.overlay, { opacity: opacityAnim }]} />
       </TouchableWithoutFeedback>
 
-      {/* Panel */}
+      {/* Zentriertes Modal */}
       <Animated.View
         style={[
-          styles.panel,
-          shadowStyle,
+          styles.modal,
           {
-            width: panelWidth,
-            backgroundColor: themeColors.background,
-            borderLeftColor: themeColors.border,
-            transform: [{ translateX: slideAnim }],
+            width: modalWidth,
+            maxHeight: modalMaxHeight,
+            backgroundColor: themeColors.card,
+            borderColor: goldBorder,
+            transform: [{ scale: scaleAnim }],
+            opacity: opacityAnim,
           },
+          Platform.OS === "web" ? ({ boxShadow: "0 20px 60px rgba(0,0,0,0.4)" } as any) : {},
         ]}
       >
-        {/* Panel Header mit X-Button */}
-        <View style={[styles.panelHeader, { borderBottomColor: themeColors.border }]}>
-          <TouchableOpacity onPress={onClose} style={[styles.closeButton, { backgroundColor: themeColors.card }]} activeOpacity={0.7}>
+        {/* Header */}
+        <View style={[styles.modalHeader, { borderBottomColor: goldBorder }]}>
+          {title ? (
+            <Text style={[styles.modalTitle, { color: themeColors.text }]}>{title}</Text>
+          ) : (
+            <View />
+          )}
+          <TouchableOpacity onPress={onClose} style={[styles.closeButton, { backgroundColor: themeColors.elevated }]} activeOpacity={0.7}>
             <Text style={[styles.closeButtonText, { color: themeColors.textSecondary }]}>✕</Text>
           </TouchableOpacity>
         </View>
 
         {/* Content */}
         <ScrollView
-          style={styles.panelContent}
-          contentContainerStyle={styles.panelContentInner}
+          style={styles.modalContent}
+          contentContainerStyle={styles.modalContentInner}
           showsVerticalScrollIndicator={false}
         >
           {children}
         </ScrollView>
+
+        {/* Footer: Schließen Button */}
+        <View style={[styles.modalFooter, { borderTopColor: goldBorder }]}>
+          <TouchableOpacity
+            style={[styles.closeFooterButton, { backgroundColor: isDark ? "#FFCA28" : "#EEA71B" }]}
+            onPress={onClose}
+            activeOpacity={0.8}
+          >
+            <Text style={[styles.closeFooterText, { color: isDark ? "#0E0E14" : "#fff" }]}>Schließen</Text>
+          </TouchableOpacity>
+        </View>
       </Animated.View>
     </View>
   );
@@ -131,6 +116,8 @@ const styles = StyleSheet.create({
     right: 0,
     bottom: 0,
     zIndex: 999,
+    alignItems: "center",
+    justifyContent: "center",
   },
   overlay: {
     position: "absolute" as any,
@@ -138,40 +125,55 @@ const styles = StyleSheet.create({
     left: 0,
     right: 0,
     bottom: 0,
-    backgroundColor: "rgba(0,0,0,0.3)",
+    backgroundColor: "rgba(0,0,0,0.45)",
   },
-  panel: {
-    position: "absolute" as any,
-    right: 0,
-    top: 0,
-    bottom: 0,
-    borderLeftWidth: 1,
+  modal: {
+    borderRadius: 16,
+    borderWidth: 1,
+    overflow: "hidden",
   },
-  panelHeader: {
+  modalHeader: {
     flexDirection: "row",
-    justifyContent: "flex-end",
+    justifyContent: "space-between",
     alignItems: "center",
-    paddingHorizontal: 20,
-    paddingVertical: 14,
+    paddingHorizontal: 24,
+    paddingVertical: 16,
     borderBottomWidth: 1,
   },
+  modalTitle: {
+    fontSize: 18,
+    fontWeight: "700",
+  },
   closeButton: {
-    width: 28,
-    height: 28,
-    borderRadius: 14,
+    width: 32,
+    height: 32,
+    borderRadius: 16,
     alignItems: "center",
     justifyContent: "center",
   },
   closeButtonText: {
-    fontSize: 13,
+    fontSize: 15,
     fontWeight: "500",
-    lineHeight: 16,
   },
-  panelContent: {
+  modalContent: {
     flex: 1,
   },
-  panelContentInner: {
+  modalContentInner: {
     padding: 24,
-    paddingBottom: 48,
+    paddingBottom: 16,
+  },
+  modalFooter: {
+    borderTopWidth: 1,
+    padding: 16,
+    paddingHorizontal: 24,
+  },
+  closeFooterButton: {
+    borderRadius: 10,
+    paddingVertical: 12,
+    alignItems: "center",
+  },
+  closeFooterText: {
+    fontSize: 15,
+    fontWeight: "600",
   },
 });

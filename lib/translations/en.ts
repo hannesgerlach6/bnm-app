@@ -279,6 +279,7 @@ const en: Record<TranslationKeys, string> = {
   "register.confirmPrivacyLink1": "Privacy Policy",
   "register.confirmPrivacyAnd": "and the",
   "register.confirmPrivacyLink2": "Terms & Conditions",
+  "register.confirmPrivacyLink3": "Anti-Extremism Declaration",
   "register.confirmPrivacySuffix": "*",
   "register.additionalMessage": "Would you like to tell us anything else? (optional)",
   "register.additionalMessagePlaceholder": "Your message...",

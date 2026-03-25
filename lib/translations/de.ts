@@ -277,6 +277,7 @@ const de = {
   "register.confirmPrivacyLink1": "Datenschutzbestimmungen",
   "register.confirmPrivacyAnd": "und den",
   "register.confirmPrivacyLink2": "AGB",
+  "register.confirmPrivacyLink3": "Anti-Extremismus-Erklärung",
   "register.confirmPrivacySuffix": "zu *",
   "register.additionalMessage": "Möchtest du uns noch etwas mitteilen? (optional)",
   "register.additionalMessagePlaceholder": "Deine Nachricht...",

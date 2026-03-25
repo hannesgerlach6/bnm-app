@@ -279,6 +279,7 @@ const ar: Record<TranslationKeys, string> = {
   "register.confirmPrivacyLink1": "سياسة الخصوصية",
   "register.confirmPrivacyAnd": "و",
   "register.confirmPrivacyLink2": "الشروط والأحكام",
+  "register.confirmPrivacyLink3": "إعلان مكافحة التطرف",
   "register.confirmPrivacySuffix": "*",
   "register.additionalMessage": "هل تريد إخبارنا بشيء آخر؟ (اختياري)",
   "register.additionalMessagePlaceholder": "رسالتك...",

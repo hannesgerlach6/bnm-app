@@ -279,6 +279,7 @@ const tr: Record<TranslationKeys, string> = {
   "register.confirmPrivacyLink1": "Gizlilik Politikası",
   "register.confirmPrivacyAnd": "ve",
   "register.confirmPrivacyLink2": "Kullanım Şartları",
+  "register.confirmPrivacyLink3": "Aşırılıkçılık Karşıtı Açıklama",
   "register.confirmPrivacySuffix": "*",
   "register.additionalMessage": "Bize söylemek istediğin bir şey var mı? (isteğe bağlı)",
   "register.additionalMessagePlaceholder": "Mesajın...",
