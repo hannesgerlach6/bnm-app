@@ -151,10 +151,12 @@ function AdminSidebar() {
     ? "reports"
     : pathname.includes("/mentees")
     ? "mentees"
-    : pathname.includes("/admin/mentors")
+    : pathname.includes("/mentors")
     ? "mentors"
-    : pathname.includes("/admin/applications") || pathname.includes("/admin/pending")
+    : pathname.includes("/applications") || pathname.includes("/admin/pending")
     ? "applications"
+    : pathname.includes("/tools")
+    ? "tools"
     : pathname.includes("/chats")
     ? "chats"
     : pathname.includes("/leaderboard")
@@ -167,8 +169,9 @@ function AdminSidebar() {
   const mainItems = [
     { key: "index", label: t("tabs.dashboard"), iconName: "grid-outline", iconNameActive: "grid", href: "/(tabs)/" },
     { key: "mentees", label: t("tabs.mentees"), iconName: "people-outline", iconNameActive: "people", href: "/(tabs)/mentees" },
-    { key: "mentors", label: t("sidebar.mentors"), iconName: "school-outline", iconNameActive: "school", href: "/admin/mentors" },
-    { key: "applications", label: t("sidebar.applications"), iconName: "document-text-outline", iconNameActive: "document-text", href: "/admin/applications" },
+    { key: "mentors", label: t("sidebar.mentors"), iconName: "school-outline", iconNameActive: "school", href: "/(tabs)/mentors" },
+    { key: "applications", label: t("sidebar.applications"), iconName: "document-text-outline", iconNameActive: "document-text", href: "/(tabs)/applications" },
+    { key: "tools", label: "Tools", iconName: "construct-outline", iconNameActive: "construct", href: "/(tabs)/tools" },
     ...(!isOffice
       ? [{ key: "chats", label: t("tabs.chats"), iconName: "chatbubbles-outline", iconNameActive: "chatbubbles", href: "/(tabs)/chats", badge: chatUnread }]
       : []),
@@ -444,6 +447,36 @@ function TabsLayout() {
         }}
       />
       <Tabs.Screen
+        name="mentors"
+        options={{
+          title: t("sidebar.mentors"),
+          href: isAdminOrOffice ? undefined : null,
+          tabBarIcon: ({ color }) => (
+            Platform.OS === "ios" ? <SymbolView name={"person.badge.clock.fill" as any} tintColor={color} size={24} /> : <Ionicons name="school" size={22} color={color} />
+          ),
+        }}
+      />
+      <Tabs.Screen
+        name="applications"
+        options={{
+          title: t("sidebar.applications"),
+          href: isAdminOrOffice ? undefined : null,
+          tabBarIcon: ({ color }) => (
+            Platform.OS === "ios" ? <SymbolView name={"doc.text.fill" as any} tintColor={color} size={24} /> : <Ionicons name="document-text" size={22} color={color} />
+          ),
+        }}
+      />
+      <Tabs.Screen
+        name="tools"
+        options={{
+          title: "Tools",
+          href: isAdminOrOffice ? undefined : null,
+          tabBarIcon: ({ color }) => (
+            Platform.OS === "ios" ? <SymbolView name={"wrench.and.screwdriver.fill" as any} tintColor={color} size={24} /> : <Ionicons name="construct" size={22} color={color} />
+          ),
+        }}
+      />
+      <Tabs.Screen
         name="reports"
         options={{
           title: t("tabs.reports"),
@@ -500,6 +533,18 @@ function AdminSidebarLayout() {
           <Tabs.Screen
             name="leaderboard"
             options={{ href: null }}
+          />
+          <Tabs.Screen
+            name="mentors"
+            options={{ title: "Mentoren" }}
+          />
+          <Tabs.Screen
+            name="applications"
+            options={{ title: "Bewerbungen" }}
+          />
+          <Tabs.Screen
+            name="tools"
+            options={{ title: "Tools" }}
           />
           <Tabs.Screen
             name="reports"

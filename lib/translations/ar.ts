@@ -853,6 +853,8 @@ const ar: Record<TranslationKeys, string> = {
   "admin.deletePartial": "تم حذف {0}، فشل {1}.",
   "admin.xSelected": "تم تحديد {0}",
 
+  "tabs.tools": "الأدوات",
+
   // تبويب المحادثات
   "tabs.chats": "المحادثات",
   "chats.title": "المحادثات",

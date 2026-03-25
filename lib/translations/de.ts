@@ -851,6 +851,8 @@ const de = {
   "admin.deletePartial": "{0} gelöscht, {1} fehlgeschlagen.",
   "admin.xSelected": "{0} ausgewählt",
 
+  "tabs.tools": "Tools",
+
   // Chats Tab
   "tabs.chats": "Chats",
   "chats.title": "Chats",

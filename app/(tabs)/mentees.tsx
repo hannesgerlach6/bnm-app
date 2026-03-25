@@ -29,7 +29,7 @@ export default function MenteesScreen() {
   if (!user) return null;
 
   if (user.role === "admin" || user.role === "office") return <Container fullWidth={Platform.OS === "web"}><AdminMenteesView /></Container>;
-  if (user.role === "mentor") return <Container><MentorMenteesView /></Container>;
+  if (user.role === "mentor") return <Container fullWidth={Platform.OS === "web"}><MentorMenteesView /></Container>;
   return <Container><MenteeProgressView /></Container>;
 }
 

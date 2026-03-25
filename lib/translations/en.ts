@@ -853,6 +853,8 @@ const en: Record<TranslationKeys, string> = {
   "admin.deletePartial": "{0} deleted, {1} failed.",
   "admin.xSelected": "{0} selected",
 
+  "tabs.tools": "Tools",
+
   // Chats Tab
   "tabs.chats": "Chats",
   "chats.title": "Chats",
