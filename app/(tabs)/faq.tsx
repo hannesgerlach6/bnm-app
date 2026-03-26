@@ -301,7 +301,7 @@ export default function FAQScreen() {
 const styles = StyleSheet.create({
   scrollView: { flex: 1 },
   page: { padding: 16, paddingBottom: 40 },
-  pageWide: { maxWidth: 800, alignSelf: "center", width: "100%", padding: 24 },
+  pageWide: { width: "100%", padding: 24 },
 
   // Hadith Card
   hadithCard: {

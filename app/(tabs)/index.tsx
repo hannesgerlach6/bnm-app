@@ -568,6 +568,71 @@ function MentorDashboard() {
           </>
         )}
 
+        {/* ── Quick Actions ────────────────────────────────────────────── */}
+        <Text style={[styles.sectionTitle, { color: themeColors.text, marginTop: 8 }]}>Quick Actions</Text>
+        <View style={styles.quickActionsGrid}>
+          <TouchableOpacity
+            style={[styles.quickActionBtn, { backgroundColor: themeColors.card, borderColor: isDark ? "#3A3520" : themeColors.border }]}
+            onPress={() => router.push("/document-session")}
+            activeOpacity={0.75}
+          >
+            <Ionicons name="document-text-outline" size={22} color={COLORS.gold} />
+            <Text style={[styles.quickActionLabel, { color: themeColors.text }]}>{t("sessions.document")}</Text>
+          </TouchableOpacity>
+          <TouchableOpacity
+            style={[styles.quickActionBtn, { backgroundColor: themeColors.card, borderColor: isDark ? "#3A3520" : themeColors.border }]}
+            onPress={() => router.push("/assign")}
+            activeOpacity={0.75}
+          >
+            <Ionicons name="person-add-outline" size={22} color={COLORS.gradientStart} />
+            <Text style={[styles.quickActionLabel, { color: themeColors.text }]}>{t("mentees.takeMentee")}</Text>
+          </TouchableOpacity>
+          <TouchableOpacity
+            style={[styles.quickActionBtn, { backgroundColor: themeColors.card, borderColor: isDark ? "#3A3520" : themeColors.border }]}
+            onPress={() => router.push("/(tabs)/mentees")}
+            activeOpacity={0.75}
+          >
+            <Ionicons name="people-outline" size={22} color="#6366f1" />
+            <Text style={[styles.quickActionLabel, { color: themeColors.text }]}>{t("mentees.myMentees")} →</Text>
+          </TouchableOpacity>
+        </View>
+
+        {/* ── Motivations-Hadith ───────────────────────────────────────── */}
+        {todayHadith && (
+          <View style={[styles.mentorHadithCard, { borderColor: isDark ? "#3A3520" : "rgba(238,167,27,0.3)" }]}>
+            <View style={styles.hadithCardHeader}>
+              <Text style={styles.hadithStar}>★</Text>
+              <Text style={[styles.hadithCardLabel, { color: themeColors.text }]}>{t("motivation.title")}</Text>
+            </View>
+            {todayHadith.text_ar ? (
+              <Text style={[styles.mentorHadithArabic, { color: themeColors.text }]}>{todayHadith.text_ar}</Text>
+            ) : null}
+            <Text style={[styles.hadithCardText, { color: themeColors.textSecondary }]}>"{todayHadith.text_de}"</Text>
+            {todayHadith.source ? (
+              <Text style={[styles.hadithCardQuelle, { color: themeColors.textTertiary }]}>{t("motivation.source")}: {todayHadith.source}</Text>
+            ) : null}
+            <View style={styles.motivationActionsRow}>
+              <TouchableOpacity
+                style={styles.motivationNextBtn}
+                onPress={() => setHadithOffset((prev) => prev + 1)}
+              >
+                <Text style={styles.motivationNextText}>{t("motivation.next")}</Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={styles.motivationShareBtn}
+                onPress={() => {
+                  const shareText = todayHadith.text_ar
+                    ? `${todayHadith.text_ar}\n\n${todayHadith.text_de}`
+                    : todayHadith.text_de;
+                  shareHadith(shareText, t("share.suffix"));
+                }}
+              >
+                <Ionicons name="share-outline" size={18} color={COLORS.gold} />
+              </TouchableOpacity>
+            </View>
+          </View>
+        )}
+
         {/* ── Aktive Betreuungen (kompakt) ────────────────────────────── */}
         <View style={[styles.compactMenteesCard, { backgroundColor: themeColors.card, borderColor: isDark ? "#3A3520" : themeColors.border }]}>
           <View style={styles.compactMenteesHeader}>
@@ -640,71 +705,6 @@ function MentorDashboard() {
           )}
         </View>
 
-        {/* ── Quick Actions ────────────────────────────────────────────── */}
-        <Text style={[styles.sectionTitle, { color: themeColors.text, marginTop: 8 }]}>Quick Actions</Text>
-        <View style={styles.quickActionsGrid}>
-          <TouchableOpacity
-            style={[styles.quickActionBtn, { backgroundColor: themeColors.card, borderColor: isDark ? "#3A3520" : themeColors.border }]}
-            onPress={() => router.push("/document-session")}
-            activeOpacity={0.75}
-          >
-            <Ionicons name="document-text-outline" size={22} color={COLORS.gold} />
-            <Text style={[styles.quickActionLabel, { color: themeColors.text }]}>{t("sessions.document")}</Text>
-          </TouchableOpacity>
-          <TouchableOpacity
-            style={[styles.quickActionBtn, { backgroundColor: themeColors.card, borderColor: isDark ? "#3A3520" : themeColors.border }]}
-            onPress={() => router.push("/assign")}
-            activeOpacity={0.75}
-          >
-            <Ionicons name="person-add-outline" size={22} color={COLORS.gradientStart} />
-            <Text style={[styles.quickActionLabel, { color: themeColors.text }]}>{t("mentees.takeMentee")}</Text>
-          </TouchableOpacity>
-          <TouchableOpacity
-            style={[styles.quickActionBtn, { backgroundColor: themeColors.card, borderColor: isDark ? "#3A3520" : themeColors.border }]}
-            onPress={() => router.push("/(tabs)/mentees")}
-            activeOpacity={0.75}
-          >
-            <Ionicons name="people-outline" size={22} color="#6366f1" />
-            <Text style={[styles.quickActionLabel, { color: themeColors.text }]}>{t("mentees.myMentees")} →</Text>
-          </TouchableOpacity>
-        </View>
-
-        {/* ── Motivations-Hadith ───────────────────────────────────────── */}
-        {todayHadith && (
-          <View style={[styles.mentorHadithCard, { borderColor: isDark ? "#3A3520" : "rgba(238,167,27,0.3)" }]}>
-            <View style={styles.hadithCardHeader}>
-              <Text style={styles.hadithStar}>★</Text>
-              <Text style={[styles.hadithCardLabel, { color: themeColors.text }]}>{t("motivation.title")}</Text>
-            </View>
-            {todayHadith.text_ar ? (
-              <Text style={[styles.mentorHadithArabic, { color: themeColors.text }]}>{todayHadith.text_ar}</Text>
-            ) : null}
-            <Text style={[styles.hadithCardText, { color: themeColors.textSecondary }]}>"{todayHadith.text_de}"</Text>
-            {todayHadith.source ? (
-              <Text style={[styles.hadithCardQuelle, { color: themeColors.textTertiary }]}>{t("motivation.source")}: {todayHadith.source}</Text>
-            ) : null}
-            <View style={styles.motivationActionsRow}>
-              <TouchableOpacity
-                style={styles.motivationNextBtn}
-                onPress={() => setHadithOffset((prev) => prev + 1)}
-              >
-                <Text style={styles.motivationNextText}>{t("motivation.next")}</Text>
-              </TouchableOpacity>
-              <TouchableOpacity
-                style={styles.motivationShareBtn}
-                onPress={() => {
-                  const shareText = todayHadith.text_ar
-                    ? `${todayHadith.text_ar}\n\n${todayHadith.text_de}`
-                    : todayHadith.text_de;
-                  shareHadith(shareText, t("share.suffix"));
-                }}
-              >
-                <Ionicons name="share-outline" size={18} color={COLORS.gold} />
-              </TouchableOpacity>
-            </View>
-          </View>
-        )}
-
       </View>
     </ScrollView>
   );
@@ -774,15 +774,12 @@ function MenteeDashboard() {
       <View style={styles.page}>
 
         {/* ── Greeting ──────────────────────────────────────────────── */}
-        <View style={styles.mentorGreetingRow}>
-          <View style={{ flex: 1 }}>
-            <Text style={[styles.mentorGreetingLabel, { color: isDark ? COLORS.gold : COLORS.gradientStart }]}>
+        <View style={[styles.mentorGreetingRow, { justifyContent: "center", alignItems: "center" }]}>
+          <View style={{ alignItems: "center" }}>
+            <Text style={[styles.mentorGreetingLabel, { color: isDark ? COLORS.gold : COLORS.gradientStart, textAlign: "center" }]}>
               SALAM ALEIKUM
             </Text>
-            <Text style={[styles.mentorGreetingName, { color: themeColors.text }]}>{user.name}</Text>
-          </View>
-          <View style={[styles.mentorLogoBadge, { backgroundColor: isDark ? "#1A1A2E" : "#EBF0FF", borderColor: isDark ? "#3A3520" : "#C5CEE0" }]}>
-            <Text style={styles.mentorLogoText}>BNM</Text>
+            <Text style={[styles.mentorGreetingName, { color: themeColors.text, textAlign: "center" }]}>{user.name}</Text>
           </View>
         </View>
 
@@ -823,6 +820,42 @@ function MenteeDashboard() {
               )}
             </KpiGrid>
 
+            {/* ── Hadith — prominente große Card ───────────────────────── */}
+            {todayHadith && (
+              <View style={[styles.menteeHadithBigCard, { backgroundColor: isDark ? "#1A1A2E" : "#f0f4ff", borderColor: isDark ? "#3A3520" : "rgba(238,167,27,0.3)" }]}>
+                <View style={styles.hadithCardHeader}>
+                  <Text style={styles.hadithStar}>★</Text>
+                  <Text style={[styles.hadithCardLabel, { color: themeColors.text, fontSize: 16 }]}>{t("motivation.title")}</Text>
+                </View>
+                {todayHadith.text_ar ? (
+                  <Text style={[styles.mentorHadithArabic, { color: themeColors.text, fontSize: 22, marginBottom: 12 }]}>{todayHadith.text_ar}</Text>
+                ) : null}
+                <Text style={[styles.hadithCardText, { color: themeColors.textSecondary, fontSize: 16, lineHeight: 26 }]}>"{todayHadith.text_de}"</Text>
+                {todayHadith.source ? (
+                  <Text style={[styles.hadithCardQuelle, { color: COLORS.gold, marginTop: 10 }]}>{t("motivation.source")}: {todayHadith.source}</Text>
+                ) : null}
+                <View style={[styles.motivationActionsRow, { marginTop: 16 }]}>
+                  <TouchableOpacity
+                    style={[styles.motivationNextBtn, { paddingHorizontal: 20, paddingVertical: 10 }]}
+                    onPress={() => setHadithOffset((prev) => prev + 1)}
+                  >
+                    <Text style={[styles.motivationNextText, { fontSize: 14 }]}>{t("motivation.next")}</Text>
+                  </TouchableOpacity>
+                  <TouchableOpacity
+                    style={[styles.motivationShareBtn, { backgroundColor: isDark ? "#2A2A3C" : "#e8eaf6", padding: 12, borderRadius: 10 }]}
+                    onPress={() => {
+                      const shareText = todayHadith.text_ar
+                        ? `${todayHadith.text_ar}\n\n${todayHadith.text_de}`
+                        : todayHadith.text_de;
+                      shareHadith(shareText, t("share.suffix"));
+                    }}
+                  >
+                    <Ionicons name="share-outline" size={20} color={COLORS.gold} />
+                  </TouchableOpacity>
+                </View>
+              </View>
+            )}
+
             {/* ── Mentor-Info kompakt ────────────────────────────────── */}
             {mentorship.mentor && (
               <View style={[styles.menteeInfoCard, { backgroundColor: themeColors.card, borderColor: isDark ? "#3A3520" : themeColors.border }]}>
@@ -841,24 +874,6 @@ function MenteeDashboard() {
                 </View>
               </View>
             )}
-
-            {/* ── Fortschrittsbalken ────────────────────────────────── */}
-            <View style={[styles.menteeProgressCard, { backgroundColor: themeColors.card, borderColor: isDark ? "#3A3520" : themeColors.border }]}>
-              <View style={styles.menteeProgressHeader}>
-                <Text style={[styles.menteeProgressTitle, { color: themeColors.text }]}>{t("dashboard.yourProgress")}</Text>
-                <Text style={[styles.menteeProgressBigNum, { color: COLORS.gold, fontSize: 22, fontWeight: "800" }]}>{progressPercent}%</Text>
-              </View>
-              <View style={[styles.levelTrack, { backgroundColor: isDark ? "#2A2520" : themeColors.border, marginTop: 8 }]}>
-                <View style={[styles.levelFill, { width: `${progressPercent}%` as any, backgroundColor: allDone ? COLORS.cta : COLORS.gold }]} />
-              </View>
-              <Text style={[styles.tertiaryXs, { color: themeColors.textSecondary, marginTop: 6 }]}>
-                {completedStepIds.length === sessionTypes.length
-                  ? t("menteeProgress.allDone")
-                  : t("menteeProgress.progress")
-                      .replace("{0}", String(completedStepIds.length))
-                      .replace("{1}", String(sessionTypes.length))}
-              </Text>
-            </View>
 
             {/* ── Steps als horizontale Timeline ─────────────────────── */}
             <Text style={[styles.sectionTitle, { color: themeColors.text }]}>{t("menteeProgress.title")}</Text>
@@ -924,42 +939,6 @@ function MenteeDashboard() {
             <Text style={[styles.emptyText, { color: themeColors.textTertiary, marginTop: 8 }]}>
               {t("dashboard.pendingAssignmentText")}
             </Text>
-          </View>
-        )}
-
-        {/* ── Hadith — prominente große Card ───────────────────────── */}
-        {todayHadith && (
-          <View style={[styles.menteeHadithBigCard, { backgroundColor: isDark ? "#1A1A2E" : "#f0f4ff", borderColor: isDark ? "#3A3520" : "rgba(238,167,27,0.3)" }]}>
-            <View style={styles.hadithCardHeader}>
-              <Text style={styles.hadithStar}>★</Text>
-              <Text style={[styles.hadithCardLabel, { color: themeColors.text, fontSize: 16 }]}>{t("motivation.title")}</Text>
-            </View>
-            {todayHadith.text_ar ? (
-              <Text style={[styles.mentorHadithArabic, { color: themeColors.text, fontSize: 22, marginBottom: 12 }]}>{todayHadith.text_ar}</Text>
-            ) : null}
-            <Text style={[styles.hadithCardText, { color: themeColors.textSecondary, fontSize: 16, lineHeight: 26 }]}>"{todayHadith.text_de}"</Text>
-            {todayHadith.source ? (
-              <Text style={[styles.hadithCardQuelle, { color: COLORS.gold, marginTop: 10 }]}>{t("motivation.source")}: {todayHadith.source}</Text>
-            ) : null}
-            <View style={[styles.motivationActionsRow, { marginTop: 16 }]}>
-              <TouchableOpacity
-                style={[styles.motivationNextBtn, { paddingHorizontal: 20, paddingVertical: 10 }]}
-                onPress={() => setHadithOffset((prev) => prev + 1)}
-              >
-                <Text style={[styles.motivationNextText, { fontSize: 14 }]}>{t("motivation.next")}</Text>
-              </TouchableOpacity>
-              <TouchableOpacity
-                style={[styles.motivationShareBtn, { backgroundColor: isDark ? "#2A2A3C" : "#e8eaf6", padding: 12, borderRadius: 10 }]}
-                onPress={() => {
-                  const shareText = todayHadith.text_ar
-                    ? `${todayHadith.text_ar}\n\n${todayHadith.text_de}`
-                    : todayHadith.text_de;
-                  shareHadith(shareText, t("share.suffix"));
-                }}
-              >
-                <Ionicons name="share-outline" size={20} color={COLORS.gold} />
-              </TouchableOpacity>
-            </View>
           </View>
         )}
 
