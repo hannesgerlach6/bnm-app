@@ -185,6 +185,10 @@ export default function LeaderboardScreen() {
     return t("leaderboard.allMentors");
   }, [user, genderFilter, t]);
 
+  const myEntry = user?.role === "mentor" ? ranked.find((r) => r.mentorId === user.id) : undefined;
+  const top3 = ranked.slice(0, 3);
+  const rest = ranked.slice(3);
+
   return (
     <Container fullWidth={Platform.OS === "web"}>
       <ScrollView
@@ -196,6 +200,30 @@ export default function LeaderboardScreen() {
           <Text style={[styles.pageSubtitle, { color: themeColors.textSecondary }]}>
             {t("leaderboard.subtitle")}
           </Text>
+
+          {/* ── KPI-Cards: Eigene Position ──────────────────────────────── */}
+          {user?.role === "mentor" && myEntry && (
+            <View style={styles.kpiRow}>
+              <View style={[styles.kpiCard, { backgroundColor: themeColors.card, borderColor: COLORS.gold }]}>
+                <Text style={[styles.kpiLabel, { color: themeColors.textSecondary }]}>{t("leaderboard.yourPosition")}</Text>
+                <Text style={[styles.kpiValue, { color: COLORS.gold }]}>
+                  {t("leaderboard.place").replace("{0}", String(myRankIndex + 1))}
+                </Text>
+              </View>
+              <View style={[styles.kpiCard, { backgroundColor: themeColors.card, borderColor: themeColors.border }]}>
+                <Text style={[styles.kpiLabel, { color: themeColors.textSecondary }]}>{t("leaderboard.points")}</Text>
+                <Text style={[styles.kpiValue, { color: themeColors.text }]}>{myEntry.score}</Text>
+              </View>
+              <View style={[styles.kpiCard, { backgroundColor: themeColors.card, borderColor: themeColors.border }]}>
+                <Text style={[styles.kpiLabel, { color: themeColors.textSecondary }]}>{t("leaderboard.completions")}</Text>
+                <Text style={[styles.kpiValue, { color: COLORS.cta }]}>{myEntry.completedCount}</Text>
+              </View>
+              <View style={[styles.kpiCard, { backgroundColor: themeColors.card, borderColor: themeColors.border }]}>
+                <Text style={[styles.kpiLabel, { color: themeColors.textSecondary }]}>{t("leaderboard.sessions")}</Text>
+                <Text style={[styles.kpiValue, { color: themeColors.text }]}>{myEntry.sessionCount}</Text>
+              </View>
+            </View>
+          )}
 
           {/* Monats-Picker */}
           <View style={[styles.monthPickerRow, { backgroundColor: themeColors.card }]}>
@@ -298,97 +326,165 @@ export default function LeaderboardScreen() {
             </View>
           )}
 
-          {/* Eigene Position (nur für Mentoren) */}
-          {user?.role === "mentor" && myRankIndex >= 0 && (
-            <View style={styles.myPositionCard}>
-              <Text style={styles.myPositionLabel}>{t("leaderboard.yourPosition")}</Text>
-              <Text style={styles.myPositionRank}>{t("leaderboard.place").replace("{0}", String(myRankIndex + 1))}</Text>
-              <Text style={styles.myPositionScore}>
-                {ranked[myRankIndex].score} {t("leaderboard.points")}
-              </Text>
+          {/* ── Podium: Top 3 ───────────────────────────────────────────── */}
+          {ranked.length > 0 && (
+            <View style={styles.podiumContainer}>
+              <Text style={[styles.cardTitle, { color: themeColors.text, marginBottom: 16 }]}>{listTitle}</Text>
+
+              {/* Podium-Zeile: Platz 2 | Platz 1 | Platz 3 */}
+              <View style={styles.podiumRow}>
+                {/* Platz 2 */}
+                {top3[1] ? (() => {
+                  const item = top3[1];
+                  const isMe = user?.role === "mentor" && item.mentorId === user.id;
+                  return (
+                    <TouchableOpacity
+                      key={item.mentorId}
+                      style={[
+                        styles.podiumCard,
+                        styles.podiumCard2,
+                        { backgroundColor: themeColors.card, borderColor: isMe ? COLORS.gold : MEDAL_COLORS[1] },
+                        isMe && styles.podiumCardMe,
+                      ]}
+                      onPress={() => router.push({ pathname: "/mentor/[id]", params: { id: item.mentorId } })}
+                    >
+                      <Text style={styles.podiumEmoji}>{MEDAL_EMOJIS[1]}</Text>
+                      <Text style={[styles.podiumName, { color: themeColors.text }]} numberOfLines={2}>{item.name}</Text>
+                      <Text style={[styles.podiumCity, { color: themeColors.textTertiary }]} numberOfLines={1}>{item.city}</Text>
+                      <Text style={[styles.podiumScore, { color: MEDAL_COLORS[1] }]}>{item.score}</Text>
+                      <Text style={[styles.podiumPts, { color: themeColors.textTertiary }]}>{t("leaderboard.points_short")}</Text>
+                      <Text style={[styles.podiumStat, { color: themeColors.textSecondary }]}>
+                        {item.completedCount} {t("leaderboard.completions")}
+                      </Text>
+                    </TouchableOpacity>
+                  );
+                })() : <View style={styles.podiumCardEmpty} />}
+
+                {/* Platz 1 (größte Karte, mittig) */}
+                {top3[0] ? (() => {
+                  const item = top3[0];
+                  const isMe = user?.role === "mentor" && item.mentorId === user.id;
+                  return (
+                    <TouchableOpacity
+                      key={item.mentorId}
+                      style={[
+                        styles.podiumCard,
+                        styles.podiumCard1,
+                        { backgroundColor: isDark ? "#1A1A2E" : "#FFF8E1", borderColor: isMe ? COLORS.gold : MEDAL_COLORS[0] },
+                        isMe && styles.podiumCardMe,
+                      ]}
+                      onPress={() => router.push({ pathname: "/mentor/[id]", params: { id: item.mentorId } })}
+                    >
+                      <Text style={styles.podiumCrown}>👑</Text>
+                      <Text style={styles.podiumEmoji1}>{MEDAL_EMOJIS[0]}</Text>
+                      <Text style={[styles.podiumName1, { color: themeColors.text }]} numberOfLines={2}>{item.name}</Text>
+                      <Text style={[styles.podiumCity, { color: themeColors.textTertiary }]} numberOfLines={1}>{item.city}</Text>
+                      <Text style={[styles.podiumScore1, { color: MEDAL_COLORS[0] }]}>{item.score}</Text>
+                      <Text style={[styles.podiumPts, { color: themeColors.textTertiary }]}>{t("leaderboard.points_short")}</Text>
+                      <View style={styles.podiumStats1Row}>
+                        <Text style={[styles.podiumStat, { color: themeColors.textSecondary }]}>
+                          {item.completedCount} {t("leaderboard.completions")}
+                        </Text>
+                        <Text style={[styles.podiumStatSep, { color: themeColors.border }]}>·</Text>
+                        <Text style={[styles.podiumStat, { color: themeColors.textSecondary }]}>
+                          {item.sessionCount} {t("leaderboard.sessions")}
+                        </Text>
+                      </View>
+                    </TouchableOpacity>
+                  );
+                })() : null}
+
+                {/* Platz 3 */}
+                {top3[2] ? (() => {
+                  const item = top3[2];
+                  const isMe = user?.role === "mentor" && item.mentorId === user.id;
+                  return (
+                    <TouchableOpacity
+                      key={item.mentorId}
+                      style={[
+                        styles.podiumCard,
+                        styles.podiumCard3,
+                        { backgroundColor: themeColors.card, borderColor: isMe ? COLORS.gold : MEDAL_COLORS[2] },
+                        isMe && styles.podiumCardMe,
+                      ]}
+                      onPress={() => router.push({ pathname: "/mentor/[id]", params: { id: item.mentorId } })}
+                    >
+                      <Text style={styles.podiumEmoji}>{MEDAL_EMOJIS[2]}</Text>
+                      <Text style={[styles.podiumName, { color: themeColors.text }]} numberOfLines={2}>{item.name}</Text>
+                      <Text style={[styles.podiumCity, { color: themeColors.textTertiary }]} numberOfLines={1}>{item.city}</Text>
+                      <Text style={[styles.podiumScore, { color: MEDAL_COLORS[2] }]}>{item.score}</Text>
+                      <Text style={[styles.podiumPts, { color: themeColors.textTertiary }]}>{t("leaderboard.points_short")}</Text>
+                      <Text style={[styles.podiumStat, { color: themeColors.textSecondary }]}>
+                        {item.completedCount} {t("leaderboard.completions")}
+                      </Text>
+                    </TouchableOpacity>
+                  );
+                })() : <View style={styles.podiumCardEmpty} />}
+              </View>
+
+              {/* ── Restliche Plätze (ab Platz 4) ──────────────────────── */}
+              {rest.length > 0 && (
+                <View style={[styles.restList, { backgroundColor: themeColors.card }]}>
+                  {rest.map((item, idx) => {
+                    const index = idx + 3;
+                    const isMe = user?.role === "mentor" && item.mentorId === user.id;
+                    return (
+                      <TouchableOpacity
+                        key={item.mentorId}
+                        style={[
+                          styles.rankRow,
+                          idx < rest.length - 1 ? [styles.rankRowBorder, { borderBottomColor: themeColors.border }] : {},
+                          isMe ? [styles.rankRowHighlight, { borderWidth: 2, borderColor: COLORS.gold, borderRadius: 6 }] : {},
+                        ]}
+                        onPress={() =>
+                          router.push({ pathname: "/mentor/[id]", params: { id: item.mentorId } })
+                        }
+                      >
+                        <View style={[styles.rankBadge, { backgroundColor: themeColors.background }]}>
+                          <Text style={[styles.rankBadgeTextDark, { color: isMe ? COLORS.gold : themeColors.textSecondary }]}>
+                            {index + 1}
+                          </Text>
+                        </View>
+
+                        <View style={styles.rankInfo}>
+                          <View style={styles.rankNameRow}>
+                            <Text style={[styles.rankName, { color: themeColors.text }]}>{item.name}</Text>
+                            {isMe && (
+                              <View style={[styles.meChip, { backgroundColor: isDark ? "#1e2d4a" : "#dbeafe" }]}>
+                                <Text style={[styles.meChipText, { color: isDark ? "#93c5fd" : "#1d4ed8" }]}>{t("leaderboard.you")}</Text>
+                              </View>
+                            )}
+                          </View>
+                          <Text style={[styles.rankSub, { color: themeColors.textTertiary }]}>
+                            {item.city} · {item.gender === "male" ? t("leaderboard.brother") : t("leaderboard.sister")}
+                          </Text>
+                          <Text style={[styles.rankDetail, { color: themeColors.textSecondary }]}>
+                            {item.completedCount} {t("leaderboard.completions")} · {item.sessionCount} {t("leaderboard.sessions")}
+                          </Text>
+                        </View>
+
+                        <View style={styles.scoreBox}>
+                          <Text style={[styles.scoreValue, { color: isMe ? COLORS.gold : themeColors.text }]}>
+                            {item.score}
+                          </Text>
+                          <Text style={[styles.scoreLabel, { color: themeColors.textTertiary }]}>{t("leaderboard.points_short")}</Text>
+                        </View>
+                      </TouchableOpacity>
+                    );
+                  })}
+                </View>
+              )}
+
+              {/* Leere Rangliste */}
+              {ranked.length === 0 && (
+                <View style={[styles.card, { backgroundColor: themeColors.card }]}>
+                  <View style={styles.emptyStateContainer}>
+                    <Text style={[styles.emptyStateText, { color: themeColors.textTertiary }]}>{t("leaderboard.noMentorsYet")}</Text>
+                  </View>
+                </View>
+              )}
             </View>
           )}
-
-          {/* Rangliste */}
-          <View style={[styles.card, { backgroundColor: themeColors.card }]}>
-            <Text style={[styles.cardTitle, { color: themeColors.text }]}>{listTitle}</Text>
-            {ranked.length === 0 ? (
-              <View style={styles.emptyStateContainer}>
-                <Text style={[styles.emptyStateText, { color: themeColors.textTertiary }]}>{t("leaderboard.noMentorsYet")}</Text>
-              </View>
-            ) : (
-              ranked.map((item, index) => {
-                const isTop3 = index < 3;
-                const isMe = user?.role === "mentor" && item.mentorId === user.id;
-                const medalColor = isTop3 ? MEDAL_COLORS[index] : undefined;
-
-                return (
-                  <TouchableOpacity
-                    key={item.mentorId}
-                    style={[
-                      styles.rankRow,
-                      index < ranked.length - 1 ? [styles.rankRowBorder, { borderBottomColor: themeColors.border }] : {},
-                      isMe ? [styles.rankRowHighlight, { backgroundColor: themeColors.background }] : {},
-                    ]}
-                    onPress={() =>
-                      router.push({ pathname: "/mentor/[id]", params: { id: item.mentorId } })
-                    }
-                  >
-                    <View
-                      style={[
-                        styles.rankBadge,
-                        isTop3
-                          ? { backgroundColor: medalColor }
-                          : { backgroundColor: themeColors.background },
-                      ]}
-                    >
-                      {isTop3 ? (
-                        <Text style={styles.rankBadgeTextWhite}>
-                          {MEDAL_EMOJIS[index]}
-                        </Text>
-                      ) : (
-                        <Text style={[styles.rankBadgeTextDark, { color: themeColors.textSecondary }]}>{index + 1}</Text>
-                      )}
-                    </View>
-
-                    <View style={styles.rankInfo}>
-                      <View style={styles.rankNameRow}>
-                        <Text style={[styles.rankName, { color: themeColors.text }]}>{item.name}</Text>
-                        {isMe && (
-                          <View style={[styles.meChip, { backgroundColor: isDark ? "#1e2d4a" : "#dbeafe" }]}>
-                            <Text style={[styles.meChipText, { color: isDark ? "#93c5fd" : "#1d4ed8" }]}>{t("leaderboard.you")}</Text>
-                          </View>
-                        )}
-                        {isTop3 && (
-                          <View style={[styles.medalChip, { backgroundColor: medalColor }]}>
-                            <Text style={styles.medalChipText}>{[t("leaderboard.medalGold"), t("leaderboard.medalSilver"), t("leaderboard.medalBronze")][index]}</Text>
-                          </View>
-                        )}
-                      </View>
-                      <Text style={[styles.rankSub, { color: themeColors.textTertiary }]}>
-                        {item.city} · {item.gender === "male" ? t("leaderboard.brother") : t("leaderboard.sister")}
-                      </Text>
-                      <Text style={[styles.rankDetail, { color: themeColors.textSecondary }]}>
-                        {item.completedCount} {t("leaderboard.completions")} · {item.sessionCount} {t("leaderboard.sessions")}
-                      </Text>
-                    </View>
-
-                    <View style={styles.scoreBox}>
-                      <Text
-                        style={[
-                          styles.scoreValue,
-                          isTop3 ? { color: medalColor } : { color: themeColors.text },
-                        ]}
-                      >
-                        {item.score}
-                      </Text>
-                      <Text style={[styles.scoreLabel, { color: themeColors.textTertiary }]}>{t("leaderboard.points_short")}</Text>
-                    </View>
-                  </TouchableOpacity>
-                );
-              })
-            )}
-          </View>
 
           {/* Legende */}
           <View style={[styles.legendCard, { backgroundColor: themeColors.card }]}>
@@ -417,6 +513,88 @@ const styles = StyleSheet.create({
   page: { padding: 24 },
   pageTitle: { fontSize: 28, fontWeight: "700", marginBottom: 4 },
   pageSubtitle: { marginBottom: 24, fontSize: 13 },
+
+  // KPI-Cards (eigene Position)
+  kpiRow: { flexDirection: "row", gap: 8, marginBottom: 16, flexWrap: "wrap" },
+  kpiCard: {
+    flex: 1,
+    minWidth: 70,
+    borderRadius: 8,
+    borderWidth: 1,
+    padding: 12,
+    alignItems: "center",
+  },
+  kpiLabel: { fontSize: 10, fontWeight: "600", letterSpacing: 0.5, textAlign: "center", marginBottom: 4 },
+  kpiValue: { fontSize: 22, fontWeight: "700" },
+
+  // Podium
+  podiumContainer: { marginBottom: 16 },
+  podiumRow: {
+    flexDirection: "row",
+    alignItems: "flex-end",
+    justifyContent: "center",
+    gap: 8,
+    marginBottom: 16,
+  },
+  podiumCard: {
+    borderRadius: 12,
+    borderWidth: 2,
+    padding: 12,
+    alignItems: "center",
+    flex: 1,
+  },
+  podiumCard1: {
+    // Platz 1: größte Karte
+    paddingVertical: 20,
+    marginBottom: 0,
+    shadowColor: "#EEA71B",
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3,
+    shadowRadius: 12,
+    elevation: 6,
+  },
+  podiumCard2: {
+    // Platz 2: etwas kleiner
+    marginBottom: 16,
+    opacity: 0.95,
+  },
+  podiumCard3: {
+    // Platz 3: etwas kleiner
+    marginBottom: 16,
+    opacity: 0.95,
+  },
+  podiumCardEmpty: { flex: 1 },
+  podiumCardMe: {
+    borderWidth: 3,
+    shadowColor: COLORS.gold,
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.4,
+    shadowRadius: 10,
+    elevation: 6,
+  },
+  podiumCrown: { fontSize: 20, marginBottom: 2 },
+  podiumEmoji: { fontSize: 24, marginBottom: 4 },
+  podiumEmoji1: { fontSize: 28, marginBottom: 6 },
+  podiumName: { fontSize: 12, fontWeight: "600", textAlign: "center", marginBottom: 2 },
+  podiumName1: { fontSize: 14, fontWeight: "700", textAlign: "center", marginBottom: 2 },
+  podiumCity: { fontSize: 10, textAlign: "center", marginBottom: 6 },
+  podiumScore: { fontSize: 22, fontWeight: "700" },
+  podiumScore1: { fontSize: 28, fontWeight: "700" },
+  podiumPts: { fontSize: 10, marginBottom: 4 },
+  podiumStats1Row: { flexDirection: "row", alignItems: "center", gap: 4, flexWrap: "wrap", justifyContent: "center" },
+  podiumStatSep: { fontSize: 10 },
+  podiumStat: { fontSize: 10, textAlign: "center" },
+
+  // Rest-Liste (ab Platz 4)
+  restList: {
+    borderRadius: 8,
+    padding: 8,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.08,
+    shadowRadius: 8,
+    elevation: 2,
+  },
 
   filterCard: {
     borderRadius: 8,

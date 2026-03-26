@@ -11,6 +11,7 @@ import {
   Platform,
   Modal,
   KeyboardAvoidingView,
+  useWindowDimensions,
 } from "react-native";
 import { useRouter } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
@@ -586,8 +587,10 @@ function MentorMenteesView() {
   const themeColors = useThemeColors();
   const { isDark } = useTheme();
   const { getMentorshipsByMentorId, getCompletedStepIds, sessionTypes, refreshData } = useData();
+  const { width } = useWindowDimensions();
   const [refreshing, setRefreshing] = useState(false);
   const [activeTab, setActiveTab] = useState<"active" | "completed">("active");
+  const [selectedMentorshipId, setSelectedMentorshipId] = useState<string | null>(null);
   const onRefresh = useCallback(async () => {
     setRefreshing(true);
     await refreshData();
@@ -606,123 +609,266 @@ function MentorMenteesView() {
   const activeMentorships = myMentorships.filter((m) => m.status === "active");
   const completedMentorships = myMentorships.filter((m) => m.status === "completed");
 
+  const isWide = Platform.OS === "web" && width > 768;
+  const selectedMentorship = selectedMentorshipId
+    ? myMentorships.find((m) => m.id === selectedMentorshipId) ?? null
+    : null;
+
+  // Linke Liste (kompakte Cards für Web-Split, normale Cards für Mobile)
+  function renderList() {
+    if (activeTab === "active") {
+      return (
+        <>
+          {/* Mentor kann selbst Mentee übernehmen */}
+          <TouchableOpacity
+            style={styles.selfAssignButton}
+            onPress={() => router.push("/assign")}
+          >
+            <Text style={styles.selfAssignText}>{t("mentees.takeMentee")}</Text>
+          </TouchableOpacity>
+
+          {activeMentorships.length === 0 ? (
+            <View style={[styles.emptyCard, { backgroundColor: themeColors.card }]}>
+              <Ionicons name="people-outline" size={36} color={themeColors.textTertiary} style={{ marginBottom: 12 }} />
+              <Text style={[styles.meneeName, { textAlign: "center", marginBottom: 8, color: themeColors.text }]}>
+                {t("mentees.noMenteesYet")}
+              </Text>
+              <Text style={[styles.emptyText, { marginTop: 0, marginBottom: 12, color: themeColors.textTertiary }]}>
+                {t("mentees.noMenteesText")}
+              </Text>
+              <TouchableOpacity
+                style={{ backgroundColor: COLORS.gradientStart, borderRadius: 5, paddingVertical: 9, paddingHorizontal: 20 }}
+                onPress={() => router.push("/assign")}
+              >
+                <Text style={{ color: COLORS.white, fontWeight: "600", fontSize: 14 }}>
+                  {t("mentees.takeMenteeButton")}
+                </Text>
+              </TouchableOpacity>
+            </View>
+          ) : (
+            activeMentorships.map((mentorship) => {
+              if (isWide) {
+                const completedSteps = getCompletedStepIds(mentorship.id);
+                const progress = sessionTypes.length > 0
+                  ? Math.round((completedSteps.length / sessionTypes.length) * 100)
+                  : 0;
+                const isSelected = selectedMentorshipId === mentorship.id;
+                return (
+                  <TouchableOpacity
+                    key={mentorship.id}
+                    style={[
+                      styles.mentorSplitCard,
+                      { backgroundColor: themeColors.card, borderColor: isSelected ? COLORS.gold : themeColors.border },
+                      isSelected && styles.mentorSplitCardSelected,
+                    ]}
+                    onPress={() => setSelectedMentorshipId(mentorship.id)}
+                  >
+                    <View style={{ flexDirection: "row", alignItems: "center", justifyContent: "space-between", marginBottom: 6 }}>
+                      <Text style={[styles.mentorSplitName, { color: themeColors.text }]} numberOfLines={1}>
+                        {mentorship.mentee?.name}
+                      </Text>
+                      <View style={[styles.mentorSplitStatus, { backgroundColor: isDark ? "#2A3A28" : "#dcfce7" }]}>
+                        <Text style={[styles.mentorSplitStatusText, { color: isDark ? "#4ade80" : "#15803d" }]}>
+                          {t("mentees.active")}
+                        </Text>
+                      </View>
+                    </View>
+                    <Text style={[styles.mentorSplitCity, { color: themeColors.textTertiary }]} numberOfLines={1}>
+                      {mentorship.mentee?.city} · {mentorship.mentee?.age} J.
+                    </Text>
+                    <View style={styles.mentorSplitProgressRow}>
+                      <View style={[styles.mentorSplitTrack, { backgroundColor: isDark ? "#2A2520" : themeColors.border }]}>
+                        <View style={[styles.mentorSplitFill, { width: `${progress}%` as any }]} />
+                      </View>
+                      <Text style={[styles.mentorSplitProgressText, { color: themeColors.textSecondary }]}>
+                        {completedSteps.length}/{sessionTypes.length}
+                      </Text>
+                    </View>
+                  </TouchableOpacity>
+                );
+              }
+              return <MentorMenteeCard key={mentorship.id} mentorship={mentorship} />;
+            })
+          )}
+        </>
+      );
+    }
+
+    // Abgeschlossene Tab
+    return (
+      <>
+        {completedMentorships.length === 0 ? (
+          <View style={[styles.emptyCard, { backgroundColor: themeColors.card }]}>
+            <Ionicons name="checkmark-circle-outline" size={36} color={themeColors.textTertiary} style={{ marginBottom: 12 }} />
+            <Text style={[styles.emptyText, { marginTop: 0, color: themeColors.textTertiary }]}>
+              {t("mentees.noCompletedYet")}
+            </Text>
+          </View>
+        ) : (
+          completedMentorships.map((mentorship) => {
+            const completedSteps = getCompletedStepIds(mentorship.id);
+            if (isWide) {
+              const isSelected = selectedMentorshipId === mentorship.id;
+              return (
+                <TouchableOpacity
+                  key={mentorship.id}
+                  style={[
+                    styles.mentorSplitCard,
+                    { backgroundColor: themeColors.card, borderColor: isSelected ? COLORS.gold : isDark ? "#2d6a4a" : "#bbf7d0" },
+                    isSelected && styles.mentorSplitCardSelected,
+                  ]}
+                  onPress={() => setSelectedMentorshipId(mentorship.id)}
+                >
+                  <View style={{ flexDirection: "row", alignItems: "center", justifyContent: "space-between", marginBottom: 4 }}>
+                    <Text style={[styles.mentorSplitName, { color: themeColors.text }]} numberOfLines={1}>
+                      {mentorship.mentee?.name}
+                    </Text>
+                    <View style={[styles.mentorSplitStatus, { backgroundColor: isDark ? "#1a3a2a" : "#dcfce7" }]}>
+                      <Text style={[styles.mentorSplitStatusText, { color: isDark ? "#4ade80" : "#15803d" }]}>
+                        {t("mentees.completedStatus")}
+                      </Text>
+                    </View>
+                  </View>
+                  {mentorship.completed_at && (
+                    <Text style={[styles.mentorSplitCity, { color: themeColors.textTertiary }]}>
+                      {new Date(mentorship.completed_at).toLocaleDateString("de-DE")}
+                    </Text>
+                  )}
+                  <Text style={[styles.mentorSplitProgressText, { color: themeColors.textSecondary, marginTop: 4 }]}>
+                    {completedSteps.length}/{sessionTypes.length} Schritte
+                  </Text>
+                </TouchableOpacity>
+              );
+            }
+            return (
+              <TouchableOpacity
+                key={mentorship.id}
+                style={[styles.completedCompactCard, { backgroundColor: themeColors.card, borderColor: isDark ? "#2d6a4a" : "#bbf7d0" }]}
+                onPress={() => router.push({ pathname: "/mentorship/[id]", params: { id: mentorship.id } })}
+              >
+                <View style={styles.completedCardRow}>
+                  <View style={{ flex: 1 }}>
+                    <Text style={[styles.completedCardName, { color: themeColors.text }]}>{mentorship.mentee?.name}</Text>
+                    {mentorship.completed_at && (
+                      <Text style={[styles.completedCardDate, { color: themeColors.textTertiary }]}>
+                        {new Date(mentorship.completed_at).toLocaleDateString("de-DE")}
+                      </Text>
+                    )}
+                  </View>
+                  <View style={styles.completedCardRight}>
+                    <View style={[styles.completedBadge, { backgroundColor: isDark ? "#1a3a2a" : "#dcfce7" }]}>
+                      <Text style={[styles.completedBadgeText, { color: isDark ? "#4ade80" : "#15803d" }]}>
+                        {completedSteps.length}/{sessionTypes.length}
+                      </Text>
+                    </View>
+                    <Text style={[styles.completedArrow, { color: themeColors.textTertiary }]}>›</Text>
+                  </View>
+                </View>
+              </TouchableOpacity>
+            );
+          })
+        )}
+      </>
+    );
+  }
+
+  const headerAndTabs = (
+    <>
+      <Text style={[styles.pageTitle, { color: themeColors.text }]}>{t("mentees.myMentees")}</Text>
+      <Text style={[styles.pageSubtitle, { color: themeColors.textSecondary }]}>
+        {activeMentorships.length} {t("mentees.activeMentorships")}
+      </Text>
+
+      {/* Tab-Switcher: Aktiv | Abgeschlossen */}
+      <View style={[styles.tabSwitcher, { backgroundColor: themeColors.card, borderColor: themeColors.border }]}>
+        <TouchableOpacity
+          style={[styles.tabSwitcherBtn, activeTab === "active" && styles.tabSwitcherBtnActive]}
+          onPress={() => { setActiveTab("active"); setSelectedMentorshipId(null); }}
+        >
+          <Text style={[styles.tabSwitcherText, activeTab === "active" ? styles.tabSwitcherTextActive : { color: themeColors.textSecondary }]}>
+            {t("mentees.active")}
+            {activeMentorships.length > 0 && (
+              <Text style={[styles.tabSwitcherCount, activeTab === "active" ? { color: COLORS.white } : { color: themeColors.textTertiary }]}>
+                {" "}{activeMentorships.length}
+              </Text>
+            )}
+          </Text>
+        </TouchableOpacity>
+        <TouchableOpacity
+          style={[styles.tabSwitcherBtn, activeTab === "completed" && styles.tabSwitcherBtnActive]}
+          onPress={() => { setActiveTab("completed"); setSelectedMentorshipId(null); }}
+        >
+          <Text style={[styles.tabSwitcherText, activeTab === "completed" ? styles.tabSwitcherTextActive : { color: themeColors.textSecondary }]}>
+            {t("mentees.completedStatus")}
+            {completedMentorships.length > 0 && (
+              <Text style={[styles.tabSwitcherCount, activeTab === "completed" ? { color: COLORS.white } : { color: themeColors.textTertiary }]}>
+                {" "}{completedMentorships.length}
+              </Text>
+            )}
+          </Text>
+        </TouchableOpacity>
+      </View>
+    </>
+  );
+
+  if (isWide) {
+    return (
+      <View style={[styles.splitContainer, { backgroundColor: themeColors.background }]}>
+        {/* Linke Spalte: Liste */}
+        <View style={[styles.splitLeft, { borderRightColor: themeColors.border }]}>
+          <ScrollView
+            style={[styles.scrollView, { backgroundColor: themeColors.background }]}
+            refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor={COLORS.gold} />}
+          >
+            <View style={styles.splitLeftInner}>
+              {headerAndTabs}
+              {renderList()}
+            </View>
+          </ScrollView>
+        </View>
+
+        {/* Rechte Spalte: Detail */}
+        <View style={[styles.splitRight, { backgroundColor: themeColors.background }]}>
+          {selectedMentorship ? (
+            <ScrollView style={{ flex: 1 }}>
+              <View style={{ padding: 24 }}>
+                {/* Kopf-Zeile mit "Öffnen" Button */}
+                <View style={{ flexDirection: "row", alignItems: "center", justifyContent: "space-between", marginBottom: 16 }}>
+                  <Text style={[{ fontSize: 20, fontWeight: "700", color: themeColors.text }]}>
+                    {selectedMentorship.mentee?.name}
+                  </Text>
+                  <TouchableOpacity
+                    style={[styles.splitOpenBtn, { backgroundColor: COLORS.gradientStart }]}
+                    onPress={() => router.push({ pathname: "/mentorship/[id]", params: { id: selectedMentorship.id } })}
+                  >
+                    <Text style={styles.splitOpenBtnText}>Vollansicht ›</Text>
+                  </TouchableOpacity>
+                </View>
+                <MentorMenteeCard mentorship={selectedMentorship} />
+              </View>
+            </ScrollView>
+          ) : (
+            <View style={styles.splitEmptyRight}>
+              <Ionicons name="people-outline" size={48} color={themeColors.textTertiary} style={{ marginBottom: 12 }} />
+              <Text style={[styles.splitEmptyText, { color: themeColors.textTertiary }]}>
+                Mentee auswählen
+              </Text>
+            </View>
+          )}
+        </View>
+      </View>
+    );
+  }
+
+  // Mobile: wie bisher
   return (
     <ScrollView
       style={[styles.scrollView, { backgroundColor: themeColors.background }]}
       refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor={COLORS.gold} />}
     >
       <View style={styles.page}>
-        <Text style={[styles.pageTitle, { color: themeColors.text }]}>{t("mentees.myMentees")}</Text>
-        <Text style={[styles.pageSubtitle, { color: themeColors.textSecondary }]}>
-          {activeMentorships.length} {t("mentees.activeMentorships")}
-        </Text>
-
-        {/* Tab-Switcher: Aktiv | Abgeschlossen */}
-        <View style={[styles.tabSwitcher, { backgroundColor: themeColors.card, borderColor: themeColors.border }]}>
-          <TouchableOpacity
-            style={[styles.tabSwitcherBtn, activeTab === "active" && styles.tabSwitcherBtnActive]}
-            onPress={() => setActiveTab("active")}
-          >
-            <Text style={[styles.tabSwitcherText, activeTab === "active" ? styles.tabSwitcherTextActive : { color: themeColors.textSecondary }]}>
-              {t("mentees.active")}
-              {activeMentorships.length > 0 && (
-                <Text style={[styles.tabSwitcherCount, activeTab === "active" ? { color: COLORS.white } : { color: themeColors.textTertiary }]}>
-                  {" "}{activeMentorships.length}
-                </Text>
-              )}
-            </Text>
-          </TouchableOpacity>
-          <TouchableOpacity
-            style={[styles.tabSwitcherBtn, activeTab === "completed" && styles.tabSwitcherBtnActive]}
-            onPress={() => setActiveTab("completed")}
-          >
-            <Text style={[styles.tabSwitcherText, activeTab === "completed" ? styles.tabSwitcherTextActive : { color: themeColors.textSecondary }]}>
-              {t("mentees.completedStatus")}
-              {completedMentorships.length > 0 && (
-                <Text style={[styles.tabSwitcherCount, activeTab === "completed" ? { color: COLORS.white } : { color: themeColors.textTertiary }]}>
-                  {" "}{completedMentorships.length}
-                </Text>
-              )}
-            </Text>
-          </TouchableOpacity>
-        </View>
-
-        {activeTab === "active" ? (
-          <>
-            {/* Mentor kann selbst Mentee übernehmen */}
-            <TouchableOpacity
-              style={styles.selfAssignButton}
-              onPress={() => router.push("/assign")}
-            >
-              <Text style={styles.selfAssignText}>{t("mentees.takeMentee")}</Text>
-            </TouchableOpacity>
-
-            {activeMentorships.length === 0 ? (
-              <View style={[styles.emptyCard, { backgroundColor: themeColors.card }]}>
-                <Ionicons name="people-outline" size={36} color={themeColors.textTertiary} style={{ marginBottom: 12 }} />
-                <Text style={[styles.meneeName, { textAlign: "center", marginBottom: 8, color: themeColors.text }]}>
-                  {t("mentees.noMenteesYet")}
-                </Text>
-                <Text style={[styles.emptyText, { marginTop: 0, marginBottom: 12, color: themeColors.textTertiary }]}>
-                  {t("mentees.noMenteesText")}
-                </Text>
-                <TouchableOpacity
-                  style={{ backgroundColor: COLORS.gradientStart, borderRadius: 5, paddingVertical: 9, paddingHorizontal: 20 }}
-                  onPress={() => router.push("/assign")}
-                >
-                  <Text style={{ color: COLORS.white, fontWeight: "600", fontSize: 14 }}>
-                    {t("mentees.takeMenteeButton")}
-                  </Text>
-                </TouchableOpacity>
-              </View>
-            ) : (
-              activeMentorships.map((mentorship) => (
-                <MentorMenteeCard key={mentorship.id} mentorship={mentorship} />
-              ))
-            )}
-          </>
-        ) : (
-          <>
-            {completedMentorships.length === 0 ? (
-              <View style={[styles.emptyCard, { backgroundColor: themeColors.card }]}>
-                <Ionicons name="checkmark-circle-outline" size={36} color={themeColors.textTertiary} style={{ marginBottom: 12 }} />
-                <Text style={[styles.emptyText, { marginTop: 0, color: themeColors.textTertiary }]}>
-                  {t("mentees.noCompletedYet")}
-                </Text>
-              </View>
-            ) : (
-              completedMentorships.map((mentorship) => {
-                const completedSteps = getCompletedStepIds(mentorship.id);
-                return (
-                  <TouchableOpacity
-                    key={mentorship.id}
-                    style={[styles.completedCompactCard, { backgroundColor: themeColors.card, borderColor: isDark ? "#2d6a4a" : "#bbf7d0" }]}
-                    onPress={() => router.push({ pathname: "/mentorship/[id]", params: { id: mentorship.id } })}
-                  >
-                    <View style={styles.completedCardRow}>
-                      <View style={{ flex: 1 }}>
-                        <Text style={[styles.completedCardName, { color: themeColors.text }]}>{mentorship.mentee?.name}</Text>
-                        {mentorship.completed_at && (
-                          <Text style={[styles.completedCardDate, { color: themeColors.textTertiary }]}>
-                            {new Date(mentorship.completed_at).toLocaleDateString("de-DE")}
-                          </Text>
-                        )}
-                      </View>
-                      <View style={styles.completedCardRight}>
-                        <View style={[styles.completedBadge, { backgroundColor: isDark ? "#1a3a2a" : "#dcfce7" }]}>
-                          <Text style={[styles.completedBadgeText, { color: isDark ? "#4ade80" : "#15803d" }]}>
-                            {completedSteps.length}/{sessionTypes.length}
-                          </Text>
-                        </View>
-                        <Text style={[styles.completedArrow, { color: themeColors.textTertiary }]}>›</Text>
-                      </View>
-                    </View>
-                  </TouchableOpacity>
-                );
-              })
-            )}
-          </>
-        )}
+        {headerAndTabs}
+        {renderList()}
       </View>
     </ScrollView>
   );
@@ -1033,6 +1179,35 @@ const styles = StyleSheet.create({
   scrollView: { flex: 1 },
   page: { padding: 20 },
   titleRow: { flexDirection: "row", alignItems: "flex-start", justifyContent: "space-between", marginBottom: 16 },
+
+  // Split-Layout (Web >768px)
+  splitContainer: { flex: 1, flexDirection: "row" },
+  splitLeft: { width: "40%", borderRightWidth: 1 },
+  splitLeftInner: { padding: 20 },
+  splitRight: { flex: 1 },
+  splitEmptyRight: { flex: 1, alignItems: "center", justifyContent: "center" },
+  splitEmptyText: { fontSize: 15 },
+  splitOpenBtn: { borderRadius: 6, paddingHorizontal: 12, paddingVertical: 7 },
+  splitOpenBtnText: { color: COLORS.white, fontSize: 13, fontWeight: "600" },
+
+  // Kompakte Mentor-Karten für linke Spalte (Web)
+  mentorSplitCard: {
+    borderRadius: 8,
+    borderWidth: 1,
+    padding: 12,
+    marginBottom: 8,
+  },
+  mentorSplitCardSelected: {
+    borderWidth: 2,
+  },
+  mentorSplitName: { fontSize: 14, fontWeight: "600", flex: 1, marginRight: 8 },
+  mentorSplitCity: { fontSize: 12, marginBottom: 8 },
+  mentorSplitStatus: { borderRadius: 4, paddingHorizontal: 8, paddingVertical: 2 },
+  mentorSplitStatusText: { fontSize: 11, fontWeight: "600" },
+  mentorSplitProgressRow: { flexDirection: "row", alignItems: "center", gap: 8 },
+  mentorSplitTrack: { flex: 1, height: 4, borderRadius: 2, overflow: "hidden" },
+  mentorSplitFill: { height: 4, backgroundColor: COLORS.gold, borderRadius: 2 },
+  mentorSplitProgressText: { fontSize: 11 },
 
   // Multi-Select & Modal Styles
   selectBar: {
