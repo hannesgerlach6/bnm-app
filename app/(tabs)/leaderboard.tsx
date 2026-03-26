@@ -230,14 +230,16 @@ export default function LeaderboardScreen() {
             </TouchableOpacity>
           </View>
 
-          {/* Suche nach Mentor-Name */}
-          <TextInput
-            style={[styles.searchInput, { backgroundColor: themeColors.card, color: themeColors.text, borderColor: themeColors.border }]}
-            placeholder={t("leaderboard.searchPlaceholder")}
-            placeholderTextColor={themeColors.textTertiary}
-            value={search}
-            onChangeText={setSearch}
-          />
+          {/* Suche — nur für Admin */}
+          {isAdmin && (
+            <TextInput
+              style={[styles.searchInput, { backgroundColor: themeColors.card, color: themeColors.text, borderColor: themeColors.border }]}
+              placeholder={t("leaderboard.searchPlaceholder")}
+              placeholderTextColor={themeColors.textTertiary}
+              value={search}
+              onChangeText={setSearch}
+            />
+          )}
 
           {/* Admin-Filter für Geschlecht */}
           {isAdmin && (
