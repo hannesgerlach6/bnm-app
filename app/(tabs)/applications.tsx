@@ -354,6 +354,7 @@ function ApplicationCard({
   const { t } = useLanguage();
   const themeColors = useThemeColors();
   const { isDark } = useTheme();
+  const [expanded, setExpanded] = useState(false);
   const isPending = application.status === "pending";
   const isApproved = application.status === "approved";
 
@@ -373,105 +374,126 @@ function ApplicationCard({
   const approveLabel = type === "mentor" ? t("applications.approve") : t("applications.createAccount");
   const approveColor = type === "mentor" ? COLORS.cta : COLORS.gradientStart;
 
+  const submittedDate = new Date(application.submitted_at).toLocaleDateString("de-DE", {
+    day: "2-digit",
+    month: "2-digit",
+    year: "numeric",
+  });
+
   return (
     <View style={[styles.card, { backgroundColor: themeColors.card, borderColor: themeColors.border }]}>
-      {/* Header */}
-      <View style={styles.cardHeader}>
+      {/* Kompakte Übersichtszeile — immer sichtbar */}
+      <TouchableOpacity
+        style={styles.cardSummaryRow}
+        onPress={() => setExpanded((v) => !v)}
+        activeOpacity={0.75}
+      >
         <View style={{ flex: 1 }}>
-          <Text style={[styles.applicantName, { color: themeColors.text }]}>{application.name}</Text>
-          <Text style={[styles.applicantSub, { color: themeColors.textTertiary }]}>
-            {application.city} · {genderLabel} · {application.age} {t("common.yearsOld")}
+          <View style={{ flexDirection: "row", alignItems: "center", gap: 8, flexWrap: "wrap" }}>
+            <Text style={[styles.applicantName, { color: themeColors.text }]}>{application.name}</Text>
+            <View style={[styles.statusBadge, { backgroundColor: statusBg }]}>
+              <Text style={[styles.statusText, { color: statusColor }]}>{statusLabel}</Text>
+            </View>
+          </View>
+          <Text style={[styles.applicantSummary, { color: themeColors.textTertiary }]}>
+            {application.email} · {application.city} · {submittedDate}
           </Text>
         </View>
-        <View style={[styles.statusBadge, { backgroundColor: statusBg }]}>
-          <Text style={[styles.statusText, { color: statusColor }]}>{statusLabel}</Text>
-        </View>
-      </View>
+        <Text style={[styles.accordionArrow, { color: themeColors.textTertiary }]}>
+          {expanded ? "▲" : "▼"}
+        </Text>
+      </TouchableOpacity>
 
-      {/* Kontakt-Info */}
-      <View style={[styles.infoSection, { backgroundColor: themeColors.background }]}>
-        <InfoLine label={t("applications.emailLabel")} value={application.email} />
-        {application.phone ? <InfoLine label={t("applications.phoneLabel")} value={application.phone} /> : null}
-        <InfoLine
-          label={t("applications.contactLabel")}
-          value={contactLabels[application.contact_preference] ?? application.contact_preference}
-        />
-        <InfoLine
-          label={t("applications.submittedLabel")}
-          value={new Date(application.submitted_at).toLocaleDateString("de-DE", {
-            day: "2-digit",
-            month: "long",
-            year: "numeric",
-          })}
-        />
-      </View>
-
-      {/* Erfahrung / Motivation (nur für Mentor-Bewerbungen) */}
-      {type === "mentor" && (
+      {/* Detail-Bereich — nur bei expanded sichtbar */}
+      {expanded && (
         <>
-          {application.experience ? (() => {
-            const extraData = parseExtraData(application.experience);
-            const extraLabels: Record<string, string> = {
-              hoursPerWeek: t("applications.extraHoursPerWeek"),
-              driversLicense: t("applications.extraDriversLicense"),
-              travelTime: t("applications.extraTravelTime"),
-              qualification: t("applications.extraQualification"),
-              hasMentoredBefore: t("applications.extraHasMentoredBefore"),
-              mentoringExperience: t("applications.extraMentoringExperience"),
-              inOrganization: t("applications.extraInOrganization"),
-              organizationName: t("applications.extraOrganizationName"),
-              country: t("applications.extraCountry"),
-              birthdate: t("applications.extraBirthdate"),
-            };
-            if (extraData) {
-              return (
-                <View style={styles.textSection}>
-                  <Text style={[styles.textSectionLabel, { color: themeColors.textTertiary }]}>{t("applications.experience")}</Text>
-                  <View style={[styles.extraDataTable, { backgroundColor: themeColors.background }]}>
-                    {Object.entries(extraData).map(([key, val]) => (
-                      <View key={key} style={[styles.extraDataRow, { borderBottomColor: themeColors.border }]}>
-                        <Text style={[styles.extraDataLabel, { color: themeColors.textTertiary }]}>
-                          {extraLabels[key] ?? key}
-                        </Text>
-                        <Text style={[styles.extraDataValue, { color: themeColors.text }]}>
-                          {translateExtraValue(String(val))}
-                        </Text>
-                      </View>
-                    ))}
-                  </View>
-                </View>
-              );
-            }
-            return (
-              <View style={styles.textSection}>
-                <Text style={[styles.textSectionLabel, { color: themeColors.textTertiary }]}>{t("applications.experience")}</Text>
-                <Text style={[styles.textSectionContent, { color: themeColors.textSecondary }]}>{application.experience}</Text>
-              </View>
-            );
-          })() : null}
-          <View style={styles.textSection}>
-            <Text style={[styles.textSectionLabel, { color: themeColors.textTertiary }]}>{t("applications.motivation")}</Text>
-            <Text style={[styles.textSectionContent, { color: themeColors.textSecondary }]}>{application.motivation}</Text>
+          {/* Persönliche Infos */}
+          <View style={[styles.infoSection, { backgroundColor: themeColors.background }]}>
+            <InfoLine label={t("applications.emailLabel")} value={application.email} />
+            {application.phone ? <InfoLine label={t("applications.phoneLabel")} value={application.phone} /> : null}
+            <InfoLine
+              label={t("applications.contactLabel")}
+              value={contactLabels[application.contact_preference] ?? application.contact_preference}
+            />
+            <InfoLine label={t("applications.genderLabel")} value={`${genderLabel} · ${application.age} ${t("common.yearsOld")}`} />
+            <InfoLine
+              label={t("applications.submittedLabel")}
+              value={new Date(application.submitted_at).toLocaleDateString("de-DE", {
+                day: "2-digit",
+                month: "long",
+                year: "numeric",
+              })}
+            />
           </View>
-        </>
-      )}
 
-      {/* Aktions-Buttons (nur für offene Einträge) */}
-      {isPending && (
-        <View style={styles.actionRow}>
-          <TouchableOpacity
-            style={[styles.rejectButton, { backgroundColor: isDark ? "#3a1a1a" : "#fef2f2", borderColor: isDark ? "#7a2a2a" : "#fecaca" }]}
-            onPress={onReject}
-          >
-            <Text style={[styles.rejectButtonText, { color: isDark ? "#f87171" : "#dc2626" }]}>{t("applications.reject")}</Text>
-          </TouchableOpacity>
-          <TouchableOpacity
-            style={[styles.approveButton, { backgroundColor: approveColor }]}
-            onPress={onApprove}
-          >
-            <Text style={styles.approveButtonText}>{approveLabel}</Text>
-          </TouchableOpacity>
-        </View>
+          {/* Erfahrung / Motivation (nur für Mentor-Bewerbungen) */}
+          {type === "mentor" && (
+            <>
+              {application.experience ? (() => {
+                const extraData = parseExtraData(application.experience);
+                const extraLabels: Record<string, string> = {
+                  hoursPerWeek: t("applications.extraHoursPerWeek"),
+                  driversLicense: t("applications.extraDriversLicense"),
+                  travelTime: t("applications.extraTravelTime"),
+                  qualification: t("applications.extraQualification"),
+                  hasMentoredBefore: t("applications.extraHasMentoredBefore"),
+                  mentoringExperience: t("applications.extraMentoringExperience"),
+                  inOrganization: t("applications.extraInOrganization"),
+                  organizationName: t("applications.extraOrganizationName"),
+                  country: t("applications.extraCountry"),
+                  birthdate: t("applications.extraBirthdate"),
+                };
+                if (extraData) {
+                  return (
+                    <View style={styles.textSection}>
+                      <Text style={[styles.textSectionLabel, { color: themeColors.textTertiary }]}>{t("applications.experience")}</Text>
+                      <View style={[styles.extraDataTable, { backgroundColor: themeColors.background }]}>
+                        {Object.entries(extraData).map(([key, val]) => (
+                          <View key={key} style={[styles.extraDataRow, { borderBottomColor: themeColors.border }]}>
+                            <Text style={[styles.extraDataLabel, { color: themeColors.textTertiary }]}>
+                              {extraLabels[key] ?? key}
+                            </Text>
+                            <Text style={[styles.extraDataValue, { color: themeColors.text }]}>
+                              {translateExtraValue(String(val))}
+                            </Text>
+                          </View>
+                        ))}
+                      </View>
+                    </View>
+                  );
+                }
+                return (
+                  <View style={styles.textSection}>
+                    <Text style={[styles.textSectionLabel, { color: themeColors.textTertiary }]}>{t("applications.experience")}</Text>
+                    <Text style={[styles.textSectionContent, { color: themeColors.textSecondary }]}>{application.experience}</Text>
+                  </View>
+                );
+              })() : null}
+              <View style={styles.textSection}>
+                <Text style={[styles.textSectionLabel, { color: themeColors.textTertiary }]}>{t("applications.motivation")}</Text>
+                <Text style={[styles.textSectionContent, { color: themeColors.textSecondary }]}>{application.motivation}</Text>
+              </View>
+            </>
+          )}
+
+          {/* Aktions-Buttons (nur für offene Einträge) */}
+          {isPending && (
+            <View style={styles.actionRow}>
+              <TouchableOpacity
+                style={[styles.rejectButton, { backgroundColor: isDark ? "#3a1a1a" : "#fef2f2", borderColor: isDark ? "#7a2a2a" : "#fecaca" }]}
+                onPress={onReject}
+              >
+                <Text style={[styles.rejectButtonText, { color: isDark ? "#f87171" : "#dc2626" }]}>{t("applications.reject")}</Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={[styles.approveButton, { backgroundColor: approveColor }]}
+                onPress={onApprove}
+              >
+                <Text style={styles.approveButtonText}>{approveLabel}</Text>
+              </TouchableOpacity>
+            </View>
+          )}
+        </>
       )}
     </View>
   );
@@ -529,6 +551,12 @@ const styles = StyleSheet.create({
     padding: 14,
     marginBottom: 14,
   },
+  cardSummaryRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    gap: 8,
+  },
   cardHeader: {
     flexDirection: "row",
     alignItems: "flex-start",
@@ -536,13 +564,16 @@ const styles = StyleSheet.create({
     marginBottom: 12,
   },
   applicantName: { fontWeight: "bold", fontSize: 16 },
+  applicantSummary: { fontSize: 12, marginTop: 3 },
   applicantSub: { fontSize: 12, marginTop: 2 },
+  accordionArrow: { fontSize: 11, paddingHorizontal: 4 },
   statusBadge: { paddingHorizontal: 10, paddingVertical: 4, borderRadius: 9999 },
   statusText: { fontSize: 12, fontWeight: "600" },
 
   infoSection: {
     borderRadius: 8,
     padding: 10,
+    marginTop: 12,
     marginBottom: 10,
     gap: 5,
   },

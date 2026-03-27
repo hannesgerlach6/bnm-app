@@ -107,6 +107,7 @@ export interface DataContextValue {
   markAsRead: (notificationId: string) => Promise<void>;
   markAllAsRead: () => Promise<void>;
   getUnreadCount: () => number;
+  sendAdminDirectMessage: (recipientId: string, message: string) => Promise<void>;
 
   // Application actions
   approveApplication: (applicationId: string) => Promise<void>;
@@ -2079,6 +2080,18 @@ export function DataProvider({ children }: { children: ReactNode }) {
     );
   }, [mentorships]);
 
+  // ─── Admin-Direktnachricht (als Notification) ────────────────────────────────
+
+  const sendAdminDirectMessage = useCallback(async (recipientId: string, message: string) => {
+    const senderName = authUser?.name ?? "Admin";
+    await createNotification(
+      recipientId,
+      "system",
+      `Nachricht von ${senderName}`,
+      message
+    );
+  }, [authUser, createNotification]);
+
   // ─── Hadith Actions ───────────────────────────────────────────────────────────
 
   const addHadith = useCallback(async (text_ar: string, text_de: string, source: string) => {
@@ -2429,6 +2442,7 @@ export function DataProvider({ children }: { children: ReactNode }) {
         markAsRead,
         markAllAsRead,
         getUnreadCount,
+        sendAdminDirectMessage,
         approveApplication,
         rejectApplication,
         submitApplication,

@@ -1,4 +1,4 @@
-import React, { useMemo, useState, useCallback, useEffect } from "react";
+import React, { useMemo, useState, useCallback } from "react";
 import { useFocusEffect } from "@react-navigation/native";
 import {
   View,
@@ -29,20 +29,14 @@ import { BNMLogo } from "../../components/BNMLogo";
 export default function ProfileScreen() {
   const router = useRouter();
   const { user, logout } = useAuth();
-  const { getMentorshipsByMentorId, getMentorshipByMenteeId, sessions, users, mentorships, refreshData, updateSelfRating } = useData();
+  const { getMentorshipsByMentorId, getMentorshipByMenteeId, sessions, users, mentorships, refreshData } = useData();
   const { t } = useLanguage();
   const { mode, setMode, isDark } = useTheme();
   const themeColors = useThemeColors();
   const [refreshing, setRefreshing] = useState(false);
   const [showPrivacy, setShowPrivacy] = useState(false);
   const [showImprint, setShowImprint] = useState(false);
-  const [selfRating, setSelfRating] = useState<number>(user?.self_rating ?? 0);
-  const [savingRating, setSavingRating] = useState(false);
 
-  // Lokale Sterne mit User-Daten synchronisieren
-  useEffect(() => {
-    if (user?.self_rating != null) setSelfRating(user.self_rating);
-  }, [user?.self_rating]);
   const onRefresh = useCallback(async () => {
     setRefreshing(true);
     await refreshData();
@@ -134,17 +128,6 @@ export default function ProfileScreen() {
       });
     }
     if (ok) logout();
-  }
-
-  async function handleSaveRating(rating: number) {
-    if (!user) return;
-    setSelfRating(rating);
-    setSavingRating(true);
-    try {
-      await updateSelfRating(user.id, rating);
-    } finally {
-      setSavingRating(false);
-    }
   }
 
   const initials = user.name
@@ -291,34 +274,6 @@ export default function ProfileScreen() {
             <Text style={[styles.rankHint, { color: themeColors.textTertiary }]}>
               {t("profile.rankingOf").replace("{0}", String(mentorStats.totalMentors))}
             </Text>
-          </View>
-        )}
-
-        {/* Selbstbewertung — nur für Mentoren */}
-        {user.role === "mentor" && (
-          <View style={[styles.infoCard, { backgroundColor: themeColors.card }]}>
-            <Text style={[styles.sectionLabel, { color: themeColors.textTertiary }]}>{t("profile.selfRatingTitle")}</Text>
-            <Text style={[{ fontSize: 13, color: themeColors.textSecondary, marginBottom: 14 }]}>{t("profile.selfRatingHint")}</Text>
-            <View style={{ flexDirection: "row", justifyContent: "center", gap: 10, marginBottom: 12 }}>
-              {[1, 2, 3, 4, 5].map((star) => (
-                <TouchableOpacity
-                  key={star}
-                  onPress={() => handleSaveRating(star)}
-                  activeOpacity={0.7}
-                  disabled={savingRating}
-                  style={{ opacity: savingRating ? 0.5 : 1 }}
-                >
-                  <Text style={{ fontSize: 36, color: selfRating >= star ? COLORS.gold : (isDark ? "#3A3A3A" : "#D1D5DB") }}>
-                    ★
-                  </Text>
-                </TouchableOpacity>
-              ))}
-            </View>
-            {selfRating > 0 && (
-              <Text style={{ textAlign: "center", color: themeColors.textSecondary, fontSize: 13 }}>
-                {t("profile.selfRatingSelected").replace("{0}", String(selfRating))}
-              </Text>
-            )}
           </View>
         )}
 

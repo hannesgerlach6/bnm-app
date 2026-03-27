@@ -794,6 +794,7 @@ const tr: Record<TranslationKeys, string> = {
   "applications.emailLabel": "E-posta",
   "applications.phoneLabel": "Telefon",
   "applications.contactLabel": "İletişim",
+  "applications.genderLabel": "Cinsiyet / Yaş",
   "applications.submittedLabel": "Alındı",
   "applications.brother": "Kardeş",
   "applications.sister": "Kız Kardeş",
@@ -1628,6 +1629,21 @@ const tr: Record<TranslationKeys, string> = {
   "profile.selfRatingTitle": "Öz Değerlendirmem",
   "profile.selfRatingHint": "Mentor olarak kendi performansını nasıl değerlendiriyorsun?",
   "profile.selfRatingSelected": "5 üzerinden {0} yıldız",
+
+  // Admin-Direktnachricht
+  "adminMsg.title": "Mesaj Gönder",
+  "adminMsg.recipient": "Alıcı",
+  "adminMsg.placeholder": "Mesajınız...",
+  "adminMsg.send": "Gönder",
+  "adminMsg.sent": "Mesaj gönderildi",
+  "adminMsg.error": "Mesaj gönderilemedi",
+  "adminMsg.sendButton": "Mesaj gönder",
+
+  // Durma noktasına gelen mentörlükler
+  "adminReminder.title": "Durma Noktasına Gelen Mentörlükler",
+  "adminReminder.sendButton": "Hatırlatma Gönder",
+  "adminReminder.sent": "{0} kişisine hatırlatma gönderildi",
+  "adminReminder.reminderBody": "Lütfen {0} ile bir sonraki seansını belgelemeyi unutma. BNM ekibi düzenli güncellemeleri takdir eder.",
 };
 
 export default tr;

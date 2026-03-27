@@ -792,6 +792,7 @@ const de = {
   "applications.emailLabel": "E-Mail",
   "applications.phoneLabel": "Telefon",
   "applications.contactLabel": "Kontakt",
+  "applications.genderLabel": "Geschlecht / Alter",
   "applications.submittedLabel": "Eingegangen",
   "applications.brother": "Bruder",
   "applications.sister": "Schwester",
@@ -1630,6 +1631,21 @@ const de = {
   "profile.selfRatingTitle": "Meine Selbstbewertung",
   "profile.selfRatingHint": "Wie bewertest du deine eigene Leistung als Mentor?",
   "profile.selfRatingSelected": "{0} von 5 Sternen",
+
+  // Admin-Direktnachricht
+  "adminMsg.title": "Nachricht senden",
+  "adminMsg.recipient": "Empfänger",
+  "adminMsg.placeholder": "Deine Nachricht...",
+  "adminMsg.send": "Senden",
+  "adminMsg.sent": "Nachricht gesendet",
+  "adminMsg.error": "Nachricht konnte nicht gesendet werden",
+  "adminMsg.sendButton": "Nachricht senden",
+
+  // Stagnante Betreuungen
+  "adminReminder.title": "Ins Stocken geratene Betreuungen",
+  "adminReminder.sendButton": "Erinnerung senden",
+  "adminReminder.sent": "Erinnerung an {0} gesendet",
+  "adminReminder.reminderBody": "Bitte denk daran, deine nächste Session mit {0} zu dokumentieren. Das BNM-Team freut sich über regelmässige Updates.",
 } as const;
 
 export default de;

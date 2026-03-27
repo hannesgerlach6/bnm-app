@@ -6,6 +6,7 @@ import { Ionicons } from "@expo/vector-icons";
 import { useAuth } from "../../contexts/AuthContext";
 import { useData } from "../../contexts/DataContext";
 import { useLanguage } from "../../contexts/LanguageContext";
+import { showError, showSuccess } from "../../lib/errorHandler";
 import type { Mentorship } from "../../types";
 import { COLORS } from "../../constants/Colors";
 import { Container } from "../../components/Container";
@@ -40,6 +41,7 @@ function AdminDashboard({ showSystemSettings = true }: { showSystemSettings?: bo
     mentorOfMonthVisible,
     getUnassignedMentees,
     getPendingApprovalsCount,
+    sendAdminDirectMessage,
     refreshData,
   } = useData();
   const [refreshing, setRefreshing] = useState(false);
@@ -47,6 +49,7 @@ function AdminDashboard({ showSystemSettings = true }: { showSystemSettings?: bo
   const [selectedMentorId, setSelectedMentorId] = useState<string | null>(null);
   const [selectedMenteeId, setSelectedMenteeId] = useState<string | null>(null);
   const [showAllActivities, setShowAllActivities] = useState(false);
+  const [sendingReminderFor, setSendingReminderFor] = useState<string | null>(null);
   const onRefresh = useCallback(async () => {
     setRefreshing(true);
     await refreshData();
@@ -163,6 +166,37 @@ function AdminDashboard({ showSystemSettings = true }: { showSystemSettings?: bo
 
     return warnings;
   }, [feedback, mentorships, sessions]);
+
+  // Stagnante Betreuungen: >5 Tage keine Session (separater Block für Admin-Aktionen)
+  const stagnantMentorships = useMemo(() => {
+    const now = Date.now();
+    const fiveDays = 5 * 24 * 60 * 60 * 1000;
+    return mentorships
+      .filter((m) => m.status === "active")
+      .map((m) => {
+        const ms = sessions.filter((s) => s.mentorship_id === m.id);
+        const lastTime = ms.length > 0
+          ? Math.max(...ms.map((s) => new Date(s.date).getTime()))
+          : new Date(m.assigned_at).getTime();
+        const daysSince = Math.floor((now - lastTime) / 86400000);
+        return { mentorship: m, daysSince, lastDate: new Date(lastTime) };
+      })
+      .filter((x) => x.daysSince >= 5)
+      .sort((a, b) => b.daysSince - a.daysSince);
+  }, [mentorships, sessions]);
+
+  async function handleSendReminder(mentorId: string, mentorName: string, menteeName: string) {
+    setSendingReminderFor(mentorId);
+    try {
+      const msg = t("adminReminder.reminderBody").replace("{0}", menteeName);
+      await sendAdminDirectMessage(mentorId, msg);
+      showSuccess(t("adminReminder.sent").replace("{0}", mentorName));
+    } catch {
+      showError(t("common.error"));
+    } finally {
+      setSendingReminderFor(null);
+    }
+  }
 
   // Mentor des Monats (höchster Score aller aktiven Mentoren)
   const topMentor = useMemo(() => {
@@ -371,6 +405,51 @@ function AdminDashboard({ showSystemSettings = true }: { showSystemSettings?: bo
                       )}
                       <Text style={[styles.warningArrow, { color: isDark ? "#f87171" : "#b91c1c" }]}>›</Text>
                     </TouchableOpacity>
+                  );
+                })}
+              </View>
+            )}
+
+            {/* Stagnante Betreuungen (>5 Tage keine Session) */}
+            {stagnantMentorships.length > 0 && (
+              <View style={[styles.stagnantBox, { backgroundColor: isDark ? "#1a2a3a" : "#eff6ff", borderColor: isDark ? "#1e3a5f" : "#bfdbfe" }]}>
+                <View style={[styles.warningHeader, { marginBottom: 8 }]}>
+                  <Text style={[styles.warningTitle, { color: isDark ? "#93c5fd" : "#1d4ed8" }]}>
+                    {t("adminReminder.title")} ({stagnantMentorships.length})
+                  </Text>
+                </View>
+                {stagnantMentorships.map((item, idx) => {
+                  const mentorName = item.mentorship.mentor?.name ?? "?";
+                  const menteeName = item.mentorship.mentee?.name ?? "?";
+                  const isSending = sendingReminderFor === item.mentorship.mentor_id;
+                  const isLast = idx === stagnantMentorships.length - 1;
+                  return (
+                    <View
+                      key={item.mentorship.id}
+                      style={[
+                        styles.stagnantRow,
+                        !isLast && [styles.stagnantRowBorder, { borderBottomColor: isDark ? "#1e3a5f" : "#bfdbfe" }],
+                      ]}
+                    >
+                      <View style={{ flex: 1 }}>
+                        <Text style={[styles.stagnantMentorName, { color: isDark ? "#93c5fd" : "#1d4ed8" }]}>
+                          {mentorName}
+                        </Text>
+                        <Text style={[styles.stagnantSub, { color: isDark ? "#60a5fa" : "#3b82f6" }]}>
+                          → {menteeName} · {t("earlyWarning.daysAgo").replace("{0}", String(item.daysSince))}
+                        </Text>
+                      </View>
+                      <TouchableOpacity
+                        style={[styles.reminderBtn, { opacity: isSending ? 0.5 : 1 }]}
+                        onPress={() => handleSendReminder(item.mentorship.mentor_id, mentorName, menteeName)}
+                        disabled={isSending}
+                        activeOpacity={0.7}
+                      >
+                        <Text style={styles.reminderBtnText}>
+                          {isSending ? "..." : t("adminReminder.sendButton")}
+                        </Text>
+                      </TouchableOpacity>
+                    </View>
                   );
                 })}
               </View>
@@ -1557,6 +1636,33 @@ const styles = StyleSheet.create({
   warningName: { fontSize: 13, fontWeight: "500", marginTop: 1 },
   warningDays: { fontSize: 11, flexShrink: 0 },
   warningArrow: { fontSize: 16, marginLeft: 4 },
+
+  // Stagnante Betreuungen
+  stagnantBox: {
+    borderWidth: 1,
+    borderLeftWidth: 4,
+    borderLeftColor: "#3b82f6",
+    borderRadius: 8,
+    padding: 14,
+    marginBottom: 14,
+  },
+  stagnantRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    paddingVertical: 8,
+    gap: 8,
+  },
+  stagnantRowBorder: { borderBottomWidth: 1 },
+  stagnantMentorName: { fontSize: 13, fontWeight: "700" },
+  stagnantSub: { fontSize: 12, marginTop: 1 },
+  reminderBtn: {
+    backgroundColor: "#3b82f6",
+    borderRadius: 5,
+    paddingHorizontal: 10,
+    paddingVertical: 6,
+    flexShrink: 0,
+  },
+  reminderBtnText: { color: COLORS.white, fontSize: 11, fontWeight: "700" },
 
   // Mentor des Monats Card (Admin)
   momAdminCard: {

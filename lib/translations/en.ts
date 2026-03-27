@@ -794,6 +794,7 @@ const en: Record<TranslationKeys, string> = {
   "applications.emailLabel": "Email",
   "applications.phoneLabel": "Phone",
   "applications.contactLabel": "Contact",
+  "applications.genderLabel": "Gender / Age",
   "applications.submittedLabel": "Received",
   "applications.brother": "Brother",
   "applications.sister": "Sister",
@@ -1628,6 +1629,21 @@ const en: Record<TranslationKeys, string> = {
   "profile.selfRatingTitle": "My Self-Assessment",
   "profile.selfRatingHint": "How do you rate your own performance as a mentor?",
   "profile.selfRatingSelected": "{0} out of 5 stars",
+
+  // Admin direct message
+  "adminMsg.title": "Send Message",
+  "adminMsg.recipient": "Recipient",
+  "adminMsg.placeholder": "Your message...",
+  "adminMsg.send": "Send",
+  "adminMsg.sent": "Message sent",
+  "adminMsg.error": "Message could not be sent",
+  "adminMsg.sendButton": "Send message",
+
+  // Stagnant mentorships
+  "adminReminder.title": "Stagnant Mentorships",
+  "adminReminder.sendButton": "Send reminder",
+  "adminReminder.sent": "Reminder sent to {0}",
+  "adminReminder.reminderBody": "Please remember to document your next session with {0}. The BNM team appreciates regular updates.",
 };
 
 export default en;

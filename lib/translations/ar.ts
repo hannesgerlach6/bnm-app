@@ -794,6 +794,7 @@ const ar: Record<TranslationKeys, string> = {
   "applications.emailLabel": "البريد الإلكتروني",
   "applications.phoneLabel": "الهاتف",
   "applications.contactLabel": "الاتصال",
+  "applications.genderLabel": "الجنس / العمر",
   "applications.submittedLabel": "تاريخ الاستلام",
   "applications.brother": "أخ",
   "applications.sister": "أخت",
@@ -1628,6 +1629,21 @@ const ar: Record<TranslationKeys, string> = {
   "profile.selfRatingTitle": "تقييمي الذاتي",
   "profile.selfRatingHint": "كيف تقيّم أداءك كمرشد؟",
   "profile.selfRatingSelected": "{0} من 5 نجوم",
+
+  // رسالة مباشرة من الأدمن
+  "adminMsg.title": "إرسال رسالة",
+  "adminMsg.recipient": "المستلم",
+  "adminMsg.placeholder": "رسالتك...",
+  "adminMsg.send": "إرسال",
+  "adminMsg.sent": "تم إرسال الرسالة",
+  "adminMsg.error": "تعذر إرسال الرسالة",
+  "adminMsg.sendButton": "إرسال رسالة",
+
+  // الإرشادات المتوقفة
+  "adminReminder.title": "الإرشادات المتوقفة",
+  "adminReminder.sendButton": "إرسال تذكير",
+  "adminReminder.sent": "تم إرسال تذكير إلى {0}",
+  "adminReminder.reminderBody": "يرجى تذكر توثيق جلستك القادمة مع {0}. يقدر فريق BNM التحديثات المنتظمة.",
 };
 
 export default ar;

@@ -114,18 +114,9 @@ export function MentorDetailPanel({ id }: MentorDetailPanelProps) {
           </View>
         )}
 
-        {/* Bewertungen */}
-        <View style={styles.ratingsBlock}>
-          {/* Selbstbewertung */}
-          {mentor.self_rating != null && mentor.self_rating > 0 && (
-            <View style={styles.ratingRow}>
-              <Text style={[styles.ratingLabel, { color: themeColors.textSecondary }]}>{t("mentorDetail.selfRating")}</Text>
-              <StarDisplay rating={mentor.self_rating} />
-              <Text style={[styles.ratingValue, { color: themeColors.textTertiary }]}>({mentor.self_rating.toFixed(1)})</Text>
-            </View>
-          )}
-          {/* Mentee-Feedback-Durchschnitt */}
-          {avgFeedbackRating !== null && (
+        {/* Bewertungen — Mentee-Feedback-Durchschnitt */}
+        {avgFeedbackRating !== null && (
+          <View style={styles.ratingsBlock}>
             <View style={styles.ratingRow}>
               <Text style={[styles.ratingLabel, { color: themeColors.textSecondary }]}>{t("mentorDetail.menteeRating")}</Text>
               <StarDisplay rating={avgFeedbackRating} />
@@ -133,8 +124,8 @@ export function MentorDetailPanel({ id }: MentorDetailPanelProps) {
                 ({avgFeedbackRating.toFixed(1)} · {mentorFeedback.length}x)
               </Text>
             </View>
-          )}
-        </View>
+          </View>
+        )}
       </View>
 
       {/* Statistiken */}

@@ -256,8 +256,8 @@ const hBarStyles = StyleSheet.create({
   },
 });
 
-// Liniendiagramm (kumulativ) als Step-Chart
-function LineChart({
+// Balkendiagramm (kumulativ) — ersetzt das frühere Liniendiagramm
+function GrowthBarChart({
   data,
   height = 110,
 }: {
@@ -267,20 +267,26 @@ function LineChart({
   const maxVal = Math.max(...data.map((d) => d.value), 1);
 
   return (
-    <View style={{ height, flexDirection: "row", alignItems: "flex-end", gap: 2 }}>
+    <View style={{ height, flexDirection: "row", alignItems: "flex-end", gap: 3 }}>
       {data.map((item, idx) => {
         const pct = (item.value / maxVal) * 100;
         const isLast = idx === data.length - 1;
+        const barH = Math.round((height - 24) * (pct / 100)) || 2;
         return (
           <View key={`${item.label}-${idx}`} style={{ flex: 1, alignItems: "center" }}>
+            {item.value > 0 && (
+              <Text style={{ color: "rgba(255,255,255,0.7)", fontSize: 8, marginBottom: 2 }}>
+                {item.value}
+              </Text>
+            )}
             <View
               style={{
-                width: "80%",
-                height: Math.round((height - 20) * (pct / 100)) || 2,
-                backgroundColor: isLast ? COLORS.gold : `rgba(10,58,90,0.6)`,
-                borderRadius: 2,
-                borderTopWidth: 2,
-                borderTopColor: COLORS.gold,
+                width: "72%",
+                height: barH,
+                backgroundColor: isLast ? COLORS.gold : "rgba(238,167,27,0.45)",
+                borderRadius: 3,
+                borderTopLeftRadius: 3,
+                borderTopRightRadius: 3,
               }}
             />
             <Text
@@ -892,7 +898,7 @@ export default function AdminDonorReportScreen() {
               <Text style={styles.noDataText}>{t("donorDashboard.noDataPeriod")}</Text>
             ) : (
               <>
-                <LineChart data={growthData} height={120} />
+                <GrowthBarChart data={growthData} height={120} />
                 <Text style={styles.chartFootNote}>
                   {t("donorDashboard.totalMentees").replace("{0}", String(growthData[growthData.length - 1]?.value ?? 0))}
                 </Text>

@@ -29,7 +29,7 @@ export default function MentorsTabScreen() {
   const { user } = useAuth();
   const themeColors = useThemeColors();
   const { isDark } = useTheme();
-  const { users, mentorships, sessions, refreshData, isLoading, bulkDeleteUsers } = useData();
+  const { users, mentorships, sessions, feedback, sendAdminDirectMessage, refreshData, isLoading, bulkDeleteUsers } = useData();
   const [search, setSearch] = useState("");
   const [refreshing, setRefreshing] = useState(false);
   const [selectedMentorId, setSelectedMentorId] = useState<string | null>(null);
@@ -41,6 +41,27 @@ export default function MentorsTabScreen() {
   const [confirmModal2, setConfirmModal2] = useState(false);
   const [deleteInput, setDeleteInput] = useState("");
   const [isDeleting, setIsDeleting] = useState(false);
+
+  // Admin-Direktnachricht State
+  const [msgModalUserId, setMsgModalUserId] = useState<string | null>(null);
+  const [msgModalName, setMsgModalName] = useState("");
+  const [msgText, setMsgText] = useState("");
+  const [isSendingMsg, setIsSendingMsg] = useState(false);
+
+  async function handleSendAdminMessage() {
+    if (!msgModalUserId || !msgText.trim()) return;
+    setIsSendingMsg(true);
+    try {
+      await sendAdminDirectMessage(msgModalUserId, msgText.trim());
+      showSuccess(t("adminMsg.sent"));
+      setMsgModalUserId(null);
+      setMsgText("");
+    } catch {
+      showError(t("adminMsg.error"));
+    } finally {
+      setIsSendingMsg(false);
+    }
+  }
 
   const onRefresh = async () => {
     setRefreshing(true);
@@ -145,6 +166,45 @@ export default function MentorsTabScreen() {
 
   return (
     <Container fullWidth={Platform.OS === "web"}>
+    {/* Admin-Direktnachricht Modal */}
+    <Modal visible={!!msgModalUserId} transparent animationType="fade" onRequestClose={() => { setMsgModalUserId(null); setMsgText(""); }}>
+      <KeyboardAvoidingView style={styles.modalOverlay} behavior={Platform.OS === "ios" ? "padding" : undefined}>
+        <View style={[styles.modalBox, { backgroundColor: themeColors.card }]}>
+          <Text style={[styles.modalTitle, { color: themeColors.text }]}>{t("adminMsg.title")}</Text>
+          <Text style={[styles.modalMsg, { color: themeColors.textSecondary }]}>
+            {t("adminMsg.recipient")}: {msgModalName}
+          </Text>
+          <TextInput
+            style={[styles.deleteInput, { backgroundColor: themeColors.background, borderColor: themeColors.border, color: themeColors.text, letterSpacing: 0, textAlign: "left", minHeight: 80 }]}
+            placeholder={t("adminMsg.placeholder")}
+            placeholderTextColor={themeColors.textTertiary}
+            value={msgText}
+            onChangeText={setMsgText}
+            multiline
+            numberOfLines={4}
+            textAlignVertical="top"
+          />
+          <View style={styles.modalButtons}>
+            <TouchableOpacity
+              style={[styles.modalBtn, { backgroundColor: themeColors.background, borderColor: themeColors.border }]}
+              onPress={() => { setMsgModalUserId(null); setMsgText(""); }}
+            >
+              <Text style={[styles.modalBtnText, { color: themeColors.text }]}>{t("common.cancel")}</Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={[styles.modalBtn, msgText.trim() ? styles.modalBtnPrimary : styles.modalBtnDisabled]}
+              onPress={handleSendAdminMessage}
+              disabled={!msgText.trim() || isSendingMsg}
+            >
+              <Text style={[styles.modalBtnText, { color: COLORS.white }]}>
+                {isSendingMsg ? "..." : t("adminMsg.send")}
+              </Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </KeyboardAvoidingView>
+    </Modal>
+
     {/* Erstes Bestätigungs-Modal */}
     <Modal visible={confirmModal1} transparent animationType="fade" onRequestClose={() => setConfirmModal1(false)}>
       <View style={styles.modalOverlay}>
@@ -283,6 +343,14 @@ export default function MentorsTabScreen() {
               myMentorships.some((m) => m.id === s.mentorship_id)
             ).length;
 
+            // Feedback-Durchschnitt berechnen (Mentee bewertet Mentor)
+            const mentorFeedback = feedback.filter((f) =>
+              myMentorships.some((m) => m.id === f.mentorship_id)
+            );
+            const avgRating = mentorFeedback.length > 0
+              ? mentorFeedback.reduce((sum, f) => sum + f.rating, 0) / mentorFeedback.length
+              : null;
+
             const initials = mentor.name
               .split(" ")
               .map((n) => n[0])
@@ -327,14 +395,14 @@ export default function MentorsTabScreen() {
                           <Text style={[styles.blockedBadgeText, { color: isDark ? "#f87171" : "#b91c1c" }]}>{t("editUser.blocked")}</Text>
                         </View>
                       )}
-                      {/* Selbstbewertung: Sterne neben dem Namen */}
-                      {mentor.self_rating != null && mentor.self_rating > 0 && (
+                      {/* Mentee-Bewertung: Sterne neben dem Namen */}
+                      {avgRating !== null && (
                         <View style={{ flexDirection: "row", alignItems: "center", gap: 2 }}>
                           {[1,2,3,4,5].map((i) => (
-                            <Text key={i} style={{ fontSize: 12, color: (mentor.self_rating ?? 0) >= i ? COLORS.gold : (isDark ? "#3A3A3A" : "#D1D5DB") }}>★</Text>
+                            <Text key={i} style={{ fontSize: 12, color: avgRating >= i ? COLORS.gold : (isDark ? "#3A3A3A" : "#D1D5DB") }}>★</Text>
                           ))}
                           <Text style={{ fontSize: 11, color: themeColors.textTertiary, marginLeft: 2 }}>
-                            ({mentor.self_rating?.toFixed(1)})
+                            ({avgRating.toFixed(1)})
                           </Text>
                         </View>
                       )}
@@ -362,6 +430,21 @@ export default function MentorsTabScreen() {
                       <Text style={[styles.statChipLabel, { color: themeColors.textTertiary }]}>{t("common.sessions")}</Text>
                     </View>
                   </View>
+                )}
+                {/* Admin-Nachricht Button */}
+                {!selectMode && (
+                  <TouchableOpacity
+                    style={[styles.msgButton, { borderColor: isDark ? "#3A3A50" : "#D1D5DB" }]}
+                    onPress={(e) => {
+                      e.stopPropagation && e.stopPropagation();
+                      setMsgModalUserId(mentor.id);
+                      setMsgModalName(mentor.name);
+                      setMsgText("");
+                    }}
+                    activeOpacity={0.7}
+                  >
+                    <Text style={[styles.msgButtonText, { color: themeColors.textSecondary }]}>{t("adminMsg.sendButton")}</Text>
+                  </TouchableOpacity>
                 )}
               </TouchableOpacity>
             );
@@ -546,7 +629,16 @@ const styles = StyleSheet.create({
   },
   modalBtnText: { fontSize: 14, fontWeight: "600" },
   modalBtnDanger: { backgroundColor: COLORS.error, borderColor: COLORS.error },
+  modalBtnPrimary: { backgroundColor: COLORS.gradientStart, borderColor: COLORS.gradientStart },
   modalBtnDisabled: { backgroundColor: "#666", borderColor: "#666", opacity: 0.5 },
+  msgButton: {
+    marginTop: 8,
+    borderWidth: 1,
+    borderRadius: 5,
+    paddingVertical: 6,
+    alignItems: "center",
+  },
+  msgButtonText: { fontSize: 12, fontWeight: "500" },
   deleteInput: {
     borderWidth: 1,
     borderRadius: 6,
