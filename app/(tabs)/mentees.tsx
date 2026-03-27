@@ -101,13 +101,11 @@ function AdminMenteesView() {
   }
 
   async function handleBulkDelete() {
-    console.warn("Step 3: handleBulkDelete called, ids:", Array.from(selectedIds));
     setConfirmModal2(false);
     setIsDeleting(true);
     try {
       const ids = Array.from(selectedIds);
       const result = await bulkDeleteUsers(ids);
-      console.warn("Step 4: bulkDeleteUsers result:", result);
       if (result.failed === 0) {
         showSuccess(t("admin.deleteSuccess").replace("{0}", String(result.success)));
       } else if (result.success === 0) {
@@ -233,7 +231,7 @@ function AdminMenteesView() {
             </TouchableOpacity>
             <TouchableOpacity
               style={[styles.modalBtn, styles.modalBtnDanger]}
-              onPress={() => { console.warn("Step 2: Modal2 opened, confirmWord:", t("admin.deleteConfirmInput")); setConfirmModal1(false); setConfirmModal2(true); setDeleteInput(""); }}
+              onPress={() => { setConfirmModal1(false); setConfirmModal2(true); setDeleteInput(""); }}
             >
               <Text style={[styles.modalBtnText, { color: COLORS.white }]}>{t("common.confirm")}</Text>
             </TouchableOpacity>
@@ -562,7 +560,7 @@ function AdminMenteesView() {
         </Text>
         <TouchableOpacity
           style={styles.footerDeleteBtn}
-          onPress={() => { console.warn("Step 1: Modal1 opened"); setConfirmModal1(true); }}
+          onPress={() => { setConfirmModal1(true); }}
         >
           <Text style={styles.footerDeleteBtnText}>
             {t("admin.deleteSelected").replace("{0}", String(selectedCount))}

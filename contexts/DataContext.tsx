@@ -1958,22 +1958,16 @@ export function DataProvider({ children }: { children: ReactNode }) {
         .filter((m) => m.mentor_id === userId || m.mentee_id === userId)
         .map((m) => m.id);
 
-      console.warn("deleteUser: calling RPC for userId:", userId, "mentorshipIds:", userMentorshipIds);
-
       // Serverseitige Funktion: löscht Auth-User + Profil + CASCADE-Daten
       const { data, error } = await supabase.rpc("delete_user_completely", {
         target_user_id: userId,
       });
 
-      console.warn("deleteUser: RPC response — data:", data, "error:", error);
-
       if (error) {
-        console.warn("deleteUser RPC error:", error.message);
         showError(`Löschen fehlgeschlagen: ${error.message}`);
         return false;
       }
       if (data === false) {
-        console.warn("deleteUser: RPC returned false — kein Admin oder Permission-Problem");
         showError("Löschen fehlgeschlagen: Nur Admins dürfen User löschen.");
         return false;
       }

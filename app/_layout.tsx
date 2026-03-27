@@ -196,10 +196,7 @@ function RootLayoutInner() {
               <Stack.Screen name="feedback" options={{ headerShown: false }} />
               <Stack.Screen name="mentorship/[id]" options={{ title: "Betreuung", headerStyle: { backgroundColor: themeColors.headerBackground }, headerTintColor: themeColors.headerText }} />
               <Stack.Screen name="chat/[mentorshipId]" options={{ title: "Chat", headerStyle: { backgroundColor: themeColors.headerBackground }, headerTintColor: themeColors.headerText }} />
-              <Stack.Screen name="admin/applications" options={{ title: "Anmeldungen & Bewerbungen", headerStyle: { backgroundColor: themeColors.headerBackground }, headerTintColor: themeColors.headerText }} />
               <Stack.Screen name="admin/session-types" options={{ title: "Session-Typen", headerStyle: { backgroundColor: themeColors.headerBackground }, headerTintColor: themeColors.headerText }} />
-              <Stack.Screen name="admin/feedback-overview" options={{ title: "Feedback-Übersicht", headerStyle: { backgroundColor: themeColors.headerBackground }, headerTintColor: themeColors.headerText }} />
-              <Stack.Screen name="admin/mentors" options={{ headerShown: false }} />
               <Stack.Screen name="reset-password" options={{ title: "Passwort zurücksetzen", headerStyle: { backgroundColor: themeColors.headerBackground }, headerTintColor: themeColors.headerText }} />
               <Stack.Screen name="hadithe" options={{ headerShown: false }} />
               <Stack.Screen name="donor-report" options={{ headerShown: false }} />
@@ -303,33 +300,11 @@ function RootLayoutInner() {
           }}
         />
         <Stack.Screen
-          name="admin/applications"
-          options={{
-            title: "Anmeldungen & Bewerbungen",
-            headerStyle: { backgroundColor: themeColors.headerBackground },
-            headerTintColor: themeColors.headerText,
-          }}
-        />
-        <Stack.Screen
           name="admin/session-types"
           options={{
             title: "Session-Typen",
             headerStyle: { backgroundColor: themeColors.headerBackground },
             headerTintColor: themeColors.headerText,
-          }}
-        />
-        <Stack.Screen
-          name="admin/feedback-overview"
-          options={{
-            title: "Feedback-Übersicht",
-            headerStyle: { backgroundColor: themeColors.headerBackground },
-            headerTintColor: themeColors.headerText,
-          }}
-        />
-        <Stack.Screen
-          name="admin/mentors"
-          options={{
-            headerShown: false,
           }}
         />
         <Stack.Screen
