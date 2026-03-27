@@ -431,21 +431,6 @@ export default function MentorsTabScreen() {
                     </View>
                   </View>
                 )}
-                {/* Admin-Nachricht Button */}
-                {!selectMode && (
-                  <TouchableOpacity
-                    style={[styles.msgButton, { borderColor: isDark ? "#3A3A50" : "#D1D5DB" }]}
-                    onPress={(e) => {
-                      e.stopPropagation && e.stopPropagation();
-                      setMsgModalUserId(mentor.id);
-                      setMsgModalName(mentor.name);
-                      setMsgText("");
-                    }}
-                    activeOpacity={0.7}
-                  >
-                    <Text style={[styles.msgButtonText, { color: themeColors.textSecondary }]}>{t("adminMsg.sendButton")}</Text>
-                  </TouchableOpacity>
-                )}
               </TouchableOpacity>
             );
           })

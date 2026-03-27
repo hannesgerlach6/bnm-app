@@ -1819,12 +1819,6 @@ export function DataProvider({ children }: { children: ReactNode }) {
       const isMenteeRegistration = app.motivation === "Anmeldung als neuer Muslim (öffentliches Formular)";
 
       if (!isMenteeRegistration) {
-        // Race-Condition-Schutz: Status auf "processing" setzen
-        await supabase
-          .from("mentor_applications")
-          .update({ status: "processing" })
-          .eq("id", applicationId);
-
         // Admin-Session sichern BEVOR signUp aufgerufen wird
         // signUp loggt automatisch den neuen User ein → Admin-Session geht verloren
         const { data: adminSession } = await supabase.auth.getSession();
@@ -1855,12 +1849,6 @@ export function DataProvider({ children }: { children: ReactNode }) {
         }
 
         if (signUpError) {
-          // Bei JEDEM Fehler: Status zurück auf "pending" und Fehlermeldung
-          await supabase
-            .from("mentor_applications")
-            .update({ status: "pending" })
-            .eq("id", applicationId);
-
           if (
             signUpError.message.includes("already registered") ||
             signUpError.message.includes("User already registered")

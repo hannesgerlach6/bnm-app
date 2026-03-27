@@ -24,8 +24,10 @@ export function SlideOverPanel({ visible, onClose, children, title }: SlideOverP
   const { isDark } = useTheme();
   const { width: screenWidth, height: screenHeight } = useWindowDimensions();
 
-  // Modal-Größe: responsive
-  const modalWidth = Math.min(560, screenWidth * 0.5);
+  // Modal-Größe: responsive — auf kleinen Screens (mobile Browser) fast Vollbreite
+  const modalWidth = screenWidth < 600
+    ? screenWidth * 0.92
+    : Math.min(560, screenWidth * 0.5);
   const modalMaxHeight = screenHeight * 0.85;
 
   const scaleAnim = useRef(new Animated.Value(0.9)).current;

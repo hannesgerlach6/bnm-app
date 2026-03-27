@@ -450,10 +450,13 @@ export default function ChatsScreen() {
   const [refreshing, setRefreshing] = useState(false);
   const [selectedChatId, setSelectedChatId] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState("");
-  const [chatTab, setChatTab] = useState<"admin" | "mentorship">("admin");
+  // Default: Mentor/Mentee sehen Betreuungs-Chats, Admin sieht Admin-DMs
+  const isAdminRole = user?.role === "admin" || user?.role === "office";
+  const [chatTab, setChatTab] = useState<"admin" | "mentorship">(isAdminRole ? "admin" : "mentorship");
   const [selectedAdminUserId, setSelectedAdminUserId] = useState<string | null>(null);
   const [showNewChatModal, setShowNewChatModal] = useState(false);
   const [newChatSearch, setNewChatSearch] = useState("");
+  const [adminFilter, setAdminFilter] = useState<"all" | "mentor" | "mentee">("all");
 
   // Wenn von einem anderen Screen mit openChat-Parameter navigiert wird
   useEffect(() => {
@@ -584,11 +587,44 @@ export default function ChatsScreen() {
       .slice(0, 20);
   }, [isAdmin, allUsers, getAdminChatPartners, newChatSearch]);
 
+  // Gefilterte Admin-Chat-Liste nach Rolle
+  const filteredAdminChatList = useMemo(() => {
+    if (!isAdmin || adminFilter === "all") return adminChatList;
+    return adminChatList.filter((item) => {
+      const partner = allUsers.find((u) => u.id === item.userId);
+      return partner?.role === adminFilter;
+    });
+  }, [adminChatList, adminFilter, allUsers, isAdmin]);
+
   // ── Admin-DM Chat-Liste rendern ──────────────────────────────────────────────
 
   function renderAdminChatList() {
     return (
       <>
+        {/* Filter-Chips (nur Admin) */}
+        {isAdmin && (
+          <View style={[styles.filterRow, { marginBottom: 10 }]}>
+            {(["all", "mentor", "mentee"] as const).map((f) => {
+              const label = f === "all" ? "Alle" : f === "mentor" ? "Mentoren" : "Mentees";
+              const isActive = adminFilter === f;
+              return (
+                <TouchableOpacity
+                  key={f}
+                  style={[
+                    styles.filterChip,
+                    { backgroundColor: isActive ? themeColors.primary : themeColors.card, borderColor: isActive ? themeColors.primary : themeColors.border },
+                  ]}
+                  onPress={() => setAdminFilter(f)}
+                >
+                  <Text style={{ color: isActive ? COLORS.white : themeColors.textSecondary, fontSize: 13, fontWeight: "600" }}>
+                    {label}
+                  </Text>
+                </TouchableOpacity>
+              );
+            })}
+          </View>
+        )}
+
         {/* Neuer Chat Button (nur Admin) */}
         {isAdmin && (
           <TouchableOpacity
@@ -648,7 +684,7 @@ export default function ChatsScreen() {
         )}
 
         {/* Admin-DM Chat-Eintraege */}
-        {adminChatList.length === 0 ? (
+        {filteredAdminChatList.length === 0 ? (
           <View style={[styles.emptyCard, { backgroundColor: themeColors.card, borderColor: themeColors.border }]}>
             <Ionicons name="mail-outline" size={40} color={themeColors.textTertiary} style={styles.emptyIcon} />
             <Text style={[styles.emptyTitle, { color: themeColors.text }]}>{t("chats.noAdminChats") ?? "Keine Direktnachrichten"}</Text>
@@ -660,14 +696,15 @@ export default function ChatsScreen() {
           </View>
         ) : (
           <View style={[styles.listCard, { backgroundColor: themeColors.card, borderColor: isDark ? "#2A2A35" : themeColors.border }]}>
-            {adminChatList.map((item, idx) => {
+            {filteredAdminChatList.map((item, idx) => {
               const isSelected = isWideWeb && selectedAdminUserId === item.userId;
+              const partner = allUsers.find((u) => u.id === item.userId);
               return (
                 <TouchableOpacity
                   key={item.userId}
                   style={[
                     styles.chatRow,
-                    idx < adminChatList.length - 1 ? { borderBottomWidth: 1, borderBottomColor: isDark ? "#2A2A35" : themeColors.border } : {},
+                    idx < filteredAdminChatList.length - 1 ? { borderBottomWidth: 1, borderBottomColor: isDark ? "#2A2A35" : themeColors.border } : {},
                     isSelected ? { backgroundColor: isDark ? "#1E1E2C" : "#F0F4FF" } : {},
                   ]}
                   onPress={() => {
@@ -694,6 +731,7 @@ export default function ChatsScreen() {
                       )}
                     </View>
                     <Text style={[styles.chatSub, { color: themeColors.textSecondary }]} numberOfLines={1}>
+                      {isAdmin && partner ? `${partner.role === "mentor" ? "Mentor" : "Mentee"} · ` : ""}
                       {item.lastMsg?.content ?? (t("chats.adminDM") ?? "Direktnachricht")}
                     </Text>
                   </View>
@@ -960,6 +998,10 @@ const styles = StyleSheet.create({
     fontSize: 13,
     marginBottom: 16,
   },
+
+  // Filter
+  filterRow: { flexDirection: "row" as const, gap: 8, flexWrap: "wrap" as const },
+  filterChip: { paddingHorizontal: 14, paddingVertical: 7, borderRadius: 20, borderWidth: 1 },
 
   // Zwei-Spalten-Layout
   twoColContainer: {

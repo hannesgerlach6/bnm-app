@@ -267,10 +267,10 @@ function AdminSidebarLayout() {
     <Tabs
       screenOptions={{
         tabBarStyle: { display: "none", height: 0, overflow: "hidden" },
-        headerStyle: {
-          backgroundColor: themeColors.headerBackground,
-        },
-        headerTintColor: themeColors.headerText,
+        headerShown: false,
+        // Lazy loading deaktivieren damit Tabs sofort verfügbar sind
+        // und kein Flash zum Default-Tab entsteht
+        lazy: false,
       }}
     >
       <Tabs.Screen name="index" options={{ title: "Dashboard" }} />

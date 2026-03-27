@@ -137,7 +137,10 @@ export function AdminSidebar() {
 
   const handleLogout = () => {
     if (Platform.OS === "web") {
-      logout();
+      // Bestätigung auch im Browser (besonders wichtig auf mobilen Browsern)
+      if (window.confirm(t("sidebar.logoutConfirmMsg"))) {
+        logout();
+      }
     } else {
       Alert.alert(
         t("sidebar.logoutConfirm"),
