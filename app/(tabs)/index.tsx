@@ -198,19 +198,32 @@ function AdminDashboard({ showSystemSettings = true }: { showSystemSettings?: bo
     }
   }
 
-  // Mentor des Monats (höchster Score aller aktiven Mentoren)
-  const topMentor = useMemo(() => {
+  // Mentor des Monats — NUR aus dem vorherigen Monat berechnen
+  const topMentorPrevMonth = useMemo(() => {
+    const now = new Date();
+    const prevMonth = now.getMonth() === 0 ? 11 : now.getMonth() - 1;
+    const prevMonthYear = now.getMonth() === 0 ? now.getFullYear() - 1 : now.getFullYear();
+    const inPrevMonth = (dateStr?: string) => {
+      if (!dateStr) return false;
+      const d = new Date(dateStr);
+      return d.getMonth() === prevMonth && d.getFullYear() === prevMonthYear;
+    };
     const mentors = users.filter((u) => u.role === "mentor");
     if (mentors.length === 0) return null;
     const scored = mentors.map((mentor) => {
       const myMs = mentorships.filter((m) => m.mentor_id === mentor.id);
-      const completedCount = myMs.filter((m) => m.status === "completed").length;
-      const sessionCount = sessions.filter((s) => myMs.some((m) => m.id === s.mentorship_id)).length;
+      const completedCount = myMs.filter(
+        (m) => m.status === "completed" && inPrevMonth(m.completed_at ?? m.assigned_at)
+      ).length;
+      const sessionCount = sessions.filter(
+        (s) => myMs.some((m) => m.id === s.mentorship_id) && inPrevMonth(s.date)
+      ).length;
       const score = completedCount * 10 + sessionCount * 3;
-      return { mentor, score, completedCount, sessionCount };
+      return { mentor, score, completedCount, sessionCount, prevMonth, prevMonthYear };
     }).sort((a, b) => b.score - a.score);
     return scored[0].score > 0 ? scored[0] : null;
   }, [users, mentorships, sessions]);
+  const topMentor = topMentorPrevMonth;
 
   return (
     <>
@@ -322,6 +335,17 @@ function AdminDashboard({ showSystemSettings = true }: { showSystemSettings?: bo
             )}
 
             {/* Mentor des Monats (Admin-Sicht) */}
+            {mentorOfMonthVisible && !topMentor && (
+              <View style={[styles.momAdminCard, { opacity: 0.7 }]}>
+                <View style={styles.momAdminHeader}>
+                  <Text style={styles.momAdminStar}>★</Text>
+                  <Text style={[styles.momAdminTitle, { color: themeColors.textSecondary }]}>{t("dashboard.currentMentorOfMonth")}</Text>
+                </View>
+                <Text style={[styles.momAdminName, { color: themeColors.textSecondary, fontSize: 15 }]}>
+                  Wird am Monatsende ermittelt
+                </Text>
+              </View>
+            )}
             {mentorOfMonthVisible && topMentor && (
               <TouchableOpacity
                 style={styles.momAdminCard}
@@ -335,7 +359,9 @@ function AdminDashboard({ showSystemSettings = true }: { showSystemSettings?: bo
               >
                 <View style={styles.momAdminHeader}>
                   <Text style={styles.momAdminStar}>★</Text>
-                  <Text style={[styles.momAdminTitle, { color: themeColors.textSecondary }]}>{t("dashboard.currentMentorOfMonth")}</Text>
+                  <Text style={[styles.momAdminTitle, { color: themeColors.textSecondary }]}>
+                    {`${t("dashboard.currentMentorOfMonth")}: ${["Januar","Februar","März","April","Mai","Juni","Juli","August","September","Oktober","November","Dezember"][topMentor.prevMonth]} ${topMentor.prevMonthYear}`}
+                  </Text>
                 </View>
                 <Text style={[styles.momAdminName, { color: themeColors.text }]}>{topMentor.mentor.name}</Text>
                 <View style={styles.momAdminStatsRow}>

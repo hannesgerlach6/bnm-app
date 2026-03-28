@@ -24,6 +24,7 @@ import { useTheme, useThemeColors } from "../../contexts/ThemeContext";
 import { COLORS } from "../../constants/Colors";
 import { supabase } from "../../lib/supabase";
 import { showError, showSuccess } from "../../lib/errorHandler";
+import { downloadMentorAwardPDF } from "../../lib/pdfGenerator";
 import { Container } from "../../components/Container";
 import { BNMLogo } from "../../components/BNMLogo";
 
@@ -176,32 +177,19 @@ export default function MentorAwardScreen() {
     }
   }
 
-  function handlePrint() {
-    if (Platform.OS === "web") {
-      window.print();
-    }
+  async function handleDownloadPDF() {
+    if (Platform.OS !== "web") return;
+    await downloadMentorAwardPDF({
+      mentorName: displayMentorName,
+      period: `${getMonthName(displayMonth, "de")} ${displayYear}`,
+      score: displayScore,
+      sessions: displaySessions,
+      completed: displayCompletions,
+    });
   }
 
   return (
     <Container fullWidth={Platform.OS === "web"}>
-      {/* Print-Styles nur auf Web */}
-      {Platform.OS === "web" && (
-        <style dangerouslySetInnerHTML={{ __html: `
-          @media print {
-            body * { visibility: hidden !important; }
-            #mentor-award-print, #mentor-award-print * { visibility: visible !important; }
-            #mentor-award-print {
-              position: fixed !important;
-              left: 0; top: 0; right: 0; bottom: 0;
-              display: flex !important;
-              align-items: center !important;
-              justify-content: center !important;
-              background: white !important;
-            }
-          }
-        ` }} />
-      )}
-
       <ScrollView style={[styles.scrollView, { backgroundColor: themeColors.background }]}>
         <View style={styles.page}>
 
@@ -265,12 +253,8 @@ export default function MentorAwardScreen() {
             </View>
           </View>
 
-          {/* Award-Card (druckbar) */}
-          {/* @ts-ignore — id-Prop für window.print */}
-          <View
-            id="mentor-award-print"
-            style={[styles.awardCard, { borderColor: COLORS.gold }]}
-          >
+          {/* Award-Card */}
+          <View style={[styles.awardCard, { borderColor: COLORS.gold }]}>
             {/* Goldener Header-Streifen */}
             <View style={styles.awardHeader}>
               <BNMLogo size={72} showSubtitle={false} />
@@ -338,8 +322,8 @@ export default function MentorAwardScreen() {
           {/* Aktions-Buttons */}
           <View style={styles.actionsRow}>
             {Platform.OS === "web" && (
-              <TouchableOpacity style={[styles.actionBtn, styles.actionBtnPrint]} onPress={handlePrint} activeOpacity={0.8}>
-                <Ionicons name="print-outline" size={18} color="#0E0E14" />
+              <TouchableOpacity style={[styles.actionBtn, styles.actionBtnPrint]} onPress={handleDownloadPDF} activeOpacity={0.8}>
+                <Ionicons name="download-outline" size={18} color="#0E0E14" />
                 <Text style={styles.actionBtnPrintText}>{t("mentorAward.download")}</Text>
               </TouchableOpacity>
             )}

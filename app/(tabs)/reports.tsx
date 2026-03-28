@@ -10,7 +10,9 @@ import {
   StyleSheet,
   Share,
 } from "react-native";
-import { showSuccess } from "../../lib/errorHandler";
+import { showSuccess, showError } from "../../lib/errorHandler";
+import { Ionicons } from "@expo/vector-icons";
+import { downloadMonthlyReportPDF, type ReportData } from "../../lib/pdfGenerator";
 import { useRouter } from "expo-router";
 import { useAuth } from "../../contexts/AuthContext";
 import { useData } from "../../contexts/DataContext";
@@ -207,23 +209,69 @@ export default function ReportsScreen() {
     return `${t("reports.year")} ${selectedYear}`;
   }, [periodMode, selectedMonth, selectedQuarter, selectedYear]);
 
-  function handlePrint() {
+  async function handleDownloadPDF() {
     if (Platform.OS !== "web") return;
-    const style = document.createElement("style");
-    style.id = "print-styles";
-    style.textContent = `
-      @media print {
-        body * { visibility: hidden; }
-        #print-content, #print-content * { visibility: visible; }
-        #print-content { position: absolute; left: 0; top: 0; width: 100%; }
-      }
-    `;
-    document.head.appendChild(style);
-    window.print();
-    setTimeout(() => {
-      const el = document.getElementById("print-styles");
-      if (el) el.remove();
-    }, 1000);
+    // Mentoren-Rangliste berechnen (für Vormonat/aktuellen Zeitraum)
+    const rankedMentors = users
+      .filter((u) => u.role === "mentor")
+      .map((mentor) => {
+        const myMs = mentorships.filter((m) => m.mentor_id === mentor.id);
+        const completed = myMs.filter(
+          (m) => m.status === "completed" && m.completed_at && inPeriod(m.completed_at)
+        ).length;
+        const sessionCount = sessions.filter(
+          (s) => myMs.some((m) => m.id === s.mentorship_id) && inPeriod(s.date)
+        ).length;
+        const score = completed * 10 + sessionCount * 3;
+        const mentorFeedback = myMs.flatMap((ms) =>
+          (ms as any).feedback ? [(ms as any).feedback] : []
+        );
+        const rating = mentorFeedback.length > 0
+          ? mentorFeedback.reduce((sum: number, f: any) => sum + (f.rating ?? 0), 0) / mentorFeedback.length
+          : null;
+        return { mentor, score, completed, sessionCount, rating };
+      })
+      .sort((a, b) => b.score - a.score);
+
+    const topMentorForPdf = rankedMentors.length > 0 && rankedMentors[0].score > 0
+      ? rankedMentors[0]
+      : null;
+
+    const data: ReportData = {
+      period: `${selectedYear}-${String(selectedMonth + 1).padStart(2, "0")}`,
+      periodLabel,
+      kpis: {
+        activeBetreuungen: mentorships.filter((m) => m.status === "active").length,
+        abgeschlossen: kpis.completions,
+        mentoren: users.filter((u) => u.role === "mentor").length,
+        mentees: users.filter((u) => u.role === "mentee").length,
+        sessions: kpis.totalSessions,
+        neueBetreuungen: kpis.totalAssigned,
+        wuduSessions: kpis.wuduSessions,
+        salahSessions: kpis.salahSessions,
+        koranSessions: kpis.koranSessions,
+        nachbetreuung: kpis.nachbetreuungSessions,
+      },
+      mentorOfMonth: topMentorForPdf
+        ? {
+            name: topMentorForPdf.mentor.name,
+            score: topMentorForPdf.score,
+            sessions: topMentorForPdf.sessionCount,
+            completed: topMentorForPdf.completed,
+          }
+        : null,
+      rankings: rankedMentors.map((m, idx) => ({
+        rank: idx + 1,
+        name: m.mentor.name,
+        score: m.score,
+        sessions: m.sessionCount,
+        completed: m.completed,
+        rating: m.rating,
+      })),
+      summaryText: `Im ${periodLabel} wurden ${kpis.totalSessions} Sessions durchgeführt. ${kpis.totalAssigned} neue Betreuungen wurden gestartet und ${kpis.completions} Betreuungen erfolgreich abgeschlossen.${topMentorForPdf ? ` Mentor des Monats: ${topMentorForPdf.mentor.name} mit ${topMentorForPdf.score} Punkten.` : ""}`,
+    };
+    const ok = await downloadMonthlyReportPDF(data);
+    if (!ok) showError("PDF konnte nicht erstellt werden");
   }
 
   async function handleExport() {
@@ -623,13 +671,14 @@ export default function ReportsScreen() {
             </TouchableOpacity>
           )}
 
-          {/* Bericht drucken (nur Web) */}
+          {/* PDF herunterladen (nur Web) */}
           {Platform.OS === "web" && (
             <TouchableOpacity
-              style={[styles.printButton, { borderColor: themeColors.textSecondary }]}
-              onPress={handlePrint}
+              style={[styles.printButton, { borderColor: COLORS.gold, flexDirection: "row", alignItems: "center", justifyContent: "center", gap: 8 }]}
+              onPress={handleDownloadPDF}
             >
-              <Text style={[styles.printButtonText, { color: themeColors.textSecondary }]}>{t("reports.printBeta")}</Text>
+              <Ionicons name="download-outline" size={16} color={COLORS.gold} />
+              <Text style={[styles.printButtonText, { color: COLORS.gold }]}>PDF herunterladen</Text>
             </TouchableOpacity>
           )}
         </View>
