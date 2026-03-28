@@ -50,6 +50,7 @@ function AdminDashboard({ showSystemSettings = true }: { showSystemSettings?: bo
   const [selectedMenteeId, setSelectedMenteeId] = useState<string | null>(null);
   const [showAllActivities, setShowAllActivities] = useState(false);
   const [sendingReminderFor, setSendingReminderFor] = useState<string | null>(null);
+  const [sentReminderIds, setSentReminderIds] = useState<Set<string>>(new Set());
   const onRefresh = useCallback(async () => {
     setRefreshing(true);
     await refreshData();
@@ -191,6 +192,7 @@ function AdminDashboard({ showSystemSettings = true }: { showSystemSettings?: bo
       const msg = t("adminReminder.reminderBody").replace("{0}", menteeName);
       await sendAdminDirectMessage(mentorId, msg);
       showSuccess(t("adminReminder.sent").replace("{0}", mentorName));
+      setSentReminderIds((prev) => new Set(prev).add(mentorId));
     } catch {
       showError(t("common.error"));
     } finally {
@@ -224,6 +226,32 @@ function AdminDashboard({ showSystemSettings = true }: { showSystemSettings?: bo
     return scored[0].score > 0 ? scored[0] : null;
   }, [users, mentorships, sessions]);
   const topMentor = topMentorPrevMonth;
+
+  // Aktueller Führender im laufenden Monat (Anwärter)
+  const currentMonthLeader = useMemo(() => {
+    const now = new Date();
+    const curMonth = now.getMonth();
+    const curYear = now.getFullYear();
+    const inCurMonth = (dateStr?: string) => {
+      if (!dateStr) return false;
+      const d = new Date(dateStr);
+      return d.getMonth() === curMonth && d.getFullYear() === curYear;
+    };
+    const mentors = users.filter((u) => u.role === "mentor");
+    if (mentors.length === 0) return null;
+    const scored = mentors.map((mentor) => {
+      const myMs = mentorships.filter((m) => m.mentor_id === mentor.id);
+      const completedCount = myMs.filter(
+        (m) => m.status === "completed" && inCurMonth(m.completed_at ?? m.assigned_at)
+      ).length;
+      const sessionCount = sessions.filter(
+        (s) => myMs.some((m) => m.id === s.mentorship_id) && inCurMonth(s.date)
+      ).length;
+      const score = completedCount * 10 + sessionCount * 3;
+      return { mentor, score, completedCount, sessionCount };
+    }).sort((a, b) => b.score - a.score);
+    return scored[0].score > 0 ? scored[0] : null;
+  }, [users, mentorships, sessions]);
 
   return (
     <>
@@ -336,14 +364,25 @@ function AdminDashboard({ showSystemSettings = true }: { showSystemSettings?: bo
 
             {/* Mentor des Monats (Admin-Sicht) */}
             {mentorOfMonthVisible && !topMentor && (
-              <View style={[styles.momAdminCard, { opacity: 0.7 }]}>
+              <View style={[styles.momAdminCard, { opacity: 0.85 }]}>
                 <View style={styles.momAdminHeader}>
                   <Text style={styles.momAdminStar}>★</Text>
                   <Text style={[styles.momAdminTitle, { color: themeColors.textSecondary }]}>{t("dashboard.currentMentorOfMonth")}</Text>
                 </View>
-                <Text style={[styles.momAdminName, { color: themeColors.textSecondary, fontSize: 15 }]}>
-                  Wird am Monatsende ermittelt
-                </Text>
+                {currentMonthLeader ? (
+                  <>
+                    <Text style={[styles.momAdminName, { color: themeColors.text }]}>
+                      {t("dashboard.currentCandidate").replace("{0}", currentMonthLeader.mentor.name ?? "")}
+                    </Text>
+                    <Text style={[styles.momAdminSub, { color: themeColors.textSecondary, fontSize: 11, marginTop: 2 }]}>
+                      {t("dashboard.candidateNote")}
+                    </Text>
+                  </>
+                ) : (
+                  <Text style={[styles.momAdminName, { color: themeColors.textSecondary, fontSize: 15 }]}>
+                    {t("dashboard.noSessionsThisMonth")}
+                  </Text>
+                )}
               </View>
             )}
             {mentorOfMonthVisible && topMentor && (
@@ -448,6 +487,7 @@ function AdminDashboard({ showSystemSettings = true }: { showSystemSettings?: bo
                   const mentorName = item.mentorship.mentor?.name ?? "?";
                   const menteeName = item.mentorship.mentee?.name ?? "?";
                   const isSending = sendingReminderFor === item.mentorship.mentor_id;
+                  const isSent = sentReminderIds.has(item.mentorship.mentor_id);
                   const isLast = idx === stagnantMentorships.length - 1;
                   return (
                     <View
@@ -466,13 +506,16 @@ function AdminDashboard({ showSystemSettings = true }: { showSystemSettings?: bo
                         </Text>
                       </View>
                       <TouchableOpacity
-                        style={[styles.reminderBtn, { opacity: isSending ? 0.5 : 1 }]}
-                        onPress={() => handleSendReminder(item.mentorship.mentor_id, mentorName, menteeName)}
-                        disabled={isSending}
+                        style={[
+                          styles.reminderBtn,
+                          (isSending || isSent) ? { opacity: 0.5, backgroundColor: "#6B7280" } : {},
+                        ]}
+                        onPress={() => !isSent && handleSendReminder(item.mentorship.mentor_id, mentorName, menteeName)}
+                        disabled={isSending || isSent}
                         activeOpacity={0.7}
                       >
                         <Text style={styles.reminderBtnText}>
-                          {isSending ? "..." : t("adminReminder.sendButton")}
+                          {isSending ? "..." : isSent ? t("adminReminder.sentConfirm") : t("adminReminder.sendButton")}
                         </Text>
                       </TouchableOpacity>
                     </View>
@@ -1881,6 +1924,7 @@ const styles = StyleSheet.create({
   momAdminStar: { color: COLORS.gold, fontSize: 18, marginRight: 8 },
   momAdminTitle: { fontWeight: "700", color: COLORS.secondary, fontSize: 12, letterSpacing: 0.5 },
   momAdminName: { fontSize: 20, fontWeight: "700", color: COLORS.primary, marginBottom: 12 },
+  momAdminSub: { fontSize: 11, color: "#6B7280" },
   momAdminStatsRow: { flexDirection: "row", gap: 10, marginBottom: 10 },
   momAdminStat: {
     flex: 1,

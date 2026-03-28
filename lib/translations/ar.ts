@@ -1477,6 +1477,9 @@ const ar: Record<TranslationKeys, string> = {
 
   // Admin Dashboard – بطاقة مرشد الشهر
   "dashboard.currentMentorOfMonth": "مرشد الشهر الحالي",
+  "dashboard.currentCandidate": "المرشح الحالي: {0}",
+  "dashboard.candidateNote": "قد يتغير حتى نهاية الشهر",
+  "dashboard.noSessionsThisMonth": "لا جلسات بعد هذا الشهر",
 
   // التقارير – مؤشرات KPI جديدة (وضوء / صلاة / قرآن / متابعة)
   "reports.wuduSessions": "جلسات الوضوء",
@@ -1686,6 +1689,7 @@ const ar: Record<TranslationKeys, string> = {
   "adminReminder.title": "الإرشادات المتوقفة",
   "adminReminder.sendButton": "إرسال تذكير",
   "adminReminder.sent": "تم إرسال تذكير إلى {0}",
+  "adminReminder.sentConfirm": "تم الإرسال ✓",
   "adminReminder.reminderBody": "يرجى تذكر توثيق جلستك القادمة مع {0}. يقدر فريق BNM التحديثات المنتظمة.",
 
   // لوحة تحكم المرشد – التقييمات وتحذيرات الإهمال

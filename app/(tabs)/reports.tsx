@@ -596,42 +596,6 @@ export default function ReportsScreen() {
             </View>
           </View>
 
-          {/* Mentor des Monats */}
-          {mentorOfMonth ? (
-            <View style={styles.goldBox}>
-              <View style={styles.goldBoxHeader}>
-                <Text style={styles.goldStar}>★</Text>
-                <Text style={[styles.goldBoxTitle, { color: themeColors.text }]}>{t("reports.mentorOfPeriod")}</Text>
-              </View>
-              <Text style={[styles.goldMentorName, { color: themeColors.text }]}>{mentorOfMonth.mentor.name}</Text>
-              <Text style={[styles.goldMentorSub, { color: themeColors.textSecondary }]}>
-                {t("reports.sessionsDocumented").replace("{0}", String(mentorOfMonth.count)).replace("{1}", mentorOfMonth.count !== 1 ? "s" : "")}
-              </Text>
-            </View>
-          ) : (
-            !mentorOfMonthVisible ? null : (
-              <View style={[styles.emptyMonthBox, { backgroundColor: themeColors.background, borderColor: themeColors.border }]}>
-                <Text style={[styles.emptyMonthText, { color: themeColors.textTertiary }]}>
-                  {t("reports.noSessionsYet")}
-                </Text>
-              </View>
-            )
-          )}
-
-          {/* Mentor des Monats Toggle – nur für Admin */}
-          {!isOffice && (
-            <TouchableOpacity
-              style={[styles.toggleMomButton, { borderColor: dynamicOutlineBorderColor }]}
-              onPress={toggleMentorOfMonth}
-            >
-              <Text style={[styles.toggleMomText, { color: dynamicOutlineTextColor }]}>
-                {mentorOfMonthVisible
-                  ? t("reports.hideMentorOfMonth")
-                  : t("reports.showMentorOfMonth")}
-              </Text>
-            </TouchableOpacity>
-          )}
-
           </View>{/* Ende print-content */}
 
           {/* Export-Button – Primär */}

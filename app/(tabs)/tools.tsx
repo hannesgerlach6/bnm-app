@@ -54,14 +54,6 @@ export default function ToolsTabScreen() {
 
             <TouchableOpacity
               style={[styles.toolItem, { backgroundColor: themeColors.card }]}
-              onPress={() => router.push("/admin/donor-report" as never)}
-            >
-              <Ionicons name="heart-outline" size={28} color={COLORS.error} />
-              <Text style={[styles.toolLabel, { color: themeColors.text }]}>{t("donorDashboard.title")}</Text>
-            </TouchableOpacity>
-
-            <TouchableOpacity
-              style={[styles.toolItem, { backgroundColor: themeColors.card }]}
               onPress={() => router.push("/admin/qa-management" as never)}
             >
               <Ionicons name="help-circle-outline" size={28} color={COLORS.gold} />

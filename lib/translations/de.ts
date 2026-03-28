@@ -1423,6 +1423,9 @@ const de = {
 
   // Admin Dashboard – Mentor des Monats Card
   "dashboard.currentMentorOfMonth": "Aktueller Mentor des Monats",
+  "dashboard.currentCandidate": "Derzeitiger Anwärter: {0}",
+  "dashboard.candidateNote": "Kann sich bis Monatsende noch ändern",
+  "dashboard.noSessionsThisMonth": "Noch keine Sessions diesen Monat",
 
   // Reports – Neue KPIs (Wudu/Salah/Koran/Nachbetreuung)
   "reports.wuduSessions": "Wudu-Sessions",
@@ -1688,6 +1691,7 @@ const de = {
   "adminReminder.title": "Ins Stocken geratene Betreuungen",
   "adminReminder.sendButton": "Erinnerung senden",
   "adminReminder.sent": "Erinnerung an {0} gesendet",
+  "adminReminder.sentConfirm": "Gesendet ✓",
   "adminReminder.reminderBody": "Bitte denk daran, deine nächste Session mit {0} zu dokumentieren. Das BNM-Team freut sich über regelmässige Updates.",
 
   // Mentor Dashboard – Bewertungen & Vernachlässigungs-Warnungen

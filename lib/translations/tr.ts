@@ -1477,6 +1477,9 @@ const tr: Record<TranslationKeys, string> = {
 
   // Admin Dashboard – Ayın Mentoru Kartı
   "dashboard.currentMentorOfMonth": "Mevcut Ayın Mentoru",
+  "dashboard.currentCandidate": "Mevcut aday: {0}",
+  "dashboard.candidateNote": "Ay sonuna kadar değişebilir",
+  "dashboard.noSessionsThisMonth": "Bu ay henüz seans yok",
 
   // Reports – Yeni KPI'lar (Wudu/Namaz/Kuran/Sonraki Destek)
   "reports.wuduSessions": "Abdest Oturumları",
@@ -1686,6 +1689,7 @@ const tr: Record<TranslationKeys, string> = {
   "adminReminder.title": "Durma Noktasına Gelen Mentörlükler",
   "adminReminder.sendButton": "Hatırlatma Gönder",
   "adminReminder.sent": "{0} kişisine hatırlatma gönderildi",
+  "adminReminder.sentConfirm": "Gönderildi ✓",
   "adminReminder.reminderBody": "Lütfen {0} ile bir sonraki seansını belgelemeyi unutma. BNM ekibi düzenli güncellemeleri takdir eder.",
 
   // Mentor Dashboard – Değerlendirmeler & İhmal Uyarıları

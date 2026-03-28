@@ -11,7 +11,6 @@
   "dependencies": {
     "@react-native-async-storage/async-storage": "2.2.0",
     "@react-navigation/native": "^7.1.28",
-    "@react-pdf/renderer": "^4.3.2",
     "@supabase/supabase-js": "^2.99.2",
     "expo": "~54.0.0",
     "expo-constants": "~18.0.13",

@@ -1423,6 +1423,9 @@ const en: Record<TranslationKeys, string> = {
 
   // Admin Dashboard – Mentor of the Month Card
   "dashboard.currentMentorOfMonth": "Current Mentor of the Month",
+  "dashboard.currentCandidate": "Current candidate: {0}",
+  "dashboard.candidateNote": "May still change until end of month",
+  "dashboard.noSessionsThisMonth": "No sessions yet this month",
 
   // Reports – New KPIs (Wudu/Salah/Koran/Follow-up)
   "reports.wuduSessions": "Wudu Sessions",
@@ -1686,6 +1689,7 @@ const en: Record<TranslationKeys, string> = {
   "adminReminder.title": "Stagnant Mentorships",
   "adminReminder.sendButton": "Send reminder",
   "adminReminder.sent": "Reminder sent to {0}",
+  "adminReminder.sentConfirm": "Sent ✓",
   "adminReminder.reminderBody": "Please remember to document your next session with {0}. The BNM team appreciates regular updates.",
 
   // Mentor Dashboard – Ratings & Neglect Warnings

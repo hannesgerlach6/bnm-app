@@ -106,11 +106,10 @@ export function AdminSidebar() {
   // gehören zum "tools" Bereich und sollen dort highlighted bleiben
   const isAdminToolScreen =
     pathname.includes("/admin/session-types") ||
-    pathname.includes("/admin/donor-report") ||
     pathname.includes("/admin/qa-management") ||
     pathname.includes("/admin/hadithe-management");
 
-  const activeSegment = pathname.includes("/reports") && !pathname.includes("/admin/donor-report")
+  const activeSegment = pathname.includes("/reports") || pathname.includes("/admin/donor-report")
     ? "reports"
     : pathname.includes("/mentees")
     ? "mentees"
