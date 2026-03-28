@@ -2,7 +2,7 @@ import { DefaultTheme, ThemeProvider as NavigationThemeProvider } from "@react-n
 import { useFonts } from "expo-font";
 import { Stack, useRouter, useSegments } from "expo-router";
 import * as SplashScreen from "expo-splash-screen";
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import { StatusBar } from "expo-status-bar";
 import { Platform, View, useWindowDimensions } from "react-native";
 import "react-native-reanimated";
@@ -100,6 +100,7 @@ function RootLayoutInner() {
   const themeColors = useThemeColors();
   const router = useRouter();
   const { width } = useWindowDimensions();
+  const [hasMounted, setHasMounted] = useState(false);
   const [loaded, error] = useFonts({
     SpaceMono: require("../assets/fonts/SpaceMono-Regular.ttf"),
   });
@@ -113,6 +114,8 @@ function RootLayoutInner() {
       SplashScreen.hideAsync();
     }
   }, [loaded]);
+
+  useEffect(() => { setHasMounted(true); }, []);
 
   // Notification Listener (nur Native)
   useEffect(() => {
@@ -169,7 +172,7 @@ function RootLayoutInner() {
   // Auf Web für Admin/Office: Sidebar permanent neben dem Stack anzeigen,
   // damit sie auch auf Detail-Screens (assign, mentorship/[id], admin/...) sichtbar bleibt.
   const isAdminOrOffice = user?.role === "admin" || user?.role === "office";
-  const showPermanentSidebar = Platform.OS === "web" && isAdminOrOffice && width >= 768;
+  const showPermanentSidebar = hasMounted && Platform.OS === "web" && isAdminOrOffice && width >= 768;
 
   if (showPermanentSidebar) {
     return (

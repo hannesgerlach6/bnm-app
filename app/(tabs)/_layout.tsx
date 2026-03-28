@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import {
   TouchableOpacity,
   View,
@@ -293,11 +293,15 @@ function AdminSidebarLayout() {
 export default function TabLayout() {
   const { user } = useAuth();
   const { width } = useWindowDimensions();
+  const [hasMounted, setHasMounted] = useState(false);
+
+  useEffect(() => { setHasMounted(true); }, []);
 
   const isAdminOrOffice = user?.role === "admin" || user?.role === "office";
   const isWeb = Platform.OS === "web";
   // Sidebar nur auf Web und bei Admin/Office, und nur wenn Viewport breit genug (>= 768px)
-  const useSidebar = isWeb && isAdminOrOffice && width >= 768;
+  // hasMounted verhindert Hydration-Mismatch (Server: width=0, Client: echter Viewport)
+  const useSidebar = hasMounted && isWeb && isAdminOrOffice && width >= 768;
 
   if (useSidebar) {
     return <AdminSidebarLayout />;

@@ -50,7 +50,16 @@ function AdminDashboard({ showSystemSettings = true }: { showSystemSettings?: bo
   const [selectedMenteeId, setSelectedMenteeId] = useState<string | null>(null);
   const [showAllActivities, setShowAllActivities] = useState(false);
   const [sendingReminderFor, setSendingReminderFor] = useState<string | null>(null);
+  const REMINDER_KEY = "bnm_sent_reminders";
   const [sentReminderIds, setSentReminderIds] = useState<Set<string>>(new Set());
+
+  // Beim Init: gesendete Reminder-IDs aus localStorage laden
+  useEffect(() => {
+    if (Platform.OS === "web") {
+      const stored = localStorage.getItem(REMINDER_KEY);
+      if (stored) setSentReminderIds(new Set(JSON.parse(stored)));
+    }
+  }, []);
   const onRefresh = useCallback(async () => {
     setRefreshing(true);
     await refreshData();
@@ -195,7 +204,13 @@ function AdminDashboard({ showSystemSettings = true }: { showSystemSettings?: bo
       const msg = t("adminReminder.reminderBody").replace("{0}", menteeName);
       await sendAdminDirectMessage(mentorId, msg);
       showSuccess(t("adminReminder.sent").replace("{0}", mentorName));
-      setSentReminderIds((prev) => new Set(prev).add(mentorshipId));
+      setSentReminderIds((prev) => {
+        const next = new Set(prev).add(mentorshipId);
+        if (Platform.OS === "web") {
+          localStorage.setItem(REMINDER_KEY, JSON.stringify([...next]));
+        }
+        return next;
+      });
     } catch {
       showError(t("common.error"));
     } finally {

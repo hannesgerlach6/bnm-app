@@ -598,56 +598,26 @@ export default function ReportsScreen() {
 
           </View>{/* Ende print-content */}
 
-          {/* Export-Button – Primär */}
-          <TouchableOpacity
-            style={[styles.exportButton, { backgroundColor: dynamicPrimaryBg }]}
-            onPress={handleExport}
-          >
-            <Text style={[styles.exportButtonText, { color: dynamicPrimaryText }]}>
-              {Platform.OS === "web" ? t("reports.csvDownload") : t("reports.export")}
-            </Text>
-          </TouchableOpacity>
+          {/* Bericht öffnen – PDF im neuen Tab (nur Web) */}
+          {Platform.OS === "web" && (
+            <TouchableOpacity
+              style={[styles.printButton, { borderColor: COLORS.gold, flexDirection: "row", alignItems: "center", justifyContent: "center", gap: 8 }]}
+              onPress={handleDownloadPDF}
+            >
+              <Ionicons name="document-outline" size={16} color={COLORS.gold} />
+              <Text style={[styles.printButtonText, { color: COLORS.gold }]}>Bericht öffnen</Text>
+            </TouchableOpacity>
+          )}
 
-          {/* Spender-Bericht CSV – Sekundär (Outline) */}
-          <TouchableOpacity
-            style={styles.spendenButton}
-            onPress={handleSpendenReport}
-          >
-            <Text style={styles.spendenButtonText}>
-              {t("reports.donorReportCsv").replace("{0}", String(selectedYear))}
-            </Text>
-          </TouchableOpacity>
-
-          {/* Spenderbericht visuell erstellen (einfache Version) */}
-          <TouchableOpacity
-            style={styles.donorReportButton}
-            onPress={() => router.push("/donor-report" as never)}
-          >
-            <Text style={[styles.donorReportButtonText, { color: COLORS.primary }]}>
-              {t("reports.donorReportVisual")}
-            </Text>
-          </TouchableOpacity>
-
-          {/* Erweitertes Spender-Bericht Dashboard (nur Admin) */}
+          {/* Spenderbericht */}
           {user?.role === "admin" && (
             <TouchableOpacity
               style={[styles.donorDashboardButton, { backgroundColor: dynamicPrimaryBg }]}
               onPress={() => router.push("/admin/donor-report" as never)}
             >
               <Text style={[styles.donorDashboardButtonText, { color: isDark ? COLORS.primary : COLORS.gold }]}>
-                {t("reports.donorDashboard")}
+                Spenderbericht
               </Text>
-            </TouchableOpacity>
-          )}
-
-          {/* PDF herunterladen (nur Web) */}
-          {Platform.OS === "web" && (
-            <TouchableOpacity
-              style={[styles.printButton, { borderColor: COLORS.gold, flexDirection: "row", alignItems: "center", justifyContent: "center", gap: 8 }]}
-              onPress={handleDownloadPDF}
-            >
-              <Ionicons name="download-outline" size={16} color={COLORS.gold} />
-              <Text style={[styles.printButtonText, { color: COLORS.gold }]}>PDF herunterladen</Text>
             </TouchableOpacity>
           )}
         </View>
