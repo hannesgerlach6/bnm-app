@@ -24,7 +24,7 @@ import { useTheme, useThemeColors } from "../../contexts/ThemeContext";
 import { COLORS } from "../../constants/Colors";
 import { supabase } from "../../lib/supabase";
 import { showError, showSuccess } from "../../lib/errorHandler";
-import { downloadMentorAwardPDF } from "../../lib/pdfGenerator";
+// PDF wird dynamisch importiert um ESM-Kompatibilitätsprobleme zu vermeiden
 import { Container } from "../../components/Container";
 import { BNMLogo } from "../../components/BNMLogo";
 
@@ -179,13 +179,18 @@ export default function MentorAwardScreen() {
 
   async function handleDownloadPDF() {
     if (Platform.OS !== "web") return;
-    await downloadMentorAwardPDF({
-      mentorName: displayMentorName,
-      period: `${getMonthName(displayMonth, "de")} ${displayYear}`,
-      score: displayScore,
-      sessions: displaySessions,
-      completed: displayCompletions,
-    });
+    try {
+      const { downloadMentorAwardPDF } = await import("../../lib/pdfGenerator");
+      await downloadMentorAwardPDF({
+        mentorName: displayMentorName,
+        period: `${getMonthName(displayMonth, "de")} ${displayYear}`,
+        score: displayScore,
+        sessions: displaySessions,
+        completed: displayCompletions,
+      });
+    } catch {
+      showError("PDF-Generator konnte nicht geladen werden");
+    }
   }
 
   return (

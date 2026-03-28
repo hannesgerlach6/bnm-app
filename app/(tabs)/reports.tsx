@@ -12,7 +12,7 @@ import {
 } from "react-native";
 import { showSuccess, showError } from "../../lib/errorHandler";
 import { Ionicons } from "@expo/vector-icons";
-import { downloadMonthlyReportPDF, type ReportData } from "../../lib/pdfGenerator";
+import type { ReportData } from "../../lib/pdfGenerator";
 import { useRouter } from "expo-router";
 import { useAuth } from "../../contexts/AuthContext";
 import { useData } from "../../contexts/DataContext";
@@ -270,8 +270,13 @@ export default function ReportsScreen() {
       })),
       summaryText: `Im ${periodLabel} wurden ${kpis.totalSessions} Sessions durchgeführt. ${kpis.totalAssigned} neue Betreuungen wurden gestartet und ${kpis.completions} Betreuungen erfolgreich abgeschlossen.${topMentorForPdf ? ` Mentor des Monats: ${topMentorForPdf.mentor.name} mit ${topMentorForPdf.score} Punkten.` : ""}`,
     };
-    const ok = await downloadMonthlyReportPDF(data);
-    if (!ok) showError("PDF konnte nicht erstellt werden");
+    try {
+      const { downloadMonthlyReportPDF } = await import("../../lib/pdfGenerator");
+      const ok = await downloadMonthlyReportPDF(data);
+      if (!ok) showError("PDF konnte nicht erstellt werden");
+    } catch {
+      showError("PDF-Generator konnte nicht geladen werden");
+    }
   }
 
   async function handleExport() {
