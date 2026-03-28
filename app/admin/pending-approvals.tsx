@@ -25,7 +25,7 @@ export default function PendingApprovalsScreen() {
   const { user } = useAuth();
   const { t } = useLanguage();
   const themeColors = useThemeColors();
-  const { mentorships, approveMentorship, rejectMentorship, refreshData } = useData();
+  const { mentorships, users, approveMentorship, rejectMentorship, refreshData } = useData();
   const [refreshing, setRefreshing] = useState(false);
   const [rejectModalVisible, setRejectModalVisible] = useState(false);
   const [rejectTargetId, setRejectTargetId] = useState<string | null>(null);
@@ -53,11 +53,13 @@ export default function PendingApprovalsScreen() {
     const m = pendingList.find((ms) => ms.id === mentorshipId);
     if (!m) return;
 
+    const mentorName = users.find((u) => u.id === m.mentor_id)?.name ?? "?";
+    const menteeName = users.find((u) => u.id === m.mentee_id)?.name ?? "?";
     const confirmed = await showConfirm(
       t("pendingApprovals.approveTitle"),
       t("pendingApprovals.approveText")
-        .replace("{0}", m.mentor?.name ?? "?")
-        .replace("{1}", m.mentee?.name ?? "?")
+        .replace("{0}", mentorName)
+        .replace("{1}", menteeName)
     );
     if (!confirmed) return;
 
@@ -124,11 +126,11 @@ export default function PendingApprovalsScreen() {
                 <View style={styles.cardHeader}>
                   <View style={styles.cardInfo}>
                     <Text style={[styles.cardTitle, { color: themeColors.text }]}>
-                      {m.mentor?.name ?? "?"} → {m.mentee?.name ?? "?"}
+                      {users.find((u) => u.id === m.mentor_id)?.name ?? "?"} → {users.find((u) => u.id === m.mentee_id)?.name ?? "?"}
                     </Text>
                     <Text style={[styles.cardSub, { color: themeColors.textSecondary }]}>
-                      {t("chats.mentor")}: {m.mentor?.city ?? "?"} ·{" "}
-                      {t("chats.mentee")}: {m.mentee?.city ?? "?"}
+                      {t("chats.mentor")}: {users.find((u) => u.id === m.mentor_id)?.city ?? "?"} ·{" "}
+                      {t("chats.mentee")}: {users.find((u) => u.id === m.mentee_id)?.city ?? "?"}
                     </Text>
                     {m.assigned_at && (
                       <Text style={[styles.cardDate, { color: themeColors.textTertiary }]}>

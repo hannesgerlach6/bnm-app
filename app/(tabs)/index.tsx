@@ -2142,6 +2142,7 @@ const styles = StyleSheet.create({
     borderRadius: 8,
     padding: 16,
     marginBottom: 14,
+    width: "100%",
   },
   momAdminHeader: { flexDirection: "row", alignItems: "center", marginBottom: 6 },
   momAdminStar: { color: COLORS.gold, fontSize: 18, marginRight: 8 },

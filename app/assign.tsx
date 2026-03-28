@@ -129,7 +129,6 @@ export default function AssignScreen() {
     params.menteeId ?? (unassignedMentees[0]?.id ?? "")
   );
   const [selectedMentorId, setSelectedMentorId] = useState<string>(
-    // FIX 5: Mentor ist sich selbst vorausgewählt
     isMentor && user ? user.id : ""
   );
   const [isAssigning, setIsAssigning] = useState(false);
@@ -147,6 +146,13 @@ export default function AssignScreen() {
   }, [selectedMentee, users, isMentor]);
 
   const maxPossibleScore = 65;
+
+  // Automatisch den besten Mentor vorauswählen wenn noch keiner gewählt
+  React.useEffect(() => {
+    if (!isMentor && !selectedMentorId && matchedMentors.length > 0) {
+      setSelectedMentorId(matchedMentors[0].mentor.id);
+    }
+  }, [matchedMentors, selectedMentorId, isMentor]);
 
   async function handleAssign() {
     if (!user) return;
