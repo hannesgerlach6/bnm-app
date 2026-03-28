@@ -186,13 +186,16 @@ function AdminDashboard({ showSystemSettings = true }: { showSystemSettings?: bo
       .sort((a, b) => b.daysSince - a.daysSince);
   }, [mentorships, sessions]);
 
-  async function handleSendReminder(mentorId: string, mentorName: string, menteeName: string) {
-    setSendingReminderFor(mentorId);
+  async function handleSendReminder(mentorshipId: string, mentorName: string, menteeName: string) {
+    const mentorship = mentorships.find((m) => m.id === mentorshipId);
+    const mentorId = mentorship?.mentor_id;
+    if (!mentorId) return;
+    setSendingReminderFor(mentorshipId);
     try {
       const msg = t("adminReminder.reminderBody").replace("{0}", menteeName);
       await sendAdminDirectMessage(mentorId, msg);
       showSuccess(t("adminReminder.sent").replace("{0}", mentorName));
-      setSentReminderIds((prev) => new Set(prev).add(mentorId));
+      setSentReminderIds((prev) => new Set(prev).add(mentorshipId));
     } catch {
       showError(t("common.error"));
     } finally {
@@ -486,8 +489,8 @@ function AdminDashboard({ showSystemSettings = true }: { showSystemSettings?: bo
                 {stagnantMentorships.map((item, idx) => {
                   const mentorName = item.mentorship.mentor?.name ?? "?";
                   const menteeName = item.mentorship.mentee?.name ?? "?";
-                  const isSending = sendingReminderFor === item.mentorship.mentor_id;
-                  const isSent = sentReminderIds.has(item.mentorship.mentor_id);
+                  const isSending = sendingReminderFor === item.mentorship.id;
+                  const isSent = sentReminderIds.has(item.mentorship.id);
                   const isLast = idx === stagnantMentorships.length - 1;
                   return (
                     <View
@@ -510,7 +513,7 @@ function AdminDashboard({ showSystemSettings = true }: { showSystemSettings?: bo
                           styles.reminderBtn,
                           (isSending || isSent) ? { opacity: 0.5, backgroundColor: "#6B7280" } : {},
                         ]}
-                        onPress={() => !isSent && handleSendReminder(item.mentorship.mentor_id, mentorName, menteeName)}
+                        onPress={() => !isSent && handleSendReminder(item.mentorship.id, mentorName, menteeName)}
                         disabled={isSending || isSent}
                         activeOpacity={0.7}
                       >

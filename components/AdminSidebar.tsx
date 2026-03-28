@@ -109,7 +109,7 @@ export function AdminSidebar() {
     pathname.includes("/admin/qa-management") ||
     pathname.includes("/admin/hadithe-management");
 
-  const activeSegment = pathname.includes("/reports") || pathname.includes("/admin/donor-report")
+  const activeSegment = pathname.includes("/reports") || pathname.includes("donor-report")
     ? "reports"
     : pathname.includes("/mentees")
     ? "mentees"

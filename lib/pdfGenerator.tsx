@@ -189,38 +189,57 @@ function generateAwardHTML(data: AwardData): string {
 
 // ─── Download-Funktionen ─────────────────────────────────────────────────────
 
+// html2pdf.js dynamisch laden (CDN)
+async function loadHtml2Pdf(): Promise<any> {
+  if ((window as any).html2pdf) return (window as any).html2pdf;
+  return new Promise((resolve, reject) => {
+    const script = document.createElement("script");
+    script.src = "https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.2/html2pdf.bundle.min.js";
+    script.onload = () => resolve((window as any).html2pdf);
+    script.onerror = () => reject(new Error("html2pdf konnte nicht geladen werden"));
+    document.head.appendChild(script);
+  });
+}
+
+async function htmlToPdfDownload(html: string, filename: string): Promise<boolean> {
+  try {
+    const html2pdf = await loadHtml2Pdf();
+    // Verstecktes Container-Element erstellen
+    const container = document.createElement("div");
+    container.innerHTML = html;
+    container.style.position = "absolute";
+    container.style.left = "-9999px";
+    container.style.top = "0";
+    container.style.width = "794px"; // A4 Breite in px bei 96dpi
+    document.body.appendChild(container);
+
+    await html2pdf()
+      .set({
+        margin: 0,
+        filename,
+        image: { type: "jpeg", quality: 0.98 },
+        html2canvas: { scale: 2, useCORS: true },
+        jsPDF: { unit: "mm", format: "a4", orientation: "portrait" },
+        pagebreak: { mode: ["css", "legacy"] },
+      })
+      .from(container)
+      .save();
+
+    document.body.removeChild(container);
+    return true;
+  } catch {
+    return false;
+  }
+}
+
 export async function downloadMonthlyReportPDF(data: ReportData): Promise<boolean> {
   if (Platform.OS !== "web") return false;
-
   const html = generateReportHTML(data);
-  const printWindow = window.open("", "_blank", "width=800,height=1100");
-  if (!printWindow) return false;
-
-  printWindow.document.write(html);
-  printWindow.document.close();
-
-  printWindow.onload = () => {
-    printWindow.print();
-    printWindow.onafterprint = () => printWindow.close();
-  };
-
-  return true;
+  return htmlToPdfDownload(html, `BNM-Monatsbericht-${data.period}.pdf`);
 }
 
 export async function downloadMentorAwardPDF(data: AwardData): Promise<boolean> {
   if (Platform.OS !== "web") return false;
-
   const html = generateAwardHTML(data);
-  const printWindow = window.open("", "_blank", "width=800,height=1100");
-  if (!printWindow) return false;
-
-  printWindow.document.write(html);
-  printWindow.document.close();
-
-  printWindow.onload = () => {
-    printWindow.print();
-    printWindow.onafterprint = () => printWindow.close();
-  };
-
-  return true;
+  return htmlToPdfDownload(html, `BNM-Mentor-des-Monats-${data.period}.pdf`);
 }
