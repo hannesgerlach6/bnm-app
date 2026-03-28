@@ -1703,6 +1703,63 @@ const de = {
   "mentor.neglectedWarning": "Du hast {0} seit {1} Tagen nicht dokumentiert",
   "mentor.neglectedUrgent": "Dringend: {0} wartet seit {1} Tagen!",
   "mentor.neglectedSection": "Achtung: Vernachlässigte Mentees",
+
+  // Gamification – Level-Namen
+  "level.bronze": "Bronze-Mentor",
+  "level.silver": "Silber-Mentor",
+  "level.gold": "Gold-Mentor",
+  "level.platinum": "Platin-Mentor",
+
+  // Gamification – XP & Fortschritt
+  "gamification.xpLabel": "XP",
+  "gamification.levelTitle": "Dein Level",
+  "gamification.nextLevel": "Noch {0} XP bis {1}",
+  "gamification.maxLevel": "Höchstes Level erreicht!",
+  "gamification.levelProgress": "Level-Fortschritt",
+
+  // Gamification – Streak
+  "gamification.streakLabel": "{0} Tage Streak",
+  "gamification.streakNone": "Noch kein Streak",
+  "gamification.streakTitle": "Aktiver Streak",
+
+  // Gamification – Danke
+  "gamification.thanksCount": "{0} Danke erhalten",
+  "gamification.thanksLabel": "Danke",
+  "gamification.thankButton": "Danke sagen 🤲",
+  "gamification.thankTitle": "Deinem Mentor danken",
+  "gamification.thankMessage": "Möchtest du deinem Mentor danken?",
+  "gamification.thankMessagePlaceholder": "Optionale Nachricht...",
+  "gamification.thankSend": "Danke senden",
+  "gamification.thankCancel": "Abbrechen",
+  "gamification.thankSuccess": "Dankeschön gesendet!",
+
+  // Gamification – Achievements
+  "gamification.achievementsTitle": "Achievements",
+  "gamification.achievementLocked": "Noch nicht freigeschaltet",
+  "gamification.achievement.first_completion": "Erster Abschluss",
+  "gamification.achievement.first_completion.desc": "Erste Betreuung erfolgreich beendet",
+  "gamification.achievement.marathon": "Marathonläufer",
+  "gamification.achievement.marathon.desc": "5 Betreuungen gleichzeitig",
+  "gamification.achievement.punctual_30": "Pünktlich",
+  "gamification.achievement.punctual_30.desc": "30 Tage Streak ohne Unterbrechung",
+  "gamification.achievement.five_star": "5-Sterne-Mentor",
+  "gamification.achievement.five_star.desc": "Durchschnittsbewertung ≥ 4.5",
+  "gamification.achievement.bridge_builder": "Brückenbauer",
+  "gamification.achievement.bridge_builder.desc": "10 Erstkontakte hergestellt",
+  "gamification.achievement.quran_teacher": "Quran-Lehrer",
+  "gamification.achievement.quran_teacher.desc": "10 Koran-Sessions durchgeführt",
+  "gamification.achievement.community_hero": "Community-Held",
+  "gamification.achievement.community_hero.desc": "5 Mentees in die Community integriert",
+  "gamification.achievement.ten_completions": "Veteran",
+  "gamification.achievement.ten_completions.desc": "10 Betreuungen abgeschlossen",
+
+  // Gamification – Wirkung
+  "gamification.impactTitle": "Durch dich haben {0} Mentees gelernt:",
+  "gamification.impactWudu": "Gebetswaschung (Wudu)",
+  "gamification.impactSalah": "Gebet (Salah)",
+  "gamification.impactQuran": "Koran (5 Suren)",
+  "gamification.impactCommunity": "Community-Integration",
+  "gamification.impactMentees": "{0} Mentees",
 } as const;
 
 export default de;

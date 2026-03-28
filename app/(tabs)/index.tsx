@@ -1,5 +1,5 @@
 import React, { useMemo, useState, useCallback, useEffect } from "react";
-import { View, Text, ScrollView, TouchableOpacity, StyleSheet, RefreshControl, Platform, Share, useWindowDimensions } from "react-native";
+import { View, Text, ScrollView, TouchableOpacity, StyleSheet, RefreshControl, Platform, Share, useWindowDimensions, Modal, TextInput } from "react-native";
 import { useFocusEffect } from "@react-navigation/native";
 import { useRouter } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
@@ -15,6 +15,7 @@ import { navigateToChat } from "../../lib/chatNavigation";
 import { SlideOverPanel } from "../../components/SlideOverPanel";
 import { MentorDetailPanel } from "../../components/MentorDetailPanel";
 import { MenteeDetailPanel } from "../../components/MenteeDetailPanel";
+import { getLevelForXP, getNextLevel, getLevelProgress, ACHIEVEMENTS } from "../../lib/gamification";
 
 export default function DashboardScreen() {
   const { user } = useAuth();
@@ -630,7 +631,7 @@ function MentorDashboard() {
   const { t } = useLanguage();
   const themeColors = useThemeColors();
   const { isDark } = useTheme();
-  const { getMentorshipsByMentorId, sessions, users, hadithe, feedback, refreshData } = useData();
+  const { getMentorshipsByMentorId, sessions, users, hadithe, feedback, refreshData, xpLog, userAchievements, thanks, streak, sessionTypes } = useData();
   const [refreshing, setRefreshing] = useState(false);
   const [hadithOffset, setHadithOffset] = useState(0);
   const onRefresh = useCallback(async () => {
@@ -743,9 +744,56 @@ function MentorDashboard() {
     return hadithe[idx];
   }, [hadithe, hadithOffset]);
 
-  const levelProgress = mentorStats
-    ? Math.min(100, Math.round((mentorStats.myScore / Math.max(mentorStats.maxScore, 1)) * 100))
-    : 0;
+  // XP-basiertes Level-System
+  const myXP = (user?.total_xp ?? 0) as number;
+  const currentLevel = getLevelForXP(myXP);
+  const nextLevel = getNextLevel(myXP);
+  const xpProgress = getLevelProgress(myXP);
+  const thanksCount = thanks.length;
+
+  // "Deine Wirkung" — abgeschlossene Sessions nach Typ für alle Mentees dieses Mentors
+  const impactStats = useMemo(() => {
+    if (!user) return { wudu: 0, salah: 0, quran: 0, community: 0, total: 0 };
+    const myMentorshipIds = new Set(myMentorships.map((m) => m.id));
+    const mentorSessions = sessions.filter((s) => myMentorshipIds.has(s.mentorship_id));
+
+    const wuduTypes = sessionTypes.filter((st) =>
+      st.name.toLowerCase().includes("wudu") || st.name.toLowerCase().includes("waschung")
+    ).map((st) => st.id);
+    const salahTypes = sessionTypes.filter((st) =>
+      st.name.toLowerCase().includes("gebet") || st.name.toLowerCase().includes("salah") || st.name.toLowerCase().includes("salat")
+    ).map((st) => st.id);
+    const quranTypes = sessionTypes.filter((st) =>
+      st.name.toLowerCase().includes("koran") || st.name.toLowerCase().includes("quran")
+    ).map((st) => st.id);
+    const communityTypes = sessionTypes.filter((st) =>
+      st.name.toLowerCase().includes("community") || st.name.toLowerCase().includes("gemeinschaft") || st.name.toLowerCase().includes("integration")
+    ).map((st) => st.id);
+
+    const countUnique = (typeIds: string[]) => {
+      const menteeIds = new Set(
+        mentorSessions
+          .filter((s) => typeIds.includes(s.session_type_id))
+          .map((s) => myMentorships.find((m) => m.id === s.mentorship_id)?.mentee_id)
+          .filter(Boolean)
+      );
+      return menteeIds.size;
+    };
+
+    const uniqueMenteeIds = new Set(
+      mentorSessions.map((s) => myMentorships.find((m) => m.id === s.mentorship_id)?.mentee_id).filter(Boolean)
+    );
+
+    return {
+      wudu: countUnique(wuduTypes),
+      salah: countUnique(salahTypes),
+      quran: countUnique(quranTypes),
+      community: completedMentorships.length,
+      total: uniqueMenteeIds.size,
+    };
+  }, [user, myMentorships, sessions, sessionTypes, completedMentorships]);
+
+  const [showAchievementTooltip, setShowAchievementTooltip] = useState<string | null>(null);
 
   return (
     <ScrollView
@@ -824,26 +872,120 @@ function MentorDashboard() {
               </View>
             )}
 
-            {/* ── Mentor-Level Fortschrittsbalken ─────────────────────── */}
+            {/* ── Gamification Widget ──────────────────────────────────── */}
             <View style={[styles.levelCard, { backgroundColor: themeColors.card, borderColor: isDark ? "#3A3520" : themeColors.border }]}>
+              {/* Level-Badge + XP-Zähler */}
               <View style={styles.levelHeaderRow}>
-                <View>
-                  <Text style={[styles.levelTitle, { color: themeColors.text }]}>Mentor-Level</Text>
-                  <Text style={[styles.levelSubtitle, { color: themeColors.textSecondary }]}>
-                    {t("dashboard.statsRankHint").replace("{0}", String(mentorStats.totalMentors))}
-                  </Text>
+                <View style={styles.levelBadgeRow}>
+                  <View style={[styles.levelBadge, { backgroundColor: currentLevel.color + "22", borderColor: currentLevel.color }]}>
+                    <Text style={[styles.levelBadgeText, { color: currentLevel.color }]}>
+                      {t(`level.${currentLevel.key}` as any)}
+                    </Text>
+                  </View>
                 </View>
                 <View style={[styles.levelScoreBadge, { backgroundColor: isDark ? "#2A2518" : "#FFF8E1" }]}>
-                  <Text style={[styles.levelScoreText, { color: COLORS.gold }]}>{mentorStats.myScore} Pkt.</Text>
+                  <Text style={[styles.levelScoreText, { color: COLORS.gold }]}>{myXP} {t("gamification.xpLabel")}</Text>
                 </View>
               </View>
-              <View style={[styles.levelTrack, { backgroundColor: isDark ? "#2A2520" : themeColors.border }]}>
-                <View style={[styles.levelFill, { width: `${levelProgress}%` as any }]} />
+
+              {/* Fortschrittsbalken */}
+              <View style={[styles.levelTrack, { backgroundColor: isDark ? "#2A2520" : themeColors.border, marginTop: 10 }]}>
+                <View style={[styles.levelFill, { width: `${xpProgress}%` as any, backgroundColor: currentLevel.color }]} />
               </View>
-              <Text style={[styles.levelHint, { color: themeColors.textTertiary }]}>
-                Rang {mentorStats.rank} von {mentorStats.totalMentors} Mentoren
+
+              {/* Nächstes Level Hint */}
+              <Text style={[styles.levelHint, { color: themeColors.textTertiary, marginTop: 4 }]}>
+                {nextLevel
+                  ? t("gamification.nextLevel")
+                      .replace("{0}", String(nextLevel.minXP - myXP))
+                      .replace("{1}", t(`level.${nextLevel.key}` as any))
+                  : t("gamification.maxLevel")}
               </Text>
+
+              {/* Streak + Danke-Zähler */}
+              <View style={styles.streakThanksRow}>
+                <View style={styles.streakPill}>
+                  <Text style={styles.streakEmoji}>🔥</Text>
+                  <Text style={[styles.streakText, { color: themeColors.textSecondary }]}>
+                    {streak && streak.current_streak > 0
+                      ? t("gamification.streakLabel").replace("{0}", String(streak.current_streak))
+                      : t("gamification.streakNone")}
+                  </Text>
+                </View>
+                <View style={styles.streakPill}>
+                  <Text style={styles.streakEmoji}>♥</Text>
+                  <Text style={[styles.streakText, { color: themeColors.textSecondary }]}>
+                    {t("gamification.thanksCount").replace("{0}", String(thanksCount))}
+                  </Text>
+                </View>
+              </View>
             </View>
+
+            {/* ── Achievements ────────────────────────────────────────────── */}
+            <View style={{ marginBottom: 12 }}>
+              <Text style={[styles.mentorSectionTitle, { color: themeColors.textSecondary, marginBottom: 8 }]}>
+                {t("gamification.achievementsTitle")}
+              </Text>
+              <ScrollView horizontal showsHorizontalScrollIndicator={false} style={{ marginHorizontal: -4 }}>
+                {ACHIEVEMENTS.map((ach) => {
+                  const isUnlocked = userAchievements.some((a) => a.achievement_key === ach.key);
+                  return (
+                    <TouchableOpacity
+                      key={ach.key}
+                      style={[
+                        styles.achievementChip,
+                        {
+                          backgroundColor: isUnlocked
+                            ? (isDark ? "#2A2518" : "#FFF8E1")
+                            : (isDark ? "#1A1A24" : themeColors.border + "66"),
+                          borderColor: isUnlocked ? COLORS.gold : (isDark ? "#3A3520" : themeColors.border),
+                          opacity: isUnlocked ? 1 : 0.5,
+                        },
+                      ]}
+                      onPress={() => setShowAchievementTooltip(showAchievementTooltip === ach.key ? null : ach.key)}
+                      activeOpacity={0.7}
+                    >
+                      <Text style={styles.achievementIcon}>{ach.icon}</Text>
+                      {showAchievementTooltip === ach.key && (
+                        <View style={[styles.achievementTooltip, { backgroundColor: isDark ? "#2A2518" : "#FFF8E1", borderColor: COLORS.gold }]}>
+                          <Text style={[styles.achievementTooltipTitle, { color: themeColors.text }]}>{ach.label}</Text>
+                          <Text style={[styles.achievementTooltipDesc, { color: themeColors.textSecondary }]}>{ach.desc}</Text>
+                          {!isUnlocked && (
+                            <Text style={[styles.achievementTooltipLocked, { color: themeColors.textTertiary }]}>
+                              {t("gamification.achievementLocked")}
+                            </Text>
+                          )}
+                        </View>
+                      )}
+                    </TouchableOpacity>
+                  );
+                })}
+              </ScrollView>
+            </View>
+
+            {/* ── Deine Wirkung ────────────────────────────────────────────── */}
+            {impactStats.total > 0 && (
+              <View style={[styles.levelCard, { backgroundColor: themeColors.card, borderColor: isDark ? "#3A3520" : themeColors.border, marginBottom: 12 }]}>
+                <Text style={[styles.levelTitle, { color: themeColors.text, marginBottom: 8 }]}>
+                  {t("gamification.impactTitle").replace("{0}", String(impactStats.total))}
+                </Text>
+                {[
+                  { label: t("gamification.impactWudu"), count: impactStats.wudu },
+                  { label: t("gamification.impactSalah"), count: impactStats.salah },
+                  { label: t("gamification.impactQuran"), count: impactStats.quran },
+                  { label: t("gamification.impactCommunity"), count: impactStats.community },
+                ]
+                  .filter((item) => item.count > 0)
+                  .map((item) => (
+                    <View key={item.label} style={styles.impactRow}>
+                      <Text style={[styles.impactLabel, { color: themeColors.textSecondary }]}>{item.label}</Text>
+                      <Text style={[styles.impactCount, { color: COLORS.gold }]}>
+                        {t("gamification.impactMentees").replace("{0}", String(item.count))}
+                      </Text>
+                    </View>
+                  ))}
+              </View>
+            )}
           </>
         )}
 
@@ -1006,9 +1148,12 @@ function MenteeDashboard() {
   const { t } = useLanguage();
   const themeColors = useThemeColors();
   const { isDark } = useTheme();
-  const { getMentorshipByMenteeId, getCompletedStepIds, sessionTypes, hadithe, refreshData } = useData();
+  const { getMentorshipByMenteeId, getCompletedStepIds, sessionTypes, hadithe, refreshData, sendThanks } = useData();
   const [refreshing, setRefreshing] = useState(false);
   const [hadithOffset, setHadithOffset] = useState(0);
+  const [showThanksModal, setShowThanksModal] = useState(false);
+  const [thanksMessage, setThanksMessage] = useState("");
+  const [sendingThanks, setSendingThanks] = useState(false);
   const onRefresh = useCallback(async () => {
     setRefreshing(true);
     await refreshData();
@@ -1024,6 +1169,21 @@ function MenteeDashboard() {
   if (!user) return null;
 
   const mentorship = getMentorshipByMenteeId(user.id);
+
+  async function handleSendThanks() {
+    if (!mentorship?.mentor_id) return;
+    setSendingThanks(true);
+    try {
+      await sendThanks(mentorship.id, mentorship.mentor_id, thanksMessage || undefined);
+      showSuccess(t("gamification.thankSuccess"));
+      setShowThanksModal(false);
+      setThanksMessage("");
+    } catch {
+      showError(t("common.error"));
+    } finally {
+      setSendingThanks(false);
+    }
+  }
   const completedStepIds = mentorship ? getCompletedStepIds(mentorship.id) : [];
   const sortedSessionTypes = [...sessionTypes].sort((a, b) => a.sort_order - b.sort_order);
   const allDone = sessionTypes.length > 0 && completedStepIds.length === sessionTypes.length;
@@ -1101,6 +1261,56 @@ function MenteeDashboard() {
                 />
               )}
             </KpiGrid>
+
+            {/* ── Danke sagen Button ───────────────────────────────────── */}
+            {mentorship.status === "active" && mentorship.mentor_id && (
+              <TouchableOpacity
+                style={[styles.thankButton, { backgroundColor: isDark ? "#1A2A1A" : "#dcfce7", borderColor: isDark ? "#2d6a4a" : "#86efac" }]}
+                onPress={() => setShowThanksModal(true)}
+                activeOpacity={0.7}
+              >
+                <Text style={styles.thankButtonText}>{t("gamification.thankButton")}</Text>
+              </TouchableOpacity>
+            )}
+
+            {/* ── Danke-Modal ───────────────────────────────────────────── */}
+            <Modal
+              visible={showThanksModal}
+              transparent
+              animationType="fade"
+              onRequestClose={() => setShowThanksModal(false)}
+            >
+              <View style={styles.modalOverlay}>
+                <View style={[styles.modalCard, { backgroundColor: themeColors.card }]}>
+                  <Text style={[styles.modalTitle, { color: themeColors.text }]}>{t("gamification.thankTitle")}</Text>
+                  <Text style={[styles.modalBody, { color: themeColors.textSecondary }]}>{t("gamification.thankMessage")}</Text>
+                  <TextInput
+                    style={[styles.thankInput, { color: themeColors.text, borderColor: isDark ? "#3A3520" : themeColors.border, backgroundColor: isDark ? "#1A1A24" : themeColors.background }]}
+                    placeholder={t("gamification.thankMessagePlaceholder")}
+                    placeholderTextColor={themeColors.textTertiary}
+                    value={thanksMessage}
+                    onChangeText={setThanksMessage}
+                    multiline
+                    numberOfLines={3}
+                  />
+                  <View style={styles.modalButtonRow}>
+                    <TouchableOpacity
+                      style={[styles.modalCancelBtn, { borderColor: isDark ? "#3A3520" : themeColors.border }]}
+                      onPress={() => { setShowThanksModal(false); setThanksMessage(""); }}
+                    >
+                      <Text style={[styles.modalCancelText, { color: themeColors.textSecondary }]}>{t("gamification.thankCancel")}</Text>
+                    </TouchableOpacity>
+                    <TouchableOpacity
+                      style={[styles.modalConfirmBtn, { opacity: sendingThanks ? 0.6 : 1 }]}
+                      onPress={handleSendThanks}
+                      disabled={sendingThanks}
+                    >
+                      <Text style={styles.modalConfirmText}>{t("gamification.thankSend")}</Text>
+                    </TouchableOpacity>
+                  </View>
+                </View>
+              </View>
+            </Modal>
 
             {/* ── Hadith — prominente große Card ───────────────────────── */}
             {todayHadith && (
@@ -2138,6 +2348,171 @@ const styles = StyleSheet.create({
   levelHint: {
     fontSize: 11,
     marginTop: 6,
+  },
+  levelBadgeRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 6,
+  },
+  levelBadge: {
+    borderRadius: 8,
+    borderWidth: 1,
+    paddingHorizontal: 10,
+    paddingVertical: 4,
+  },
+  levelBadgeText: {
+    fontSize: 13,
+    fontWeight: "700",
+  },
+  streakThanksRow: {
+    flexDirection: "row",
+    gap: 12,
+    marginTop: 10,
+  },
+  streakPill: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 4,
+  },
+  streakEmoji: {
+    fontSize: 15,
+  },
+  streakText: {
+    fontSize: 12,
+    fontWeight: "500",
+  },
+  achievementChip: {
+    borderRadius: 10,
+    borderWidth: 1,
+    padding: 10,
+    marginHorizontal: 4,
+    alignItems: "center",
+    justifyContent: "center",
+    minWidth: 48,
+    position: "relative",
+  },
+  achievementIcon: {
+    fontSize: 24,
+  },
+  achievementTooltip: {
+    position: "absolute",
+    top: 54,
+    left: -20,
+    width: 160,
+    borderRadius: 8,
+    borderWidth: 1,
+    padding: 8,
+    zIndex: 100,
+    elevation: 10,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.2,
+    shadowRadius: 4,
+  },
+  achievementTooltipTitle: {
+    fontSize: 12,
+    fontWeight: "700",
+    marginBottom: 2,
+  },
+  achievementTooltipDesc: {
+    fontSize: 11,
+    lineHeight: 16,
+  },
+  achievementTooltipLocked: {
+    fontSize: 10,
+    marginTop: 4,
+    fontStyle: "italic",
+  },
+  impactRow: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    paddingVertical: 4,
+  },
+  impactLabel: {
+    fontSize: 13,
+  },
+  impactCount: {
+    fontSize: 13,
+    fontWeight: "700",
+  },
+  // Danke-Button (Mentee)
+  thankButton: {
+    borderRadius: 10,
+    borderWidth: 1,
+    padding: 14,
+    alignItems: "center",
+    marginBottom: 12,
+  },
+  thankButtonText: {
+    fontSize: 15,
+    fontWeight: "700",
+    color: "#15803d",
+  },
+  // Modal
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: "rgba(0,0,0,0.5)",
+    justifyContent: "center",
+    alignItems: "center",
+    padding: 24,
+  },
+  modalCard: {
+    borderRadius: 16,
+    padding: 24,
+    width: "100%",
+    maxWidth: 400,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3,
+    shadowRadius: 8,
+    elevation: 12,
+  },
+  modalTitle: {
+    fontSize: 17,
+    fontWeight: "700",
+    marginBottom: 8,
+  },
+  modalBody: {
+    fontSize: 14,
+    marginBottom: 16,
+    lineHeight: 20,
+  },
+  thankInput: {
+    borderWidth: 1,
+    borderRadius: 8,
+    padding: 10,
+    fontSize: 14,
+    minHeight: 80,
+    textAlignVertical: "top",
+    marginBottom: 16,
+  },
+  modalButtonRow: {
+    flexDirection: "row",
+    gap: 10,
+  },
+  modalCancelBtn: {
+    flex: 1,
+    borderWidth: 1,
+    borderRadius: 8,
+    padding: 12,
+    alignItems: "center",
+  },
+  modalCancelText: {
+    fontSize: 14,
+    fontWeight: "600",
+  },
+  modalConfirmBtn: {
+    flex: 1,
+    borderRadius: 8,
+    padding: 12,
+    alignItems: "center",
+    backgroundColor: COLORS.gold,
+  },
+  modalConfirmText: {
+    fontSize: 14,
+    fontWeight: "700",
+    color: "#0E0E14",
   },
   // Kompakte Mentees-Card im Mentor-Dashboard
   compactMenteesCard: {

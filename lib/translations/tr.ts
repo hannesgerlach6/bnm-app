@@ -1701,6 +1701,63 @@ const tr: Record<TranslationKeys, string> = {
   "mentor.neglectedWarning": "{0} kişisini {1} gündür belgelemedin",
   "mentor.neglectedUrgent": "Acil: {0} {1} gündür bekliyor!",
   "mentor.neglectedSection": "Dikkat: İhmal Edilen Mentiler",
+
+  // Gamification – Seviye adları
+  "level.bronze": "Bronz Mentor",
+  "level.silver": "Gümüş Mentor",
+  "level.gold": "Altın Mentor",
+  "level.platinum": "Platin Mentor",
+
+  // Gamification – XP & İlerleme
+  "gamification.xpLabel": "XP",
+  "gamification.levelTitle": "Seviyeniz",
+  "gamification.nextLevel": "{1} için {0} XP daha",
+  "gamification.maxLevel": "En yüksek seviyeye ulaştınız!",
+  "gamification.levelProgress": "Seviye İlerlemesi",
+
+  // Gamification – Seri
+  "gamification.streakLabel": "{0} günlük seri",
+  "gamification.streakNone": "Henüz seri yok",
+  "gamification.streakTitle": "Aktif Seri",
+
+  // Gamification – Teşekkür
+  "gamification.thanksCount": "{0} teşekkür alındı",
+  "gamification.thanksLabel": "Teşekkür",
+  "gamification.thankButton": "Teşekkür Et 🤲",
+  "gamification.thankTitle": "Mentörüne Teşekkür Et",
+  "gamification.thankMessage": "Mentörüne teşekkür etmek ister misin?",
+  "gamification.thankMessagePlaceholder": "İsteğe bağlı mesaj...",
+  "gamification.thankSend": "Teşekkür Gönder",
+  "gamification.thankCancel": "İptal",
+  "gamification.thankSuccess": "Teşekkür gönderildi!",
+
+  // Gamification – Başarımlar
+  "gamification.achievementsTitle": "Başarımlar",
+  "gamification.achievementLocked": "Henüz kilidi açılmadı",
+  "gamification.achievement.first_completion": "İlk Tamamlama",
+  "gamification.achievement.first_completion.desc": "İlk mentorluk başarıyla tamamlandı",
+  "gamification.achievement.marathon": "Maraton Koşucusu",
+  "gamification.achievement.marathon.desc": "Aynı anda 5 mentorluk",
+  "gamification.achievement.punctual_30": "Dakik",
+  "gamification.achievement.punctual_30.desc": "30 günlük kesintisiz seri",
+  "gamification.achievement.five_star": "5 Yıldızlı Mentor",
+  "gamification.achievement.five_star.desc": "Ortalama puan ≥ 4.5",
+  "gamification.achievement.bridge_builder": "Köprü Kurucu",
+  "gamification.achievement.bridge_builder.desc": "10 ilk temas kuruldu",
+  "gamification.achievement.quran_teacher": "Kuran Öğretmeni",
+  "gamification.achievement.quran_teacher.desc": "10 Kuran dersi tamamlandı",
+  "gamification.achievement.community_hero": "Topluluk Kahramanı",
+  "gamification.achievement.community_hero.desc": "5 mentee topluluğa entegre edildi",
+  "gamification.achievement.ten_completions": "Veteran",
+  "gamification.achievement.ten_completions.desc": "10 mentorluk tamamlandı",
+
+  // Gamification – Etki
+  "gamification.impactTitle": "Sayende {0} mentee öğrendi:",
+  "gamification.impactWudu": "Abdest (Wudu)",
+  "gamification.impactSalah": "Namaz (Salah)",
+  "gamification.impactQuran": "Kuran (5 Sure)",
+  "gamification.impactCommunity": "Topluluk Entegrasyonu",
+  "gamification.impactMentees": "{0} Mentee",
 };
 
 export default tr;

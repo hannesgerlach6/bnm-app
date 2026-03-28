@@ -1701,6 +1701,63 @@ const en: Record<TranslationKeys, string> = {
   "mentor.neglectedWarning": "You haven't documented {0} for {1} days",
   "mentor.neglectedUrgent": "Urgent: {0} has been waiting for {1} days!",
   "mentor.neglectedSection": "Attention: Neglected Mentees",
+
+  // Gamification – Level names
+  "level.bronze": "Bronze Mentor",
+  "level.silver": "Silver Mentor",
+  "level.gold": "Gold Mentor",
+  "level.platinum": "Platinum Mentor",
+
+  // Gamification – XP & Progress
+  "gamification.xpLabel": "XP",
+  "gamification.levelTitle": "Your Level",
+  "gamification.nextLevel": "{0} XP until {1}",
+  "gamification.maxLevel": "Highest level reached!",
+  "gamification.levelProgress": "Level Progress",
+
+  // Gamification – Streak
+  "gamification.streakLabel": "{0} day streak",
+  "gamification.streakNone": "No streak yet",
+  "gamification.streakTitle": "Active Streak",
+
+  // Gamification – Thanks
+  "gamification.thanksCount": "{0} thanks received",
+  "gamification.thanksLabel": "Thanks",
+  "gamification.thankButton": "Say Thanks 🤲",
+  "gamification.thankTitle": "Thank your Mentor",
+  "gamification.thankMessage": "Would you like to thank your mentor?",
+  "gamification.thankMessagePlaceholder": "Optional message...",
+  "gamification.thankSend": "Send Thanks",
+  "gamification.thankCancel": "Cancel",
+  "gamification.thankSuccess": "Thank you sent!",
+
+  // Gamification – Achievements
+  "gamification.achievementsTitle": "Achievements",
+  "gamification.achievementLocked": "Not yet unlocked",
+  "gamification.achievement.first_completion": "First Completion",
+  "gamification.achievement.first_completion.desc": "Successfully finished first mentorship",
+  "gamification.achievement.marathon": "Marathon Runner",
+  "gamification.achievement.marathon.desc": "5 simultaneous mentorships",
+  "gamification.achievement.punctual_30": "Punctual",
+  "gamification.achievement.punctual_30.desc": "30-day streak without interruption",
+  "gamification.achievement.five_star": "5-Star Mentor",
+  "gamification.achievement.five_star.desc": "Average rating ≥ 4.5",
+  "gamification.achievement.bridge_builder": "Bridge Builder",
+  "gamification.achievement.bridge_builder.desc": "10 first contacts made",
+  "gamification.achievement.quran_teacher": "Quran Teacher",
+  "gamification.achievement.quran_teacher.desc": "10 Quran sessions completed",
+  "gamification.achievement.community_hero": "Community Hero",
+  "gamification.achievement.community_hero.desc": "5 mentees integrated into the community",
+  "gamification.achievement.ten_completions": "Veteran",
+  "gamification.achievement.ten_completions.desc": "10 mentorships completed",
+
+  // Gamification – Impact
+  "gamification.impactTitle": "Through you, {0} mentees have learned:",
+  "gamification.impactWudu": "Ritual Washing (Wudu)",
+  "gamification.impactSalah": "Prayer (Salah)",
+  "gamification.impactQuran": "Quran (5 Surahs)",
+  "gamification.impactCommunity": "Community Integration",
+  "gamification.impactMentees": "{0} Mentees",
 };
 
 export default en;

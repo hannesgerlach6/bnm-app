@@ -18,6 +18,8 @@ export interface User {
   avatar_url?: string;
   created_at: string;
   is_active?: boolean;
+  total_xp?: number;
+  mentor_level?: string;
 }
 
 export interface Mentorship {
@@ -112,4 +114,37 @@ export interface Notification {
   created_at: string;
   read: boolean;
   related_id?: string;
+}
+
+export interface XPEntry {
+  id: string;
+  user_id: string;
+  amount: number;
+  reason: string;
+  related_id?: string;
+  created_at: string;
+}
+
+export interface UserAchievement {
+  id: string;
+  user_id: string;
+  achievement_key: string;
+  unlocked_at: string;
+}
+
+export interface ThankEntry {
+  id: string;
+  mentorship_id: string;
+  mentee_id: string;
+  mentor_id: string;
+  session_type_id?: string;
+  message: string;
+  created_at: string;
+}
+
+export interface StreakData {
+  user_id: string;
+  current_streak: number;
+  longest_streak: number;
+  last_activity_date?: string;
 }

@@ -1701,6 +1701,63 @@ const ar: Record<TranslationKeys, string> = {
   "mentor.neglectedWarning": "لم توثق {0} منذ {1} يومًا",
   "mentor.neglectedUrgent": "عاجل: {0} ينتظر منذ {1} يومًا!",
   "mentor.neglectedSection": "تنبيه: المتدربون المهملون",
+
+  // Gamification – أسماء المستويات
+  "level.bronze": "مرشد برونزي",
+  "level.silver": "مرشد فضي",
+  "level.gold": "مرشد ذهبي",
+  "level.platinum": "مرشد بلاتيني",
+
+  // Gamification – XP والتقدم
+  "gamification.xpLabel": "XP",
+  "gamification.levelTitle": "مستواك",
+  "gamification.nextLevel": "{0} XP حتى {1}",
+  "gamification.maxLevel": "وصلت إلى أعلى مستوى!",
+  "gamification.levelProgress": "تقدم المستوى",
+
+  // Gamification – السلسلة
+  "gamification.streakLabel": "سلسلة {0} يوم",
+  "gamification.streakNone": "لا توجد سلسلة بعد",
+  "gamification.streakTitle": "السلسلة النشطة",
+
+  // Gamification – الشكر
+  "gamification.thanksCount": "{0} شكر مستلم",
+  "gamification.thanksLabel": "شكر",
+  "gamification.thankButton": "قل شكراً 🤲",
+  "gamification.thankTitle": "اشكر مرشدك",
+  "gamification.thankMessage": "هل تريد أن تشكر مرشدك؟",
+  "gamification.thankMessagePlaceholder": "رسالة اختيارية...",
+  "gamification.thankSend": "إرسال الشكر",
+  "gamification.thankCancel": "إلغاء",
+  "gamification.thankSuccess": "تم إرسال الشكر!",
+
+  // Gamification – الإنجازات
+  "gamification.achievementsTitle": "الإنجازات",
+  "gamification.achievementLocked": "لم يُفتح بعد",
+  "gamification.achievement.first_completion": "أول إنجاز",
+  "gamification.achievement.first_completion.desc": "أُنهيت الإرشادية الأولى بنجاح",
+  "gamification.achievement.marathon": "عداء الماراثون",
+  "gamification.achievement.marathon.desc": "5 إرشاديات في وقت واحد",
+  "gamification.achievement.punctual_30": "منتظم",
+  "gamification.achievement.punctual_30.desc": "سلسلة 30 يوماً بلا انقطاع",
+  "gamification.achievement.five_star": "مرشد 5 نجوم",
+  "gamification.achievement.five_star.desc": "متوسط التقييم ≥ 4.5",
+  "gamification.achievement.bridge_builder": "بانٍ للجسور",
+  "gamification.achievement.bridge_builder.desc": "10 جهات اتصال أولى",
+  "gamification.achievement.quran_teacher": "معلم القرآن",
+  "gamification.achievement.quran_teacher.desc": "10 جلسات قرآن مكتملة",
+  "gamification.achievement.community_hero": "بطل المجتمع",
+  "gamification.achievement.community_hero.desc": "دمج 5 متدربين في المجتمع",
+  "gamification.achievement.ten_completions": "مخضرم",
+  "gamification.achievement.ten_completions.desc": "10 إرشاديات مكتملة",
+
+  // Gamification – التأثير
+  "gamification.impactTitle": "بفضلك تعلم {0} من المتدربين:",
+  "gamification.impactWudu": "الوضوء",
+  "gamification.impactSalah": "الصلاة",
+  "gamification.impactQuran": "القرآن (5 سور)",
+  "gamification.impactCommunity": "الاندماج في المجتمع",
+  "gamification.impactMentees": "{0} متدربين",
 };
 
 export default ar;
