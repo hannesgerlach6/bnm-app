@@ -1687,6 +1687,16 @@ const tr: Record<TranslationKeys, string> = {
   "adminReminder.sendButton": "Hatırlatma Gönder",
   "adminReminder.sent": "{0} kişisine hatırlatma gönderildi",
   "adminReminder.reminderBody": "Lütfen {0} ile bir sonraki seansını belgelemeyi unutma. BNM ekibi düzenli güncellemeleri takdir eder.",
+
+  // Mentor Dashboard – Değerlendirmeler & İhmal Uyarıları
+  "mentor.myRatings": "Değerlendirmelerim",
+  "mentor.avgRating": "Ortalama Değerlendirme",
+  "mentor.ratingsCount": "{0} değerlendirmeden",
+  "mentor.noRatings": "Henüz değerlendirme yok.",
+  "mentor.showMoreFeedback": "Daha fazla göster →",
+  "mentor.neglectedWarning": "{0} kişisini {1} gündür belgelemedin",
+  "mentor.neglectedUrgent": "Acil: {0} {1} gündür bekliyor!",
+  "mentor.neglectedSection": "Dikkat: İhmal Edilen Mentiler",
 };
 
 export default tr;

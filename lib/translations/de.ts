@@ -1689,6 +1689,16 @@ const de = {
   "adminReminder.sendButton": "Erinnerung senden",
   "adminReminder.sent": "Erinnerung an {0} gesendet",
   "adminReminder.reminderBody": "Bitte denk daran, deine nächste Session mit {0} zu dokumentieren. Das BNM-Team freut sich über regelmässige Updates.",
+
+  // Mentor Dashboard – Bewertungen & Vernachlässigungs-Warnungen
+  "mentor.myRatings": "Meine Bewertungen",
+  "mentor.avgRating": "Durchschnittsbewertung",
+  "mentor.ratingsCount": "aus {0} Bewertungen",
+  "mentor.noRatings": "Noch keine Bewertungen vorhanden.",
+  "mentor.showMoreFeedback": "Mehr anzeigen →",
+  "mentor.neglectedWarning": "Du hast {0} seit {1} Tagen nicht dokumentiert",
+  "mentor.neglectedUrgent": "Dringend: {0} wartet seit {1} Tagen!",
+  "mentor.neglectedSection": "Achtung: Vernachlässigte Mentees",
 } as const;
 
 export default de;

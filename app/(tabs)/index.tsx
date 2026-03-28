@@ -7,7 +7,7 @@ import { useAuth } from "../../contexts/AuthContext";
 import { useData } from "../../contexts/DataContext";
 import { useLanguage } from "../../contexts/LanguageContext";
 import { showError, showSuccess } from "../../lib/errorHandler";
-import type { Mentorship } from "../../types";
+import type { Mentorship, Feedback } from "../../types";
 import { COLORS } from "../../constants/Colors";
 import { Container } from "../../components/Container";
 import { useTheme, useThemeColors } from "../../contexts/ThemeContext";
@@ -548,7 +548,7 @@ function MentorDashboard() {
   const { t } = useLanguage();
   const themeColors = useThemeColors();
   const { isDark } = useTheme();
-  const { getMentorshipsByMentorId, sessions, users, hadithe, refreshData } = useData();
+  const { getMentorshipsByMentorId, sessions, users, hadithe, feedback, refreshData } = useData();
   const [refreshing, setRefreshing] = useState(false);
   const [hadithOffset, setHadithOffset] = useState(0);
   const onRefresh = useCallback(async () => {
@@ -596,6 +596,37 @@ function MentorDashboard() {
       maxScore,
     };
   }, [user, myMentorships, activeMentorships.length, completedMentorships.length, sessions, users, getMentorshipsByMentorId]);
+
+  // Meine Feedback-Bewertungen (nur Feedbacks zu Mentorships wo ich Mentor bin)
+  const myFeedbacks = useMemo(() => {
+    if (!user) return [];
+    const myMentorshipIds = new Set(myMentorships.map((m) => m.id));
+    return [...feedback]
+      .filter((f) => myMentorshipIds.has(f.mentorship_id))
+      .sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
+  }, [user, myMentorships, feedback]);
+
+  const avgRating = useMemo(() => {
+    if (myFeedbacks.length === 0) return null;
+    const sum = myFeedbacks.reduce((acc, f) => acc + f.rating, 0);
+    return Math.round((sum / myFeedbacks.length) * 10) / 10;
+  }, [myFeedbacks]);
+
+  // Vernachlässigte Mentees (>5 Tage keine Session)
+  const neglectedMentees = useMemo(() => {
+    const now = Date.now();
+    return activeMentorships
+      .map((m) => {
+        const ms = sessions.filter((s) => s.mentorship_id === m.id);
+        const lastTime = ms.length > 0
+          ? Math.max(...ms.map((s) => new Date(s.date).getTime()))
+          : new Date(m.assigned_at).getTime();
+        const daysSince = Math.floor((now - lastTime) / 86400000);
+        return { mentorship: m, daysSince };
+      })
+      .filter((x) => x.daysSince >= 5)
+      .sort((a, b) => b.daysSince - a.daysSince);
+  }, [activeMentorships, sessions]);
 
   // Auto-Show Onboarding — NUR auf Mobile (Native), NICHT auf Web
   useEffect(() => {
@@ -663,6 +694,54 @@ function MentorDashboard() {
               <StatCard label={t("dashboard.statsRank")} value={mentorStats.rank} color="#6366f1" iconName="trophy-outline" sublabel={`/ ${mentorStats.totalMentors}`} />
             </KpiGrid>
 
+            {/* ── Vernachlässigte Mentees (>5 Tage keine Session) ─────── */}
+            {neglectedMentees.length > 0 && (
+              <View style={{ marginBottom: 12 }}>
+                <Text style={[styles.mentorSectionTitle, { color: themeColors.textSecondary }]}>
+                  {t("mentor.neglectedSection")}
+                </Text>
+                {neglectedMentees.map((item) => {
+                  const menteeName = item.mentorship.mentee?.name ?? "?";
+                  const isUrgent = item.daysSince > 10;
+                  const bgColor = isUrgent
+                    ? (isDark ? "#3a1a1a" : "#fff1f2")
+                    : (isDark ? "#3a2e0a" : "#fffbeb");
+                  const borderColor = isUrgent
+                    ? (isDark ? "#7a2a2a" : "#fecdd3")
+                    : (isDark ? "#6b4e1a" : "#fde68a");
+                  const borderLeftColor = isUrgent
+                    ? (isDark ? "#f87171" : "#ef4444")
+                    : (isDark ? "#fbbf24" : "#f59e0b");
+                  const textColor = isUrgent
+                    ? (isDark ? "#f87171" : "#991b1b")
+                    : (isDark ? "#fbbf24" : "#92400e");
+                  const message = isUrgent
+                    ? t("mentor.neglectedUrgent").replace("{0}", menteeName).replace("{1}", String(item.daysSince))
+                    : t("mentor.neglectedWarning").replace("{0}", menteeName).replace("{1}", String(item.daysSince));
+                  return (
+                    <TouchableOpacity
+                      key={item.mentorship.id}
+                      style={[
+                        styles.neglectedRow,
+                        { backgroundColor: bgColor, borderColor, borderLeftColor },
+                      ]}
+                      onPress={() => router.push({ pathname: "/mentorship/[id]", params: { id: item.mentorship.id } })}
+                      activeOpacity={0.8}
+                    >
+                      <Ionicons
+                        name={isUrgent ? "warning-outline" : "time-outline"}
+                        size={18}
+                        color={borderLeftColor}
+                        style={{ marginRight: 10 }}
+                      />
+                      <Text style={[styles.neglectedText, { color: textColor, flex: 1 }]}>{message}</Text>
+                      <Text style={[styles.neglectedArrow, { color: textColor }]}>›</Text>
+                    </TouchableOpacity>
+                  );
+                })}
+              </View>
+            )}
+
             {/* ── Mentor-Level Fortschrittsbalken ─────────────────────── */}
             <View style={[styles.levelCard, { backgroundColor: themeColors.card, borderColor: isDark ? "#3A3520" : themeColors.border }]}>
               <View style={styles.levelHeaderRow}>
@@ -685,6 +764,17 @@ function MentorDashboard() {
             </View>
           </>
         )}
+
+        {/* ── Meine Bewertungen ────────────────────────────────────────── */}
+        <MentorRatingsSection
+          feedbacks={myFeedbacks}
+          avgRating={avgRating}
+          myMentorships={myMentorships}
+          router={router}
+          t={t}
+          themeColors={themeColors}
+          isDark={isDark}
+        />
 
         {/* ── Motivations-Hadith ───────────────────────────────────────── */}
         {todayHadith && (
@@ -725,6 +815,98 @@ function MentorDashboard() {
 
       </View>
     </ScrollView>
+  );
+}
+
+function MentorRatingsSection({
+  feedbacks,
+  avgRating,
+  myMentorships,
+  router,
+  t,
+  themeColors,
+  isDark,
+}: {
+  feedbacks: Feedback[];
+  avgRating: number | null;
+  myMentorships: Mentorship[];
+  router: ReturnType<typeof useRouter>;
+  t: (key: any) => string;
+  themeColors: ReturnType<typeof useThemeColors>;
+  isDark: boolean;
+}) {
+  const [showAll, setShowAll] = useState(false);
+  const displayed = showAll ? feedbacks : feedbacks.slice(0, 3);
+
+  return (
+    <View style={[styles.ratingsCard, { backgroundColor: themeColors.card, borderColor: isDark ? "#3A3520" : themeColors.border }]}>
+      {/* Header */}
+      <View style={styles.ratingsSectionHeader}>
+        <Text style={[styles.cardTitle, { color: themeColors.text, marginBottom: 0 }]}>{t("mentor.myRatings")}</Text>
+        {avgRating !== null && (
+          <View style={[styles.avgRatingBadge, { backgroundColor: isDark ? "#2A2518" : "#FFF8E1" }]}>
+            <Text style={[styles.avgRatingValue, { color: COLORS.gold }]}>{avgRating.toFixed(1)} ★</Text>
+          </View>
+        )}
+      </View>
+
+      {/* Durchschnitt + Anzahl */}
+      {avgRating !== null ? (
+        <Text style={[styles.ratingsCountText, { color: themeColors.textSecondary }]}>
+          {t("mentor.ratingsCount").replace("{0}", String(feedbacks.length))}
+        </Text>
+      ) : null}
+
+      {/* Liste der letzten Feedbacks */}
+      {feedbacks.length === 0 ? (
+        <Text style={[styles.emptyText, { color: themeColors.textTertiary, paddingVertical: 12 }]}>
+          {t("mentor.noRatings")}
+        </Text>
+      ) : (
+        <>
+          {displayed.map((f, idx) => {
+            const ms = myMentorships.find((m) => m.id === f.mentorship_id);
+            const menteeName = ms?.mentee?.name ?? "?";
+            const dateStr = new Date(f.created_at).toLocaleDateString("de-DE", { day: "2-digit", month: "2-digit", year: "2-digit" });
+            const stars = "★".repeat(f.rating) + "☆".repeat(5 - f.rating);
+            const isLast = idx === displayed.length - 1;
+            return (
+              <TouchableOpacity
+                key={f.id}
+                style={[
+                  styles.feedbackRow,
+                  !isLast && [styles.feedbackRowBorder, { borderBottomColor: isDark ? "#3A3520" : themeColors.border }],
+                ]}
+                onPress={() => ms && router.push({ pathname: "/mentorship/[id]", params: { id: ms.id } })}
+                activeOpacity={0.7}
+              >
+                <View style={styles.feedbackStarsRow}>
+                  <Text style={[styles.feedbackStars, { color: COLORS.gold }]}>{stars}</Text>
+                  <Text style={[styles.feedbackDate, { color: themeColors.textTertiary }]}>{dateStr}</Text>
+                </View>
+                {f.comments ? (
+                  <Text style={[styles.feedbackComment, { color: themeColors.textSecondary }]} numberOfLines={2}>
+                    "{f.comments}"
+                  </Text>
+                ) : null}
+                <Text style={[styles.feedbackMentee, { color: themeColors.textTertiary }]}>{menteeName}</Text>
+              </TouchableOpacity>
+            );
+          })}
+          {feedbacks.length > 3 && (
+            <TouchableOpacity
+              style={styles.showMoreBtn}
+              onPress={() => setShowAll((v) => !v)}
+              activeOpacity={0.7}
+            >
+              <Text style={[styles.showMoreText, { color: isDark ? COLORS.gold : COLORS.gradientStart }]}>
+                {showAll ? "Weniger anzeigen" : t("mentor.showMoreFeedback")}
+              </Text>
+            </TouchableOpacity>
+          )}
+        </>
+      )}
+    </View>
   );
 }
 
@@ -2097,5 +2279,98 @@ const styles = StyleSheet.create({
     fontWeight: "500",
     textAlign: "center",
     lineHeight: 13,
+  },
+
+  // Mentor Dashboard – Vernachlässigte Mentees
+  mentorSectionTitle: {
+    fontSize: 11,
+    fontWeight: "700",
+    letterSpacing: 0.8,
+    textTransform: "uppercase",
+    marginBottom: 6,
+  },
+  neglectedRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    borderWidth: 1,
+    borderLeftWidth: 4,
+    borderRadius: 8,
+    paddingHorizontal: 12,
+    paddingVertical: 10,
+    marginBottom: 6,
+  },
+  neglectedText: {
+    fontSize: 13,
+    fontWeight: "500",
+    lineHeight: 18,
+  },
+  neglectedArrow: {
+    fontSize: 16,
+    marginLeft: 6,
+  },
+
+  // Mentor Dashboard – Bewertungen
+  ratingsCard: {
+    borderRadius: 12,
+    borderWidth: 1,
+    padding: 16,
+    marginBottom: 16,
+  },
+  ratingsSectionHeader: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    marginBottom: 4,
+  },
+  avgRatingBadge: {
+    borderRadius: 8,
+    paddingHorizontal: 10,
+    paddingVertical: 4,
+  },
+  avgRatingValue: {
+    fontSize: 18,
+    fontWeight: "800",
+  },
+  ratingsCountText: {
+    fontSize: 12,
+    marginBottom: 10,
+  },
+  feedbackRow: {
+    paddingVertical: 10,
+    gap: 3,
+  },
+  feedbackRowBorder: {
+    borderBottomWidth: 1,
+  },
+  feedbackStarsRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+  },
+  feedbackStars: {
+    fontSize: 14,
+    letterSpacing: 1,
+  },
+  feedbackDate: {
+    fontSize: 11,
+  },
+  feedbackComment: {
+    fontSize: 13,
+    fontStyle: "italic",
+    lineHeight: 18,
+    marginTop: 2,
+  },
+  feedbackMentee: {
+    fontSize: 11,
+    marginTop: 2,
+  },
+  showMoreBtn: {
+    marginTop: 8,
+    alignItems: "center",
+    paddingVertical: 6,
+  },
+  showMoreText: {
+    fontSize: 13,
+    fontWeight: "600",
   },
 });

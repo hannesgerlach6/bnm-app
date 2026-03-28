@@ -1687,6 +1687,16 @@ const en: Record<TranslationKeys, string> = {
   "adminReminder.sendButton": "Send reminder",
   "adminReminder.sent": "Reminder sent to {0}",
   "adminReminder.reminderBody": "Please remember to document your next session with {0}. The BNM team appreciates regular updates.",
+
+  // Mentor Dashboard – Ratings & Neglect Warnings
+  "mentor.myRatings": "My Ratings",
+  "mentor.avgRating": "Average Rating",
+  "mentor.ratingsCount": "from {0} ratings",
+  "mentor.noRatings": "No ratings yet.",
+  "mentor.showMoreFeedback": "Show more →",
+  "mentor.neglectedWarning": "You haven't documented {0} for {1} days",
+  "mentor.neglectedUrgent": "Urgent: {0} has been waiting for {1} days!",
+  "mentor.neglectedSection": "Attention: Neglected Mentees",
 };
 
 export default en;

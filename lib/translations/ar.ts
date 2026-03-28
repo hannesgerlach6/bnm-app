@@ -1687,6 +1687,16 @@ const ar: Record<TranslationKeys, string> = {
   "adminReminder.sendButton": "إرسال تذكير",
   "adminReminder.sent": "تم إرسال تذكير إلى {0}",
   "adminReminder.reminderBody": "يرجى تذكر توثيق جلستك القادمة مع {0}. يقدر فريق BNM التحديثات المنتظمة.",
+
+  // لوحة تحكم المرشد – التقييمات وتحذيرات الإهمال
+  "mentor.myRatings": "تقييماتي",
+  "mentor.avgRating": "متوسط التقييم",
+  "mentor.ratingsCount": "من {0} تقييم",
+  "mentor.noRatings": "لا توجد تقييمات بعد.",
+  "mentor.showMoreFeedback": "عرض المزيد →",
+  "mentor.neglectedWarning": "لم توثق {0} منذ {1} يومًا",
+  "mentor.neglectedUrgent": "عاجل: {0} ينتظر منذ {1} يومًا!",
+  "mentor.neglectedSection": "تنبيه: المتدربون المهملون",
 };
 
 export default ar;
