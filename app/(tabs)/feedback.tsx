@@ -182,28 +182,28 @@ const styles = StyleSheet.create({
   scrollView: { flex: 1 },
   centerContainer: { flex: 1, alignItems: "center", justifyContent: "center", padding: 24 },
   accessText: { fontWeight: "600" },
-  page: { padding: 20 },
-  pageTitle: { fontSize: 24, fontWeight: "bold", marginBottom: 4 },
-  pageSubtitle: { marginBottom: 16 },
+  page: { padding: 24 },
+  pageTitle: { fontSize: 26, fontWeight: "800", letterSpacing: -0.3, textAlign: "center", marginBottom: 4 },
+  pageSubtitle: { textAlign: "center", marginBottom: 16 },
 
   warningBanner: {
     borderWidth: 1,
-    borderRadius: 8,
-    padding: 14,
+    borderRadius: 16,
+    padding: 18,
     marginBottom: 16,
   },
-  warningTitle: { fontWeight: "700", fontSize: 14, marginBottom: 2 },
+  warningTitle: { fontWeight: "800", fontSize: 14, marginBottom: 2 },
   warningText: { fontSize: 13 },
 
   filterCard: {
-    borderRadius: 8,
-    padding: 14,
+    borderRadius: 16,
+    padding: 18,
     marginBottom: 16,
     borderWidth: 1,
   },
   filterLabel: {
     fontSize: 11,
-    fontWeight: "600",
+    fontWeight: "500",
     letterSpacing: 1,
     marginBottom: 10,
     textTransform: "uppercase",
@@ -212,7 +212,7 @@ const styles = StyleSheet.create({
   filterChip: {
     paddingHorizontal: 14,
     paddingVertical: 8,
-    borderRadius: 6,
+    borderRadius: 10,
     borderWidth: 1,
   },
   filterChipActive: {
@@ -224,7 +224,7 @@ const styles = StyleSheet.create({
   filterChipTextInactive: { fontSize: 13 },
 
   emptyCard: {
-    borderRadius: 8,
+    borderRadius: 16,
     padding: 24,
     alignItems: "center",
     borderWidth: 1,
@@ -233,27 +233,27 @@ const styles = StyleSheet.create({
   emptyText: { fontSize: 14 },
 
   feedbackCard: {
-    borderRadius: 8,
-    padding: 16,
+    borderRadius: 16,
+    padding: 18,
     marginBottom: 12,
     borderWidth: 1,
     shadowColor: "#000",
     shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.07,
-    shadowRadius: 6,
-    elevation: 2,
+    shadowOpacity: 0.06,
+    shadowRadius: 16,
+    elevation: 3,
   },
   feedbackHeader: {
     flexDirection: "row",
     justifyContent: "space-between",
     marginBottom: 10,
   },
-  feedbackSubmitter: { fontSize: 15, fontWeight: "700", marginBottom: 2 },
+  feedbackSubmitter: { fontSize: 15, fontWeight: "800", marginBottom: 2 },
   feedbackMeta: { fontSize: 12 },
   feedbackDate: { fontSize: 11, marginTop: 4 },
 
   commentsBox: {
-    borderRadius: 6,
+    borderRadius: 12,
     padding: 10,
     marginBottom: 8,
   },
@@ -261,7 +261,7 @@ const styles = StyleSheet.create({
   noComments: { fontSize: 12, fontStyle: "italic", marginBottom: 4 },
 
   negativeBadge: {
-    borderRadius: 4,
+    borderRadius: 8,
     paddingHorizontal: 8,
     paddingVertical: 4,
     alignSelf: "flex-start",
