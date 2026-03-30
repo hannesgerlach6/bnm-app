@@ -518,13 +518,13 @@ const styles = StyleSheet.create({
   },
   accessDeniedText: { fontWeight: "600" },
   scrollView: { flex: 1 },
-  page: { padding: 20 },
-  pageTitle: { fontSize: 22, fontWeight: "bold", marginBottom: 12 },
-  pageSubtitle: { marginBottom: 16, fontSize: 13 },
+  page: { padding: 24 },
+  pageTitle: { fontSize: 26, fontWeight: "800", letterSpacing: -0.3, textAlign: "center", marginBottom: 12 },
+  pageSubtitle: { marginBottom: 16, fontSize: 13, textAlign: "center" },
 
   searchInput: {
     borderWidth: 1,
-    borderRadius: 6,
+    borderRadius: 12,
     paddingHorizontal: 12,
     paddingVertical: 8,
     fontSize: 14,
@@ -538,7 +538,7 @@ const styles = StyleSheet.create({
   filterChipTextInactive: { fontSize: 12, fontWeight: "500" },
 
   emptyCard: {
-    borderRadius: 8,
+    borderRadius: 16,
     borderWidth: 1,
     padding: 28,
     alignItems: "center",
@@ -546,9 +546,9 @@ const styles = StyleSheet.create({
   emptyText: { fontSize: 14, textAlign: "center" },
 
   card: {
-    borderRadius: 8,
+    borderRadius: 16,
     borderWidth: 1,
-    padding: 14,
+    padding: 18,
     marginBottom: 14,
   },
   cardSummaryRow: {
@@ -563,7 +563,7 @@ const styles = StyleSheet.create({
     justifyContent: "space-between",
     marginBottom: 12,
   },
-  applicantName: { fontWeight: "bold", fontSize: 16 },
+  applicantName: { fontWeight: "800", fontSize: 16 },
   applicantSummary: { fontSize: 12, marginTop: 3 },
   applicantSub: { fontSize: 12, marginTop: 2 },
   accordionArrow: { fontSize: 11, paddingHorizontal: 4 },
@@ -571,7 +571,7 @@ const styles = StyleSheet.create({
   statusText: { fontSize: 12, fontWeight: "600" },
 
   infoSection: {
-    borderRadius: 8,
+    borderRadius: 12,
     padding: 10,
     marginTop: 12,
     marginBottom: 10,
@@ -595,7 +595,7 @@ const styles = StyleSheet.create({
   },
   textSectionContent: { fontSize: 13, lineHeight: 19 },
   extraDataTable: {
-    borderRadius: 6,
+    borderRadius: 12,
     paddingHorizontal: 10,
     paddingTop: 4,
     paddingBottom: 4,
@@ -622,18 +622,18 @@ const styles = StyleSheet.create({
   rejectButton: {
     flex: 1,
     borderWidth: 1,
-    borderRadius: 5,
+    borderRadius: 12,
     paddingVertical: 9,
     alignItems: "center",
   },
   rejectButtonText: { fontWeight: "600", fontSize: 13 },
   approveButton: {
     flex: 1,
-    borderRadius: 5,
+    borderRadius: 12,
     paddingVertical: 9,
     alignItems: "center",
   },
-  approveButtonText: { color: COLORS.white, fontWeight: "bold", fontSize: 13 },
+  approveButtonText: { color: COLORS.white, fontWeight: "800", fontSize: 13 },
 
   // Modal
   modalOverlay: {
@@ -646,12 +646,12 @@ const styles = StyleSheet.create({
   modalBox: {
     width: "100%",
     maxWidth: 420,
-    borderRadius: 10,
+    borderRadius: 16,
     padding: 20,
   },
   modalTitle: {
     fontSize: 17,
-    fontWeight: "700",
+    fontWeight: "800",
     marginBottom: 4,
   },
   modalSubtitle: {
@@ -670,7 +670,7 @@ const styles = StyleSheet.create({
     paddingVertical: 10,
     paddingHorizontal: 12,
     borderWidth: 1,
-    borderRadius: 6,
+    borderRadius: 12,
     marginBottom: 8,
     gap: 10,
   },
@@ -697,7 +697,7 @@ const styles = StyleSheet.create({
   },
   customReasonInput: {
     borderWidth: 1,
-    borderRadius: 6,
+    borderRadius: 12,
     paddingHorizontal: 12,
     paddingVertical: 8,
     fontSize: 13,
@@ -718,7 +718,7 @@ const styles = StyleSheet.create({
   modalCancelButton: {
     flex: 1,
     borderWidth: 1,
-    borderRadius: 5,
+    borderRadius: 12,
     paddingVertical: 10,
     alignItems: "center",
   },
@@ -729,13 +729,13 @@ const styles = StyleSheet.create({
   modalRejectButton: {
     flex: 1,
     backgroundColor: COLORS.error,
-    borderRadius: 5,
+    borderRadius: 12,
     paddingVertical: 10,
     alignItems: "center",
   },
   modalRejectText: {
     color: COLORS.white,
     fontSize: 13,
-    fontWeight: "700",
+    fontWeight: "800",
   },
 });

@@ -1038,14 +1038,17 @@ export default function ChatsScreen() {
 const styles = StyleSheet.create({
   // Mobile Layout
   scrollView: { flex: 1 },
-  page: { padding: 20 },
+  page: { padding: 24 },
   pageTitle: {
-    fontSize: 28,
-    fontWeight: "700",
+    fontSize: 26,
+    fontWeight: "800",
+    letterSpacing: -0.3,
+    textAlign: "center",
     marginBottom: 16,
   },
   pageSubtitle: {
     fontSize: 13,
+    textAlign: "center",
     marginBottom: 16,
   },
 
@@ -1066,7 +1069,7 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   leftContent: {
-    padding: 20,
+    padding: 24,
   },
   rightPanel: {
     flex: 1,
@@ -1086,7 +1089,7 @@ const styles = StyleSheet.create({
   searchWrapper: {
     flexDirection: "row",
     alignItems: "center",
-    borderRadius: 8,
+    borderRadius: 12,
     borderWidth: 1,
     paddingHorizontal: 12,
     paddingVertical: 8,
@@ -1119,7 +1122,7 @@ const styles = StyleSheet.create({
 
   // Leerer Zustand
   emptyCard: {
-    borderRadius: 8,
+    borderRadius: 16,
     borderWidth: 1,
     padding: 40,
     alignItems: "center",
@@ -1127,7 +1130,7 @@ const styles = StyleSheet.create({
   },
   emptyIcon: { marginBottom: 12 },
   emptyTitle: {
-    fontWeight: "700",
+    fontWeight: "800",
     fontSize: 16,
     marginBottom: 6,
   },
@@ -1138,7 +1141,7 @@ const styles = StyleSheet.create({
 
   // Chat-Liste
   listCard: {
-    borderRadius: 8,
+    borderRadius: 16,
     borderWidth: 1,
     overflow: "hidden",
   },
@@ -1247,7 +1250,7 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     paddingVertical: 10,
     paddingHorizontal: 16,
-    borderRadius: 8,
+    borderRadius: 12,
     marginBottom: 12,
     gap: 6,
   },
@@ -1260,7 +1263,7 @@ const styles = StyleSheet.create({
   // Neue-Chat Modal
   newChatModal: {
     borderWidth: 1,
-    borderRadius: 8,
+    borderRadius: 16,
     padding: 12,
     marginBottom: 12,
   },
