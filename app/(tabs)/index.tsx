@@ -311,7 +311,7 @@ function AdminDashboard({ showSystemSettings = true }: { showSystemSettings?: bo
           </View>
         </View>
 
-        {/* ── ÜBERSICHT + VERWALTUNG + TOOLS (linear) ────────────────── */}
+        {/* ── ÜBERSICHT + VERWALTUNG + TOOLS ────────────────── */}
         <>
             {/* KPI Karten – responsiv: 4 pro Reihe auf Desktop, 2 auf Mobile */}
             <KpiGrid style={{ marginBottom: 16 }}>
@@ -341,195 +341,124 @@ function AdminDashboard({ showSystemSettings = true }: { showSystemSettings?: bo
               />
             </KpiGrid>
 
-            {/* ── Neue Mentees warten auf Zuweisung (wichtigste Admin-Aktion) ── */}
-            {unassignedMentees.length > 0 && (
-              <View style={[styles.amberBox, { backgroundColor: isDark ? "#3a2e1a" : "#fffbeb", borderColor: isDark ? "#6b4e1a" : "#fde68a" }]}>
-                <Text style={[styles.amberTitle, { color: isDark ? "#fbbf24" : "#92400e" }]}>
-                  {t("dashboard.newMenteesWaiting").replace("{0}", String(unassignedMentees.length))}
-                </Text>
-                {unassignedMentees.map((mentee) => (
-                  <View key={mentee.id} style={[styles.amberRow, { borderBottomColor: isDark ? "#6b4e1a" : "#fef3c7" }]}>
-                    <View>
-                      <Text style={[styles.menteeNameText, { color: themeColors.text }]}>{mentee.name}</Text>
-                      <Text style={[styles.menteeSubText, { color: themeColors.textTertiary }]}>
-                        {mentee.city} · {mentee.gender === "male" ? t("dashboard.brother") : t("dashboard.sister")}
+            {/* ── Row 1: Aktions-Items (links) + Warnungen (rechts) ── */}
+            <DashboardRow>
+              <View style={styles.dashCol}>
+                {/* Neue Mentees warten auf Zuweisung */}
+                {unassignedMentees.length > 0 && (
+                  <View style={[styles.amberBox, { backgroundColor: isDark ? "#3a2e1a" : "#fffbeb", borderColor: isDark ? "#6b4e1a" : "#fde68a" }]}>
+                    <Text style={[styles.amberTitle, { color: isDark ? "#fbbf24" : "#92400e" }]}>
+                      {t("dashboard.newMenteesWaiting").replace("{0}", String(unassignedMentees.length))}
+                    </Text>
+                    {unassignedMentees.map((mentee) => (
+                      <View key={mentee.id} style={[styles.amberRow, { borderBottomColor: isDark ? "#6b4e1a" : "#fef3c7" }]}>
+                        <View>
+                          <Text style={[styles.menteeNameText, { color: themeColors.text }]}>{mentee.name}</Text>
+                          <Text style={[styles.menteeSubText, { color: themeColors.textTertiary }]}>
+                            {mentee.city} · {mentee.gender === "male" ? t("dashboard.brother") : t("dashboard.sister")}
+                          </Text>
+                        </View>
+                        <TouchableOpacity style={styles.assignButton} onPress={() => router.push({ pathname: "/assign", params: { menteeId: mentee.id } })}>
+                          <Text style={styles.assignButtonText}>{t("dashboard.assign")}</Text>
+                        </TouchableOpacity>
+                      </View>
+                    ))}
+                  </View>
+                )}
+                {/* Ausstehende Mentor-Zuweisungen */}
+                {pendingApprovalsCount > 0 && (
+                  <TouchableOpacity
+                    style={[styles.pendingApprovalsButton, { backgroundColor: isDark ? "#3a2e1a" : "#fffbeb", borderColor: isDark ? "#6b4e1a" : "#fde68a" }]}
+                    onPress={() => router.push("/admin/pending-approvals")}
+                  >
+                    <View style={styles.applicationsButtonContent}>
+                      <Text style={[styles.pendingApprovalsText, { color: isDark ? "#fbbf24" : "#78350f" }]}>{t("dashboard.pendingApprovals")}</Text>
+                      <Text style={[styles.pendingApprovalsSub, { color: isDark ? "#fbbf24" : "#92400e" }]}>
+                        {t("dashboard.pendingApprovalsCount").replace("{0}", String(pendingApprovalsCount)).replace("{1}", pendingApprovalsCount === 1 ? "" : "en")}
                       </Text>
                     </View>
-                    <TouchableOpacity
-                      style={styles.assignButton}
-                      onPress={() =>
-                        router.push({ pathname: "/assign", params: { menteeId: mentee.id } })
-                      }
-                    >
-                      <Text style={styles.assignButtonText}>{t("dashboard.assign")}</Text>
-                    </TouchableOpacity>
+                    <View style={styles.applicationsBadge}><Text style={styles.applicationsBadgeText}>{pendingApprovalsCount}</Text></View>
+                    <Text style={[styles.applicationsArrow, { color: isDark ? "#fbbf24" : "#78350f" }]}>›</Text>
+                  </TouchableOpacity>
+                )}
+                {/* Mentor des Monats */}
+                {mentorOfMonthVisible && !topMentor && (
+                  <View style={[styles.momAdminCard, { opacity: 0.85 }]}>
+                    <View style={styles.momAdminHeader}>
+                      <Text style={styles.momAdminStar}>★</Text>
+                      <Text style={[styles.momAdminTitle, { color: themeColors.textSecondary }]}>{t("dashboard.currentMentorOfMonth")}</Text>
+                    </View>
+                    {currentMonthLeader ? (
+                      <>
+                        <Text style={[styles.momAdminName, { color: themeColors.text }]}>{t("dashboard.currentCandidate").replace("{0}", currentMonthLeader.mentor.name ?? "")}</Text>
+                        <Text style={[styles.momAdminSub, { color: themeColors.textSecondary, fontSize: 11, marginTop: 2 }]}>{t("dashboard.candidateNote")}</Text>
+                      </>
+                    ) : (
+                      <Text style={[styles.momAdminName, { color: themeColors.textSecondary, fontSize: 15 }]}>{t("dashboard.noSessionsThisMonth")}</Text>
+                    )}
                   </View>
-                ))}
-              </View>
-            )}
-
-            {/* Mentor des Monats (Admin-Sicht) */}
-            {mentorOfMonthVisible && !topMentor && (
-              <View style={[styles.momAdminCard, { opacity: 0.85 }]}>
-                <View style={styles.momAdminHeader}>
-                  <Text style={styles.momAdminStar}>★</Text>
-                  <Text style={[styles.momAdminTitle, { color: themeColors.textSecondary }]}>{t("dashboard.currentMentorOfMonth")}</Text>
-                </View>
-                {currentMonthLeader ? (
-                  <>
-                    <Text style={[styles.momAdminName, { color: themeColors.text }]}>
-                      {t("dashboard.currentCandidate").replace("{0}", currentMonthLeader.mentor.name ?? "")}
-                    </Text>
-                    <Text style={[styles.momAdminSub, { color: themeColors.textSecondary, fontSize: 11, marginTop: 2 }]}>
-                      {t("dashboard.candidateNote")}
-                    </Text>
-                  </>
-                ) : (
-                  <Text style={[styles.momAdminName, { color: themeColors.textSecondary, fontSize: 15 }]}>
-                    {t("dashboard.noSessionsThisMonth")}
-                  </Text>
+                )}
+                {mentorOfMonthVisible && topMentor && (
+                  <TouchableOpacity style={styles.momAdminCard} onPress={() => { if (Platform.OS === "web") { setSelectedMentorId(topMentor.mentor.id); } else { router.push({ pathname: "/mentor/[id]", params: { id: topMentor.mentor.id } }); } }}>
+                    <View style={styles.momAdminHeader}>
+                      <Text style={styles.momAdminStar}>★</Text>
+                      <Text style={[styles.momAdminTitle, { color: themeColors.textSecondary }]}>
+                        {`${t("dashboard.currentMentorOfMonth")}: ${["Januar","Februar","März","April","Mai","Juni","Juli","August","September","Oktober","November","Dezember"][topMentor.prevMonth]} ${topMentor.prevMonthYear}`}
+                      </Text>
+                    </View>
+                    <Text style={[styles.momAdminName, { color: themeColors.text }]}>{topMentor.mentor.name}</Text>
+                    <View style={styles.momAdminStatsRow}>
+                      <View style={[styles.momAdminStat, { backgroundColor: themeColors.card }]}><Text style={styles.momAdminStatValue}>{topMentor.score}</Text><Text style={[styles.momAdminStatLabel, { color: themeColors.textSecondary }]}>{t("leaderboard.points")}</Text></View>
+                      <View style={[styles.momAdminStat, { backgroundColor: themeColors.card }]}><Text style={styles.momAdminStatValue}>{topMentor.completedCount}</Text><Text style={[styles.momAdminStatLabel, { color: themeColors.textSecondary }]}>{t("leaderboard.completions")}</Text></View>
+                      <View style={[styles.momAdminStat, { backgroundColor: themeColors.card }]}><Text style={styles.momAdminStatValue}>{topMentor.sessionCount}</Text><Text style={[styles.momAdminStatLabel, { color: themeColors.textSecondary }]}>{t("leaderboard.sessions")}</Text></View>
+                    </View>
+                    <Text style={styles.momAdminArrow}>{t("dashboard.viewProfile")} ›</Text>
+                    <TouchableOpacity style={[styles.momAwardButton, { marginTop: 10 }]} onPress={(e) => { e.stopPropagation && e.stopPropagation(); router.push({ pathname: "/admin/mentor-award" as any, params: { mentorId: topMentor.mentor.id } }); }} activeOpacity={0.8}>
+                      <Text style={styles.momAwardButtonText}>{t("dashboard.createAward")} ›</Text>
+                    </TouchableOpacity>
+                  </TouchableOpacity>
                 )}
               </View>
-            )}
-            {mentorOfMonthVisible && topMentor && (
-              <TouchableOpacity
-                style={styles.momAdminCard}
-                onPress={() => {
-                  if (Platform.OS === "web") {
-                    setSelectedMentorId(topMentor.mentor.id);
-                  } else {
-                    router.push({ pathname: "/mentor/[id]", params: { id: topMentor.mentor.id } });
-                  }
-                }}
-              >
-                <View style={styles.momAdminHeader}>
-                  <Text style={styles.momAdminStar}>★</Text>
-                  <Text style={[styles.momAdminTitle, { color: themeColors.textSecondary }]}>
-                    {`${t("dashboard.currentMentorOfMonth")}: ${["Januar","Februar","März","April","Mai","Juni","Juli","August","September","Oktober","November","Dezember"][topMentor.prevMonth]} ${topMentor.prevMonthYear}`}
-                  </Text>
-                </View>
-                <Text style={[styles.momAdminName, { color: themeColors.text }]}>{topMentor.mentor.name}</Text>
-                <View style={styles.momAdminStatsRow}>
-                  <View style={[styles.momAdminStat, { backgroundColor: themeColors.card }]}>
-                    <Text style={styles.momAdminStatValue}>{topMentor.score}</Text>
-                    <Text style={[styles.momAdminStatLabel, { color: themeColors.textSecondary }]}>{t("leaderboard.points")}</Text>
-                  </View>
-                  <View style={[styles.momAdminStat, { backgroundColor: themeColors.card }]}>
-                    <Text style={styles.momAdminStatValue}>{topMentor.completedCount}</Text>
-                    <Text style={[styles.momAdminStatLabel, { color: themeColors.textSecondary }]}>{t("leaderboard.completions")}</Text>
-                  </View>
-                  <View style={[styles.momAdminStat, { backgroundColor: themeColors.card }]}>
-                    <Text style={styles.momAdminStatValue}>{topMentor.sessionCount}</Text>
-                    <Text style={[styles.momAdminStatLabel, { color: themeColors.textSecondary }]}>{t("leaderboard.sessions")}</Text>
-                  </View>
-                </View>
-                <Text style={styles.momAdminArrow}>{t("dashboard.viewProfile")} ›</Text>
-                <TouchableOpacity
-                  style={[styles.momAwardButton, { marginTop: 10 }]}
-                  onPress={(e) => {
-                    e.stopPropagation && e.stopPropagation();
-                    router.push({ pathname: "/admin/mentor-award" as any, params: { mentorId: topMentor.mentor.id } });
-                  }}
-                  activeOpacity={0.8}
-                >
-                  <Text style={styles.momAwardButtonText}>{t("dashboard.createAward")} ›</Text>
-                </TouchableOpacity>
-              </TouchableOpacity>
-            )}
-
-
-            {/* Betreuungs-Warnungen (vereinte Liste) */}
-            {allWarnings.length > 0 && (
-              <View style={[styles.warningBox, { backgroundColor: isDark ? "#1a1a2a" : "#fff8f0", borderColor: isDark ? "#2a2a3a" : "#fed7aa", borderLeftColor: isDark ? "#FFCA28" : "#f59e0b" }]}>
-                <View style={styles.warningHeader}>
-                  <Text style={[styles.warningTitle, { color: isDark ? "#FFCA28" : "#92400e" }]}>{t("earlyWarning.title")}</Text>
-                  <View style={[styles.warningBadge, { backgroundColor: isDark ? "#FFCA28" : "#f59e0b" }]}>
-                    <Text style={[styles.warningBadgeText, { color: "#0E0E14" }]}>{allWarnings.length}</Text>
-                  </View>
-                </View>
-                {allWarnings.map((w, idx) => {
-                  const typeLabel = w.type === "feedback"
-                    ? t("earlyWarning.negativeFeedback")
-                    : w.type === "discrepancy"
-                    ? t("earlyWarning.discrepancy")
-                    : t("earlyWarning.inactive");
-                  const dotColor = w.type === "feedback"
-                    ? "#ef4444"
-                    : w.type === "discrepancy"
-                    ? "#f59e0b"
-                    : "#3b82f6";
-                  const isInactive = w.type === "inactive";
-                  const isSending = sendingReminderFor === w.mentorshipId;
-                  const isSent = hasSentReminder(w.mentorshipId);
-                  const isLast = idx === allWarnings.length - 1;
-                  return (
-                    <TouchableOpacity
-                      key={`${w.type}-${w.mentorshipId}-${idx}`}
-                      style={[styles.warningRow, !isLast && [styles.warningRowBorder, { borderBottomColor: isDark ? "#2a2a3a" : "#fed7aa" }]]}
-                      onPress={() => {
-                        if (w.mentorshipId) {
-                          router.push({ pathname: "/mentorship/[id]", params: { id: w.mentorshipId } });
-                        }
-                      }}
-                    >
-                      <View style={[styles.warningDot, { backgroundColor: dotColor }]} />
-                      <View style={{ flex: 1 }}>
-                        <Text style={[styles.warningLabel, { color: isDark ? (dotColor === "#3b82f6" ? "#93c5fd" : dotColor === "#ef4444" ? "#fca5a5" : "#fcd34d") : dotColor }]}>{typeLabel}</Text>
-                        <Text style={[styles.warningName, { color: themeColors.text }]}>{w.label}</Text>
-                      </View>
-                      {w.daysSince !== undefined && (
-                        <Text style={[styles.warningDays, { color: themeColors.textSecondary }]}>
-                          {t("earlyWarning.daysAgo").replace("{0}", String(w.daysSince))}
-                        </Text>
-                      )}
-                      {isInactive && (
-                        <TouchableOpacity
-                          style={[
-                            styles.reminderBtn,
-                            (isSending || isSent) ? { opacity: 0.5, backgroundColor: "#6B7280" } : {},
-                          ]}
-                          onPress={(e) => {
-                            e.stopPropagation && e.stopPropagation();
-                            if (!isSent) handleSendReminder(w.mentorshipId, w.mentorName, w.menteeName);
-                          }}
-                          disabled={isSending || isSent}
-                          activeOpacity={0.7}
-                        >
-                          <Ionicons name={isSent ? "checkmark-outline" : "notifications-outline"} size={13} color={COLORS.white} />
+              <View style={styles.dashCol}>
+                {/* Betreuungs-Warnungen */}
+                {allWarnings.length > 0 && (
+                  <View style={[styles.warningBox, { backgroundColor: isDark ? "#1a1a2a" : "#fff8f0", borderColor: isDark ? "#2a2a3a" : "#fed7aa", borderLeftColor: isDark ? "#FFCA28" : "#f59e0b" }]}>
+                    <View style={styles.warningHeader}>
+                      <Text style={[styles.warningTitle, { color: isDark ? "#FFCA28" : "#92400e" }]}>{t("earlyWarning.title")}</Text>
+                      <View style={[styles.warningBadge, { backgroundColor: isDark ? "#FFCA28" : "#f59e0b" }]}><Text style={[styles.warningBadgeText, { color: "#0E0E14" }]}>{allWarnings.length}</Text></View>
+                    </View>
+                    {allWarnings.map((w, idx) => {
+                      const typeLabel = w.type === "feedback" ? t("earlyWarning.negativeFeedback") : w.type === "discrepancy" ? t("earlyWarning.discrepancy") : t("earlyWarning.inactive");
+                      const dotColor = w.type === "feedback" ? "#ef4444" : w.type === "discrepancy" ? "#f59e0b" : "#3b82f6";
+                      const isInactive = w.type === "inactive";
+                      const isSending = sendingReminderFor === w.mentorshipId;
+                      const isSent = hasSentReminder(w.mentorshipId);
+                      const isLast = idx === allWarnings.length - 1;
+                      return (
+                        <TouchableOpacity key={`${w.type}-${w.mentorshipId}-${idx}`} style={[styles.warningRow, !isLast && [styles.warningRowBorder, { borderBottomColor: isDark ? "#2a2a3a" : "#fed7aa" }]]} onPress={() => { if (w.mentorshipId) router.push({ pathname: "/mentorship/[id]", params: { id: w.mentorshipId } }); }}>
+                          <View style={[styles.warningDot, { backgroundColor: dotColor }]} />
+                          <View style={{ flex: 1 }}>
+                            <Text style={[styles.warningLabel, { color: isDark ? (dotColor === "#3b82f6" ? "#93c5fd" : dotColor === "#ef4444" ? "#fca5a5" : "#fcd34d") : dotColor }]}>{typeLabel}</Text>
+                            <Text style={[styles.warningName, { color: themeColors.text }]}>{w.label}</Text>
+                          </View>
+                          {w.daysSince !== undefined && <Text style={[styles.warningDays, { color: themeColors.textSecondary }]}>{t("earlyWarning.daysAgo").replace("{0}", String(w.daysSince))}</Text>}
+                          {isInactive && (
+                            <TouchableOpacity style={[styles.reminderBtn, (isSending || isSent) ? { opacity: 0.5, backgroundColor: "#6B7280" } : {}]} onPress={(e) => { e.stopPropagation && e.stopPropagation(); if (!isSent) handleSendReminder(w.mentorshipId, w.mentorName, w.menteeName); }} disabled={isSending || isSent} activeOpacity={0.7}>
+                              <Ionicons name={isSent ? "checkmark-outline" : "notifications-outline"} size={13} color={COLORS.white} />
+                            </TouchableOpacity>
+                          )}
+                          {!isInactive && <Text style={[styles.warningArrow, { color: themeColors.textSecondary }]}>›</Text>}
                         </TouchableOpacity>
-                      )}
-                      {!isInactive && (
-                        <Text style={[styles.warningArrow, { color: themeColors.textSecondary }]}>›</Text>
-                      )}
-                    </TouchableOpacity>
-                  );
-                })}
+                      );
+                    })}
+                  </View>
+                )}
               </View>
-            )}
+            </DashboardRow>
 
-            {/* Ausstehende Mentor-Zuweisungen (pending_approval) */}
-            {pendingApprovalsCount > 0 && (
-              <TouchableOpacity
-                style={[styles.pendingApprovalsButton, { backgroundColor: isDark ? "#3a2e1a" : "#fffbeb", borderColor: isDark ? "#6b4e1a" : "#fde68a" }]}
-                onPress={() => router.push("/admin/pending-approvals")}
-              >
-                <View style={styles.applicationsButtonContent}>
-                  <Text style={[styles.pendingApprovalsText, { color: isDark ? "#fbbf24" : "#78350f" }]}>{t("dashboard.pendingApprovals")}</Text>
-                  <Text style={[styles.pendingApprovalsSub, { color: isDark ? "#fbbf24" : "#92400e" }]}>
-                    {t("dashboard.pendingApprovalsCount")
-                      .replace("{0}", String(pendingApprovalsCount))
-                      .replace("{1}", pendingApprovalsCount === 1 ? "" : "en")}
-                  </Text>
-                </View>
-                <View style={styles.applicationsBadge}>
-                  <Text style={styles.applicationsBadgeText}>{pendingApprovalsCount}</Text>
-                </View>
-                <Text style={[styles.applicationsArrow, { color: isDark ? "#fbbf24" : "#78350f" }]}>›</Text>
-              </TouchableOpacity>
-            )}
-
-            {/* Letzte Aktivitäten */}
-            <View style={[styles.card, { backgroundColor: themeColors.card }]}>
+            {/* ── Row 2: Aktivitäten (links) + XP-Übersicht (rechts) ── */}
+            <DashboardRow>
+            <View style={[styles.card, styles.dashCol, { backgroundColor: themeColors.card }]}>
               <View style={{ flexDirection: "row", alignItems: "center", justifyContent: "space-between", marginBottom: 2 }}>
                 <Text style={[styles.cardTitle, { color: themeColors.text }]}>{t("dashboard.recentActivity")}</Text>
                 {allSortedSessions.length > 5 && (
@@ -569,7 +498,7 @@ function AdminDashboard({ showSystemSettings = true }: { showSystemSettings?: bo
             </View>
 
             {/* XP-System Übersicht (Admin) */}
-            <View style={[styles.card, { backgroundColor: themeColors.card }]}>
+            <View style={[styles.card, styles.dashCol, { backgroundColor: themeColors.card }]}>
               <View style={{ flexDirection: "row", alignItems: "center", gap: 10, marginBottom: 16 }}>
                 <View style={{ width: 36, height: 36, borderRadius: 12, backgroundColor: COLORS.gold + "18", alignItems: "center", justifyContent: "center" }}>
                   <Ionicons name="trophy" size={18} color={COLORS.gold} />
@@ -660,8 +589,9 @@ function AdminDashboard({ showSystemSettings = true }: { showSystemSettings?: bo
                 </View>
               ))}
             </View>
+            </DashboardRow>
 
-            {/* Balkendiagramm: Neue Betreuungen pro Monat */}
+            {/* Balkendiagramm: Neue Betreuungen pro Monat (volle Breite) */}
             <MonthlyChart mentorships={mentorships} />
 
         </>
@@ -935,8 +865,9 @@ function MentorDashboard() {
               </View>
             )}
 
-            {/* ── Gamification Widget ──────────────────────────────────── */}
-            <View style={[styles.levelCard, { backgroundColor: themeColors.card, borderColor: isDark ? "#3A3520" : themeColors.border }]}>
+            {/* ── Row: Gamification + Achievements ──────────────────── */}
+            <DashboardRow>
+            <View style={[styles.levelCard, styles.dashCol, { backgroundColor: themeColors.card, borderColor: isDark ? "#3A3520" : themeColors.border }]}>
               {/* Level-Badge + XP-Zähler */}
               <View style={styles.levelHeaderRow}>
                 <View style={styles.levelBadgeRow}>
@@ -984,8 +915,8 @@ function MentorDashboard() {
               </View>
             </View>
 
-            {/* ── Achievements ────────────────────────────────────────────── */}
-            <View style={{ marginBottom: 12 }}>
+            {/* ── Achievements ── */}
+            <View style={[styles.dashCol, { marginBottom: 0 }]}>
               <Text style={[styles.mentorSectionTitle, { color: themeColors.textSecondary, marginBottom: 8 }]}>
                 {t("gamification.achievementsTitle")}
               </Text>
@@ -1025,8 +956,11 @@ function MentorDashboard() {
                 })}
               </ScrollView>
             </View>
+            </DashboardRow>
 
-            {/* ── Deine Wirkung ────────────────────────────────────────────── */}
+            {/* ── Row: Wirkung + Bewertungen ────────────────────────── */}
+            <DashboardRow>
+            {/* ── Deine Wirkung ── */}
             {impactStats.total > 0 && (
               <View style={[styles.levelCard, { backgroundColor: themeColors.card, borderColor: isDark ? "#3A3520" : themeColors.border, marginBottom: 12 }]}>
                 <Text style={[styles.levelTitle, { color: themeColors.text, marginBottom: 8 }]}>
@@ -1049,10 +983,13 @@ function MentorDashboard() {
                   ))}
               </View>
             )}
+            </DashboardRow>
           </>
         )}
 
-        {/* ── Meine Bewertungen ────────────────────────────────────────── */}
+        {/* ── Row: Bewertungen + Hadith ── */}
+        <DashboardRow>
+        <View style={styles.dashCol}>
         <MentorRatingsSection
           feedbacks={myFeedbacks}
           avgRating={avgRating}
@@ -1062,8 +999,9 @@ function MentorDashboard() {
           themeColors={themeColors}
           isDark={isDark}
         />
-
-        {/* ── Motivations-Hadith ───────────────────────────────────────── */}
+        </View>
+        <View style={styles.dashCol}>
+        {/* ── Motivations-Hadith ── */}
         {todayHadith && (
           <View style={[styles.mentorHadithCard, { borderColor: isDark ? "#3A3520" : "rgba(238,167,27,0.3)" }]}>
             <View style={styles.hadithCardHeader}>
@@ -1098,7 +1036,8 @@ function MentorDashboard() {
             </View>
           </View>
         )}
-
+        </View>
+        </DashboardRow>
 
       </View>
     </ScrollView>
@@ -1426,6 +1365,17 @@ function MenteeDashboard() {
   );
 }
 
+/** 2-Spalten Row auf Desktop, single column auf Mobile */
+function DashboardRow({ children }: { children: React.ReactNode }) {
+  const { width } = useWindowDimensions();
+  const isDesktop = Platform.OS === "web" && width > 900;
+  return (
+    <View style={{ flexDirection: isDesktop ? "row" : "column", gap: 16, marginBottom: 16 }}>
+      {children}
+    </View>
+  );
+}
+
 function KpiGrid({ children, style }: { children: React.ReactNode; style?: object }) {
   const { width } = useWindowDimensions();
   const isDesktop = width > 768;
@@ -1576,6 +1526,7 @@ function MonthlyChart({ mentorships }: { mentorships: Mentorship[] }) {
 const styles = StyleSheet.create({
   scrollView: { flex: 1, backgroundColor: COLORS.bg },
   page: { padding: 24 },
+  dashCol: { flex: 1 },
   headerRow: { flexDirection: "row", alignItems: "center", gap: 12, marginBottom: 16 },
 
   // Admin Header
