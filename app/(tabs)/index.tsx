@@ -880,7 +880,7 @@ function MentorDashboard() {
         {/* ── 4 KPI-Cards ─────────────────────────────────────────────── */}
         {mentorStats && (
           <>
-            <KpiGrid style={{ marginBottom: 16, justifyContent: "center" }}>
+            <KpiGrid style={{ marginBottom: 16 }}>
               <StatCard label={t("dashboard.statsActive")} value={mentorStats.active} color={COLORS.gradientStart} iconName="people-outline" />
               <StatCard label={t("dashboard.statsCompleted")} value={mentorStats.completed} color={COLORS.cta} iconName="checkmark-circle-outline" />
               <StatCard label={t("dashboard.statsSessions")} value={mentorStats.totalSessions} color={COLORS.gold} iconName="document-text-outline" />
@@ -1300,7 +1300,7 @@ function MenteeDashboard() {
         {mentorship ? (
           <>
             {/* ── KPI-Cards ──────────────────────────────────────────── */}
-            <KpiGrid style={{ marginBottom: 16, justifyContent: "center" }}>
+            <KpiGrid style={{ marginBottom: 16 }}>
               <StatCard
                 label={t("dashboard.yourProgress")}
                 value={progressPercent}
