@@ -341,10 +341,9 @@ function AdminDashboard({ showSystemSettings = true }: { showSystemSettings?: bo
               />
             </KpiGrid>
 
-            {/* ── Row 1: Aktions-Items (links) + Warnungen (rechts) ── */}
+            {/* ── Neue Mentees + Pending (Row) ── */}
             <DashboardRow>
               <View style={styles.dashCol}>
-                {/* Neue Mentees warten auf Zuweisung */}
                 {unassignedMentees.length > 0 && (
                   <View style={[styles.amberBox, { backgroundColor: isDark ? "#3a2e1a" : "#fffbeb", borderColor: isDark ? "#6b4e1a" : "#fde68a" }]}>
                     <Text style={[styles.amberTitle, { color: isDark ? "#fbbf24" : "#92400e" }]}>
@@ -365,7 +364,8 @@ function AdminDashboard({ showSystemSettings = true }: { showSystemSettings?: bo
                     ))}
                   </View>
                 )}
-                {/* Ausstehende Mentor-Zuweisungen */}
+              </View>
+              <View style={styles.dashCol}>
                 {pendingApprovalsCount > 0 && (
                   <TouchableOpacity
                     style={[styles.pendingApprovalsButton, { backgroundColor: isDark ? "#3a2e1a" : "#fffbeb", borderColor: isDark ? "#6b4e1a" : "#fde68a" }]}
@@ -381,80 +381,80 @@ function AdminDashboard({ showSystemSettings = true }: { showSystemSettings?: bo
                     <Text style={[styles.applicationsArrow, { color: isDark ? "#fbbf24" : "#78350f" }]}>›</Text>
                   </TouchableOpacity>
                 )}
-                {/* Mentor des Monats */}
-                {mentorOfMonthVisible && !topMentor && (
-                  <View style={[styles.momAdminCard, { opacity: 0.85 }]}>
-                    <View style={styles.momAdminHeader}>
-                      <Text style={styles.momAdminStar}>★</Text>
-                      <Text style={[styles.momAdminTitle, { color: themeColors.textSecondary }]}>{t("dashboard.currentMentorOfMonth")}</Text>
-                    </View>
-                    {currentMonthLeader ? (
-                      <>
-                        <Text style={[styles.momAdminName, { color: themeColors.text }]}>{t("dashboard.currentCandidate").replace("{0}", currentMonthLeader.mentor.name ?? "")}</Text>
-                        <Text style={[styles.momAdminSub, { color: themeColors.textSecondary, fontSize: 11, marginTop: 2 }]}>{t("dashboard.candidateNote")}</Text>
-                      </>
-                    ) : (
-                      <Text style={[styles.momAdminName, { color: themeColors.textSecondary, fontSize: 15 }]}>{t("dashboard.noSessionsThisMonth")}</Text>
-                    )}
-                  </View>
-                )}
-                {mentorOfMonthVisible && topMentor && (
-                  <TouchableOpacity style={styles.momAdminCard} onPress={() => { if (Platform.OS === "web") { setSelectedMentorId(topMentor.mentor.id); } else { router.push({ pathname: "/mentor/[id]", params: { id: topMentor.mentor.id } }); } }}>
-                    <View style={styles.momAdminHeader}>
-                      <Text style={styles.momAdminStar}>★</Text>
-                      <Text style={[styles.momAdminTitle, { color: themeColors.textSecondary }]}>
-                        {`${t("dashboard.currentMentorOfMonth")}: ${["Januar","Februar","März","April","Mai","Juni","Juli","August","September","Oktober","November","Dezember"][topMentor.prevMonth]} ${topMentor.prevMonthYear}`}
-                      </Text>
-                    </View>
-                    <Text style={[styles.momAdminName, { color: themeColors.text }]}>{topMentor.mentor.name}</Text>
-                    <View style={styles.momAdminStatsRow}>
-                      <View style={[styles.momAdminStat, { backgroundColor: themeColors.card }]}><Text style={styles.momAdminStatValue}>{topMentor.score}</Text><Text style={[styles.momAdminStatLabel, { color: themeColors.textSecondary }]}>{t("leaderboard.points")}</Text></View>
-                      <View style={[styles.momAdminStat, { backgroundColor: themeColors.card }]}><Text style={styles.momAdminStatValue}>{topMentor.completedCount}</Text><Text style={[styles.momAdminStatLabel, { color: themeColors.textSecondary }]}>{t("leaderboard.completions")}</Text></View>
-                      <View style={[styles.momAdminStat, { backgroundColor: themeColors.card }]}><Text style={styles.momAdminStatValue}>{topMentor.sessionCount}</Text><Text style={[styles.momAdminStatLabel, { color: themeColors.textSecondary }]}>{t("leaderboard.sessions")}</Text></View>
-                    </View>
-                    <Text style={styles.momAdminArrow}>{t("dashboard.viewProfile")} ›</Text>
-                    <TouchableOpacity style={[styles.momAwardButton, { marginTop: 10 }]} onPress={(e) => { e.stopPropagation && e.stopPropagation(); router.push({ pathname: "/admin/mentor-award" as any, params: { mentorId: topMentor.mentor.id } }); }} activeOpacity={0.8}>
-                      <Text style={styles.momAwardButtonText}>{t("dashboard.createAward")} ›</Text>
-                    </TouchableOpacity>
-                  </TouchableOpacity>
-                )}
-              </View>
-              <View style={styles.dashCol}>
-                {/* Betreuungs-Warnungen */}
-                {allWarnings.length > 0 && (
-                  <View style={[styles.warningBox, { backgroundColor: isDark ? "#1a1a2a" : "#fff8f0", borderColor: isDark ? "#2a2a3a" : "#fed7aa", borderLeftColor: isDark ? "#FFCA28" : "#f59e0b" }]}>
-                    <View style={styles.warningHeader}>
-                      <Text style={[styles.warningTitle, { color: isDark ? "#FFCA28" : "#92400e" }]}>{t("earlyWarning.title")}</Text>
-                      <View style={[styles.warningBadge, { backgroundColor: isDark ? "#FFCA28" : "#f59e0b" }]}><Text style={[styles.warningBadgeText, { color: "#0E0E14" }]}>{allWarnings.length}</Text></View>
-                    </View>
-                    {allWarnings.map((w, idx) => {
-                      const typeLabel = w.type === "feedback" ? t("earlyWarning.negativeFeedback") : w.type === "discrepancy" ? t("earlyWarning.discrepancy") : t("earlyWarning.inactive");
-                      const dotColor = w.type === "feedback" ? "#ef4444" : w.type === "discrepancy" ? "#f59e0b" : "#3b82f6";
-                      const isInactive = w.type === "inactive";
-                      const isSending = sendingReminderFor === w.mentorshipId;
-                      const isSent = hasSentReminder(w.mentorshipId);
-                      const isLast = idx === allWarnings.length - 1;
-                      return (
-                        <TouchableOpacity key={`${w.type}-${w.mentorshipId}-${idx}`} style={[styles.warningRow, !isLast && [styles.warningRowBorder, { borderBottomColor: isDark ? "#2a2a3a" : "#fed7aa" }]]} onPress={() => { if (w.mentorshipId) router.push({ pathname: "/mentorship/[id]", params: { id: w.mentorshipId } }); }}>
-                          <View style={[styles.warningDot, { backgroundColor: dotColor }]} />
-                          <View style={{ flex: 1 }}>
-                            <Text style={[styles.warningLabel, { color: isDark ? (dotColor === "#3b82f6" ? "#93c5fd" : dotColor === "#ef4444" ? "#fca5a5" : "#fcd34d") : dotColor }]}>{typeLabel}</Text>
-                            <Text style={[styles.warningName, { color: themeColors.text }]}>{w.label}</Text>
-                          </View>
-                          {w.daysSince !== undefined && <Text style={[styles.warningDays, { color: themeColors.textSecondary }]}>{t("earlyWarning.daysAgo").replace("{0}", String(w.daysSince))}</Text>}
-                          {isInactive && (
-                            <TouchableOpacity style={[styles.reminderBtn, (isSending || isSent) ? { opacity: 0.5, backgroundColor: "#6B7280" } : {}]} onPress={(e) => { e.stopPropagation && e.stopPropagation(); if (!isSent) handleSendReminder(w.mentorshipId, w.mentorName, w.menteeName); }} disabled={isSending || isSent} activeOpacity={0.7}>
-                              <Ionicons name={isSent ? "checkmark-outline" : "notifications-outline"} size={13} color={COLORS.white} />
-                            </TouchableOpacity>
-                          )}
-                          {!isInactive && <Text style={[styles.warningArrow, { color: themeColors.textSecondary }]}>›</Text>}
-                        </TouchableOpacity>
-                      );
-                    })}
-                  </View>
-                )}
               </View>
             </DashboardRow>
+
+            {/* ── Mentor des Monats (volle Breite) ── */}
+            {mentorOfMonthVisible && !topMentor && (
+              <View style={[styles.momAdminCard, { opacity: 0.85 }]}>
+                <View style={styles.momAdminHeader}>
+                  <Text style={styles.momAdminStar}>★</Text>
+                  <Text style={[styles.momAdminTitle, { color: themeColors.textSecondary }]}>{t("dashboard.currentMentorOfMonth")}</Text>
+                </View>
+                {currentMonthLeader ? (
+                  <>
+                    <Text style={[styles.momAdminName, { color: themeColors.text }]}>{t("dashboard.currentCandidate").replace("{0}", currentMonthLeader.mentor.name ?? "")}</Text>
+                    <Text style={[styles.momAdminSub, { color: themeColors.textSecondary, fontSize: 11, marginTop: 2 }]}>{t("dashboard.candidateNote")}</Text>
+                  </>
+                ) : (
+                  <Text style={[styles.momAdminName, { color: themeColors.textSecondary, fontSize: 15 }]}>{t("dashboard.noSessionsThisMonth")}</Text>
+                )}
+              </View>
+            )}
+            {mentorOfMonthVisible && topMentor && (
+              <TouchableOpacity style={styles.momAdminCard} onPress={() => { if (Platform.OS === "web") { setSelectedMentorId(topMentor.mentor.id); } else { router.push({ pathname: "/mentor/[id]", params: { id: topMentor.mentor.id } }); } }}>
+                <View style={styles.momAdminHeader}>
+                  <Text style={styles.momAdminStar}>★</Text>
+                  <Text style={[styles.momAdminTitle, { color: themeColors.textSecondary }]}>
+                    {`${t("dashboard.currentMentorOfMonth")}: ${["Januar","Februar","März","April","Mai","Juni","Juli","August","September","Oktober","November","Dezember"][topMentor.prevMonth]} ${topMentor.prevMonthYear}`}
+                  </Text>
+                </View>
+                <Text style={[styles.momAdminName, { color: themeColors.text }]}>{topMentor.mentor.name}</Text>
+                <View style={styles.momAdminStatsRow}>
+                  <View style={[styles.momAdminStat, { backgroundColor: themeColors.card }]}><Text style={styles.momAdminStatValue}>{topMentor.score}</Text><Text style={[styles.momAdminStatLabel, { color: themeColors.textSecondary }]}>{t("leaderboard.points")}</Text></View>
+                  <View style={[styles.momAdminStat, { backgroundColor: themeColors.card }]}><Text style={styles.momAdminStatValue}>{topMentor.completedCount}</Text><Text style={[styles.momAdminStatLabel, { color: themeColors.textSecondary }]}>{t("leaderboard.completions")}</Text></View>
+                  <View style={[styles.momAdminStat, { backgroundColor: themeColors.card }]}><Text style={styles.momAdminStatValue}>{topMentor.sessionCount}</Text><Text style={[styles.momAdminStatLabel, { color: themeColors.textSecondary }]}>{t("leaderboard.sessions")}</Text></View>
+                </View>
+                <Text style={styles.momAdminArrow}>{t("dashboard.viewProfile")} ›</Text>
+                <TouchableOpacity style={[styles.momAwardButton, { marginTop: 10 }]} onPress={(e) => { e.stopPropagation && e.stopPropagation(); router.push({ pathname: "/admin/mentor-award" as any, params: { mentorId: topMentor.mentor.id } }); }} activeOpacity={0.8}>
+                  <Text style={styles.momAwardButtonText}>{t("dashboard.createAward")} ›</Text>
+                </TouchableOpacity>
+              </TouchableOpacity>
+            )}
+
+            {/* ── Betreuungs-Warnungen (volle Breite) ── */}
+            {allWarnings.length > 0 && (
+              <View style={[styles.warningBox, { backgroundColor: isDark ? "#1a1a2a" : "#fff8f0", borderColor: isDark ? "#2a2a3a" : "#fed7aa", borderLeftColor: isDark ? "#FFCA28" : "#f59e0b" }]}>
+                <View style={styles.warningHeader}>
+                  <Text style={[styles.warningTitle, { color: isDark ? "#FFCA28" : "#92400e" }]}>{t("earlyWarning.title")}</Text>
+                  <View style={[styles.warningBadge, { backgroundColor: isDark ? "#FFCA28" : "#f59e0b" }]}><Text style={[styles.warningBadgeText, { color: "#0E0E14" }]}>{allWarnings.length}</Text></View>
+                </View>
+                {allWarnings.map((w, idx) => {
+                  const typeLabel = w.type === "feedback" ? t("earlyWarning.negativeFeedback") : w.type === "discrepancy" ? t("earlyWarning.discrepancy") : t("earlyWarning.inactive");
+                  const dotColor = w.type === "feedback" ? "#ef4444" : w.type === "discrepancy" ? "#f59e0b" : "#3b82f6";
+                  const isInactive = w.type === "inactive";
+                  const isSending = sendingReminderFor === w.mentorshipId;
+                  const isSent = hasSentReminder(w.mentorshipId);
+                  const isLast = idx === allWarnings.length - 1;
+                  return (
+                    <TouchableOpacity key={`${w.type}-${w.mentorshipId}-${idx}`} style={[styles.warningRow, !isLast && [styles.warningRowBorder, { borderBottomColor: isDark ? "#2a2a3a" : "#fed7aa" }]]} onPress={() => { if (w.mentorshipId) router.push({ pathname: "/mentorship/[id]", params: { id: w.mentorshipId } }); }}>
+                      <View style={[styles.warningDot, { backgroundColor: dotColor }]} />
+                      <View style={{ flex: 1 }}>
+                        <Text style={[styles.warningLabel, { color: isDark ? (dotColor === "#3b82f6" ? "#93c5fd" : dotColor === "#ef4444" ? "#fca5a5" : "#fcd34d") : dotColor }]}>{typeLabel}</Text>
+                        <Text style={[styles.warningName, { color: themeColors.text }]}>{w.label}</Text>
+                      </View>
+                      {w.daysSince !== undefined && <Text style={[styles.warningDays, { color: themeColors.textSecondary }]}>{t("earlyWarning.daysAgo").replace("{0}", String(w.daysSince))}</Text>}
+                      {isInactive && (
+                        <TouchableOpacity style={[styles.reminderBtn, (isSending || isSent) ? { opacity: 0.5, backgroundColor: "#6B7280" } : {}]} onPress={(e) => { e.stopPropagation && e.stopPropagation(); if (!isSent) handleSendReminder(w.mentorshipId, w.mentorName, w.menteeName); }} disabled={isSending || isSent} activeOpacity={0.7}>
+                          <Ionicons name={isSent ? "checkmark-outline" : "notifications-outline"} size={13} color={COLORS.white} />
+                        </TouchableOpacity>
+                      )}
+                      {!isInactive && <Text style={[styles.warningArrow, { color: themeColors.textSecondary }]}>›</Text>}
+                    </TouchableOpacity>
+                  );
+                })}
+              </View>
+            )}
 
             {/* ── Row 2: Aktivitäten (links) + XP-Übersicht (rechts) ── */}
             <DashboardRow>
@@ -817,7 +817,32 @@ function MentorDashboard() {
               <StatCard label={t("dashboard.statsRank")} value={mentorStats.rank} color="#6366f1" iconName="trophy-outline" sublabel={`/ ${mentorStats.totalMentors}`} />
             </KpiGrid>
 
-            {/* ── Vernachlässigte Mentees (kompaktes Grid) ─────── */}
+            {/* ── Motivations-Hadith (volle Breite, über Vernachlässigten) ── */}
+            {todayHadith && (
+              <View style={[styles.mentorHadithCard, { borderColor: isDark ? "#3A3520" : "rgba(238,167,27,0.3)" }]}>
+                <View style={styles.hadithCardHeader}>
+                  <Text style={styles.hadithStar}>★</Text>
+                  <Text style={[styles.hadithCardLabel, { color: themeColors.text }]}>{t("motivation.title")}</Text>
+                </View>
+                {todayHadith.text_ar ? (
+                  <Text style={[styles.mentorHadithArabic, { color: themeColors.text }]}>{todayHadith.text_ar}</Text>
+                ) : null}
+                <Text style={[styles.hadithCardText, { color: themeColors.textSecondary }]}>"{todayHadith.text_de}"</Text>
+                {todayHadith.source ? (
+                  <Text style={[styles.hadithCardQuelle, { color: themeColors.textTertiary }]}>{t("motivation.source")}: {todayHadith.source}</Text>
+                ) : null}
+                <View style={styles.motivationActionsRow}>
+                  <TouchableOpacity style={styles.motivationNextBtn} onPress={() => setHadithOffset((prev) => prev + 1)}>
+                    <Text style={styles.motivationNextText}>{t("motivation.next")}</Text>
+                  </TouchableOpacity>
+                  <TouchableOpacity style={styles.motivationShareBtn} onPress={() => { const shareText = todayHadith.text_ar ? `${todayHadith.text_ar}\n\n${todayHadith.text_de}` : todayHadith.text_de; shareHadith(shareText, t("share.suffix")); }}>
+                    <Ionicons name="share-outline" size={18} color={COLORS.gold} />
+                  </TouchableOpacity>
+                </View>
+              </View>
+            )}
+
+            {/* ── Vernachlässigte Mentees (volle Breite) ─────── */}
             {neglectedMentees.length > 0 && (
               <View style={{ marginBottom: 16 }}>
                 <Text style={[styles.mentorSectionTitle, { color: themeColors.textSecondary }]}>
@@ -1002,43 +1027,6 @@ function MentorDashboard() {
             themeColors={themeColors}
           isDark={isDark}
         />
-        </View>
-        <View style={styles.dashCol}>
-        {/* ── Motivations-Hadith ── */}
-        {todayHadith && (
-          <View style={[styles.mentorHadithCard, { borderColor: isDark ? "#3A3520" : "rgba(238,167,27,0.3)" }]}>
-            <View style={styles.hadithCardHeader}>
-              <Text style={styles.hadithStar}>★</Text>
-              <Text style={[styles.hadithCardLabel, { color: themeColors.text }]}>{t("motivation.title")}</Text>
-            </View>
-            {todayHadith.text_ar ? (
-              <Text style={[styles.mentorHadithArabic, { color: themeColors.text }]}>{todayHadith.text_ar}</Text>
-            ) : null}
-            <Text style={[styles.hadithCardText, { color: themeColors.textSecondary }]}>"{todayHadith.text_de}"</Text>
-            {todayHadith.source ? (
-              <Text style={[styles.hadithCardQuelle, { color: themeColors.textTertiary }]}>{t("motivation.source")}: {todayHadith.source}</Text>
-            ) : null}
-            <View style={styles.motivationActionsRow}>
-              <TouchableOpacity
-                style={styles.motivationNextBtn}
-                onPress={() => setHadithOffset((prev) => prev + 1)}
-              >
-                <Text style={styles.motivationNextText}>{t("motivation.next")}</Text>
-              </TouchableOpacity>
-              <TouchableOpacity
-                style={styles.motivationShareBtn}
-                onPress={() => {
-                  const shareText = todayHadith.text_ar
-                    ? `${todayHadith.text_ar}\n\n${todayHadith.text_de}`
-                    : todayHadith.text_de;
-                  shareHadith(shareText, t("share.suffix"));
-                }}
-              >
-                <Ionicons name="share-outline" size={18} color={COLORS.gold} />
-              </TouchableOpacity>
-            </View>
-          </View>
-        )}
         </View>
         </DashboardRow>
 
@@ -1267,10 +1255,7 @@ function MenteeDashboard() {
               )}
             </KpiGrid>
 
-            {/* ── Row: Danke + Hadith ───────────────────────────────── */}
-            <DashboardRow>
-            <View style={styles.dashCol}>
-            {/* Danke sagen Button */}
+            {/* ── Danke sagen Button (volle Breite, zentriert) ── */}
             {mentorship.status === "active" && mentorship.mentor_id && (
               <TouchableOpacity
                 style={[styles.thankButton, { backgroundColor: isDark ? "#1A2A1A" : "#dcfce7", borderColor: isDark ? "#2d6a4a" : "#86efac" }]}
@@ -1280,9 +1265,8 @@ function MenteeDashboard() {
                 <Text style={styles.thankButtonText}>{t("gamification.thankButton")}</Text>
               </TouchableOpacity>
             )}
-            </View>
-            <View style={styles.dashCol}>
-            {/* Hadith */}
+
+            {/* ── Hadith (volle Breite) ── */}
             {todayHadith && (
               <View style={[styles.menteeHadithBigCard, { backgroundColor: isDark ? "#1A1A2E" : "#f0f4ff", borderColor: isDark ? "#3A3520" : "rgba(238,167,27,0.3)" }]}>
                 <View style={styles.hadithCardHeader}>
@@ -1306,8 +1290,6 @@ function MenteeDashboard() {
                 </View>
               </View>
             )}
-            </View>
-            </DashboardRow>
 
             {/* Danke-Modal (Overlay, außerhalb Grid) */}
             <Modal visible={showThanksModal} transparent animationType="fade" onRequestClose={() => setShowThanksModal(false)}>
