@@ -817,12 +817,13 @@ function MentorDashboard() {
               <StatCard label={t("dashboard.statsRank")} value={mentorStats.rank} color="#6366f1" iconName="trophy-outline" sublabel={`/ ${mentorStats.totalMentors}`} />
             </KpiGrid>
 
-            {/* ── Vernachlässigte Mentees (>5 Tage keine Session) ─────── */}
+            {/* ── Vernachlässigte Mentees (kompaktes Grid) ─────── */}
             {neglectedMentees.length > 0 && (
-              <View style={{ marginBottom: 12 }}>
+              <View style={{ marginBottom: 16 }}>
                 <Text style={[styles.mentorSectionTitle, { color: themeColors.textSecondary }]}>
                   {t("mentor.neglectedSection")}
                 </Text>
+                <View style={{ flexDirection: "row", flexWrap: "wrap", gap: 8 }}>
                 {neglectedMentees.map((item) => {
                   const menteeName = item.mentorship.mentee?.name ?? "?";
                   const isUrgent = item.daysSince > 10;
@@ -846,22 +847,23 @@ function MentorDashboard() {
                       key={item.mentorship.id}
                       style={[
                         styles.neglectedRow,
-                        { backgroundColor: bgColor, borderColor, borderLeftColor },
+                        { backgroundColor: bgColor, borderColor, borderLeftColor, flex: 1, minWidth: 280 },
                       ]}
                       onPress={() => router.push({ pathname: "/mentorship/[id]", params: { id: item.mentorship.id } })}
                       activeOpacity={0.8}
                     >
                       <Ionicons
                         name={isUrgent ? "warning-outline" : "time-outline"}
-                        size={18}
+                        size={16}
                         color={borderLeftColor}
-                        style={{ marginRight: 10 }}
+                        style={{ marginRight: 8 }}
                       />
-                      <Text style={[styles.neglectedText, { color: textColor, flex: 1 }]}>{message}</Text>
+                      <Text style={[styles.neglectedText, { color: textColor, flex: 1, fontSize: 12 }]}>{message}</Text>
                       <Text style={[styles.neglectedArrow, { color: textColor }]}>›</Text>
                     </TouchableOpacity>
                   );
                 })}
+                </View>
               </View>
             )}
 
@@ -915,12 +917,12 @@ function MentorDashboard() {
               </View>
             </View>
 
-            {/* ── Achievements ── */}
-            <View style={[styles.dashCol, { marginBottom: 0 }]}>
-              <Text style={[styles.mentorSectionTitle, { color: themeColors.textSecondary, marginBottom: 8 }]}>
+            {/* ── Achievements (Grid 2x4) ── */}
+            <View style={[styles.dashCol, styles.levelCard, { backgroundColor: themeColors.card, borderColor: isDark ? "#3A3520" : themeColors.border, marginBottom: 0 }]}>
+              <Text style={[styles.mentorSectionTitle, { color: themeColors.textSecondary, marginBottom: 10 }]}>
                 {t("gamification.achievementsTitle")}
               </Text>
-              <ScrollView horizontal showsHorizontalScrollIndicator={false} style={{ marginHorizontal: -4 }}>
+              <View style={{ flexDirection: "row", flexWrap: "wrap", gap: 8 }}>
                 {ACHIEVEMENTS.map((ach) => {
                   const isUnlocked = userAchievements.some((a) => a.achievement_key === ach.key);
                   return (
@@ -929,6 +931,8 @@ function MentorDashboard() {
                       style={[
                         styles.achievementChip,
                         {
+                          width: "22%",
+                          minWidth: 60,
                           backgroundColor: isUnlocked
                             ? (isDark ? "#2A2518" : "#FFF8E1")
                             : (isDark ? "#1A1A24" : themeColors.border + "66"),
@@ -940,6 +944,7 @@ function MentorDashboard() {
                       activeOpacity={0.7}
                     >
                       <Text style={styles.achievementIcon}>{ach.icon}</Text>
+                      <Text style={{ fontSize: 9, fontWeight: "600", color: isUnlocked ? (isDark ? COLORS.gold : "#92400e") : themeColors.textTertiary, marginTop: 4, textAlign: "center" }} numberOfLines={1}>{ach.label}</Text>
                       {showAchievementTooltip === ach.key && (
                         <View style={[styles.achievementTooltip, { backgroundColor: isDark ? "#2A2518" : "#FFF8E1", borderColor: COLORS.gold }]}>
                           <Text style={[styles.achievementTooltipTitle, { color: themeColors.text }]}>{ach.label}</Text>
@@ -954,49 +959,47 @@ function MentorDashboard() {
                     </TouchableOpacity>
                   );
                 })}
-              </ScrollView>
+              </View>
             </View>
             </DashboardRow>
 
-            {/* ── Row: Wirkung + Bewertungen ────────────────────────── */}
-            <DashboardRow>
-            {/* ── Deine Wirkung ── */}
-            {impactStats.total > 0 && (
-              <View style={[styles.levelCard, { backgroundColor: themeColors.card, borderColor: isDark ? "#3A3520" : themeColors.border, marginBottom: 12 }]}>
-                <Text style={[styles.levelTitle, { color: themeColors.text, marginBottom: 8 }]}>
-                  {t("gamification.impactTitle").replace("{0}", String(impactStats.total))}
-                </Text>
-                {[
-                  { label: t("gamification.impactWudu"), count: impactStats.wudu },
-                  { label: t("gamification.impactSalah"), count: impactStats.salah },
-                  { label: t("gamification.impactQuran"), count: impactStats.quran },
-                  { label: t("gamification.impactCommunity"), count: impactStats.community },
-                ]
-                  .filter((item) => item.count > 0)
-                  .map((item) => (
-                    <View key={item.label} style={styles.impactRow}>
-                      <Text style={[styles.impactLabel, { color: themeColors.textSecondary }]}>{item.label}</Text>
-                      <Text style={[styles.impactCount, { color: COLORS.gold }]}>
-                        {t("gamification.impactMentees").replace("{0}", String(item.count))}
-                      </Text>
-                    </View>
-                  ))}
-              </View>
-            )}
-            </DashboardRow>
           </>
         )}
 
-        {/* ── Row: Bewertungen + Hadith ── */}
+        {/* ── Row: Wirkung + Bewertungen ────────────────────────── */}
         <DashboardRow>
         <View style={styles.dashCol}>
-        <MentorRatingsSection
-          feedbacks={myFeedbacks}
-          avgRating={avgRating}
-          myMentorships={myMentorships}
-          router={router}
-          t={t}
-          themeColors={themeColors}
+          {/* Deine Wirkung */}
+          {impactStats.total > 0 && (
+            <View style={[styles.levelCard, { backgroundColor: themeColors.card, borderColor: isDark ? "#3A3520" : themeColors.border }]}>
+              <Text style={[styles.levelTitle, { color: themeColors.text, marginBottom: 8 }]}>
+                {t("gamification.impactTitle").replace("{0}", String(impactStats.total))}
+              </Text>
+              {[
+                { label: t("gamification.impactWudu"), count: impactStats.wudu },
+                { label: t("gamification.impactSalah"), count: impactStats.salah },
+                { label: t("gamification.impactQuran"), count: impactStats.quran },
+                { label: t("gamification.impactCommunity"), count: impactStats.community },
+              ]
+                .filter((item) => item.count > 0)
+                .map((item) => (
+                  <View key={item.label} style={styles.impactRow}>
+                    <Text style={[styles.impactLabel, { color: themeColors.textSecondary }]}>{item.label}</Text>
+                    <Text style={[styles.impactCount, { color: COLORS.gold }]}>
+                      {t("gamification.impactMentees").replace("{0}", String(item.count))}
+                    </Text>
+                  </View>
+                ))}
+            </View>
+          )}
+          {/* Bewertungen */}
+          <MentorRatingsSection
+            feedbacks={myFeedbacks}
+            avgRating={avgRating}
+            myMentorships={myMentorships}
+            router={router}
+            t={t}
+            themeColors={themeColors}
           isDark={isDark}
         />
         </View>
@@ -1264,7 +1267,10 @@ function MenteeDashboard() {
               )}
             </KpiGrid>
 
-            {/* ── Danke sagen Button ───────────────────────────────────── */}
+            {/* ── Row: Danke + Hadith ───────────────────────────────── */}
+            <DashboardRow>
+            <View style={styles.dashCol}>
+            {/* Danke sagen Button */}
             {mentorship.status === "active" && mentorship.mentor_id && (
               <TouchableOpacity
                 style={[styles.thankButton, { backgroundColor: isDark ? "#1A2A1A" : "#dcfce7", borderColor: isDark ? "#2d6a4a" : "#86efac" }]}
@@ -1274,47 +1280,9 @@ function MenteeDashboard() {
                 <Text style={styles.thankButtonText}>{t("gamification.thankButton")}</Text>
               </TouchableOpacity>
             )}
-
-            {/* ── Danke-Modal ───────────────────────────────────────────── */}
-            <Modal
-              visible={showThanksModal}
-              transparent
-              animationType="fade"
-              onRequestClose={() => setShowThanksModal(false)}
-            >
-              <View style={styles.modalOverlay}>
-                <View style={[styles.modalCard, { backgroundColor: themeColors.card }]}>
-                  <Text style={[styles.modalTitle, { color: themeColors.text }]}>{t("gamification.thankTitle")}</Text>
-                  <Text style={[styles.modalBody, { color: themeColors.textSecondary }]}>{t("gamification.thankMessage")}</Text>
-                  <TextInput
-                    style={[styles.thankInput, { color: themeColors.text, borderColor: isDark ? "#3A3520" : themeColors.border, backgroundColor: isDark ? "#1A1A24" : themeColors.background }]}
-                    placeholder={t("gamification.thankMessagePlaceholder")}
-                    placeholderTextColor={themeColors.textTertiary}
-                    value={thanksMessage}
-                    onChangeText={setThanksMessage}
-                    multiline
-                    numberOfLines={3}
-                  />
-                  <View style={styles.modalButtonRow}>
-                    <TouchableOpacity
-                      style={[styles.modalCancelBtn, { borderColor: isDark ? "#3A3520" : themeColors.border }]}
-                      onPress={() => { setShowThanksModal(false); setThanksMessage(""); }}
-                    >
-                      <Text style={[styles.modalCancelText, { color: themeColors.textSecondary }]}>{t("gamification.thankCancel")}</Text>
-                    </TouchableOpacity>
-                    <TouchableOpacity
-                      style={[styles.modalConfirmBtn, { opacity: sendingThanks ? 0.6 : 1 }]}
-                      onPress={handleSendThanks}
-                      disabled={sendingThanks}
-                    >
-                      <Text style={styles.modalConfirmText}>{t("gamification.thankSend")}</Text>
-                    </TouchableOpacity>
-                  </View>
-                </View>
-              </View>
-            </Modal>
-
-            {/* ── Hadith — prominente große Card ───────────────────────── */}
+            </View>
+            <View style={styles.dashCol}>
+            {/* Hadith */}
             {todayHadith && (
               <View style={[styles.menteeHadithBigCard, { backgroundColor: isDark ? "#1A1A2E" : "#f0f4ff", borderColor: isDark ? "#3A3520" : "rgba(238,167,27,0.3)" }]}>
                 <View style={styles.hadithCardHeader}>
@@ -1329,26 +1297,36 @@ function MenteeDashboard() {
                   <Text style={[styles.hadithCardQuelle, { color: COLORS.gold, marginTop: 10 }]}>{t("motivation.source")}: {todayHadith.source}</Text>
                 ) : null}
                 <View style={[styles.motivationActionsRow, { marginTop: 16 }]}>
-                  <TouchableOpacity
-                    style={[styles.motivationNextBtn, { paddingHorizontal: 20, paddingVertical: 10 }]}
-                    onPress={() => setHadithOffset((prev) => prev + 1)}
-                  >
+                  <TouchableOpacity style={[styles.motivationNextBtn, { paddingHorizontal: 20, paddingVertical: 10 }]} onPress={() => setHadithOffset((prev) => prev + 1)}>
                     <Text style={[styles.motivationNextText, { fontSize: 14 }]}>{t("motivation.next")}</Text>
                   </TouchableOpacity>
-                  <TouchableOpacity
-                    style={[styles.motivationShareBtn, { backgroundColor: isDark ? "#2A2A3C" : "#e8eaf6", padding: 12, borderRadius: 10 }]}
-                    onPress={() => {
-                      const shareText = todayHadith.text_ar
-                        ? `${todayHadith.text_ar}\n\n${todayHadith.text_de}`
-                        : todayHadith.text_de;
-                      shareHadith(shareText, t("share.suffix"));
-                    }}
-                  >
+                  <TouchableOpacity style={[styles.motivationShareBtn, { backgroundColor: isDark ? "#2A2A3C" : "#e8eaf6", padding: 12, borderRadius: 10 }]} onPress={() => { const shareText = todayHadith.text_ar ? `${todayHadith.text_ar}\n\n${todayHadith.text_de}` : todayHadith.text_de; shareHadith(shareText, t("share.suffix")); }}>
                     <Ionicons name="share-outline" size={20} color={COLORS.gold} />
                   </TouchableOpacity>
                 </View>
               </View>
             )}
+            </View>
+            </DashboardRow>
+
+            {/* Danke-Modal (Overlay, außerhalb Grid) */}
+            <Modal visible={showThanksModal} transparent animationType="fade" onRequestClose={() => setShowThanksModal(false)}>
+              <View style={styles.modalOverlay}>
+                <View style={[styles.modalCard, { backgroundColor: themeColors.card }]}>
+                  <Text style={[styles.modalTitle, { color: themeColors.text }]}>{t("gamification.thankTitle")}</Text>
+                  <Text style={[styles.modalBody, { color: themeColors.textSecondary }]}>{t("gamification.thankMessage")}</Text>
+                  <TextInput style={[styles.thankInput, { color: themeColors.text, borderColor: isDark ? "#3A3520" : themeColors.border, backgroundColor: isDark ? "#1A1A24" : themeColors.background }]} placeholder={t("gamification.thankMessagePlaceholder")} placeholderTextColor={themeColors.textTertiary} value={thanksMessage} onChangeText={setThanksMessage} multiline numberOfLines={3} />
+                  <View style={styles.modalButtonRow}>
+                    <TouchableOpacity style={[styles.modalCancelBtn, { borderColor: isDark ? "#3A3520" : themeColors.border }]} onPress={() => { setShowThanksModal(false); setThanksMessage(""); }}>
+                      <Text style={[styles.modalCancelText, { color: themeColors.textSecondary }]}>{t("gamification.thankCancel")}</Text>
+                    </TouchableOpacity>
+                    <TouchableOpacity style={[styles.modalConfirmBtn, { opacity: sendingThanks ? 0.6 : 1 }]} onPress={handleSendThanks} disabled={sendingThanks}>
+                      <Text style={styles.modalConfirmText}>{t("gamification.thankSend")}</Text>
+                    </TouchableOpacity>
+                  </View>
+                </View>
+              </View>
+            </Modal>
 
           </>
         ) : (
@@ -2164,8 +2142,8 @@ const styles = StyleSheet.create({
     borderLeftWidth: 4,
     borderLeftColor: COLORS.gold,
     borderRadius: 16,
-    padding: 20,
-    marginBottom: 16,
+    padding: 16,
+    marginBottom: 12,
     width: "100%",
     shadowColor: COLORS.gold,
     shadowOffset: { width: 0, height: 2 },
@@ -2173,17 +2151,17 @@ const styles = StyleSheet.create({
     shadowRadius: 12,
     elevation: 2,
   },
-  momAdminHeader: { flexDirection: "row", alignItems: "center", marginBottom: 8 },
-  momAdminStar: { color: COLORS.gold, fontSize: 20, marginRight: 8 },
-  momAdminTitle: { fontWeight: "700", color: COLORS.secondary, fontSize: 12, letterSpacing: 0.8 },
-  momAdminName: { fontSize: 22, fontWeight: "800", color: COLORS.primary, marginBottom: 14, letterSpacing: -0.3 },
+  momAdminHeader: { flexDirection: "row", alignItems: "center", marginBottom: 4 },
+  momAdminStar: { color: COLORS.gold, fontSize: 18, marginRight: 6 },
+  momAdminTitle: { fontWeight: "700", color: COLORS.secondary, fontSize: 11, letterSpacing: 0.8 },
+  momAdminName: { fontSize: 18, fontWeight: "800", color: COLORS.primary, marginBottom: 10, letterSpacing: -0.3 },
   momAdminSub: { fontSize: 11, color: "#6B7280" },
-  momAdminStatsRow: { flexDirection: "row", gap: 10, marginBottom: 12 },
+  momAdminStatsRow: { flexDirection: "row", gap: 8, marginBottom: 8 },
   momAdminStat: {
     flex: 1,
     backgroundColor: COLORS.white,
-    borderRadius: 12,
-    padding: 10,
+    borderRadius: 10,
+    padding: 8,
     alignItems: "center",
     borderWidth: 1,
     borderColor: "rgba(238,167,27,0.2)",
