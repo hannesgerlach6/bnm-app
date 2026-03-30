@@ -1467,8 +1467,8 @@ const tr: Record<TranslationKeys, string> = {
   "settings.showMentorOfMonth": "Ayın Mentorunu Göster",
   "settings.mentorOfMonthDesc": "Lider tablosunda ve yönetici panosunda ödülü gösterir.",
 
-  // Erken Uyarılar
-  "earlyWarning.title": "Erken Uyarılar",
+  // Mentörlük Uyarıları
+  "earlyWarning.title": "Mentörlük Uyarıları",
   "earlyWarning.negativeFeedback": "Olumsuz geri bildirim",
   "earlyWarning.discrepancy": "Tutarsızlık",
   "earlyWarning.inactive": "Mentor inaktif",
@@ -1691,6 +1691,17 @@ const tr: Record<TranslationKeys, string> = {
   "adminReminder.sent": "{0} kişisine hatırlatma gönderildi",
   "adminReminder.sentConfirm": "Gönderildi ✓",
   "adminReminder.reminderBody": "Lütfen {0} ile bir sonraki seansını belgelemeyi unutma. BNM ekibi düzenli güncellemeleri takdir eder.",
+
+  // XP Sistemi Genel Bakış (Admin)
+  "xpOverview.title": "XP Sistemi Genel Bakış",
+  "xpOverview.levels": "Seviye Kademeleri",
+  "xpOverview.actions": "XP nasıl kazanılır",
+  "xpOverview.sessionDoc": "Seans belgelendi",
+  "xpOverview.completion": "Mentörlük tamamlandı",
+  "xpOverview.feedback5": "5 yıldız geri bildirim alındı",
+  "xpOverview.feedback4": "4 yıldız geri bildirim alındı",
+  "xpOverview.streak": "Günlük aktivite (seri)",
+  "xpOverview.thanks": "Teşekkür alındı",
 
   // Mentor Dashboard – Değerlendirmeler & İhmal Uyarıları
   "mentor.myRatings": "Değerlendirmelerim",

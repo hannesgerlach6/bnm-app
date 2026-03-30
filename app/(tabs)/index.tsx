@@ -15,7 +15,7 @@ import { navigateToChat } from "../../lib/chatNavigation";
 import { SlideOverPanel } from "../../components/SlideOverPanel";
 import { MentorDetailPanel } from "../../components/MentorDetailPanel";
 import { MenteeDetailPanel } from "../../components/MenteeDetailPanel";
-import { getLevelForXP, getNextLevel, getLevelProgress, ACHIEVEMENTS } from "../../lib/gamification";
+import { getLevelForXP, getNextLevel, getLevelProgress, ACHIEVEMENTS, XP_VALUES, LEVELS } from "../../lib/gamification";
 
 export default function DashboardScreen() {
   const { user } = useAuth();
@@ -118,19 +118,24 @@ function AdminDashboard({ showSystemSettings = true }: { showSystemSettings?: bo
     return showAllActivities ? allSortedSessions : allSortedSessions.slice(0, 5);
   }, [allSortedSessions, showAllActivities]);
 
-  // Frühwarnungen berechnen
-  const earlyWarnings = useMemo(() => {
-    const warnings: { type: "feedback" | "discrepancy" | "inactive"; label: string; mentorshipId?: string; date?: Date }[] = [];
+  // Betreuungs-Warnungen: Alle Typen in einer vereinten Liste
+  const allWarnings = useMemo(() => {
+    const warnings: { type: "feedback" | "discrepancy" | "inactive"; label: string; mentorName: string; menteeName: string; mentorshipId: string; mentorId?: string; daysSince?: number; date?: Date }[] = [];
 
     // Negatives Feedback (Rating ≤ 2)
     for (const f of feedback) {
       if (f.rating <= 2) {
         const ms = mentorships.find((m) => m.id === f.mentorship_id);
+        if (!ms) continue;
         warnings.push({
           type: "feedback",
-          label: ms ? `${ms.mentee?.name ?? "?"} → ${ms.mentor?.name ?? "?"}` : f.mentorship_id,
+          label: `${ms.mentee?.name ?? "?"} → ${ms.mentor?.name ?? "?"}`,
+          mentorName: ms.mentor?.name ?? "?",
+          menteeName: ms.mentee?.name ?? "?",
           mentorshipId: f.mentorship_id,
+          mentorId: ms.mentor_id,
           date: new Date(f.created_at),
+          daysSince: Math.floor((Date.now() - new Date(f.created_at).getTime()) / 86400000),
         });
       }
     }
@@ -145,57 +150,44 @@ function AdminDashboard({ showSystemSettings = true }: { showSystemSettings?: bo
         warnings.push({
           type: "discrepancy",
           label: `${m.mentee?.name ?? "?"} → ${m.mentor?.name ?? "?"}`,
+          mentorName: m.mentor?.name ?? "?",
+          menteeName: m.mentee?.name ?? "?",
           mentorshipId: m.id,
+          mentorId: m.mentor_id,
         });
       }
     }
 
-    // Inaktive Mentoren: >7 Tage keine Session bei aktiver Betreuung
+    // Inaktive Mentoren: ≥5 Tage keine Session bei aktiver Betreuung
     const now = Date.now();
-    const sevenDays = 7 * 24 * 60 * 60 * 1000;
+    const fiveDays = 5 * 24 * 60 * 60 * 1000;
     for (const m of mentorships) {
       if (m.status !== "active") continue;
       const mentorSessions = sessions.filter((s) => s.mentorship_id === m.id);
-      let isInactive = false;
-      let lastDate: Date | undefined;
+      let lastTime: number;
       if (mentorSessions.length === 0) {
-        isInactive = now - new Date(m.assigned_at).getTime() > sevenDays;
-        lastDate = new Date(m.assigned_at);
+        lastTime = new Date(m.assigned_at).getTime();
       } else {
-        const last = [...mentorSessions].sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())[0];
-        isInactive = now - new Date(last.date).getTime() > sevenDays;
-        lastDate = new Date(last.date);
+        lastTime = Math.max(...mentorSessions.map((s) => new Date(s.date).getTime()));
       }
-      if (isInactive) {
+      const daysSince = Math.floor((now - lastTime) / 86400000);
+      if (now - lastTime >= fiveDays) {
         warnings.push({
           type: "inactive",
           label: `${m.mentor?.name ?? "?"} → ${m.mentee?.name ?? "?"}`,
+          mentorName: m.mentor?.name ?? "?",
+          menteeName: m.mentee?.name ?? "?",
           mentorshipId: m.id,
-          date: lastDate,
+          mentorId: m.mentor_id,
+          daysSince,
+          date: new Date(lastTime),
         });
       }
     }
 
-    return warnings;
+    // Sortieren: Inaktive nach Tagen absteigend, dann Feedback, dann Diskrepanz
+    return warnings.sort((a, b) => (b.daysSince ?? 0) - (a.daysSince ?? 0));
   }, [feedback, mentorships, sessions]);
-
-  // Stagnante Betreuungen: >5 Tage keine Session (separater Block für Admin-Aktionen)
-  const stagnantMentorships = useMemo(() => {
-    const now = Date.now();
-    const fiveDays = 5 * 24 * 60 * 60 * 1000;
-    return mentorships
-      .filter((m) => m.status === "active")
-      .map((m) => {
-        const ms = sessions.filter((s) => s.mentorship_id === m.id);
-        const lastTime = ms.length > 0
-          ? Math.max(...ms.map((s) => new Date(s.date).getTime()))
-          : new Date(m.assigned_at).getTime();
-        const daysSince = Math.floor((now - lastTime) / 86400000);
-        return { mentorship: m, daysSince, lastDate: new Date(lastTime) };
-      })
-      .filter((x) => x.daysSince >= 5)
-      .sort((a, b) => b.daysSince - a.daysSince);
-  }, [mentorships, sessions]);
 
   async function handleSendReminder(mentorshipId: string, mentorName: string, menteeName: string) {
     const mentorship = mentorships.find((m) => m.id === mentorshipId);
@@ -446,93 +438,70 @@ function AdminDashboard({ showSystemSettings = true }: { showSystemSettings?: bo
             )}
 
 
-            {/* Frühwarnungen */}
-            {earlyWarnings.length > 0 && (
-              <View style={[styles.warningBox, { backgroundColor: isDark ? "#3a1a1a" : "#fff1f2", borderColor: isDark ? "#7a2a2a" : "#fecdd3", borderLeftColor: isDark ? "#f87171" : "#ef4444" }]}>
+            {/* Betreuungs-Warnungen (vereinte Liste) */}
+            {allWarnings.length > 0 && (
+              <View style={[styles.warningBox, { backgroundColor: isDark ? "#1a1a2a" : "#fff8f0", borderColor: isDark ? "#2a2a3a" : "#fed7aa", borderLeftColor: isDark ? "#FFCA28" : "#f59e0b" }]}>
                 <View style={styles.warningHeader}>
-                  <Text style={[styles.warningTitle, { color: isDark ? "#f87171" : "#991b1b" }]}>{t("earlyWarning.title")}</Text>
-                  <View style={styles.warningBadge}>
-                    <Text style={styles.warningBadgeText}>{earlyWarnings.length}</Text>
+                  <Text style={[styles.warningTitle, { color: isDark ? "#FFCA28" : "#92400e" }]}>{t("earlyWarning.title")}</Text>
+                  <View style={[styles.warningBadge, { backgroundColor: isDark ? "#FFCA28" : "#f59e0b" }]}>
+                    <Text style={[styles.warningBadgeText, { color: "#0E0E14" }]}>{allWarnings.length}</Text>
                   </View>
                 </View>
-                {earlyWarnings.slice(0, 5).map((w, idx) => {
-                  const daysDiff = w.date ? Math.floor((Date.now() - w.date.getTime()) / 86400000) : undefined;
+                {allWarnings.map((w, idx) => {
                   const typeLabel = w.type === "feedback"
                     ? t("earlyWarning.negativeFeedback")
                     : w.type === "discrepancy"
                     ? t("earlyWarning.discrepancy")
                     : t("earlyWarning.inactive");
+                  const dotColor = w.type === "feedback"
+                    ? "#ef4444"
+                    : w.type === "discrepancy"
+                    ? "#f59e0b"
+                    : "#3b82f6";
+                  const isInactive = w.type === "inactive";
+                  const isSending = sendingReminderFor === w.mentorshipId;
+                  const isSent = hasSentReminder(w.mentorshipId);
+                  const isLast = idx === allWarnings.length - 1;
                   return (
                     <TouchableOpacity
-                      key={idx}
-                      style={[styles.warningRow, idx < Math.min(earlyWarnings.length, 5) - 1 && [styles.warningRowBorder, { borderBottomColor: isDark ? "#7a2a2a" : "#fecdd3" }]]}
+                      key={`${w.type}-${w.mentorshipId}-${idx}`}
+                      style={[styles.warningRow, !isLast && [styles.warningRowBorder, { borderBottomColor: isDark ? "#2a2a3a" : "#fed7aa" }]]}
                       onPress={() => {
                         if (w.mentorshipId) {
                           router.push({ pathname: "/mentorship/[id]", params: { id: w.mentorshipId } });
                         }
                       }}
                     >
-                      <View style={[styles.warningDot, { backgroundColor: isDark ? "#f87171" : "#ef4444" }]} />
+                      <View style={[styles.warningDot, { backgroundColor: dotColor }]} />
                       <View style={{ flex: 1 }}>
-                        <Text style={[styles.warningLabel, { color: isDark ? "#f87171" : "#ef4444" }]}>{typeLabel}</Text>
-                        <Text style={[styles.warningName, { color: isDark ? "#fca5a5" : "#7f1d1d" }]}>{w.label}</Text>
+                        <Text style={[styles.warningLabel, { color: isDark ? (dotColor === "#3b82f6" ? "#93c5fd" : dotColor === "#ef4444" ? "#fca5a5" : "#fcd34d") : dotColor }]}>{typeLabel}</Text>
+                        <Text style={[styles.warningName, { color: themeColors.text }]}>{w.label}</Text>
                       </View>
-                      {daysDiff !== undefined && (
-                        <Text style={[styles.warningDays, { color: isDark ? "#f87171" : "#b91c1c" }]}>
-                          {t("earlyWarning.daysAgo").replace("{0}", String(daysDiff))}
+                      {w.daysSince !== undefined && (
+                        <Text style={[styles.warningDays, { color: themeColors.textSecondary }]}>
+                          {t("earlyWarning.daysAgo").replace("{0}", String(w.daysSince))}
                         </Text>
                       )}
-                      <Text style={[styles.warningArrow, { color: isDark ? "#f87171" : "#b91c1c" }]}>›</Text>
+                      {isInactive && (
+                        <TouchableOpacity
+                          style={[
+                            styles.reminderBtn,
+                            (isSending || isSent) ? { opacity: 0.5, backgroundColor: "#6B7280" } : {},
+                          ]}
+                          onPress={(e) => {
+                            e.stopPropagation && e.stopPropagation();
+                            if (!isSent) handleSendReminder(w.mentorshipId, w.mentorName, w.menteeName);
+                          }}
+                          disabled={isSending || isSent}
+                          activeOpacity={0.7}
+                        >
+                          <Ionicons name={isSent ? "checkmark-outline" : "notifications-outline"} size={13} color={COLORS.white} />
+                        </TouchableOpacity>
+                      )}
+                      {!isInactive && (
+                        <Text style={[styles.warningArrow, { color: themeColors.textSecondary }]}>›</Text>
+                      )}
                     </TouchableOpacity>
-                  );
-                })}
-              </View>
-            )}
-
-            {/* Stagnante Betreuungen (>5 Tage keine Session) */}
-            {stagnantMentorships.length > 0 && (
-              <View style={[styles.stagnantBox, { backgroundColor: isDark ? "#1a2a3a" : "#eff6ff", borderColor: isDark ? "#1e3a5f" : "#bfdbfe" }]}>
-                <View style={[styles.warningHeader, { marginBottom: 8 }]}>
-                  <Text style={[styles.warningTitle, { color: isDark ? "#93c5fd" : "#1d4ed8" }]}>
-                    {t("adminReminder.title")} ({stagnantMentorships.length})
-                  </Text>
-                </View>
-                {stagnantMentorships.map((item, idx) => {
-                  const mentorName = item.mentorship.mentor?.name ?? "?";
-                  const menteeName = item.mentorship.mentee?.name ?? "?";
-                  const isSending = sendingReminderFor === item.mentorship.id;
-                  const isSent = hasSentReminder(item.mentorship.id);
-                  const isLast = idx === stagnantMentorships.length - 1;
-                  return (
-                    <View
-                      key={item.mentorship.id}
-                      style={[
-                        styles.stagnantRow,
-                        !isLast && [styles.stagnantRowBorder, { borderBottomColor: isDark ? "#1e3a5f" : "#bfdbfe" }],
-                      ]}
-                    >
-                      <View style={{ flex: 1 }}>
-                        <Text style={[styles.stagnantMentorName, { color: isDark ? "#93c5fd" : "#1d4ed8" }]}>
-                          {mentorName}
-                        </Text>
-                        <Text style={[styles.stagnantSub, { color: isDark ? "#60a5fa" : "#3b82f6" }]}>
-                          → {menteeName} · {t("earlyWarning.daysAgo").replace("{0}", String(item.daysSince))}
-                        </Text>
-                      </View>
-                      <TouchableOpacity
-                        style={[
-                          styles.reminderBtn,
-                          (isSending || isSent) ? { opacity: 0.5, backgroundColor: "#6B7280" } : {},
-                        ]}
-                        onPress={() => !isSent && handleSendReminder(item.mentorship.id, mentorName, menteeName)}
-                        disabled={isSending || isSent}
-                        activeOpacity={0.7}
-                      >
-                        <Text style={styles.reminderBtnText}>
-                          {isSending ? "..." : isSent ? t("adminReminder.sentConfirm") : t("adminReminder.sendButton")}
-                        </Text>
-                      </TouchableOpacity>
-                    </View>
                   );
                 })}
               </View>
@@ -597,6 +566,47 @@ function AdminDashboard({ showSystemSettings = true }: { showSystemSettings?: bo
                   );
                 })
               )}
+            </View>
+
+            {/* XP-System Übersicht (Admin) */}
+            <View style={[styles.card, { backgroundColor: themeColors.card }]}>
+              <View style={{ flexDirection: "row", alignItems: "center", gap: 8, marginBottom: 12 }}>
+                <Ionicons name="trophy-outline" size={18} color={COLORS.gold} />
+                <Text style={[styles.cardTitle, { color: themeColors.text, marginBottom: 0 }]}>{t("xpOverview.title")}</Text>
+              </View>
+
+              {/* Level-Leiter */}
+              <Text style={[styles.tertiaryXs, { color: themeColors.textTertiary, marginBottom: 8 }]}>{t("xpOverview.levels")}</Text>
+              <View style={{ flexDirection: "row", gap: 6, marginBottom: 16 }}>
+                {LEVELS.map((lvl, i) => (
+                  <View key={lvl.key} style={{ flex: 1, backgroundColor: isDark ? "#1E1E2E" : "#f5f5f5", borderRadius: 8, padding: 10, alignItems: "center", borderWidth: 1, borderColor: lvl.color + "40" }}>
+                    <View style={{ width: 28, height: 28, borderRadius: 14, backgroundColor: lvl.color + "20", alignItems: "center", justifyContent: "center", marginBottom: 4 }}>
+                      <Text style={{ fontSize: 14 }}>{i === 0 ? "🥉" : i === 1 ? "🥈" : i === 2 ? "🥇" : "💎"}</Text>
+                    </View>
+                    <Text style={{ color: lvl.color, fontSize: 11, fontWeight: "700" }}>{lvl.label.replace("-Mentor", "")}</Text>
+                    <Text style={{ color: themeColors.textTertiary, fontSize: 10, marginTop: 2 }}>{lvl.minXP}+ XP</Text>
+                  </View>
+                ))}
+              </View>
+
+              {/* XP-Aktionen Tabelle */}
+              <Text style={[styles.tertiaryXs, { color: themeColors.textTertiary, marginBottom: 6 }]}>{t("xpOverview.actions")}</Text>
+              {[
+                { label: t("xpOverview.sessionDoc"), xp: XP_VALUES.SESSION_DOCUMENTED, icon: "document-text-outline" as const },
+                { label: t("xpOverview.completion"), xp: XP_VALUES.MENTORSHIP_COMPLETED, icon: "checkmark-done-outline" as const },
+                { label: t("xpOverview.feedback5"), xp: XP_VALUES.FEEDBACK_5STAR, icon: "star-outline" as const },
+                { label: t("xpOverview.feedback4"), xp: XP_VALUES.FEEDBACK_4STAR, icon: "star-half-outline" as const },
+                { label: t("xpOverview.streak"), xp: XP_VALUES.STREAK_DAY, icon: "flame-outline" as const },
+                { label: t("xpOverview.thanks"), xp: XP_VALUES.THANK_RECEIVED, icon: "heart-outline" as const },
+              ].map((item, i) => (
+                <View key={i} style={{ flexDirection: "row", alignItems: "center", paddingVertical: 7, borderBottomWidth: i < 5 ? 1 : 0, borderBottomColor: themeColors.border, gap: 10 }}>
+                  <Ionicons name={item.icon} size={15} color={themeColors.textSecondary} />
+                  <Text style={{ flex: 1, color: themeColors.text, fontSize: 13 }}>{item.label}</Text>
+                  <View style={{ backgroundColor: COLORS.gold + "20", borderRadius: 4, paddingHorizontal: 8, paddingVertical: 2 }}>
+                    <Text style={{ color: COLORS.gold, fontSize: 12, fontWeight: "700" }}>+{item.xp} XP</Text>
+                  </View>
+                </View>
+              ))}
             </View>
 
             {/* Balkendiagramm: Neue Betreuungen pro Monat */}
@@ -2106,24 +2116,6 @@ const styles = StyleSheet.create({
   warningDays: { fontSize: 11, flexShrink: 0 },
   warningArrow: { fontSize: 16, marginLeft: 4 },
 
-  // Stagnante Betreuungen
-  stagnantBox: {
-    borderWidth: 1,
-    borderLeftWidth: 4,
-    borderLeftColor: "#3b82f6",
-    borderRadius: 8,
-    padding: 14,
-    marginBottom: 14,
-  },
-  stagnantRow: {
-    flexDirection: "row",
-    alignItems: "center",
-    paddingVertical: 8,
-    gap: 8,
-  },
-  stagnantRowBorder: { borderBottomWidth: 1 },
-  stagnantMentorName: { fontSize: 13, fontWeight: "700" },
-  stagnantSub: { fontSize: 12, marginTop: 1 },
   reminderBtn: {
     backgroundColor: "#3b82f6",
     borderRadius: 5,

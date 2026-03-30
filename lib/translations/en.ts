@@ -1413,8 +1413,8 @@ const en: Record<TranslationKeys, string> = {
   "settings.showMentorOfMonth": "Show Mentor of the Month",
   "settings.mentorOfMonthDesc": "Displays the award on the leaderboard and admin dashboard.",
 
-  // Early Warnings
-  "earlyWarning.title": "Early Warnings",
+  // Mentorship Alerts
+  "earlyWarning.title": "Mentorship Alerts",
   "earlyWarning.negativeFeedback": "Negative feedback",
   "earlyWarning.discrepancy": "Discrepancy",
   "earlyWarning.inactive": "Mentor inactive",
@@ -1691,6 +1691,17 @@ const en: Record<TranslationKeys, string> = {
   "adminReminder.sent": "Reminder sent to {0}",
   "adminReminder.sentConfirm": "Sent ✓",
   "adminReminder.reminderBody": "Please remember to document your next session with {0}. The BNM team appreciates regular updates.",
+
+  // XP System Overview (Admin)
+  "xpOverview.title": "XP System Overview",
+  "xpOverview.levels": "Level Tiers",
+  "xpOverview.actions": "How to earn XP",
+  "xpOverview.sessionDoc": "Session documented",
+  "xpOverview.completion": "Mentorship completed",
+  "xpOverview.feedback5": "5-star feedback received",
+  "xpOverview.feedback4": "4-star feedback received",
+  "xpOverview.streak": "Daily activity (streak)",
+  "xpOverview.thanks": "Thanks received",
 
   // Mentor Dashboard – Ratings & Neglect Warnings
   "mentor.myRatings": "My Ratings",

@@ -1467,8 +1467,8 @@ const ar: Record<TranslationKeys, string> = {
   "settings.showMentorOfMonth": "إظهار مرشد الشهر",
   "settings.mentorOfMonthDesc": "يعرض الجائزة على لوحة الترتيب ولوحة الإدارة.",
 
-  // التحذيرات المبكرة
-  "earlyWarning.title": "التحذيرات المبكرة",
+  // تنبيهات الإرشاد
+  "earlyWarning.title": "تنبيهات الإرشاد",
   "earlyWarning.negativeFeedback": "تقييم سلبي",
   "earlyWarning.discrepancy": "تناقض",
   "earlyWarning.inactive": "المرشد غير نشط",
@@ -1691,6 +1691,17 @@ const ar: Record<TranslationKeys, string> = {
   "adminReminder.sent": "تم إرسال تذكير إلى {0}",
   "adminReminder.sentConfirm": "تم الإرسال ✓",
   "adminReminder.reminderBody": "يرجى تذكر توثيق جلستك القادمة مع {0}. يقدر فريق BNM التحديثات المنتظمة.",
+
+  // نظرة عامة على نظام XP (المشرف)
+  "xpOverview.title": "نظرة عامة على نظام XP",
+  "xpOverview.levels": "مستويات التصنيف",
+  "xpOverview.actions": "كيفية كسب XP",
+  "xpOverview.sessionDoc": "تم توثيق الجلسة",
+  "xpOverview.completion": "تم إكمال الإرشاد",
+  "xpOverview.feedback5": "تم تلقي تقييم 5 نجوم",
+  "xpOverview.feedback4": "تم تلقي تقييم 4 نجوم",
+  "xpOverview.streak": "نشاط يومي (سلسلة)",
+  "xpOverview.thanks": "تم تلقي شكر",
 
   // لوحة تحكم المرشد – التقييمات وتحذيرات الإهمال
   "mentor.myRatings": "تقييماتي",

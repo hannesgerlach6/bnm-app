@@ -1413,8 +1413,8 @@ const de = {
   "settings.showMentorOfMonth": "Mentor des Monats anzeigen",
   "settings.mentorOfMonthDesc": "Zeigt die Auszeichnung auf dem Leaderboard und im Admin-Dashboard.",
 
-  // Frühwarnungen
-  "earlyWarning.title": "Frühwarnungen",
+  // Betreuungs-Warnungen
+  "earlyWarning.title": "Betreuungs-Warnungen",
   "earlyWarning.negativeFeedback": "Negatives Feedback",
   "earlyWarning.discrepancy": "Diskrepanz",
   "earlyWarning.inactive": "Mentor inaktiv",
@@ -1693,6 +1693,17 @@ const de = {
   "adminReminder.sent": "Erinnerung an {0} gesendet",
   "adminReminder.sentConfirm": "Gesendet ✓",
   "adminReminder.reminderBody": "Bitte denk daran, deine nächste Session mit {0} zu dokumentieren. Das BNM-Team freut sich über regelmässige Updates.",
+
+  // XP-System Übersicht (Admin)
+  "xpOverview.title": "XP-System Übersicht",
+  "xpOverview.levels": "Level-Stufen",
+  "xpOverview.actions": "So werden XP verdient",
+  "xpOverview.sessionDoc": "Session dokumentiert",
+  "xpOverview.completion": "Betreuung abgeschlossen",
+  "xpOverview.feedback5": "5-Sterne Feedback erhalten",
+  "xpOverview.feedback4": "4-Sterne Feedback erhalten",
+  "xpOverview.streak": "Tägliche Aktivität (Streak)",
+  "xpOverview.thanks": "Danke erhalten",
 
   // Mentor Dashboard – Bewertungen & Vernachlässigungs-Warnungen
   "mentor.myRatings": "Meine Bewertungen",
