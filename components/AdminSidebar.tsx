@@ -1,8 +1,8 @@
 /**
- * AdminSidebar — Redesign inspiriert von Musemind Dashboard Sidebar Navigation.
- * Goldener aktiver Indikator-Strich, subtile Hover-Effekte, modernes Spacing.
+ * AdminSidebar — Einklappbar (Collapsed/Expanded), scrollbar bei Zoom,
+ * inspiriert von Musemind Dashboard Sidebar Navigation.
  */
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   TouchableOpacity,
   View,
@@ -10,6 +10,7 @@ import {
   StyleSheet,
   Platform,
   Alert,
+  ScrollView,
   useWindowDimensions,
 } from "react-native";
 import { useRouter, usePathname } from "expo-router";
@@ -21,16 +22,19 @@ import { useLanguage } from "../contexts/LanguageContext";
 import { useThemeColors } from "../contexts/ThemeContext";
 import { COLORS, SPACING, RADIUS } from "../constants/Colors";
 
+const SIDEBAR_EXPANDED = 250;
+const SIDEBAR_COLLAPSED = 68;
+
 // ─── Sidebar Item ─────────────────────────────────────────────────────────────
 
 interface SidebarItemProps {
   label: string;
-  href: string;
   iconName: string;
   iconNameActive: string;
   isActive: boolean;
   onPress: () => void;
   badge?: number;
+  collapsed?: boolean;
 }
 
 function SidebarItem({
@@ -40,6 +44,7 @@ function SidebarItem({
   isActive,
   onPress,
   badge,
+  collapsed,
 }: SidebarItemProps) {
   const themeColors = useThemeColors();
   const isDark = themeColors.background === "#0E0E14";
@@ -62,6 +67,7 @@ function SidebarItem({
       onPress={onPress}
       style={[
         styles.item,
+        collapsed && styles.itemCollapsed,
         isActive
           ? { backgroundColor: activeBg }
           : isHovered
@@ -69,46 +75,69 @@ function SidebarItem({
           : { backgroundColor: "transparent" },
       ]}
       activeOpacity={0.7}
+      // @ts-ignore — Web-only title attribute for tooltip in collapsed mode
+      title={collapsed ? label : undefined}
       {...webHoverProps}
     >
       {/* Aktiver Indikator-Strich links */}
-      <View style={[
-        styles.activeIndicator,
-        { backgroundColor: isActive ? activeAccent : "transparent" },
-      ]} />
+      {!collapsed && (
+        <View style={[
+          styles.activeIndicator,
+          { backgroundColor: isActive ? activeAccent : "transparent" },
+        ]} />
+      )}
 
-      {/* Icon im halbtransparenten Kreis */}
+      {/* Icon */}
       <View style={[
         styles.iconCircle,
+        collapsed && styles.iconCircleCollapsed,
         isActive
           ? { backgroundColor: isDark ? "rgba(255,202,40,0.15)" : "rgba(238,167,27,0.15)" }
           : { backgroundColor: "transparent" },
       ]}>
         <Ionicons
           name={(isActive ? iconNameActive : iconName) as any}
-          size={18}
+          size={collapsed ? 20 : 18}
           color={isActive ? activeAccent : inactiveIconColor}
         />
+        {/* Badge über Icon im Collapsed-Modus */}
+        {collapsed && badge != null && badge > 0 && (
+          <View style={styles.badgeCollapsed}>
+            <Text style={styles.badgeText}>{badge > 9 ? "9+" : String(badge)}</Text>
+          </View>
+        )}
       </View>
 
-      <Text
-        style={[
-          styles.itemLabel,
-          {
-            color: isActive ? activeTextColor : inactiveTextColor,
-            fontWeight: isActive ? "700" : "500",
-          },
-        ]}
-        numberOfLines={1}
-      >
-        {label}
-      </Text>
-
-      {badge != null && badge > 0 && (
-        <View style={styles.badge}>
-          <Text style={styles.badgeText}>
-            {badge > 9 ? "9+" : String(badge)}
+      {/* Label + Badge (nur im Expanded-Modus) */}
+      {!collapsed && (
+        <>
+          <Text
+            style={[
+              styles.itemLabel,
+              {
+                color: isActive ? activeTextColor : inactiveTextColor,
+                fontWeight: isActive ? "700" : "500",
+              },
+            ]}
+            numberOfLines={1}
+          >
+            {label}
           </Text>
+          {badge != null && badge > 0 && (
+            <View style={styles.badge}>
+              <Text style={styles.badgeText}>
+                {badge > 9 ? "9+" : String(badge)}
+              </Text>
+            </View>
+          )}
+        </>
+      )}
+
+      {/* Web Tooltip bei Hover im Collapsed-Modus */}
+      {collapsed && isHovered && Platform.OS === "web" && (
+        <View style={[styles.tooltip, { backgroundColor: isDark ? "#1E1E2A" : "#1a1a2e" }]}>
+          <Text style={styles.tooltipText}>{label}</Text>
+          <View style={[styles.tooltipArrow, { borderRightColor: isDark ? "#1E1E2A" : "#1a1a2e" }]} />
         </View>
       )}
     </TouchableOpacity>
@@ -126,12 +155,27 @@ export function AdminSidebar() {
   const { getUnreadCount, getTotalUnreadMessages } = useData();
   const { user, logout } = useAuth();
   const { width } = useWindowDimensions();
-  const unreadCount = getUnreadCount();
   const isAdminOrOffice = user?.role === "admin" || user?.role === "office";
   const chatUnread = isAdminOrOffice ? 0 : getTotalUnreadMessages();
-  const isNarrow = width < 900;
 
   const isOffice = user?.role === "office";
+
+  // Collapsed State — aus localStorage laden/speichern
+  const [collapsed, setCollapsed] = useState(false);
+  useEffect(() => {
+    if (Platform.OS === "web") {
+      const stored = localStorage.getItem("bnm-sidebar-collapsed");
+      if (stored === "true") setCollapsed(true);
+    }
+  }, []);
+
+  const toggleCollapsed = () => {
+    const next = !collapsed;
+    setCollapsed(next);
+    if (Platform.OS === "web") {
+      localStorage.setItem("bnm-sidebar-collapsed", String(next));
+    }
+  };
 
   // Aktiver Pfad ermitteln
   const isAdminToolScreen =
@@ -189,64 +233,91 @@ export function AdminSidebar() {
     }
   };
 
+  const sidebarWidth = collapsed ? SIDEBAR_COLLAPSED : SIDEBAR_EXPANDED;
+
   return (
     <View
       style={[
         styles.sidebar,
         {
+          width: sidebarWidth,
+          minWidth: sidebarWidth,
           backgroundColor: isDark ? "#0A0A10" : "#FAFBFC",
           borderRightColor: isDark ? "#1A1A24" : themeColors.border,
         },
       ]}
     >
-      {/* Logo */}
+      {/* Logo + Collapse Toggle */}
       <View style={[styles.logoArea, { borderBottomColor: isDark ? "#1A1A24" : themeColors.border }]}>
-        <BNMLogo size={isNarrow ? 44 : 56} showSubtitle={false} />
+        {!collapsed && (
+          <View style={{ marginBottom: 12 }}>
+            <BNMLogo size={48} showSubtitle={false} />
+          </View>
+        )}
+        <TouchableOpacity
+          onPress={toggleCollapsed}
+          style={[styles.collapseBtn, { backgroundColor: isDark ? "rgba(255,255,255,0.05)" : "rgba(0,0,0,0.04)" }]}
+          activeOpacity={0.7}
+        >
+          <Ionicons
+            name={collapsed ? "chevron-forward-outline" : "chevron-back-outline"}
+            size={16}
+            color={isDark ? "#6E6E7A" : themeColors.textTertiary}
+          />
+        </TouchableOpacity>
       </View>
 
       {/* Sektions-Label */}
-      <View style={styles.sectionLabelWrap}>
-        <Text style={[styles.sectionLabel, { color: isDark ? "#4E4E5A" : themeColors.textTertiary }]}>
-          NAVIGATION
-        </Text>
-      </View>
+      {!collapsed && (
+        <View style={styles.sectionLabelWrap}>
+          <Text style={[styles.sectionLabel, { color: isDark ? "#4E4E5A" : themeColors.textTertiary }]}>
+            NAVIGATION
+          </Text>
+        </View>
+      )}
 
-      {/* Haupt-Navigation */}
-      <View style={styles.nav}>
+      {/* Haupt-Navigation — ScrollView für Zoom-Support */}
+      <ScrollView
+        style={styles.nav}
+        contentContainerStyle={styles.navContent}
+        showsVerticalScrollIndicator={false}
+      >
         {mainItems.map((item) => (
           <SidebarItem
             key={item.key}
             label={item.label}
-            href={item.href}
             iconName={item.iconName}
             iconNameActive={item.iconNameActive}
             isActive={activeSegment === item.key}
             onPress={() => router.push(item.href as any)}
             badge={(item as any).badge}
+            collapsed={collapsed}
           />
         ))}
-      </View>
+      </ScrollView>
 
       {/* Unten: Profil + Logout */}
       <View style={[styles.bottomArea, { borderTopColor: isDark ? "#1A1A24" : themeColors.border }]}>
         <SidebarItem
           key="profile"
           label={t("tabs.profile")}
-          href="/(tabs)/profile"
           iconName="settings-outline"
           iconNameActive="settings"
           isActive={activeSegment === "profile"}
           onPress={() => router.push("/(tabs)/profile" as any)}
+          collapsed={collapsed}
         />
         <TouchableOpacity
-          style={styles.logoutButton}
+          style={[styles.logoutButton, collapsed && styles.logoutButtonCollapsed]}
           onPress={handleLogout}
           activeOpacity={0.7}
+          // @ts-ignore
+          title={collapsed ? t("sidebar.logout") : undefined}
         >
           <View style={styles.logoutIconCircle}>
             <Ionicons name="log-out-outline" size={16} color="#EF5350" />
           </View>
-          <Text style={styles.logoutLabel}>{t("sidebar.logout")}</Text>
+          {!collapsed && <Text style={styles.logoutLabel}>{t("sidebar.logout")}</Text>}
         </TouchableOpacity>
       </View>
     </View>
@@ -255,22 +326,31 @@ export function AdminSidebar() {
 
 const styles = StyleSheet.create({
   sidebar: {
-    width: 250,
-    minWidth: 210,
     borderRightWidth: 1,
     flexDirection: "column",
-    paddingTop: 20,
+    paddingTop: 16,
     flexShrink: 0,
+    // @ts-ignore — Web transition
+    ...(Platform.OS === "web" ? { transition: "width 0.2s ease, min-width 0.2s ease" } : {}),
   },
   logoArea: {
-    paddingHorizontal: SPACING.xl,
+    paddingHorizontal: SPACING.md,
     paddingTop: SPACING.sm,
-    paddingBottom: SPACING.xl,
+    paddingBottom: SPACING.md,
     borderBottomWidth: 1,
+    alignItems: "center",
+  },
+  collapseBtn: {
+    width: 32,
+    height: 28,
+    borderRadius: RADIUS.sm,
+    alignItems: "center",
+    justifyContent: "center",
+    alignSelf: "center",
   },
   sectionLabelWrap: {
     paddingHorizontal: SPACING.xl,
-    paddingTop: SPACING.lg,
+    paddingTop: SPACING.md,
     paddingBottom: SPACING.xs,
   },
   sectionLabel: {
@@ -281,19 +361,29 @@ const styles = StyleSheet.create({
   nav: {
     flex: 1,
     paddingTop: SPACING.sm,
-    paddingHorizontal: SPACING.md,
-    overflow: "hidden",
+  },
+  navContent: {
+    paddingHorizontal: SPACING.sm,
+    paddingBottom: SPACING.md,
   },
   item: {
     flexDirection: "row",
     alignItems: "center",
     paddingVertical: 10,
-    paddingHorizontal: SPACING.md,
+    paddingHorizontal: SPACING.sm,
     paddingLeft: 6,
     borderRadius: RADIUS.md,
     marginBottom: 2,
-    gap: SPACING.md,
+    gap: SPACING.sm,
     flexShrink: 0,
+    // @ts-ignore
+    ...(Platform.OS === "web" ? { position: "relative" } : {}),
+  },
+  itemCollapsed: {
+    justifyContent: "center",
+    paddingLeft: 0,
+    paddingHorizontal: 0,
+    marginHorizontal: 4,
   },
   activeIndicator: {
     width: 3,
@@ -302,12 +392,17 @@ const styles = StyleSheet.create({
     flexShrink: 0,
   },
   iconCircle: {
-    width: 32,
-    height: 32,
+    width: 34,
+    height: 34,
     borderRadius: RADIUS.sm,
     alignItems: "center",
     justifyContent: "center",
     flexShrink: 0,
+  },
+  iconCircleCollapsed: {
+    width: 40,
+    height: 40,
+    borderRadius: RADIUS.md,
   },
   itemLabel: {
     fontSize: 13,
@@ -324,13 +419,54 @@ const styles = StyleSheet.create({
     paddingHorizontal: 4,
     flexShrink: 0,
   },
+  badgeCollapsed: {
+    position: "absolute",
+    top: -2,
+    right: -4,
+    backgroundColor: "#EF5350",
+    borderRadius: RADIUS.full,
+    minWidth: 16,
+    height: 16,
+    alignItems: "center",
+    justifyContent: "center",
+    paddingHorizontal: 3,
+  },
   badgeText: {
     color: COLORS.white,
-    fontSize: 10,
+    fontSize: 9,
     fontWeight: "bold",
   },
+  tooltip: {
+    position: "absolute",
+    left: "100%",
+    marginLeft: 8,
+    paddingHorizontal: 10,
+    paddingVertical: 6,
+    borderRadius: 6,
+    zIndex: 999,
+    // @ts-ignore
+    ...(Platform.OS === "web" ? { whiteSpace: "nowrap", pointerEvents: "none" } : {}),
+  },
+  tooltipText: {
+    color: "#F5F5F7",
+    fontSize: 12,
+    fontWeight: "600",
+  },
+  tooltipArrow: {
+    position: "absolute",
+    left: -4,
+    top: "50%",
+    marginTop: -4,
+    width: 0,
+    height: 0,
+    borderTopWidth: 4,
+    borderBottomWidth: 4,
+    borderRightWidth: 4,
+    borderTopColor: "transparent",
+    borderBottomColor: "transparent",
+  },
   bottomArea: {
-    paddingHorizontal: SPACING.md,
+    paddingHorizontal: SPACING.sm,
     paddingVertical: SPACING.md,
     borderTopWidth: 1,
     gap: 2,
@@ -340,17 +476,23 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     paddingVertical: 10,
-    paddingHorizontal: SPACING.md,
-    paddingLeft: 6 + 3 + SPACING.md, // align with nav items (indicator + gap)
+    paddingHorizontal: SPACING.sm,
+    paddingLeft: 6 + 3 + SPACING.sm,
     borderRadius: RADIUS.md,
-    gap: SPACING.md,
+    gap: SPACING.sm,
     marginTop: 2,
     width: "100%",
     flexShrink: 0,
   },
+  logoutButtonCollapsed: {
+    justifyContent: "center",
+    paddingLeft: 0,
+    paddingHorizontal: 0,
+    marginHorizontal: 4,
+  },
   logoutIconCircle: {
-    width: 32,
-    height: 32,
+    width: 34,
+    height: 34,
     borderRadius: RADIUS.sm,
     backgroundColor: "rgba(239,83,80,0.10)",
     alignItems: "center",
