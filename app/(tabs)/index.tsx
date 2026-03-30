@@ -570,27 +570,54 @@ function AdminDashboard({ showSystemSettings = true }: { showSystemSettings?: bo
 
             {/* XP-System Übersicht (Admin) */}
             <View style={[styles.card, { backgroundColor: themeColors.card }]}>
-              <View style={{ flexDirection: "row", alignItems: "center", gap: 8, marginBottom: 12 }}>
-                <Ionicons name="trophy-outline" size={18} color={COLORS.gold} />
-                <Text style={[styles.cardTitle, { color: themeColors.text, marginBottom: 0 }]}>{t("xpOverview.title")}</Text>
+              <View style={{ flexDirection: "row", alignItems: "center", gap: 10, marginBottom: 16 }}>
+                <View style={{ width: 36, height: 36, borderRadius: 12, backgroundColor: COLORS.gold + "18", alignItems: "center", justifyContent: "center" }}>
+                  <Ionicons name="trophy" size={18} color={COLORS.gold} />
+                </View>
+                <View>
+                  <Text style={[styles.cardTitle, { color: themeColors.text, marginBottom: 0 }]}>{t("xpOverview.title")}</Text>
+                  <Text style={{ color: themeColors.textTertiary, fontSize: 11, marginTop: 1 }}>{t("xpOverview.levels")}</Text>
+                </View>
               </View>
 
-              {/* Level-Leiter */}
-              <Text style={[styles.tertiaryXs, { color: themeColors.textTertiary, marginBottom: 8 }]}>{t("xpOverview.levels")}</Text>
-              <View style={{ flexDirection: "row", gap: 6, marginBottom: 16 }}>
+              {/* Level-Leiter — Gradient-Style Badges */}
+              <View style={{ flexDirection: "row", gap: 8, marginBottom: 20 }}>
                 {LEVELS.map((lvl, i) => (
-                  <View key={lvl.key} style={{ flex: 1, backgroundColor: isDark ? "#1E1E2E" : "#f5f5f5", borderRadius: 8, padding: 10, alignItems: "center", borderWidth: 1, borderColor: lvl.color + "40" }}>
-                    <View style={{ width: 28, height: 28, borderRadius: 14, backgroundColor: lvl.color + "20", alignItems: "center", justifyContent: "center", marginBottom: 4 }}>
-                      <Text style={{ fontSize: 14 }}>{i === 0 ? "🥉" : i === 1 ? "🥈" : i === 2 ? "🥇" : "💎"}</Text>
+                  <View key={lvl.key} style={{
+                    flex: 1,
+                    backgroundColor: isDark ? lvl.color + "10" : lvl.color + "08",
+                    borderRadius: 14,
+                    padding: 12,
+                    alignItems: "center",
+                    borderWidth: 1.5,
+                    borderColor: lvl.color + "30",
+                  }}>
+                    <View style={{
+                      width: 40,
+                      height: 40,
+                      borderRadius: 20,
+                      backgroundColor: lvl.color + "20",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      marginBottom: 8,
+                      shadowColor: lvl.color,
+                      shadowOffset: { width: 0, height: 0 },
+                      shadowOpacity: 0.3,
+                      shadowRadius: 8,
+                    }}>
+                      <Text style={{ fontSize: 18 }}>{i === 0 ? "🥉" : i === 1 ? "🥈" : i === 2 ? "🥇" : "💎"}</Text>
                     </View>
-                    <Text style={{ color: lvl.color, fontSize: 11, fontWeight: "700" }}>{lvl.label.replace("-Mentor", "")}</Text>
-                    <Text style={{ color: themeColors.textTertiary, fontSize: 10, marginTop: 2 }}>{lvl.minXP}+ XP</Text>
+                    <Text style={{ color: lvl.color, fontSize: 12, fontWeight: "800" }}>{lvl.label.replace("-Mentor", "")}</Text>
+                    <Text style={{ color: themeColors.textTertiary, fontSize: 10, marginTop: 3, fontWeight: "600" }}>{lvl.minXP}+ XP</Text>
                   </View>
                 ))}
               </View>
 
+              {/* Trennlinie */}
+              <View style={{ height: 1, backgroundColor: themeColors.border, marginBottom: 16 }} />
+
               {/* XP-Aktionen Tabelle */}
-              <Text style={[styles.tertiaryXs, { color: themeColors.textTertiary, marginBottom: 6 }]}>{t("xpOverview.actions")}</Text>
+              <Text style={{ color: themeColors.textSecondary, fontSize: 12, fontWeight: "700", marginBottom: 10, letterSpacing: 0.3 }}>{t("xpOverview.actions")}</Text>
               {[
                 { label: t("xpOverview.sessionDoc"), xp: XP_VALUES.SESSION_DOCUMENTED, icon: "document-text-outline" as const },
                 { label: t("xpOverview.completion"), xp: XP_VALUES.MENTORSHIP_COMPLETED, icon: "checkmark-done-outline" as const },
@@ -599,11 +626,36 @@ function AdminDashboard({ showSystemSettings = true }: { showSystemSettings?: bo
                 { label: t("xpOverview.streak"), xp: XP_VALUES.STREAK_DAY, icon: "flame-outline" as const },
                 { label: t("xpOverview.thanks"), xp: XP_VALUES.THANK_RECEIVED, icon: "heart-outline" as const },
               ].map((item, i) => (
-                <View key={i} style={{ flexDirection: "row", alignItems: "center", paddingVertical: 7, borderBottomWidth: i < 5 ? 1 : 0, borderBottomColor: themeColors.border, gap: 10 }}>
-                  <Ionicons name={item.icon} size={15} color={themeColors.textSecondary} />
-                  <Text style={{ flex: 1, color: themeColors.text, fontSize: 13 }}>{item.label}</Text>
-                  <View style={{ backgroundColor: COLORS.gold + "20", borderRadius: 4, paddingHorizontal: 8, paddingVertical: 2 }}>
-                    <Text style={{ color: COLORS.gold, fontSize: 12, fontWeight: "700" }}>+{item.xp} XP</Text>
+                <View key={i} style={{
+                  flexDirection: "row",
+                  alignItems: "center",
+                  paddingVertical: 10,
+                  borderBottomWidth: i < 5 ? 1 : 0,
+                  borderBottomColor: themeColors.border,
+                  gap: 12,
+                }}>
+                  <View style={{
+                    width: 30,
+                    height: 30,
+                    borderRadius: 8,
+                    backgroundColor: isDark ? "#1E1E2A" : "#f5f5f7",
+                    alignItems: "center",
+                    justifyContent: "center",
+                  }}>
+                    <Ionicons name={item.icon} size={15} color={themeColors.textSecondary} />
+                  </View>
+                  <Text style={{ flex: 1, color: themeColors.text, fontSize: 13, fontWeight: "500" }}>{item.label}</Text>
+                  <View style={{
+                    backgroundColor: item.xp >= 100 ? COLORS.gold + "25" : COLORS.gold + "15",
+                    borderRadius: 8,
+                    paddingHorizontal: 10,
+                    paddingVertical: 4,
+                  }}>
+                    <Text style={{
+                      color: COLORS.gold,
+                      fontSize: 12,
+                      fontWeight: "800",
+                    }}>+{item.xp} XP</Text>
                   </View>
                 </View>
               ))}
@@ -1379,13 +1431,12 @@ function KpiGrid({ children, style }: { children: React.ReactNode; style?: objec
   const isDesktop = width > 768;
   const childArray = React.Children.toArray(children);
   return (
-    <View style={[{ flexDirection: "row", flexWrap: "wrap", gap: 10 }, style]}>
+    <View style={[{ flexDirection: "row", flexWrap: "wrap", gap: 12 }, style]}>
       {childArray.map((child, idx) => (
         <View
           key={idx}
           style={{
             width: isDesktop ? "23.5%" : "48%",
-            marginBottom: isDesktop ? 0 : 0,
           }}
         >
           {child}
@@ -1414,27 +1465,45 @@ function StatCard({
   const { isDark } = useTheme();
   const valueColor = isDark ? (highlight ? "#FFCA28" : themeColors.text) : themeColors.text;
   return (
-    <View style={[styles.statCard, { backgroundColor: themeColors.card, borderColor: isDark ? "#3A3520" : themeColors.border }]}>
-      {iconName && (
-        <View style={[styles.statIconCircle, { backgroundColor: color + "33" }]}>
-          <Ionicons name={iconName as any} size={18} color={color} />
+    <View style={[styles.statCard, {
+      backgroundColor: isDark ? themeColors.card : "#FFFFFF",
+      borderColor: isDark ? color + "20" : themeColors.border,
+    }]}>
+      {/* Subtiler Gradient-Streifen oben */}
+      <View style={[styles.statGradientTop, { backgroundColor: color + (isDark ? "15" : "10") }]} />
+      <View style={styles.statCardInner}>
+        <View style={{ flex: 1 }}>
+          <Text style={[styles.statValue, { color: valueColor }]}>{value}</Text>
+          <Text style={[styles.statLabel, { color: themeColors.textSecondary }]}>{label}</Text>
+          {sublabel && (
+            <Text style={[styles.statSublabel, { color: themeColors.textTertiary }]}>{sublabel}</Text>
+          )}
         </View>
-      )}
-      <Text style={[styles.statValue, { color: valueColor }]}>{value}</Text>
-      <Text style={[styles.statLabel, { color: themeColors.textSecondary }]}>{label}</Text>
-      {sublabel && (
-        <Text style={[styles.statSublabel, { color: themeColors.textTertiary }]}>{sublabel}</Text>
-      )}
+        {iconName && (
+          <View style={[styles.statIconCircle, { backgroundColor: color + "18" }]}>
+            <Ionicons name={iconName as any} size={20} color={color} />
+          </View>
+        )}
+      </View>
     </View>
   );
 }
 
-function ProgressBar({ progress }: { progress: number }) {
+function ProgressBar({ progress, color }: { progress: number; color?: string }) {
   const themeColors = useThemeColors();
+  const { isDark } = useTheme();
+  const barColor = color ?? COLORS.cta;
   return (
-    <View style={[styles.progressTrack, { backgroundColor: themeColors.border }]}>
+    <View style={[styles.progressTrack, { backgroundColor: isDark ? "#1E1E2A" : themeColors.border }]}>
       <View
-        style={[styles.progressFill, { width: `${progress}%` as any }]}
+        style={[styles.progressFill, {
+          width: `${progress}%` as any,
+          backgroundColor: barColor,
+          shadowColor: barColor,
+          shadowOffset: { width: 0, height: 0 },
+          shadowOpacity: 0.4,
+          shadowRadius: 6,
+        }]}
       />
     </View>
   );
@@ -1506,16 +1575,16 @@ function MonthlyChart({ mentorships }: { mentorships: Mentorship[] }) {
 
 const styles = StyleSheet.create({
   scrollView: { flex: 1, backgroundColor: COLORS.bg },
-  page: { padding: 20 },
-  headerRow: { flexDirection: "row", alignItems: "center", gap: 12, marginBottom: 12 },
+  page: { padding: 24 },
+  headerRow: { flexDirection: "row", alignItems: "center", gap: 12, marginBottom: 16 },
 
-  // Admin Header (neu)
+  // Admin Header
   adminHeader: {
     flexDirection: "row",
     alignItems: "flex-start",
     justifyContent: "space-between",
-    marginBottom: 16,
-    gap: 12,
+    marginBottom: 20,
+    gap: 16,
   },
   adminHeaderLeft: {
     flex: 1,
@@ -1524,9 +1593,9 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     gap: 6,
-    paddingHorizontal: 12,
+    paddingHorizontal: 14,
     paddingVertical: 8,
-    borderRadius: 8,
+    borderRadius: 10,
     borderWidth: 1,
   },
   refreshButtonText: {
@@ -1534,16 +1603,16 @@ const styles = StyleSheet.create({
     fontWeight: "500",
   },
 
-  // Zeitraum-Bar (neu)
+  // Zeitraum-Bar
   periodBar: {
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
-    borderRadius: 10,
+    borderRadius: 14,
     borderWidth: 1,
-    paddingHorizontal: 14,
-    paddingVertical: 10,
-    marginBottom: 14,
+    paddingHorizontal: 16,
+    paddingVertical: 12,
+    marginBottom: 16,
     flexWrap: "wrap",
     gap: 8,
   },
@@ -1562,14 +1631,14 @@ const styles = StyleSheet.create({
     flexWrap: "wrap",
   },
   periodBtn: {
-    paddingHorizontal: 10,
-    paddingVertical: 5,
-    borderRadius: 6,
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    borderRadius: 8,
     borderWidth: 1,
   },
   periodBtnText: {
     fontSize: 12,
-    fontWeight: "500",
+    fontWeight: "600",
   },
 
   // Admin Dashboard Tabs
@@ -1660,20 +1729,20 @@ const styles = StyleSheet.create({
   searchResultName: { color: COLORS.primary, fontWeight: "500", fontSize: 14 },
   searchResultSub: { color: COLORS.tertiary, fontSize: 12 },
   headerTextGroup: { flex: 1 },
-  pageTitle: { fontSize: 24, fontWeight: "700", color: COLORS.primary, marginBottom: 2 },
-  pageSubtitle: { color: COLORS.secondary, fontSize: 13 },
-  sectionTitle: { fontSize: 18, fontWeight: "600", color: COLORS.primary, marginBottom: 10 },
-  row3: { flexDirection: "row", gap: 10, marginBottom: 10 },
+  pageTitle: { fontSize: 26, fontWeight: "800", color: COLORS.primary, marginBottom: 4, letterSpacing: -0.3 },
+  pageSubtitle: { color: COLORS.secondary, fontSize: 13, fontWeight: "400" },
+  sectionTitle: { fontSize: 18, fontWeight: "700", color: COLORS.primary, marginBottom: 12 },
+  row3: { flexDirection: "row", gap: 12, marginBottom: 12 },
   card: {
     backgroundColor: COLORS.white,
-    borderRadius: 8,
-    padding: 16,
+    borderRadius: 16,
+    padding: 20,
     marginBottom: 16,
     shadowColor: "#000",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.08,
-    shadowRadius: 8,
-    elevation: 2,
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.06,
+    shadowRadius: 16,
+    elevation: 3,
   },
   cardTitle: { fontWeight: "600", fontSize: 15, color: COLORS.primary, marginBottom: 12 },
   emptyText: { color: COLORS.tertiary, textAlign: "center", fontSize: 14, paddingVertical: 16 },
@@ -1695,65 +1764,75 @@ const styles = StyleSheet.create({
   percentBadgeText: { color: COLORS.primary, fontSize: 12, fontWeight: "700" },
   statCard: {
     flex: 1,
-    borderRadius: 12,
-    padding: 16,
+    borderRadius: 16,
     borderWidth: 1,
+    overflow: "hidden",
     shadowColor: "#000",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.06,
-    shadowRadius: 6,
-    elevation: 2,
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.08,
+    shadowRadius: 12,
+    elevation: 3,
     minHeight: 100,
   },
+  statGradientTop: {
+    height: 3,
+    width: "100%",
+  },
+  statCardInner: {
+    flexDirection: "row",
+    alignItems: "center",
+    padding: 16,
+    paddingTop: 14,
+  },
   statIconCircle: {
-    width: 36,
-    height: 36,
-    borderRadius: 18,
+    width: 44,
+    height: 44,
+    borderRadius: 14,
     alignItems: "center",
     justifyContent: "center",
-    marginBottom: 10,
+    marginLeft: 8,
   },
-  statLabel: { fontSize: 13, marginTop: 4 },
+  statLabel: { fontSize: 12, marginTop: 4, fontWeight: "500" },
   statSublabel: { fontSize: 11, marginTop: 2 },
-  statValue: { fontSize: 32, fontWeight: "800" },
+  statValue: { fontSize: 28, fontWeight: "800", letterSpacing: -0.5 },
   rankHintText: { fontSize: 11, textAlign: "center", marginTop: -4 },
-  progressTrack: { height: 8, borderRadius: 4, overflow: "hidden" },
-  progressFill: { height: "100%", backgroundColor: COLORS.cta, borderRadius: 4 },
+  progressTrack: { height: 6, borderRadius: 3, overflow: "hidden" },
+  progressFill: { height: "100%", borderRadius: 3 },
   amberBox: {
     borderWidth: 1,
-    borderRadius: 8,
-    padding: 16,
+    borderRadius: 16,
+    padding: 18,
     marginBottom: 16,
   },
-  amberTitle: { fontWeight: "600", marginBottom: 4 },
+  amberTitle: { fontWeight: "700", marginBottom: 6, fontSize: 14 },
   amberRow: {
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
-    paddingVertical: 8,
+    paddingVertical: 10,
     borderBottomWidth: 1,
   },
-  menteeNameText: { fontWeight: "500" },
-  menteeSubText: { color: COLORS.tertiary, fontSize: 12 },
+  menteeNameText: { fontWeight: "600", fontSize: 14 },
+  menteeSubText: { color: COLORS.tertiary, fontSize: 12, marginTop: 2 },
   assignButton: {
     backgroundColor: COLORS.gradientStart,
-    paddingHorizontal: 12,
-    paddingVertical: 6,
-    borderRadius: 5,
+    paddingHorizontal: 14,
+    paddingVertical: 8,
+    borderRadius: 10,
   },
-  assignButtonText: { color: COLORS.white, fontSize: 12, fontWeight: "600" },
+  assignButtonText: { color: COLORS.white, fontSize: 12, fontWeight: "700" },
   actionButton: {
     flex: 1,
-    borderRadius: 5,
+    borderRadius: 12,
     paddingVertical: 10,
     paddingHorizontal: 16,
     alignItems: "center",
     justifyContent: "center",
   },
-  actionButtonText: { color: COLORS.white, fontSize: 13, fontWeight: "600", textAlign: "center" },
+  actionButtonText: { color: COLORS.white, fontSize: 13, fontWeight: "700", textAlign: "center" },
   actionButtonGold: {
     flex: 1,
-    borderRadius: 5,
+    borderRadius: 12,
     paddingVertical: 10,
     paddingHorizontal: 16,
     alignItems: "center",
@@ -1762,7 +1841,7 @@ const styles = StyleSheet.create({
     borderColor: COLORS.gold,
     backgroundColor: "rgba(238,167,27,0.08)",
   },
-  actionButtonTextDark: { color: COLORS.primary, fontSize: 13, fontWeight: "600", textAlign: "center" },
+  actionButtonTextDark: { color: COLORS.primary, fontSize: 13, fontWeight: "700", textAlign: "center" },
   applicationsButton: {
     backgroundColor: COLORS.white,
     borderRadius: 8,
@@ -1945,14 +2024,14 @@ const styles = StyleSheet.create({
     fontStyle: "italic",
   },
   chartCard: {
-    borderRadius: 8,
-    padding: 16,
+    borderRadius: 16,
+    padding: 20,
     marginBottom: 16,
     shadowColor: "#000",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.08,
-    shadowRadius: 8,
-    elevation: 2,
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.06,
+    shadowRadius: 16,
+    elevation: 3,
   },
   chartArea: {
     flexDirection: "row",
@@ -1992,7 +2071,7 @@ const styles = StyleSheet.create({
   },
   bar: {
     width: "100%",
-    borderRadius: 4,
+    borderRadius: 6,
     minWidth: 20,
   },
   xLabel: {
@@ -2058,13 +2137,13 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     borderWidth: 1,
-    borderRadius: 8,
-    padding: 14,
-    marginBottom: 12,
-    gap: 8,
+    borderRadius: 16,
+    padding: 16,
+    marginBottom: 16,
+    gap: 10,
   },
-  pendingApprovalsText: { fontWeight: "600", fontSize: 14 },
-  pendingApprovalsSub: { fontSize: 12, marginTop: 2 },
+  pendingApprovalsText: { fontWeight: "700", fontSize: 14 },
+  pendingApprovalsSub: { fontSize: 12, marginTop: 2, fontWeight: "400" },
   // Mein Mentor Karte
   mentorInfoRow: { flexDirection: "row", alignItems: "center", gap: 12, marginBottom: 10 },
   mentorAvatar: {
@@ -2081,87 +2160,93 @@ const styles = StyleSheet.create({
   mentorDetailLabel: { color: COLORS.secondary, fontSize: 12 },
   mentorDetailValue: { color: COLORS.primary, fontSize: 12, fontWeight: "500" },
   // Letzte Aktivitäten
-  activityRow: { flexDirection: "row", alignItems: "center", paddingVertical: 8, gap: 10 },
+  activityRow: { flexDirection: "row", alignItems: "center", paddingVertical: 10, gap: 12 },
   activityRowBorder: { borderBottomWidth: 1, borderBottomColor: COLORS.border },
   activityDot: { width: 8, height: 8, borderRadius: 4, backgroundColor: COLORS.gold, flexShrink: 0 },
-  activityTitle: { color: COLORS.primary, fontSize: 13, fontWeight: "500" },
-  activitySub: { color: COLORS.tertiary, fontSize: 11, marginTop: 1 },
-  activityDate: { color: COLORS.tertiary, fontSize: 11, flexShrink: 0 },
+  activityTitle: { color: COLORS.primary, fontSize: 13, fontWeight: "600" },
+  activitySub: { color: COLORS.tertiary, fontSize: 12, marginTop: 2 },
+  activityDate: { color: COLORS.tertiary, fontSize: 11, flexShrink: 0, fontWeight: "500" },
 
-  // Frühwarnungen Widget
+  // Betreuungs-Warnungen Widget
   warningBox: {
     borderWidth: 1,
     borderLeftWidth: 4,
-    borderRadius: 8,
-    padding: 14,
-    marginBottom: 14,
+    borderRadius: 16,
+    padding: 18,
+    marginBottom: 16,
   },
-  warningHeader: { flexDirection: "row", alignItems: "center", marginBottom: 10, gap: 8 },
-  warningTitle: { fontWeight: "700", fontSize: 14, flex: 1 },
+  warningHeader: { flexDirection: "row", alignItems: "center", marginBottom: 12, gap: 10 },
+  warningTitle: { fontWeight: "700", fontSize: 15, flex: 1 },
   warningBadge: {
-    backgroundColor: "#ef4444",
     borderRadius: 10,
-    minWidth: 22,
-    height: 22,
+    minWidth: 24,
+    height: 24,
     alignItems: "center",
     justifyContent: "center",
-    paddingHorizontal: 6,
+    paddingHorizontal: 7,
   },
-  warningBadgeText: { color: COLORS.white, fontSize: 12, fontWeight: "700" },
-  warningRow: { flexDirection: "row", alignItems: "center", paddingVertical: 8, gap: 8 },
+  warningBadgeText: { fontSize: 12, fontWeight: "800" },
+  warningRow: { flexDirection: "row", alignItems: "center", paddingVertical: 10, gap: 10 },
   warningRowBorder: { borderBottomWidth: 1 },
-  warningDot: { width: 8, height: 8, borderRadius: 4, flexShrink: 0 },
-  warningLabel: { fontSize: 11, fontWeight: "600" },
-  warningName: { fontSize: 13, fontWeight: "500", marginTop: 1 },
-  warningDays: { fontSize: 11, flexShrink: 0 },
-  warningArrow: { fontSize: 16, marginLeft: 4 },
+  warningDot: { width: 10, height: 10, borderRadius: 5, flexShrink: 0 },
+  warningLabel: { fontSize: 11, fontWeight: "700", letterSpacing: 0.2 },
+  warningName: { fontSize: 13, fontWeight: "500", marginTop: 2 },
+  warningDays: { fontSize: 11, flexShrink: 0, fontWeight: "500" },
+  warningArrow: { fontSize: 18, marginLeft: 4 },
 
   reminderBtn: {
     backgroundColor: "#3b82f6",
-    borderRadius: 5,
-    paddingHorizontal: 10,
-    paddingVertical: 6,
+    borderRadius: 8,
+    width: 32,
+    height: 32,
+    alignItems: "center",
+    justifyContent: "center",
     flexShrink: 0,
   },
   reminderBtnText: { color: COLORS.white, fontSize: 11, fontWeight: "700" },
 
   // Mentor des Monats Card (Admin)
   momAdminCard: {
-    backgroundColor: "rgba(238,167,27,0.08)",
+    backgroundColor: "rgba(238,167,27,0.06)",
     borderWidth: 1,
-    borderColor: "rgba(238,167,27,0.4)",
+    borderColor: "rgba(238,167,27,0.25)",
     borderLeftWidth: 4,
     borderLeftColor: COLORS.gold,
-    borderRadius: 8,
-    padding: 16,
-    marginBottom: 14,
+    borderRadius: 16,
+    padding: 20,
+    marginBottom: 16,
     width: "100%",
+    shadowColor: COLORS.gold,
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.06,
+    shadowRadius: 12,
+    elevation: 2,
   },
-  momAdminHeader: { flexDirection: "row", alignItems: "center", marginBottom: 6 },
-  momAdminStar: { color: COLORS.gold, fontSize: 18, marginRight: 8 },
-  momAdminTitle: { fontWeight: "700", color: COLORS.secondary, fontSize: 12, letterSpacing: 0.5 },
-  momAdminName: { fontSize: 20, fontWeight: "700", color: COLORS.primary, marginBottom: 12 },
+  momAdminHeader: { flexDirection: "row", alignItems: "center", marginBottom: 8 },
+  momAdminStar: { color: COLORS.gold, fontSize: 20, marginRight: 8 },
+  momAdminTitle: { fontWeight: "700", color: COLORS.secondary, fontSize: 12, letterSpacing: 0.8 },
+  momAdminName: { fontSize: 22, fontWeight: "800", color: COLORS.primary, marginBottom: 14, letterSpacing: -0.3 },
   momAdminSub: { fontSize: 11, color: "#6B7280" },
-  momAdminStatsRow: { flexDirection: "row", gap: 10, marginBottom: 10 },
+  momAdminStatsRow: { flexDirection: "row", gap: 10, marginBottom: 12 },
   momAdminStat: {
     flex: 1,
     backgroundColor: COLORS.white,
-    borderRadius: 6,
-    padding: 8,
+    borderRadius: 12,
+    padding: 10,
     alignItems: "center",
     borderWidth: 1,
-    borderColor: "rgba(238,167,27,0.3)",
+    borderColor: "rgba(238,167,27,0.2)",
   },
-  momAdminStatValue: { fontSize: 18, fontWeight: "700", color: COLORS.gold },
-  momAdminStatLabel: { color: COLORS.secondary, fontSize: 10, marginTop: 2 },
+  momAdminStatValue: { fontSize: 20, fontWeight: "800", color: COLORS.gold },
+  momAdminStatLabel: { color: COLORS.secondary, fontSize: 10, marginTop: 3, fontWeight: "500" },
   momAdminArrow: { color: COLORS.link, fontSize: 13, fontWeight: "600" },
   momAwardButton: {
-    backgroundColor: "rgba(238,167,27,0.15)",
+    backgroundColor: "rgba(238,167,27,0.12)",
     borderWidth: 1,
-    borderColor: "rgba(238,167,27,0.4)",
-    borderRadius: 8,
-    paddingVertical: 8,
-    paddingHorizontal: 14,
+    borderColor: "rgba(238,167,27,0.35)",
+    borderRadius: 12,
+    paddingVertical: 10,
+    paddingHorizontal: 16,
     alignItems: "center" as const,
     alignSelf: "stretch" as const,
   },

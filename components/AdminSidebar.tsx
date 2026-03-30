@@ -1,8 +1,8 @@
 /**
- * AdminSidebar — exportierte Komponente, die sowohl in (tabs)/_layout.tsx
- * als auch direkt in app/_layout.tsx (als permanenter Web-Wrapper) genutzt wird.
+ * AdminSidebar — Redesign inspiriert von Musemind Dashboard Sidebar Navigation.
+ * Goldener aktiver Indikator-Strich, subtile Hover-Effekte, modernes Spacing.
  */
-import React from "react";
+import React, { useState } from "react";
 import {
   TouchableOpacity,
   View,
@@ -19,7 +19,7 @@ import { BNMLogo } from "./BNMLogo";
 import { useData } from "../contexts/DataContext";
 import { useLanguage } from "../contexts/LanguageContext";
 import { useThemeColors } from "../contexts/ThemeContext";
-import { COLORS } from "../constants/Colors";
+import { COLORS, SPACING, RADIUS } from "../constants/Colors";
 
 // ─── Sidebar Item ─────────────────────────────────────────────────────────────
 
@@ -43,37 +43,70 @@ function SidebarItem({
 }: SidebarItemProps) {
   const themeColors = useThemeColors();
   const isDark = themeColors.background === "#0E0E14";
-  const activeColor = isDark ? "#FFCA28" : "#EEA71B";
-  const activeTextColor = "#0E0E14";
-  const inactiveIconColor = isDark ? "#5E5E6A" : themeColors.textSecondary;
-  const inactiveTextColor = isDark ? "#8E8E9A" : themeColors.textSecondary;
+  const [isHovered, setIsHovered] = useState(false);
+
+  const activeAccent = isDark ? "#FFCA28" : "#EEA71B";
+  const activeTextColor = isDark ? "#FFCA28" : "#0E0E14";
+  const activeBg = isDark ? "rgba(255,202,40,0.08)" : "rgba(238,167,27,0.10)";
+  const hoverBg = isDark ? "rgba(255,255,255,0.04)" : "rgba(0,0,0,0.03)";
+  const inactiveIconColor = isDark ? "#6E6E7A" : themeColors.textSecondary;
+  const inactiveTextColor = isDark ? "#9E9EAA" : themeColors.textSecondary;
+
+  const webHoverProps = Platform.OS === "web" ? {
+    onMouseEnter: () => setIsHovered(true),
+    onMouseLeave: () => setIsHovered(false),
+  } : {};
+
   return (
     <TouchableOpacity
       onPress={onPress}
       style={[
-        sidebarStyles.item,
+        styles.item,
         isActive
-          ? { backgroundColor: activeColor }
+          ? { backgroundColor: activeBg }
+          : isHovered
+          ? { backgroundColor: hoverBg }
           : { backgroundColor: "transparent" },
       ]}
       activeOpacity={0.7}
+      {...webHoverProps}
     >
-      <Ionicons
-        name={(isActive ? iconNameActive : iconName) as any}
-        size={20}
-        color={isActive ? activeTextColor : inactiveIconColor}
-      />
+      {/* Aktiver Indikator-Strich links */}
+      <View style={[
+        styles.activeIndicator,
+        { backgroundColor: isActive ? activeAccent : "transparent" },
+      ]} />
+
+      {/* Icon im halbtransparenten Kreis */}
+      <View style={[
+        styles.iconCircle,
+        isActive
+          ? { backgroundColor: isDark ? "rgba(255,202,40,0.15)" : "rgba(238,167,27,0.15)" }
+          : { backgroundColor: "transparent" },
+      ]}>
+        <Ionicons
+          name={(isActive ? iconNameActive : iconName) as any}
+          size={18}
+          color={isActive ? activeAccent : inactiveIconColor}
+        />
+      </View>
+
       <Text
         style={[
-          sidebarStyles.itemLabel,
-          { color: isActive ? activeTextColor : inactiveTextColor },
+          styles.itemLabel,
+          {
+            color: isActive ? activeTextColor : inactiveTextColor,
+            fontWeight: isActive ? "700" : "500",
+          },
         ]}
+        numberOfLines={1}
       >
         {label}
       </Text>
+
       {badge != null && badge > 0 && (
-        <View style={sidebarStyles.badge}>
-          <Text style={sidebarStyles.badgeText}>
+        <View style={styles.badge}>
+          <Text style={styles.badgeText}>
             {badge > 9 ? "9+" : String(badge)}
           </Text>
         </View>
@@ -96,14 +129,11 @@ export function AdminSidebar() {
   const unreadCount = getUnreadCount();
   const isAdminOrOffice = user?.role === "admin" || user?.role === "office";
   const chatUnread = isAdminOrOffice ? 0 : getTotalUnreadMessages();
-  // Bei sehr schmalen Viewports (768-900px) Logo kompakter darstellen
   const isNarrow = width < 900;
 
   const isOffice = user?.role === "office";
 
   // Aktiver Pfad ermitteln
-  // /admin/* Screens (session-types, donor-report, qa-management, hadithe-management)
-  // gehören zum "tools" Bereich und sollen dort highlighted bleiben
   const isAdminToolScreen =
     pathname.includes("/admin/session-types") ||
     pathname.includes("/admin/qa-management") ||
@@ -144,7 +174,6 @@ export function AdminSidebar() {
 
   const handleLogout = () => {
     if (Platform.OS === "web") {
-      // Bestätigung auch im Browser (besonders wichtig auf mobilen Browsern)
       if (window.confirm(t("sidebar.logoutConfirmMsg"))) {
         logout();
       }
@@ -163,20 +192,27 @@ export function AdminSidebar() {
   return (
     <View
       style={[
-        sidebarStyles.sidebar,
+        styles.sidebar,
         {
-          backgroundColor: isDark ? "#0D0D12" : themeColors.background,
+          backgroundColor: isDark ? "#0A0A10" : "#FAFBFC",
           borderRightColor: isDark ? "#1A1A24" : themeColors.border,
         },
       ]}
     >
       {/* Logo */}
-      <View style={sidebarStyles.logoArea}>
-        <BNMLogo size={isNarrow ? 48 : 72} showSubtitle={false} />
+      <View style={[styles.logoArea, { borderBottomColor: isDark ? "#1A1A24" : themeColors.border }]}>
+        <BNMLogo size={isNarrow ? 44 : 56} showSubtitle={false} />
+      </View>
+
+      {/* Sektions-Label */}
+      <View style={styles.sectionLabelWrap}>
+        <Text style={[styles.sectionLabel, { color: isDark ? "#4E4E5A" : themeColors.textTertiary }]}>
+          NAVIGATION
+        </Text>
       </View>
 
       {/* Haupt-Navigation */}
-      <View style={sidebarStyles.nav}>
+      <View style={styles.nav}>
         {mainItems.map((item) => (
           <SidebarItem
             key={item.key}
@@ -192,7 +228,7 @@ export function AdminSidebar() {
       </View>
 
       {/* Unten: Profil + Logout */}
-      <View style={[sidebarStyles.bottomArea, { borderTopColor: isDark ? "#1A1A24" : themeColors.border }]}>
+      <View style={[styles.bottomArea, { borderTopColor: isDark ? "#1A1A24" : themeColors.border }]}>
         <SidebarItem
           key="profile"
           label={t("tabs.profile")}
@@ -203,59 +239,84 @@ export function AdminSidebar() {
           onPress={() => router.push("/(tabs)/profile" as any)}
         />
         <TouchableOpacity
-          style={sidebarStyles.logoutButton}
+          style={styles.logoutButton}
           onPress={handleLogout}
           activeOpacity={0.7}
         >
-          <Ionicons name="log-out-outline" size={20} color={COLORS.error} />
-          <Text style={sidebarStyles.logoutLabel}>{t("sidebar.logout")}</Text>
+          <View style={styles.logoutIconCircle}>
+            <Ionicons name="log-out-outline" size={16} color="#EF5350" />
+          </View>
+          <Text style={styles.logoutLabel}>{t("sidebar.logout")}</Text>
         </TouchableOpacity>
       </View>
     </View>
   );
 }
 
-const sidebarStyles = StyleSheet.create({
+const styles = StyleSheet.create({
   sidebar: {
-    width: 240,
-    minWidth: 200,
+    width: 250,
+    minWidth: 210,
     borderRightWidth: 1,
     flexDirection: "column",
-    paddingTop: 24,
+    paddingTop: 20,
     flexShrink: 0,
   },
   logoArea: {
-    paddingHorizontal: 20,
-    paddingTop: 8,
-    paddingBottom: 28,
+    paddingHorizontal: SPACING.xl,
+    paddingTop: SPACING.sm,
+    paddingBottom: SPACING.xl,
     borderBottomWidth: 1,
-    borderBottomColor: "rgba(128,128,128,0.15)",
+  },
+  sectionLabelWrap: {
+    paddingHorizontal: SPACING.xl,
+    paddingTop: SPACING.lg,
+    paddingBottom: SPACING.xs,
+  },
+  sectionLabel: {
+    fontSize: 10,
+    fontWeight: "700",
+    letterSpacing: 1.2,
   },
   nav: {
     flex: 1,
-    paddingTop: 12,
-    paddingHorizontal: 8,
+    paddingTop: SPACING.sm,
+    paddingHorizontal: SPACING.md,
     overflow: "hidden",
   },
   item: {
     flexDirection: "row",
     alignItems: "center",
-    paddingVertical: 12,
-    paddingHorizontal: 16,
-    borderRadius: 10,
-    marginBottom: 4,
-    gap: 12,
+    paddingVertical: 10,
+    paddingHorizontal: SPACING.md,
+    paddingLeft: 6,
+    borderRadius: RADIUS.md,
+    marginBottom: 2,
+    gap: SPACING.md,
+    flexShrink: 0,
+  },
+  activeIndicator: {
+    width: 3,
+    height: 20,
+    borderRadius: 2,
+    flexShrink: 0,
+  },
+  iconCircle: {
+    width: 32,
+    height: 32,
+    borderRadius: RADIUS.sm,
+    alignItems: "center",
+    justifyContent: "center",
     flexShrink: 0,
   },
   itemLabel: {
-    fontSize: 14,
-    fontWeight: "500",
+    fontSize: 13,
     flex: 1,
     flexShrink: 1,
   },
   badge: {
-    backgroundColor: COLORS.error,
-    borderRadius: 9999,
+    backgroundColor: "#EF5350",
+    borderRadius: RADIUS.full,
     minWidth: 18,
     height: 18,
     alignItems: "center",
@@ -269,8 +330,8 @@ const sidebarStyles = StyleSheet.create({
     fontWeight: "bold",
   },
   bottomArea: {
-    paddingHorizontal: 8,
-    paddingVertical: 12,
+    paddingHorizontal: SPACING.md,
+    paddingVertical: SPACING.md,
     borderTopWidth: 1,
     gap: 2,
     flexShrink: 0,
@@ -278,18 +339,28 @@ const sidebarStyles = StyleSheet.create({
   logoutButton: {
     flexDirection: "row",
     alignItems: "center",
-    paddingVertical: 12,
-    paddingHorizontal: 16,
-    borderRadius: 10,
-    gap: 12,
-    marginTop: 4,
+    paddingVertical: 10,
+    paddingHorizontal: SPACING.md,
+    paddingLeft: 6 + 3 + SPACING.md, // align with nav items (indicator + gap)
+    borderRadius: RADIUS.md,
+    gap: SPACING.md,
+    marginTop: 2,
     width: "100%",
     flexShrink: 0,
   },
+  logoutIconCircle: {
+    width: 32,
+    height: 32,
+    borderRadius: RADIUS.sm,
+    backgroundColor: "rgba(239,83,80,0.10)",
+    alignItems: "center",
+    justifyContent: "center",
+    flexShrink: 0,
+  },
   logoutLabel: {
-    fontSize: 14,
+    fontSize: 13,
     fontWeight: "500",
-    color: COLORS.error,
+    color: "#EF5350",
     flex: 1,
     flexShrink: 1,
   },
