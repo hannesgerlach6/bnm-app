@@ -2238,50 +2238,57 @@ export function DataProvider({ children }: { children: ReactNode }) {
           });
         }
 
-        if (signUpError) {
-          if (
-            signUpError.message.includes("already registered") ||
-            signUpError.message.includes("User already registered")
-          ) {
-            showError("Diese E-Mail ist bereits registriert. Bitte zuerst den bestehenden Account löschen.");
-          } else {
-            showError(`Fehler beim Erstellen des Accounts: ${signUpError.message}`);
-          }
+        // Prüfen ob der Account bereits existiert (user_already_exists / 422)
+        const userAlreadyExists =
+          signUpError &&
+          (signUpError.message.includes("already registered") ||
+            signUpError.message.includes("User already registered") ||
+            (signUpError as any).status === 422 ||
+            (signUpError as any).code === "user_already_exists");
+
+        if (signUpError && !userAlreadyExists) {
+          // Echter Fehler → abbrechen
+          showError(`Fehler beim Erstellen des Accounts: ${signUpError.message}`);
           return;
         }
 
-        // Profil nachladen (mit Verzögerung, damit der DB-Trigger Zeit hat)
-        if (signUpData?.user) {
-          await new Promise((r) => setTimeout(r, 1000));
-          const { data: newProfile } = await supabase
-            .from("profiles")
-            .select("*")
-            .eq("id", signUpData.user.id)
-            .single();
-          if (newProfile) {
-            setUsers((prev) => {
-              if (prev.some((u) => u.id === newProfile.id)) return prev;
-              return [...prev, mapProfile(newProfile)];
-            });
+        if (!userAlreadyExists) {
+          // Neuer Account: Profil nachladen (mit Verzögerung, damit der DB-Trigger Zeit hat)
+          if (signUpData?.user) {
+            await new Promise((r) => setTimeout(r, 1000));
+            const { data: newProfile } = await supabase
+              .from("profiles")
+              .select("*")
+              .eq("id", signUpData.user.id)
+              .single();
+            if (newProfile) {
+              setUsers((prev) => {
+                if (prev.some((u) => u.id === newProfile.id)) return prev;
+                return [...prev, mapProfile(newProfile)];
+              });
+            }
           }
-        }
 
-        // Zugangsdaten per E-Mail senden statt im Alert anzeigen
-        await sendCredentialsEmail(app.email, app.name, tempPassword);
-        showSuccess("Account erstellt. Zugangsdaten wurden per E-Mail an den Mentor gesendet.");
+          // Zugangsdaten per E-Mail senden
+          await sendCredentialsEmail(app.email, app.name, tempPassword);
+          showSuccess("Account erstellt. Zugangsdaten wurden per E-Mail an den Mentor gesendet.");
 
-        // Notification an neuen Mentor: Bewerbung angenommen
-        if (signUpData?.user) {
-          await createNotification(
-            signUpData.user.id,
-            "assignment",
-            "Deine Bewerbung wurde angenommen!",
-            "Willkommen als Mentor bei BNM. Du bist jetzt aktiv.",
-          );
+          // Notification an neuen Mentor: Bewerbung angenommen
+          if (signUpData?.user) {
+            await createNotification(
+              signUpData.user.id,
+              "assignment",
+              "Deine Bewerbung wurde angenommen!",
+              "Willkommen als Mentor bei BNM. Du bist jetzt aktiv.",
+            );
+          }
+        } else {
+          // Account existiert bereits → nur Status aktualisieren, kein E-Mail
+          showSuccess("Bewerbung genehmigt. Account war bereits vorhanden.");
         }
       }
 
-      // Status auf approved setzen (erst nach erfolgreichem signUp)
+      // Status auf approved setzen
       const { error } = await supabase
         .from("mentor_applications")
         .update({
