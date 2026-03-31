@@ -8,6 +8,7 @@ import {
   StyleSheet,
   KeyboardAvoidingView,
   Platform,
+  Modal,
 } from "react-native";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { useAuth } from "../../contexts/AuthContext";
@@ -17,6 +18,8 @@ import { COLORS } from "../../constants/Colors";
 import { showError, showSuccess, showConfirm } from "../../lib/errorHandler";
 import { Container } from "../../components/Container";
 import { useTheme, useThemeColors } from "../../contexts/ThemeContext";
+import { supabase } from "../../lib/supabase";
+import { sendCredentialsEmail } from "../../lib/emailService";
 import type { UserRole, Gender } from "../../types";
 
 const ROLES: { key: UserRole; labelKey: "editUser.roleMentor" | "editUser.roleMentee" | "editUser.roleAdmin" | "editUser.roleOffice" }[] = [
@@ -78,6 +81,8 @@ function EditUserForm({ userId }: { userId: string }) {
   const [gender, setGender] = useState<Gender>(target.gender);
   const [isSaving, setIsSaving] = useState(false);
   const [isBlocking, setIsBlocking] = useState(false);
+  const [isResetting, setIsResetting] = useState(false);
+  const [resetTempPw, setResetTempPw] = useState<string | null>(null);
   const [errors, setErrors] = useState<Record<string, string>>({});
 
   const isBlocked = target.is_active === false;
@@ -131,6 +136,35 @@ function EditUserForm({ userId }: { userId: string }) {
       showError(t("common.error"));
     } finally {
       setIsBlocking(false);
+    }
+  }
+
+  async function handleResetPassword() {
+    const ok = await showConfirm(
+      t("editUser.resetPasswordTitle"),
+      t("editUser.resetPasswordText").replace("{0}", target.name)
+    );
+    if (!ok) return;
+
+    const tempPassword = "BNM-" + Math.floor(100000 + Math.random() * 900000);
+    setIsResetting(true);
+    try {
+      const { error } = await supabase.rpc("admin_reset_user_password", {
+        target_user_id: userId,
+        new_password: tempPassword,
+      });
+      if (error) {
+        showError(t("editUser.resetPasswordError") + ": " + error.message);
+        return;
+      }
+      // E-Mail mit neuem Passwort senden (geht an Override-Adresse)
+      await sendCredentialsEmail(target.email, target.name, tempPassword);
+      // Temp-PW im Modal anzeigen (Fallback falls E-Mail fehlschlägt)
+      setResetTempPw(tempPassword);
+    } catch (e: any) {
+      showError(t("editUser.resetPasswordError") + (e?.message ? ": " + e.message : ""));
+    } finally {
+      setIsResetting(false);
     }
   }
 
@@ -277,7 +311,7 @@ function EditUserForm({ userId }: { userId: string }) {
               isBlocked ? { backgroundColor: isDark ? "#1a3a2a" : "#dcfce7", borderColor: isDark ? "#2d6a4a" : "#86efac" } : {},
               isBlocking ? { opacity: 0.6 } : {},
             ]}
-onPress={handleToggleBlock}
+            onPress={handleToggleBlock}
             disabled={isBlocking}
           >
             <Text style={[styles.blockButtonText, { color: isDark ? "#f87171" : "#b91c1c" }, isBlocked ? { color: isDark ? "#4ade80" : "#15803d" } : {}]}>
@@ -285,8 +319,41 @@ onPress={handleToggleBlock}
             </Text>
           </TouchableOpacity>
 
+          {/* Passwort zurücksetzen — nur Admin */}
+          <TouchableOpacity
+            style={[styles.resetPwButton, { borderColor: isDark ? "#2d4a7a" : "#bfdbfe", backgroundColor: isDark ? "#1e2d4a" : "#eff6ff" }, isResetting ? { opacity: 0.6 } : {}]}
+            onPress={handleResetPassword}
+            disabled={isResetting}
+          >
+            <Text style={[styles.resetPwButtonText, { color: isDark ? "#93c5fd" : "#1d4ed8" }]}>
+              {isResetting ? t("editUser.resetting") : t("editUser.resetPassword")}
+            </Text>
+          </TouchableOpacity>
+
         </ScrollView>
       </KeyboardAvoidingView>
+
+      {/* Modal: Temp-PW anzeigen (Fallback falls E-Mail fehlschlägt) */}
+      <Modal visible={resetTempPw !== null} transparent animationType="fade">
+        <View style={styles.modalOverlay}>
+          <View style={[styles.modalCard, { backgroundColor: themeColors.card }]}>
+            <Text style={[styles.modalTitle, { color: themeColors.text }]}>{t("editUser.resetPasswordDoneTitle")}</Text>
+            <Text style={[styles.modalBody, { color: themeColors.textSecondary }]}>
+              {t("editUser.resetPasswordDoneText")}
+            </Text>
+            <View style={[styles.pwBox, { backgroundColor: isDark ? "#1a2a1a" : "#f0fdf4", borderColor: isDark ? "#2d6a4a" : "#86efac" }]}>
+              <Text style={[styles.pwValue, { color: isDark ? "#4ade80" : "#15803d" }]}>{resetTempPw}</Text>
+            </View>
+            <Text style={[styles.modalHint, { color: themeColors.textTertiary }]}>
+              {t("editUser.resetPasswordEmailHint").replace("{0}", target.email)}
+            </Text>
+            <TouchableOpacity style={styles.modalClose} onPress={() => setResetTempPw(null)}>
+              <Text style={styles.modalCloseText}>{t("common.ok")}</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </Modal>
+
     </Container>
   );
 }
@@ -409,4 +476,43 @@ const styles = StyleSheet.create({
   blockButtonText: { fontWeight: "600", fontSize: 14 },
   unblockButton: {},
   unblockButtonText: {},
+  resetPwButton: {
+    borderWidth: 1,
+    borderRadius: 6,
+    paddingVertical: 11,
+    alignItems: "center",
+    marginTop: 10,
+  },
+  resetPwButtonText: { fontWeight: "600", fontSize: 14 },
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: "rgba(0,0,0,0.5)",
+    alignItems: "center",
+    justifyContent: "center",
+    padding: 24,
+  },
+  modalCard: {
+    borderRadius: 16,
+    padding: 24,
+    width: "100%",
+    maxWidth: 420,
+  },
+  modalTitle: { fontWeight: "800", fontSize: 17, marginBottom: 8 },
+  modalBody: { fontSize: 14, marginBottom: 16, lineHeight: 20 },
+  pwBox: {
+    borderWidth: 1,
+    borderRadius: 10,
+    padding: 14,
+    alignItems: "center",
+    marginBottom: 12,
+  },
+  pwValue: { fontSize: 22, fontWeight: "800", letterSpacing: 2 },
+  modalHint: { fontSize: 12, marginBottom: 20, lineHeight: 18 },
+  modalClose: {
+    backgroundColor: COLORS.gradientStart,
+    borderRadius: 10,
+    paddingVertical: 10,
+    alignItems: "center",
+  },
+  modalCloseText: { color: COLORS.white, fontWeight: "600", fontSize: 14 },
 });

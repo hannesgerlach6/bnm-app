@@ -1137,6 +1137,14 @@ const ar: Record<TranslationKeys, string> = {
   "editUser.blockSuccess": "تم حظر المستخدم.",
   "editUser.unblockSuccess": "تم رفع الحظر عن المستخدم.",
   "editUser.blocked": "محظور",
+  "editUser.resetPassword": "إعادة تعيين كلمة المرور",
+  "editUser.resetting": "جارٍ إعادة التعيين...",
+  "editUser.resetPasswordTitle": "إعادة تعيين كلمة المرور",
+  "editUser.resetPasswordText": "سيتم إنشاء كلمة مرور مؤقتة جديدة لـ {0}. يجب على الشخص تغييرها عند تسجيل الدخول القادم.",
+  "editUser.resetPasswordError": "خطأ في إعادة تعيين كلمة المرور",
+  "editUser.resetPasswordDoneTitle": "تمت إعادة تعيين كلمة المرور",
+  "editUser.resetPasswordDoneText": "تم تعيين كلمة المرور المؤقتة الجديدة وإرسال بريد إلكتروني.",
+  "editUser.resetPasswordEmailHint": "تم إرسال البريد الإلكتروني إلى: {0}",
   "editUser.editProfile": "تعديل الملف الشخصي",
 
   // تصدير CSV

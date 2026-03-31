@@ -1137,6 +1137,14 @@ const en: Record<TranslationKeys, string> = {
   "editUser.blockSuccess": "User has been blocked.",
   "editUser.unblockSuccess": "User has been unblocked.",
   "editUser.blocked": "Blocked",
+  "editUser.resetPassword": "Reset password",
+  "editUser.resetting": "Resetting...",
+  "editUser.resetPasswordTitle": "Reset password",
+  "editUser.resetPasswordText": "A new temporary password will be generated for {0}. They must change it on next login.",
+  "editUser.resetPasswordError": "Error resetting password",
+  "editUser.resetPasswordDoneTitle": "Password reset",
+  "editUser.resetPasswordDoneText": "The new temporary password has been set and an email has been sent.",
+  "editUser.resetPasswordEmailHint": "Email sent to: {0}",
   "editUser.editProfile": "Edit Profile",
 
   // CSV Export

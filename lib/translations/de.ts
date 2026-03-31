@@ -1137,6 +1137,14 @@ const de = {
   "editUser.blockSuccess": "User wurde gesperrt.",
   "editUser.unblockSuccess": "User wurde entsperrt.",
   "editUser.blocked": "Gesperrt",
+  "editUser.resetPassword": "Passwort zurücksetzen",
+  "editUser.resetting": "Wird zurückgesetzt...",
+  "editUser.resetPasswordTitle": "Passwort zurücksetzen",
+  "editUser.resetPasswordText": "Ein neues temporäres Passwort wird für {0} generiert. Die Person muss es beim nächsten Login ändern.",
+  "editUser.resetPasswordError": "Fehler beim Zurücksetzen des Passworts",
+  "editUser.resetPasswordDoneTitle": "Passwort zurückgesetzt",
+  "editUser.resetPasswordDoneText": "Das neue temporäre Passwort wurde gesetzt und eine E-Mail wurde verschickt.",
+  "editUser.resetPasswordEmailHint": "E-Mail gesendet an: {0}",
   "editUser.editProfile": "Profil bearbeiten",
 
   // CSV Export

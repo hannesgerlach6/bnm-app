@@ -1137,6 +1137,14 @@ const tr: Record<TranslationKeys, string> = {
   "editUser.blockSuccess": "Kullanıcı engellendi.",
   "editUser.unblockSuccess": "Kullanıcının engeli kaldırıldı.",
   "editUser.blocked": "Engellendi",
+  "editUser.resetPassword": "Şifreyi sıfırla",
+  "editUser.resetting": "Sıfırlanıyor...",
+  "editUser.resetPasswordTitle": "Şifreyi sıfırla",
+  "editUser.resetPasswordText": "{0} için yeni bir geçici şifre oluşturulacak. Kişi bir sonraki girişte şifresini değiştirmelidir.",
+  "editUser.resetPasswordError": "Şifre sıfırlanırken hata oluştu",
+  "editUser.resetPasswordDoneTitle": "Şifre sıfırlandı",
+  "editUser.resetPasswordDoneText": "Yeni geçici şifre ayarlandı ve bir e-posta gönderildi.",
+  "editUser.resetPasswordEmailHint": "E-posta gönderildi: {0}",
   "editUser.editProfile": "Profili Düzenle",
 
   // CSV Dışa Aktarma
