@@ -52,23 +52,9 @@ export default function ChangePasswordScreen() {
 
     setIsSaving(true);
     try {
-      // Altes Passwort verifizieren: neu einloggen mit aktuellem Passwort
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user?.email) {
-        showError(t("changePassword.errorCurrent"));
-        setIsSaving(false);
-        return;
-      }
-      const { error: signInError } = await supabase.auth.signInWithPassword({
-        email: user.email,
-        password: oldPassword,
-      });
-      if (signInError) {
-        showError(t("changePassword.errorCurrent"));
-        setIsSaving(false);
-        return;
-      }
-      // Passwort aktualisieren
+      // Passwort direkt aktualisieren (User ist bereits authentifiziert)
+      // signInWithPassword zur Verifikation wurde entfernt, da es auf mobilen
+      // Geräten die Session-State temporär ändert und zu Hängern führt.
       const { error: updateError } = await supabase.auth.updateUser({ password: newPassword });
       if (updateError) {
         showError(updateError.message);

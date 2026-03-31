@@ -132,6 +132,7 @@ export default function OnboardingScreen() {
         contentContainerStyle={styles.slideScrollContent}
         showsVerticalScrollIndicator={false}
         scrollEnabled={true}
+        nestedScrollEnabled={true}
       >
         <View style={styles.slideInner}>
           <View style={styles.iconContainer}>
@@ -183,6 +184,7 @@ export default function OnboardingScreen() {
         contentContainerStyle={styles.slideScrollContent}
         showsVerticalScrollIndicator={false}
         scrollEnabled={true}
+        nestedScrollEnabled={true}
       >
         <View style={styles.slideInner}>
           <View style={styles.headerBadge}>
@@ -225,6 +227,7 @@ export default function OnboardingScreen() {
         contentContainerStyle={styles.slideScrollContent}
         showsVerticalScrollIndicator={false}
         scrollEnabled={true}
+        nestedScrollEnabled={true}
       >
         <View style={styles.slideInner}>
           <View style={styles.iconContainer}>
@@ -268,6 +271,7 @@ export default function OnboardingScreen() {
         contentContainerStyle={styles.slideScrollContent}
         showsVerticalScrollIndicator={false}
         scrollEnabled={true}
+        nestedScrollEnabled={true}
       >
         <View style={styles.slideInner}>
           <View style={styles.iconContainer}>
@@ -319,6 +323,7 @@ export default function OnboardingScreen() {
         contentContainerStyle={styles.slideScrollContent}
         showsVerticalScrollIndicator={false}
         scrollEnabled={true}
+        nestedScrollEnabled={true}
       >
         <View style={styles.slideInner}>
           <View style={styles.headerBadge}>
@@ -361,6 +366,7 @@ export default function OnboardingScreen() {
         contentContainerStyle={styles.slideScrollContent}
         showsVerticalScrollIndicator={false}
         scrollEnabled={true}
+        nestedScrollEnabled={true}
       >
         <View style={styles.slideInner}>
           <View style={styles.iconContainer}>
@@ -397,6 +403,7 @@ export default function OnboardingScreen() {
         contentContainerStyle={styles.slideScrollContent}
         showsVerticalScrollIndicator={false}
         scrollEnabled={true}
+        nestedScrollEnabled={true}
       >
         <View style={styles.slideInner}>
           <View style={styles.iconContainer}>
@@ -433,6 +440,7 @@ export default function OnboardingScreen() {
         contentContainerStyle={styles.slideScrollContent}
         showsVerticalScrollIndicator={false}
         scrollEnabled={true}
+        nestedScrollEnabled={true}
       >
         <View style={styles.slideInner}>
           <View style={[styles.headerBadge, { backgroundColor: "rgba(238,167,27,0.15)", borderColor: "rgba(238,167,27,0.4)" }]}>

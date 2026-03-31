@@ -173,7 +173,7 @@ export default function RegisterMentorScreen() {
         email: emailLower,
         phone: form.phone.trim(),
         gender: form.gender,
-        city: `${form.plz.trim()} ${form.city.trim()}`,
+        city: form.city.trim(),
         plz: form.plz.trim(),
         age,
         experience: extraData,

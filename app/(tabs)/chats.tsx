@@ -108,7 +108,7 @@ function ChatPanel({ mentorshipId }: { mentorshipId: string }) {
   return (
     <KeyboardAvoidingView
       style={panelStyles.container}
-      behavior={Platform.OS === "ios" ? "padding" : undefined}
+      behavior={Platform.OS === "ios" ? "padding" : "height"}
       keyboardVerticalOffset={Platform.OS === "ios" ? 90 : 0}
     >
       {/* Chat-Header */}
@@ -332,7 +332,7 @@ function AdminChatPanel({ userId, adminId }: { userId: string; adminId?: string 
   return (
     <KeyboardAvoidingView
       style={panelStyles.container}
-      behavior={Platform.OS === "ios" ? "padding" : undefined}
+      behavior={Platform.OS === "ios" ? "padding" : "height"}
       keyboardVerticalOffset={Platform.OS === "ios" ? 90 : 0}
     >
       {/* Header */}
