@@ -211,7 +211,12 @@ export default function LeaderboardScreen() {
 
           {/* Monats-Picker */}
           <View style={[styles.monthPickerRow, { backgroundColor: themeColors.card }]}>
-            <TouchableOpacity onPress={goToPrevMonth} style={styles.monthPickerBtn}>
+            <TouchableOpacity
+              onPress={goToPrevMonth}
+              style={styles.monthPickerBtn}
+              accessibilityRole="button"
+              accessibilityLabel="Vorheriger Monat"
+            >
               <Text style={[styles.monthPickerArrow, { color: themeColors.text }]}>
                 {t("leaderboard.monthPicker.prev")}
               </Text>
@@ -223,6 +228,9 @@ export default function LeaderboardScreen() {
               onPress={goToNextMonth}
               style={[styles.monthPickerBtn, isCurrentMonth && styles.monthPickerBtnDisabled]}
               disabled={isCurrentMonth}
+              accessibilityRole="button"
+              accessibilityLabel="Nächster Monat"
+              accessibilityState={{ disabled: isCurrentMonth }}
             >
               <Text style={[styles.monthPickerArrow, { color: isCurrentMonth ? themeColors.textTertiary : themeColors.text }]}>
                 {t("leaderboard.monthPicker.next")}
@@ -238,6 +246,7 @@ export default function LeaderboardScreen() {
               placeholderTextColor={themeColors.textTertiary}
               value={search}
               onChangeText={setSearch}
+              accessibilityLabel="Mentor suchen"
             />
           )}
 
@@ -260,6 +269,9 @@ export default function LeaderboardScreen() {
                       genderFilter === opt.key ? styles.filterChipActive : [styles.filterChipInactive, { backgroundColor: themeColors.background, borderColor: themeColors.border }],
                     ]}
                     onPress={() => setGenderFilter(opt.key)}
+                    accessibilityRole="radio"
+                    accessibilityLabel={opt.label}
+                    accessibilityState={{ checked: genderFilter === opt.key }}
                   >
                     <Text
                       style={
@@ -303,6 +315,8 @@ export default function LeaderboardScreen() {
                         isMe && styles.podiumCardMe,
                       ]}
                       onPress={() => router.push({ pathname: "/mentor/[id]", params: { id: item.mentorId } })}
+                      accessibilityRole="button"
+                      accessibilityLabel={`Platz 2: ${item.name}, ${item.score} Punkte`}
                     >
                       <Text style={styles.podiumEmoji}>{MEDAL_EMOJIS[1]}</Text>
                       <Text style={[styles.podiumName, { color: themeColors.text }]} numberOfLines={2}>{item.name}</Text>
@@ -330,6 +344,8 @@ export default function LeaderboardScreen() {
                         isMe && styles.podiumCardMe,
                       ]}
                       onPress={() => router.push({ pathname: "/mentor/[id]", params: { id: item.mentorId } })}
+                      accessibilityRole="button"
+                      accessibilityLabel={`Platz 1: ${item.name}, ${item.score} Punkte`}
                     >
                       <Text style={styles.podiumCrown}>👑</Text>
                       <Text style={styles.podiumEmoji1}>{MEDAL_EMOJIS[0]}</Text>
@@ -364,6 +380,8 @@ export default function LeaderboardScreen() {
                         isMe && styles.podiumCardMe,
                       ]}
                       onPress={() => router.push({ pathname: "/mentor/[id]", params: { id: item.mentorId } })}
+                      accessibilityRole="button"
+                      accessibilityLabel={`Platz 3: ${item.name}, ${item.score} Punkte`}
                     >
                       <Text style={styles.podiumEmoji}>{MEDAL_EMOJIS[2]}</Text>
                       <Text style={[styles.podiumName, { color: themeColors.text }]} numberOfLines={2}>{item.name}</Text>
@@ -395,6 +413,8 @@ export default function LeaderboardScreen() {
                         onPress={() =>
                           router.push({ pathname: "/mentor/[id]", params: { id: item.mentorId } })
                         }
+                        accessibilityRole="button"
+                        accessibilityLabel={`Platz ${index + 1}: ${item.name}, ${item.score} Punkte`}
                       >
                         <View style={[styles.rankBadge, { backgroundColor: themeColors.background }]}>
                           <Text style={[styles.rankBadgeTextDark, { color: isMe ? COLORS.gold : themeColors.textSecondary }]}>
@@ -711,7 +731,11 @@ const styles = StyleSheet.create({
   },
   monthPickerBtn: {
     paddingHorizontal: 12,
-    paddingVertical: 6,
+    paddingVertical: 10,
+    minWidth: 48,
+    minHeight: 48,
+    alignItems: "center",
+    justifyContent: "center",
   },
   monthPickerBtnDisabled: {
     opacity: 0.3,

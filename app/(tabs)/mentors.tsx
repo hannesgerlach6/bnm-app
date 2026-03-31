@@ -3,7 +3,6 @@ import {
   View,
   Text,
   ScrollView,
-  TouchableOpacity,
   TextInput,
   StyleSheet,
   RefreshControl,
@@ -11,6 +10,7 @@ import {
   Modal,
   KeyboardAvoidingView,
 } from "react-native";
+import { BNMPressable } from "../../components/BNMPressable";
 import { useRouter } from "expo-router";
 import { useData } from "../../contexts/DataContext";
 import { useLanguage } from "../../contexts/LanguageContext";
@@ -154,18 +154,22 @@ export default function MentorsTabScreen() {
             {t("admin.deleteConfirmMessage").replace("{0}", String(selectedCount))}
           </Text>
           <View style={styles.modalButtons}>
-            <TouchableOpacity
+            <BNMPressable
               style={[styles.modalBtn, { backgroundColor: themeColors.background, borderColor: themeColors.border }]}
               onPress={() => setConfirmModal1(false)}
+              accessibilityRole="button"
+              accessibilityLabel={t("common.cancel")}
             >
               <Text style={[styles.modalBtnText, { color: themeColors.text }]}>{t("common.cancel")}</Text>
-            </TouchableOpacity>
-            <TouchableOpacity
+            </BNMPressable>
+            <BNMPressable
               style={[styles.modalBtn, styles.modalBtnDanger]}
               onPress={() => { setConfirmModal1(false); setConfirmModal2(true); setDeleteInput(""); }}
+              accessibilityRole="button"
+              accessibilityLabel={t("common.confirm")}
             >
               <Text style={[styles.modalBtnText, { color: COLORS.white }]}>{t("common.confirm")}</Text>
-            </TouchableOpacity>
+            </BNMPressable>
           </View>
         </View>
       </View>
@@ -187,23 +191,30 @@ export default function MentorsTabScreen() {
             onChangeText={setDeleteInput}
             autoCapitalize="characters"
             autoCorrect={false}
+            accessibilityLabel="Bestaetigungswort eingeben"
           />
           <View style={styles.modalButtons}>
-            <TouchableOpacity
+            <BNMPressable
               style={[styles.modalBtn, { backgroundColor: themeColors.background, borderColor: themeColors.border }]}
               onPress={() => { setConfirmModal2(false); setDeleteInput(""); }}
+              accessibilityRole="button"
+              accessibilityLabel={t("common.cancel")}
             >
               <Text style={[styles.modalBtnText, { color: themeColors.text }]}>{t("common.cancel")}</Text>
-            </TouchableOpacity>
-            <TouchableOpacity
+            </BNMPressable>
+            <BNMPressable
               style={[styles.modalBtn, deleteInput === confirmWord ? styles.modalBtnDanger : styles.modalBtnDisabled]}
               onPress={deleteInput === confirmWord ? handleBulkDelete : undefined}
               disabled={deleteInput !== confirmWord || isDeleting}
+              hapticStyle="error"
+              accessibilityRole="button"
+              accessibilityLabel={isDeleting ? t("admin.deleting") : t("admin.deleteConfirmInput")}
+              accessibilityState={{ disabled: deleteInput !== confirmWord || isDeleting }}
             >
               <Text style={[styles.modalBtnText, { color: COLORS.white }]}>
                 {isDeleting ? t("admin.deleting") : t("admin.deleteConfirmInput")}
               </Text>
-            </TouchableOpacity>
+            </BNMPressable>
           </View>
         </View>
       </KeyboardAvoidingView>
@@ -224,25 +235,34 @@ export default function MentorsTabScreen() {
           </View>
           {!selectMode && Platform.OS === "web" && (
             <>
-              <TouchableOpacity
+              <BNMPressable
                 style={[styles.csvButton, { backgroundColor: themeColors.background, borderColor: themeColors.border }]}
                 onPress={() => router.push("/admin/csv-import")}
+                accessibilityRole="button"
+                accessibilityLabel={t("csvImport.tabMentors")}
               >
                 <Text style={[styles.csvButtonText, { color: themeColors.text }]}>{t("csvImport.tabMentors")}</Text>
-              </TouchableOpacity>
-              <TouchableOpacity style={[styles.csvButton, { backgroundColor: themeColors.background, borderColor: themeColors.border }]} onPress={handleExportCsv}>
+              </BNMPressable>
+              <BNMPressable
+                style={[styles.csvButton, { backgroundColor: themeColors.background, borderColor: themeColors.border }]}
+                onPress={handleExportCsv}
+                accessibilityRole="button"
+                accessibilityLabel={t("csv.export")}
+              >
                 <Text style={[styles.csvButtonText, { color: themeColors.text }]}>{t("csv.export")}</Text>
-              </TouchableOpacity>
+              </BNMPressable>
             </>
           )}
-          <TouchableOpacity
+          <BNMPressable
             style={[styles.csvButton, { backgroundColor: themeColors.background, borderColor: themeColors.border }]}
             onPress={toggleSelectMode}
+            accessibilityRole="button"
+            accessibilityLabel={selectMode ? t("admin.selectModeExit") : t("admin.selectMode")}
           >
             <Text style={[styles.csvButtonText, { color: selectMode ? themeColors.textSecondary : themeColors.text }]}>
               {selectMode ? t("admin.selectModeExit") : t("admin.selectMode")}
             </Text>
-          </TouchableOpacity>
+          </BNMPressable>
         </View>
 
         {/* Suchfeld */}
@@ -252,18 +272,27 @@ export default function MentorsTabScreen() {
           placeholderTextColor={themeColors.textTertiary}
           value={search}
           onChangeText={setSearch}
+          accessibilityLabel={t("adminMentors.search")}
         />
 
         {/* Multi-Select: Alle / Keine */}
         {selectMode && (
           <View style={[styles.selectBar, { backgroundColor: themeColors.card, borderColor: themeColors.border }]}>
-            <TouchableOpacity onPress={() => setSelectedIds(new Set(filtered.map((m) => m.id)))}>
+            <BNMPressable
+              onPress={() => setSelectedIds(new Set(filtered.map((m) => m.id)))}
+              accessibilityRole="button"
+              accessibilityLabel={t("admin.selectAll")}
+            >
               <Text style={[styles.selectBarBtn, { color: COLORS.gradientStart }]}>{t("admin.selectAll")}</Text>
-            </TouchableOpacity>
+            </BNMPressable>
             <Text style={[styles.selectBarSep, { color: themeColors.border }]}>|</Text>
-            <TouchableOpacity onPress={() => setSelectedIds(new Set())}>
+            <BNMPressable
+              onPress={() => setSelectedIds(new Set())}
+              accessibilityRole="button"
+              accessibilityLabel={t("admin.selectNone")}
+            >
               <Text style={[styles.selectBarBtn, { color: themeColors.textSecondary }]}>{t("admin.selectNone")}</Text>
-            </TouchableOpacity>
+            </BNMPressable>
           </View>
         )}
 
@@ -301,7 +330,7 @@ export default function MentorsTabScreen() {
             const isSelected = selectedIds.has(mentor.id);
 
             return (
-              <TouchableOpacity
+              <BNMPressable
                 key={mentor.id}
                 style={[
                   styles.mentorCard,
@@ -317,10 +346,17 @@ export default function MentorsTabScreen() {
                     router.push({ pathname: "/mentor/[id]", params: { id: mentor.id } });
                   }
                 }}
+                accessibilityRole="button"
+                accessibilityLabel={`${mentor.name}, ${mentor.city}, ${mentor.gender === "male" ? t("dashboard.brother") : t("dashboard.sister")}`}
               >
                 <View style={styles.cardRow}>
                   {selectMode && (
-                    <View style={[styles.checkbox, isSelected && styles.checkboxSelected]}>
+                    <View
+                      style={[styles.checkbox, isSelected && styles.checkboxSelected]}
+                      accessibilityRole="checkbox"
+                      accessibilityState={{ checked: isSelected }}
+                      accessibilityLabel={`${mentor.name} auswaehlen`}
+                    >
                       {isSelected && <Text style={styles.checkmark}>✓</Text>}
                     </View>
                   )}
@@ -371,7 +407,7 @@ export default function MentorsTabScreen() {
                     </View>
                   </View>
                 )}
-              </TouchableOpacity>
+              </BNMPressable>
             );
           })
         )}
@@ -384,14 +420,17 @@ export default function MentorsTabScreen() {
         <Text style={[styles.footerBarText, { color: themeColors.text }]}>
           {t("admin.xSelected").replace("{0}", String(selectedCount))}
         </Text>
-        <TouchableOpacity
+        <BNMPressable
           style={styles.footerDeleteBtn}
           onPress={() => setConfirmModal1(true)}
+          hapticStyle="warning"
+          accessibilityRole="button"
+          accessibilityLabel={t("admin.deleteSelected").replace("{0}", String(selectedCount))}
         >
           <Text style={styles.footerDeleteBtnText}>
             {t("admin.deleteSelected").replace("{0}", String(selectedCount))}
           </Text>
-        </TouchableOpacity>
+        </BNMPressable>
       </View>
     )}
 

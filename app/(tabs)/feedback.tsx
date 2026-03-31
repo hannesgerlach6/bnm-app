@@ -94,6 +94,9 @@ export default function FeedbackTabScreen() {
                       : [styles.filterChipInactive, { backgroundColor: themeColors.background, borderColor: themeColors.border }],
                   ]}
                   onPress={() => setFilter(opt.key)}
+                  accessibilityRole="radio"
+                  accessibilityLabel={opt.label}
+                  accessibilityState={{ checked: filter === opt.key }}
                 >
                   <Text
                     style={

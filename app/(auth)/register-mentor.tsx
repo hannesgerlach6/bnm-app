@@ -230,6 +230,8 @@ export default function RegisterMentorScreen() {
         <TouchableOpacity
           style={styles.successButton}
           onPress={() => router.replace("/(auth)/login")}
+          accessibilityRole="button"
+          accessibilityLabel={t("login.submit")}
         >
           <Text style={styles.successButtonText}>{t("login.submit")}</Text>
         </TouchableOpacity>
@@ -284,6 +286,7 @@ export default function RegisterMentorScreen() {
             placeholderTextColor={themeColors.textTertiary}
             value={form.firstName}
             onChangeText={(v) => update("firstName", v)}
+            accessibilityLabel={t("registerMentor.firstName")}
           />
 
           <FieldLabel label={t("registerMentor.lastName")} error={errors.lastName} themeColors={themeColors} />
@@ -293,6 +296,7 @@ export default function RegisterMentorScreen() {
             placeholderTextColor={themeColors.textTertiary}
             value={form.lastName}
             onChangeText={(v) => update("lastName", v)}
+            accessibilityLabel={t("registerMentor.lastName")}
           />
 
           <FieldLabel label={t("registerMentor.email")} error={errors.email} themeColors={themeColors} />
@@ -304,6 +308,7 @@ export default function RegisterMentorScreen() {
             autoCapitalize="none"
             value={form.email}
             onChangeText={(v) => update("email", v)}
+            accessibilityLabel={t("registerMentor.email")}
           />
 
           <FieldLabel label={t("registerMentor.gender")} error={errors.gender} themeColors={themeColors} />
@@ -326,6 +331,7 @@ export default function RegisterMentorScreen() {
             keyboardType="numeric"
             value={form.birthdate}
             onChangeText={(v) => update("birthdate", v)}
+            accessibilityLabel={t("registerMentor.birthdate")}
           />
 
           <FieldLabel label={t("registerMentor.plzCity")} error={errors.plz ?? errors.city} themeColors={themeColors} />
@@ -338,6 +344,7 @@ export default function RegisterMentorScreen() {
               maxLength={5}
               value={form.plz}
               onChangeText={(v) => update("plz", v)}
+              accessibilityLabel="PLZ"
             />
             <TextInput
               style={[styles.input, styles.inputCity, { backgroundColor: themeColors.card, color: themeColors.text }, errors.city ? styles.inputError : { borderColor: themeColors.border }]}
@@ -345,6 +352,7 @@ export default function RegisterMentorScreen() {
               placeholderTextColor={themeColors.textTertiary}
               value={form.city}
               onChangeText={(v) => update("city", v)}
+              accessibilityLabel={t("registerMentor.cityPlaceholder")}
             />
           </View>
 
@@ -370,6 +378,7 @@ export default function RegisterMentorScreen() {
             keyboardType="phone-pad"
             value={form.phone}
             onChangeText={(v) => update("phone", v)}
+            accessibilityLabel={t("registerMentor.phone")}
           />
 
           {/* SEKTION 2: Deine Rolle als Mentor */}
@@ -461,6 +470,7 @@ export default function RegisterMentorScreen() {
                 textAlignVertical="top"
                 value={form.mentoringExperience}
                 onChangeText={(v) => update("mentoringExperience", v)}
+                accessibilityLabel={t("registerMentor.mentoringExperience")}
               />
             </>
           )}
@@ -486,6 +496,7 @@ export default function RegisterMentorScreen() {
                 placeholderTextColor={themeColors.textTertiary}
                 value={form.organizationName}
                 onChangeText={(v) => update("organizationName", v)}
+                accessibilityLabel={t("registerMentor.organizationName")}
               />
             </>
           )}
@@ -517,6 +528,7 @@ export default function RegisterMentorScreen() {
             textAlignVertical="top"
             value={form.additionalMessage}
             onChangeText={(v) => update("additionalMessage", v)}
+            accessibilityLabel={t("registerMentor.additionalMessage")}
           />
 
           {/* Submit */}
@@ -524,6 +536,9 @@ export default function RegisterMentorScreen() {
             style={[styles.submitButton, isSubmitting ? { opacity: 0.6 } : {}]}
             onPress={handleSubmit}
             disabled={isSubmitting}
+            accessibilityRole="button"
+            accessibilityLabel={isSubmitting ? t("registerMentor.submitting") : t("registerMentor.submitNew")}
+            accessibilityState={{ disabled: isSubmitting }}
           >
             <Text style={styles.submitButtonText}>
               {isSubmitting ? t("registerMentor.submitting") : t("registerMentor.submitNew")}
@@ -571,6 +586,9 @@ function PillGroup<T extends string,>({
                   : { backgroundColor: cardColor, borderColor },
               ]}
               onPress={() => onSelect(opt.value)}
+              accessibilityRole="radio"
+              accessibilityState={{ checked: active }}
+              accessibilityLabel={opt.label}
             >
               <Text
                 style={[

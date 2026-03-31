@@ -4,12 +4,13 @@ import {
   Text,
   Image,
   ScrollView,
-  TouchableOpacity,
   TextInput,
   Platform,
   StyleSheet,
   KeyboardAvoidingView,
 } from "react-native";
+import { BNMPressable } from "../components/BNMPressable";
+import * as ImagePicker from "expo-image-picker";
 import { showError, showSuccess } from "../lib/errorHandler";
 import { useRouter } from "expo-router";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
@@ -74,13 +75,37 @@ export default function EditProfileScreen() {
     setIsUploadingAvatar(false);
   }
 
+  async function handleAvatarPickNative() {
+    const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
+    if (status !== "granted") {
+      showError("Zugriff auf Fotos wurde verweigert. Bitte erlaube den Zugriff in den Einstellungen.");
+      return;
+    }
+    const result = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ["images"],
+      allowsEditing: true,
+      aspect: [1, 1],
+      quality: 0.7,
+    });
+    if (result.canceled || !result.assets?.[0]?.uri) return;
+    setIsUploadingAvatar(true);
+    setAvatarPreview(result.assets[0].uri);
+    const publicUrl = await uploadAvatar(safeUser.id, result.assets[0].uri);
+    if (publicUrl) {
+      await updateUser(safeUser.id, { avatar_url: publicUrl });
+      setAvatarPreview(publicUrl);
+    } else {
+      showError(t("editProfile.errorUpload"));
+      setAvatarPreview(safeUser.avatar_url);
+    }
+    setIsUploadingAvatar(false);
+  }
+
   function handleAvatarPress() {
     if (Platform.OS === 'web') {
-      // Web: verstecktes input[type=file] triggern
       fileInputRef.current?.click();
     } else {
-      // Native: expo-image-picker wäre nötig — Package noch nicht installiert
-      showError(t("editProfile.nativeImagePicker"));
+      handleAvatarPickNative();
     }
   }
 
@@ -125,9 +150,9 @@ export default function EditProfileScreen() {
       >
         {/* Header */}
         <View style={[styles.header, { backgroundColor: themeColors.card, borderBottomColor: themeColors.border, paddingTop: insets.top + 16 }]}>
-          <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
+          <BNMPressable onPress={() => router.back()} style={styles.backButton} accessibilityRole="button" accessibilityLabel={t("editProfile.back")}>
             <Text style={[styles.backText, { color: themeColors.text }]}>{t("editProfile.back")}</Text>
-          </TouchableOpacity>
+          </BNMPressable>
           <Text style={[styles.headerTitle, { color: themeColors.text }]}>{t("editProfile.title")}</Text>
           <View style={styles.headerRight} />
         </View>
@@ -141,6 +166,7 @@ export default function EditProfileScreen() {
                 source={{ uri: avatarPreview }}
                 style={styles.avatarPreview}
                 resizeMode="cover"
+                accessibilityLabel={`Profilbild von ${safeUser.name}`}
               />
             ) : (
               <View style={styles.avatarPlaceholder}>
@@ -154,15 +180,18 @@ export default function EditProfileScreen() {
                 </Text>
               </View>
             )}
-            <TouchableOpacity
+            <BNMPressable
               style={[styles.avatarButton, isUploadingAvatar && styles.avatarButtonDisabled]}
               onPress={handleAvatarPress}
               disabled={isUploadingAvatar}
+              accessibilityRole="button"
+              accessibilityLabel={isUploadingAvatar ? t("editProfile.uploading") : t("editProfile.changePicture")}
+              accessibilityState={{ disabled: isUploadingAvatar }}
             >
               <Text style={styles.avatarButtonText}>
                 {isUploadingAvatar ? t("editProfile.uploading") : t("editProfile.changePicture")}
               </Text>
-            </TouchableOpacity>
+            </BNMPressable>
           </View>
 
           {/* Web: verstecktes file-input */}
@@ -192,6 +221,7 @@ export default function EditProfileScreen() {
             placeholder={t("editProfile.namePlaceholder")}
             placeholderTextColor={themeColors.textTertiary}
             autoCapitalize="words"
+            accessibilityLabel={t("editProfile.name")}
           />
 
           {/* Stadt */}
@@ -203,6 +233,7 @@ export default function EditProfileScreen() {
             placeholder={t("editProfile.cityPlaceholder")}
             placeholderTextColor={themeColors.textTertiary}
             autoCapitalize="words"
+            accessibilityLabel={t("editProfile.city")}
           />
 
           {/* Postleitzahl */}
@@ -215,6 +246,7 @@ export default function EditProfileScreen() {
             placeholderTextColor={themeColors.textTertiary}
             keyboardType="number-pad"
             maxLength={5}
+            accessibilityLabel={t("profile.plz")}
           />
 
           {/* Alter */}
@@ -226,6 +258,7 @@ export default function EditProfileScreen() {
             placeholder={t("editProfile.agePlaceholder")}
             placeholderTextColor={themeColors.textTertiary}
             keyboardType="number-pad"
+            accessibilityLabel={t("editProfile.age")}
           />
 
           {/* Telefon */}
@@ -237,19 +270,23 @@ export default function EditProfileScreen() {
             placeholder="+49 151 ..."
             placeholderTextColor={themeColors.textTertiary}
             keyboardType="phone-pad"
+            accessibilityLabel={t("editProfile.phone")}
           />
 
           {/* Kontaktpräferenz */}
           <Text style={[styles.fieldLabel, { color: themeColors.textSecondary }]}>{t("editProfile.contactPref")}</Text>
           <View style={styles.contactGrid}>
             {CONTACT_OPTIONS.map((opt) => (
-              <TouchableOpacity
+              <BNMPressable
                 key={opt.key}
                 style={[
                   styles.contactChip,
                   contactPref === opt.key ? styles.contactChipActive : [styles.contactChipInactive, { backgroundColor: themeColors.card, borderColor: themeColors.border }],
                 ]}
                 onPress={() => setContactPref(opt.key)}
+                accessibilityRole="radio"
+                accessibilityLabel={opt.label}
+                accessibilityState={{ checked: contactPref === opt.key }}
               >
                 <Text
                   style={
@@ -260,7 +297,7 @@ export default function EditProfileScreen() {
                 >
                   {opt.label}
                 </Text>
-              </TouchableOpacity>
+              </BNMPressable>
             ))}
           </View>
 
@@ -275,19 +312,23 @@ export default function EditProfileScreen() {
           </View>
 
           {/* Speichern */}
-          <TouchableOpacity
+          <BNMPressable
             style={[styles.saveButton, isSaving && styles.saveButtonDisabled]}
             onPress={handleSave}
             disabled={isSaving}
+            hapticStyle="success"
+            accessibilityRole="button"
+            accessibilityLabel={isSaving ? t("editProfile.saving") : t("editProfile.save")}
+            accessibilityState={{ disabled: isSaving }}
           >
             <Text style={styles.saveButtonText}>
               {isSaving ? t("editProfile.saving") : t("editProfile.save")}
             </Text>
-          </TouchableOpacity>
+          </BNMPressable>
 
-          <TouchableOpacity style={[styles.cancelButton, { backgroundColor: themeColors.background, borderColor: themeColors.border }]} onPress={() => router.back()}>
+          <BNMPressable style={[styles.cancelButton, { backgroundColor: themeColors.background, borderColor: themeColors.border }]} onPress={() => router.back()} accessibilityRole="button" accessibilityLabel={t("editProfile.cancel")}>
             <Text style={[styles.cancelButtonText, { color: themeColors.textSecondary }]}>{t("editProfile.cancel")}</Text>
-          </TouchableOpacity>
+          </BNMPressable>
 
         </ScrollView>
       </KeyboardAvoidingView>

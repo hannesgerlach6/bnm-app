@@ -1,7 +1,10 @@
 import { StyleSheet, Platform } from 'react-native';
-import { COLORS } from './Colors';
+import { COLORS, TYPOGRAPHY, SPACING } from './Colors';
 
 const isWeb = Platform.OS === 'web';
+
+// Minimum Touch-Target-Größe (Material Design 48dp, Apple HIG 44pt)
+export const MIN_TOUCH_TARGET = 48;
 
 export const SHARED = StyleSheet.create({
   input: {
@@ -11,8 +14,9 @@ export const SHARED = StyleSheet.create({
     borderRadius: 6,
     paddingVertical: isWeb ? 8 : 10,
     paddingHorizontal: 12,
-    fontSize: 14,
+    fontSize: TYPOGRAPHY.size.base,
     color: COLORS.primary,
+    minHeight: MIN_TOUCH_TARGET,
   },
   textarea: {
     backgroundColor: COLORS.card,
@@ -21,16 +25,47 @@ export const SHARED = StyleSheet.create({
     borderRadius: 6,
     paddingVertical: isWeb ? 8 : 10,
     paddingHorizontal: 12,
-    fontSize: 14,
+    fontSize: TYPOGRAPHY.size.base,
     color: COLORS.primary,
     height: 72,
     textAlignVertical: 'top' as const,
   },
   label: {
-    fontSize: 13,
-    fontWeight: '500' as const,
+    fontSize: TYPOGRAPHY.size.md,
+    fontWeight: TYPOGRAPHY.weight.medium,
     color: COLORS.secondary,
-    marginBottom: 4,
+    marginBottom: SPACING.xs,
+  },
+  // Überschriften
+  pageTitle: {
+    fontSize: TYPOGRAPHY.size.xxl,
+    fontWeight: TYPOGRAPHY.weight.extrabold,
+    lineHeight: TYPOGRAPHY.lineHeight.loose,
+  },
+  sectionTitle: {
+    fontSize: TYPOGRAPHY.size.lg,
+    fontWeight: TYPOGRAPHY.weight.bold,
+    lineHeight: TYPOGRAPHY.lineHeight.relaxed,
+  },
+  cardTitle: {
+    fontSize: TYPOGRAPHY.size.base,
+    fontWeight: TYPOGRAPHY.weight.bold,
+    lineHeight: TYPOGRAPHY.lineHeight.normal,
+  },
+  bodyText: {
+    fontSize: TYPOGRAPHY.size.base,
+    fontWeight: TYPOGRAPHY.weight.regular,
+    lineHeight: TYPOGRAPHY.lineHeight.normal,
+  },
+  captionText: {
+    fontSize: TYPOGRAPHY.size.sm,
+    fontWeight: TYPOGRAPHY.weight.regular,
+    lineHeight: TYPOGRAPHY.lineHeight.tight,
+  },
+  labelCaps: {
+    fontSize: TYPOGRAPHY.size.xs,
+    fontWeight: TYPOGRAPHY.weight.bold,
+    letterSpacing: TYPOGRAPHY.letterSpacing.wider,
   },
   primaryButton: {
     backgroundColor: COLORS.gradientStart,
@@ -38,11 +73,13 @@ export const SHARED = StyleSheet.create({
     paddingVertical: isWeb ? 8 : 10,
     paddingHorizontal: 16,
     alignItems: 'center' as const,
+    minHeight: MIN_TOUCH_TARGET,
+    justifyContent: 'center' as const,
   },
   primaryButtonText: {
     color: COLORS.white,
-    fontSize: 14,
-    fontWeight: '600' as const,
+    fontSize: TYPOGRAPHY.size.base,
+    fontWeight: TYPOGRAPHY.weight.semibold,
   },
   secondaryButton: {
     borderWidth: 1,
@@ -51,11 +88,13 @@ export const SHARED = StyleSheet.create({
     paddingVertical: isWeb ? 8 : 10,
     paddingHorizontal: 16,
     alignItems: 'center' as const,
+    minHeight: MIN_TOUCH_TARGET,
+    justifyContent: 'center' as const,
   },
   secondaryButtonText: {
     color: COLORS.gradientStart,
-    fontSize: 14,
-    fontWeight: '600' as const,
+    fontSize: TYPOGRAPHY.size.base,
+    fontWeight: TYPOGRAPHY.weight.semibold,
   },
   card: {
     backgroundColor: COLORS.card,

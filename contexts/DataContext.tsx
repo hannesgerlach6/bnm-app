@@ -297,6 +297,49 @@ async function writeCache(payload: CachePayload): Promise<void> {
   }
 }
 
+// ─── Messages-Cache ───────────────────────────────────────────────────────────
+
+const MESSAGES_CACHE_KEY_PREFIX = "bnm-messages-";
+const MESSAGES_CACHE_MAX_AGE_MS = 60 * 60 * 1000; // 1 Stunde
+
+interface MessagesCacheEntry {
+  messages: Message[];
+  timestamp: number;
+}
+
+async function readMessagesCache(mentorshipId: string): Promise<Message[] | null> {
+  try {
+    const key = `${MESSAGES_CACHE_KEY_PREFIX}${mentorshipId}`;
+    let raw: string | null = null;
+    if (Platform.OS === "web") {
+      raw = localStorage.getItem(key);
+    } else {
+      const AsyncStorage = (await import("@react-native-async-storage/async-storage")).default;
+      raw = await AsyncStorage.getItem(key);
+    }
+    if (!raw) return null;
+    const parsed: MessagesCacheEntry = JSON.parse(raw);
+    if (Date.now() - parsed.timestamp > MESSAGES_CACHE_MAX_AGE_MS) return null;
+    return parsed.messages;
+  } catch {
+    return null;
+  }
+}
+
+async function writeMessagesCache(mentorshipId: string, messages: Message[]): Promise<void> {
+  try {
+    const key = `${MESSAGES_CACHE_KEY_PREFIX}${mentorshipId}`;
+    const entry: MessagesCacheEntry = { messages, timestamp: Date.now() };
+    const raw = JSON.stringify(entry);
+    if (Platform.OS === "web") {
+      localStorage.setItem(key, raw);
+    } else {
+      const AsyncStorage = (await import("@react-native-async-storage/async-storage")).default;
+      await AsyncStorage.setItem(key, raw);
+    }
+  } catch {}
+}
+
 export function DataProvider({ children }: { children: ReactNode }) {
   const { user: authUser } = useAuth();
 
@@ -2099,7 +2142,10 @@ export function DataProvider({ children }: { children: ReactNode }) {
       };
       setMessages((prev) => {
         if (prev.some((m) => m.id === newMessage.id)) return prev;
-        return [...prev, newMessage];
+        const updatedMsgs = [...prev, newMessage];
+        // Cache aktualisieren
+        writeMessagesCache(mentorshipId, updatedMsgs.filter((m) => m.mentorship_id === mentorshipId));
+        return updatedMsgs;
       });
     },
     [users]

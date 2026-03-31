@@ -26,7 +26,13 @@
     "web": {
       "bundler": "metro",
       "output": "single",
-      "favicon": "./assets/images/favicon.png"
+      "favicon": "./assets/images/favicon.png",
+      "name": "BNM",
+      "shortName": "BNM",
+      "description": "Mentoring-Programm für Konvertierte",
+      "themeColor": "#0A3A5A",
+      "backgroundColor": "#F9FAFB",
+      "lang": "de"
     },
     "plugins": [
       "expo-router",

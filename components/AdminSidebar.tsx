@@ -4,7 +4,6 @@
  */
 import React, { useState, useEffect } from "react";
 import {
-  TouchableOpacity,
   View,
   Text,
   StyleSheet,
@@ -13,6 +12,7 @@ import {
   ScrollView,
   useWindowDimensions,
 } from "react-native";
+import { BNMPressable } from "./BNMPressable";
 import { useRouter, usePathname } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
 import { useAuth } from "../contexts/AuthContext";
@@ -63,7 +63,7 @@ function SidebarItem({
   } : {};
 
   return (
-    <TouchableOpacity
+    <BNMPressable
       onPress={onPress}
       style={[
         styles.item,
@@ -74,9 +74,11 @@ function SidebarItem({
           ? { backgroundColor: hoverBg }
           : { backgroundColor: "transparent" },
       ]}
-      activeOpacity={0.7}
       // @ts-ignore — Web-only title attribute for tooltip in collapsed mode
       title={collapsed ? label : undefined}
+      accessibilityRole="menuitem"
+      accessibilityLabel={badge && badge > 0 ? `${label}, ${badge} neu` : label}
+      accessibilityState={{ selected: isActive }}
       {...webHoverProps}
     >
       {/* Aktiver Indikator-Strich links */}
@@ -140,7 +142,7 @@ function SidebarItem({
           <View style={[styles.tooltipArrow, { borderRightColor: isDark ? "#1E1E2A" : "#1a1a2e" }]} />
         </View>
       )}
-    </TouchableOpacity>
+    </BNMPressable>
   );
 }
 
@@ -254,17 +256,18 @@ export function AdminSidebar() {
             <BNMLogo size={48} showSubtitle={false} />
           </View>
         )}
-        <TouchableOpacity
+        <BNMPressable
           onPress={toggleCollapsed}
           style={[styles.collapseBtn, { backgroundColor: isDark ? "rgba(255,255,255,0.05)" : "rgba(0,0,0,0.04)" }]}
-          activeOpacity={0.7}
+          accessibilityRole="button"
+          accessibilityLabel={collapsed ? "Sidebar ausklappen" : "Sidebar einklappen"}
         >
           <Ionicons
             name={collapsed ? "chevron-forward-outline" : "chevron-back-outline"}
             size={16}
             color={isDark ? "#6E6E7A" : themeColors.textTertiary}
           />
-        </TouchableOpacity>
+        </BNMPressable>
       </View>
 
       {/* Sektions-Label */}
@@ -307,10 +310,12 @@ export function AdminSidebar() {
           onPress={() => router.push("/(tabs)/profile" as any)}
           collapsed={collapsed}
         />
-        <TouchableOpacity
+        <BNMPressable
           style={[styles.logoutButton, collapsed && styles.logoutButtonCollapsed]}
           onPress={handleLogout}
-          activeOpacity={0.7}
+          hapticStyle="warning"
+          accessibilityRole="button"
+          accessibilityLabel={t("sidebar.logout")}
           // @ts-ignore
           title={collapsed ? t("sidebar.logout") : undefined}
         >
@@ -318,7 +323,7 @@ export function AdminSidebar() {
             <Ionicons name="log-out-outline" size={16} color="#EF5350" />
           </View>
           {!collapsed && <Text style={styles.logoutLabel}>{t("sidebar.logout")}</Text>}
-        </TouchableOpacity>
+        </BNMPressable>
       </View>
     </View>
   );
@@ -341,8 +346,8 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   collapseBtn: {
-    width: 32,
-    height: 28,
+    width: 44,
+    height: 44,
     borderRadius: RADIUS.sm,
     alignItems: "center",
     justifyContent: "center",

@@ -11,6 +11,26 @@ export default function Root({ children }: PropsWithChildren) {
           name="viewport"
           content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, shrink-to-fit=no"
         />
+
+        {/* PWA – Theme & Branding */}
+        <meta name="theme-color" content="#0A3A5A" />
+        <meta name="application-name" content="BNM" />
+        <meta name="description" content="BNM – Betreuung neuer Muslime. Mentoring-Programm für Konvertierte." />
+
+        {/* PWA – iOS */}
+        <meta name="apple-mobile-web-app-capable" content="yes" />
+        <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+        <meta name="apple-mobile-web-app-title" content="BNM" />
+
+        {/* PWA – Android Chrome */}
+        <meta name="mobile-web-app-capable" content="yes" />
+
+        {/* PWA – Windows */}
+        <meta name="msapplication-TileColor" content="#0A3A5A" />
+
+        {/* Web App Manifest */}
+        <link rel="manifest" href="/manifest.json" />
+
         <ScrollViewStyleReset />
         <style dangerouslySetInnerHTML={{ __html: `
           html, body, #root { height: 100%; margin: 0; padding: 0; overflow: hidden; }

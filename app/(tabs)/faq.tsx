@@ -125,6 +125,8 @@ export default function FAQScreen() {
                 <TouchableOpacity
                   style={[styles.hadithNextBtn, { backgroundColor: isDark ? "#2A2A3C" : "#e8eaf6", borderColor: isDark ? "#3A3A5C" : "#c5cae9" }]}
                   onPress={() => setHadithOffset((prev) => prev + 1)}
+                  accessibilityRole="button"
+                  accessibilityLabel="Nächster Hadith"
                 >
                   <Ionicons name="arrow-forward-outline" size={14} color={isDark ? COLORS.gold : "#3949ab"} />
                   <Text style={[styles.hadithNextText, { color: isDark ? COLORS.gold : "#3949ab" }]}>
@@ -133,6 +135,8 @@ export default function FAQScreen() {
                 </TouchableOpacity>
                 <TouchableOpacity
                   style={[styles.hadithShareBtn, { backgroundColor: isDark ? "#2A2A3C" : "#e8eaf6" }]}
+                  accessibilityRole="button"
+                  accessibilityLabel="Hadith teilen"
                   onPress={() => {
                     const shareText = todayHadith.text_ar
                       ? `${todayHadith.text_ar}\n\n${todayHadith.text_de}`
@@ -145,6 +149,8 @@ export default function FAQScreen() {
                 <TouchableOpacity
                   style={[styles.hadithAllBtn, { borderColor: isDark ? "#3A3A5C" : "#c5cae9" }]}
                   onPress={() => router.push("/hadithe")}
+                  accessibilityRole="button"
+                  accessibilityLabel="Alle Hadithe anzeigen"
                 >
                   <Text style={[styles.hadithAllText, { color: isDark ? COLORS.gold : "#3949ab" }]}>
                     {t("faq.viewAllHadithe")}
@@ -170,9 +176,14 @@ export default function FAQScreen() {
               placeholderTextColor={themeColors.textSecondary}
               value={searchQuery}
               onChangeText={setSearchQuery}
+              accessibilityLabel="FAQ durchsuchen"
             />
             {searchQuery.length > 0 && (
-              <TouchableOpacity onPress={() => setSearchQuery("")}>
+              <TouchableOpacity
+                onPress={() => setSearchQuery("")}
+                accessibilityRole="button"
+                accessibilityLabel="Suche löschen"
+              >
                 <Ionicons name="close-circle" size={16} color={themeColors.textSecondary} />
               </TouchableOpacity>
             )}
@@ -193,6 +204,9 @@ export default function FAQScreen() {
                   : { backgroundColor: themeColors.card, borderColor: themeColors.border, borderWidth: 1 },
               ]}
               onPress={() => setActiveCategory(null)}
+              accessibilityRole="radio"
+              accessibilityLabel={t("qa.allCategories")}
+              accessibilityState={{ checked: activeCategory === null }}
             >
               <Text style={[styles.chipText, activeCategory === null ? { color: COLORS.white } : { color: themeColors.text }]}>
                 {t("qa.allCategories")}
@@ -208,6 +222,9 @@ export default function FAQScreen() {
                     : { backgroundColor: themeColors.card, borderColor: themeColors.border, borderWidth: 1 },
                 ]}
                 onPress={() => setActiveCategory(activeCategory === cat ? null : cat)}
+                accessibilityRole="radio"
+                accessibilityLabel={cat}
+                accessibilityState={{ checked: activeCategory === cat }}
               >
                 <Text style={[styles.chipText, activeCategory === cat ? { color: COLORS.white } : { color: themeColors.text }]}>
                   {cat}
@@ -242,6 +259,9 @@ export default function FAQScreen() {
                       style={styles.accordionHeader}
                       onPress={() => setExpandedId(isExpanded ? null : entry.id)}
                       activeOpacity={0.7}
+                      accessibilityRole="button"
+                      accessibilityLabel={entry.question}
+                      accessibilityState={{ expanded: isExpanded }}
                     >
                       <View style={styles.accordionHeaderLeft}>
                         <View style={[styles.categoryPill, { backgroundColor: themeColors.background }]}>
@@ -270,6 +290,8 @@ export default function FAQScreen() {
                           style={[styles.shareBtn, { backgroundColor: themeColors.background }]}
                           onPress={() => shareAnswer(entry.question, entry.answer, t("share.suffix"))}
                           activeOpacity={0.7}
+                          accessibilityRole="button"
+                          accessibilityLabel="Antwort teilen"
                         >
                           <Ionicons name="share-outline" size={15} color={themeColors.textSecondary} />
                           <Text style={[styles.shareBtnText, { color: themeColors.textSecondary }]}>

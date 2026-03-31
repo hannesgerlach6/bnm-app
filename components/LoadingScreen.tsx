@@ -16,14 +16,15 @@ export function LoadingScreen() {
   const themeColors = useThemeColors();
 
   return (
-    <View style={[styles.container, { backgroundColor: themeColors.background }]}>
+    <View style={[styles.container, { backgroundColor: themeColors.background }]} accessibilityRole="progressbar" accessibilityLabel="Anwendung wird geladen">
       <BNMLogo size={72} showSubtitle={false} />
       <ActivityIndicator
         size="large"
         color={COLORS.gold}
         style={styles.spinner}
+        accessibilityLabel="Ladevorgang läuft"
       />
-      <Text style={[styles.label, { color: themeColors.textSecondary }]}>{t("common.loading")}</Text>
+      <Text style={[styles.label, { color: themeColors.textSecondary }]} accessibilityLabel={t("common.loading")}>{t("common.loading")}</Text>
     </View>
   );
 }

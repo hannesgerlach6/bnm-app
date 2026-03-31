@@ -1,8 +1,8 @@
-import React from "react";
+import React, { useCallback } from "react";
 import {
   View,
   Text,
-  ScrollView,
+  FlatList,
   TouchableOpacity,
   StyleSheet,
   Platform,
@@ -82,103 +82,118 @@ export default function NotificationsScreen() {
     }
   }
 
+  const renderNotification = useCallback(({ item: notification }: { item: Notification }) => {
+    const config = TYPE_CONFIG[notification.type];
+    return (
+      <TouchableOpacity
+        style={[
+          styles.notifCard,
+          { backgroundColor: themeColors.card, borderColor: themeColors.border },
+          !notification.read && [styles.notifCardUnread, {
+            borderColor: isDark ? "#2d4a7a" : "#bfdbfe",
+            backgroundColor: isDark ? "#1a1f2e" : "#f8faff",
+          }],
+        ]}
+        onPress={() => handlePress(notification)}
+      >
+        {/* Unread dot */}
+        {!notification.read && <View style={styles.unreadDot} />}
+
+        <View style={[styles.iconBox, { backgroundColor: config.bg }]}>
+          <Text style={styles.iconEmoji}>{config.icon}</Text>
+        </View>
+
+        <View style={styles.notifContent}>
+          <View style={styles.notifHeader}>
+            <Text style={[styles.notifTitle, { color: themeColors.text }]} numberOfLines={1}>
+              {notification.title}
+            </Text>
+            <Text style={[styles.notifTime, { color: themeColors.textTertiary }]}>
+              {timeAgo(notification.created_at)}
+            </Text>
+          </View>
+          <Text style={[styles.notifBody, { color: themeColors.textSecondary }]} numberOfLines={2}>
+            {notification.body}
+          </Text>
+          <View style={[styles.typeBadge, { backgroundColor: config.bg }]}>
+            <Text style={[styles.typeBadgeText, { color: config.color }]}>
+              {typeLabel(notification.type)}
+            </Text>
+          </View>
+        </View>
+      </TouchableOpacity>
+    );
+  }, [TYPE_CONFIG, themeColors, isDark]);
+
+  const listHeader = useCallback(() => (
+    <>
+      {/* Header */}
+      <View style={[styles.header, { backgroundColor: themeColors.card, borderBottomColor: themeColors.border, paddingTop: insets.top + 12 }]}>
+        <View style={styles.headerLeft}>
+          <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
+            <Text style={[styles.backText, { color: themeColors.text }]}>‹ {t("common.back")}</Text>
+          </TouchableOpacity>
+        </View>
+        <Text style={[styles.headerTitle, { color: themeColors.text }]}>{t("notifications.title")}</Text>
+        <View style={styles.headerRight}>
+          {unreadCount > 0 && (
+            <TouchableOpacity onPress={markAllAsRead}>
+              <Text style={[styles.markAllText, { color: themeColors.link }]}>{t("notifications.markAll")}</Text>
+            </TouchableOpacity>
+          )}
+        </View>
+      </View>
+
+      {Platform.OS !== "web" && (
+        <TouchableOpacity
+          style={[styles.settingsLink, { borderBottomColor: themeColors.border }]}
+          onPress={() => router.push("/notification-settings")}
+        >
+          <Ionicons name="settings-outline" size={16} color={themeColors.textSecondary} />
+          <Text style={[styles.settingsLinkText, { color: themeColors.textSecondary }]}>{t("notifSettings.title")}</Text>
+          <Text style={{ color: themeColors.textTertiary }}>›</Text>
+        </TouchableOpacity>
+      )}
+
+      {unreadCount > 0 && (
+        <View style={[styles.unreadBanner, {
+          backgroundColor: isDark ? "#1e2d4a" : "#eff6ff",
+          borderBottomColor: isDark ? "#2d4a7a" : "#dbeafe",
+        }]}>
+          <Text style={[styles.unreadBannerText, { color: isDark ? "#93c5fd" : "#1d4ed8" }]}>
+            {t("notifications.unread").replace("{0}", String(unreadCount)).replace("{1}", unreadCount > 1 ? "en" : "")}
+          </Text>
+        </View>
+      )}
+    </>
+  ), [themeColors, insets.top, unreadCount, isDark]);
+
+  const listEmpty = useCallback(() => (
+    <View style={styles.emptyBox}>
+      <Ionicons name="notifications-outline" size={36} color={themeColors.textTertiary} style={{ marginBottom: 8 }} />
+      <Text style={[styles.emptyTitle, { color: themeColors.text }]}>{t("notifications.emptyTitle")}</Text>
+      <Text style={[styles.emptyText, { color: themeColors.textTertiary }]}>
+        {t("notifications.emptyText")}
+      </Text>
+    </View>
+  ), [themeColors]);
+
+  const keyExtractor = useCallback((item: Notification) => item.id, []);
+
   return (
     <Container fullWidth={Platform.OS === "web"}>
       <View style={[styles.root, { backgroundColor: themeColors.background }]}>
-        {/* Header */}
-        <View style={[styles.header, { backgroundColor: themeColors.card, borderBottomColor: themeColors.border, paddingTop: insets.top + 12 }]}>
-          <View style={styles.headerLeft}>
-            <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
-              <Text style={[styles.backText, { color: themeColors.text }]}>‹ {t("common.back")}</Text>
-            </TouchableOpacity>
-          </View>
-          <Text style={[styles.headerTitle, { color: themeColors.text }]}>{t("notifications.title")}</Text>
-          <View style={styles.headerRight}>
-            {unreadCount > 0 && (
-              <TouchableOpacity onPress={markAllAsRead}>
-                <Text style={[styles.markAllText, { color: themeColors.link }]}>{t("notifications.markAll")}</Text>
-              </TouchableOpacity>
-            )}
-          </View>
-        </View>
-
-        {Platform.OS !== "web" && (
-          <TouchableOpacity
-            style={[styles.settingsLink, { borderBottomColor: themeColors.border }]}
-            onPress={() => router.push("/notification-settings")}
-          >
-            <Ionicons name="settings-outline" size={16} color={themeColors.textSecondary} />
-            <Text style={[styles.settingsLinkText, { color: themeColors.textSecondary }]}>{t("notifSettings.title")}</Text>
-            <Text style={{ color: themeColors.textTertiary }}>›</Text>
-          </TouchableOpacity>
-        )}
-
-        {unreadCount > 0 && (
-          <View style={[styles.unreadBanner, {
-            backgroundColor: isDark ? "#1e2d4a" : "#eff6ff",
-            borderBottomColor: isDark ? "#2d4a7a" : "#dbeafe",
-          }]}>
-            <Text style={[styles.unreadBannerText, { color: isDark ? "#93c5fd" : "#1d4ed8" }]}>
-              {t("notifications.unread").replace("{0}", String(unreadCount)).replace("{1}", unreadCount > 1 ? "en" : "")}
-            </Text>
-          </View>
-        )}
-
-        <ScrollView style={styles.scrollView} contentContainerStyle={styles.list}>
-          {sorted.length === 0 ? (
-            <View style={styles.emptyBox}>
-              <Ionicons name="notifications-outline" size={36} color={themeColors.textTertiary} style={{ marginBottom: 8 }} />
-              <Text style={[styles.emptyTitle, { color: themeColors.text }]}>{t("notifications.emptyTitle")}</Text>
-              <Text style={[styles.emptyText, { color: themeColors.textTertiary }]}>
-                {t("notifications.emptyText")}
-              </Text>
-            </View>
-          ) : (
-            sorted.map((notification) => {
-              const config = TYPE_CONFIG[notification.type];
-              return (
-                <TouchableOpacity
-                  key={notification.id}
-                  style={[
-                    styles.notifCard,
-                    { backgroundColor: themeColors.card, borderColor: themeColors.border },
-                    !notification.read && [styles.notifCardUnread, {
-                      borderColor: isDark ? "#2d4a7a" : "#bfdbfe",
-                      backgroundColor: isDark ? "#1a1f2e" : "#f8faff",
-                    }],
-                  ]}
-                  onPress={() => handlePress(notification)}
-                >
-                  {/* Unread dot */}
-                  {!notification.read && <View style={styles.unreadDot} />}
-
-                  <View style={[styles.iconBox, { backgroundColor: config.bg }]}>
-                    <Text style={styles.iconEmoji}>{config.icon}</Text>
-                  </View>
-
-                  <View style={styles.notifContent}>
-                    <View style={styles.notifHeader}>
-                      <Text style={[styles.notifTitle, { color: themeColors.text }]} numberOfLines={1}>
-                        {notification.title}
-                      </Text>
-                      <Text style={[styles.notifTime, { color: themeColors.textTertiary }]}>
-                        {timeAgo(notification.created_at)}
-                      </Text>
-                    </View>
-                    <Text style={[styles.notifBody, { color: themeColors.textSecondary }]} numberOfLines={2}>
-                      {notification.body}
-                    </Text>
-                    <View style={[styles.typeBadge, { backgroundColor: config.bg }]}>
-                      <Text style={[styles.typeBadgeText, { color: config.color }]}>
-                        {typeLabel(notification.type)}
-                      </Text>
-                    </View>
-                  </View>
-                </TouchableOpacity>
-              );
-            })
-          )}
-        </ScrollView>
+        <FlatList
+          data={sorted}
+          renderItem={renderNotification}
+          keyExtractor={keyExtractor}
+          ListHeaderComponent={listHeader}
+          ListEmptyComponent={listEmpty}
+          contentContainerStyle={styles.list}
+          style={styles.scrollView}
+          removeClippedSubviews={true}
+          windowSize={10}
+        />
       </View>
     </Container>
   );

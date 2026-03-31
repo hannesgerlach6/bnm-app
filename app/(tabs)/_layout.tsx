@@ -27,10 +27,12 @@ function BellButton() {
     <TouchableOpacity
       onPress={() => router.push("/notifications")}
       style={tabStyles.bellWrapper}
+      accessibilityRole="button"
+      accessibilityLabel={unreadCount > 0 ? `Benachrichtigungen, ${unreadCount} ungelesen` : "Benachrichtigungen"}
     >
       <Ionicons name="notifications-outline" size={22} color={COLORS.gold} />
       {unreadCount > 0 && (
-        <View style={tabStyles.badge}>
+        <View style={tabStyles.badge} accessibilityElementsHidden>
           <Text style={tabStyles.badgeText}>
             {unreadCount > 9 ? "9+" : String(unreadCount)}
           </Text>
@@ -50,14 +52,14 @@ function ChatTabIcon({ color }: { color: string }) {
   const isAdminOrOffice = user?.role === "admin" || user?.role === "office";
   const unread = isAdminOrOffice ? 0 : getTotalUnreadMessages();
   return (
-    <View style={tabStyles.chatIconWrapper}>
+    <View style={tabStyles.chatIconWrapper} accessibilityLabel={unread > 0 ? `Chats, ${unread} ungelesen` : "Chats"}>
       {Platform.OS === "ios" ? (
         <SymbolView name={"message.fill" as any} tintColor={color} size={24} />
       ) : (
         <Ionicons name="chatbubble" size={22} color={color} />
       )}
       {unread > 0 && (
-        <View style={tabStyles.badge}>
+        <View style={tabStyles.badge} accessibilityElementsHidden>
           <Text style={tabStyles.badgeText}>
             {unread > 9 ? "9+" : String(unread)}
           </Text>
@@ -73,17 +75,17 @@ function ChatTabIcon({ color }: { color: string }) {
 
 const tabStyles = StyleSheet.create({
   bellWrapper: {
-    marginRight: 12,
+    marginRight: 8,
     position: "relative",
-    width: 36,
-    height: 36,
+    width: 44,
+    height: 44,
     alignItems: "center",
     justifyContent: "center",
   },
   chatIconWrapper: {
     position: "relative",
-    width: 28,
-    height: 28,
+    width: 44,
+    height: 44,
     alignItems: "center",
     justifyContent: "center",
   },

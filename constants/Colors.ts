@@ -15,6 +15,45 @@ export const COLORS = {
   white: "#FFFFFF",
 } as const;
 
+// Typography-Token-System
+export const TYPOGRAPHY = {
+  // Größen
+  size: {
+    xs: 11,
+    sm: 12,
+    md: 13,
+    base: 14,
+    lg: 15,
+    xl: 18,
+    xxl: 20,
+    xxxl: 24,
+    display: 28,
+  },
+  // Gewichte
+  weight: {
+    regular: "400" as const,
+    medium: "500" as const,
+    semibold: "600" as const,
+    bold: "700" as const,
+    extrabold: "800" as const,
+  },
+  // Zeilenhöhen
+  lineHeight: {
+    tight: 16,
+    normal: 20,
+    relaxed: 22,
+    loose: 24,
+  },
+  // Letter-Spacing
+  letterSpacing: {
+    tight: -0.3,
+    normal: 0,
+    wide: 0.5,
+    wider: 1,
+    widest: 1.5,
+  },
+} as const;
+
 // Design-Tokens für konsistentes Spacing & Radii
 export const SPACING = {
   xs: 4,

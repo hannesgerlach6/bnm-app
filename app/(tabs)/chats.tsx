@@ -4,6 +4,7 @@ import {
   View,
   Text,
   ScrollView,
+  FlatList,
   TouchableOpacity,
   RefreshControl,
   StyleSheet,
@@ -49,10 +50,11 @@ function ChatPanel({ mentorshipId }: { mentorshipId: string }) {
   } = useData();
 
   const [inputText, setInputText] = useState("");
-  const scrollViewRef = useRef<ScrollView>(null);
+  const flatListRef = useRef<FlatList>(null);
 
   const mentorship = getMentorshipById(mentorshipId);
   const messages = getMessagesByMentorshipId(mentorshipId);
+  const reversedMessages = useMemo(() => [...messages].reverse(), [messages]);
 
   useEffect(() => {
     markChatAsRead(mentorshipId);
@@ -66,7 +68,7 @@ function ChatPanel({ mentorshipId }: { mentorshipId: string }) {
     try {
       await sendMessage(mentorshipId, user.id, content);
       setTimeout(() => {
-        scrollViewRef.current?.scrollToEnd({ animated: true });
+        flatListRef.current?.scrollToOffset({ offset: 0, animated: true });
       }, 100);
     } catch {
       setInputText(content);
@@ -114,26 +116,28 @@ function ChatPanel({ mentorshipId }: { mentorshipId: string }) {
       )}
 
       {/* Nachrichten */}
-      <ScrollView
-        ref={scrollViewRef}
-        style={panelStyles.messagesScroll}
-        contentContainerStyle={{ paddingHorizontal: 16, paddingVertical: 12 }}
-        onContentSizeChange={() =>
-          scrollViewRef.current?.scrollToEnd({ animated: false })
-        }
-      >
-        {messages.length === 0 ? (
+      {messages.length === 0 ? (
+        <View style={[panelStyles.messagesScroll, { justifyContent: "center" }]}>
           <View style={panelStyles.emptyMessages}>
             <Text style={[panelStyles.emptyText, { color: themeColors.textTertiary }]}>
               {t("chat.noMessages")}
             </Text>
           </View>
-        ) : (
-          messages.map((msg) => {
-            const isOwn = msg.sender_id === user.id;
+        </View>
+      ) : (
+        <FlatList
+          ref={flatListRef}
+          data={reversedMessages}
+          keyExtractor={(item) => item.id}
+          inverted={true}
+          removeClippedSubviews={true}
+          style={panelStyles.messagesScroll}
+          contentContainerStyle={{ paddingHorizontal: 16, paddingVertical: 12 }}
+          renderItem={({ item: msg }) => {
+            const isOwn = msg.sender_id === user!.id;
             const sender =
               msg.sender ??
-              (isOwn ? { name: user.name } : { name: chatPartnerName ?? "?" });
+              (isOwn ? { name: user!.name } : { name: chatPartnerName ?? "?" });
 
             const timeStr = new Date(msg.created_at).toLocaleTimeString("de-DE", {
               hour: "2-digit",
@@ -142,7 +146,6 @@ function ChatPanel({ mentorshipId }: { mentorshipId: string }) {
 
             return (
               <View
-                key={msg.id}
                 style={[
                   panelStyles.bubbleWrapper,
                   isOwn ? { alignSelf: "flex-end" } : { alignSelf: "flex-start" },
@@ -185,10 +188,9 @@ function ChatPanel({ mentorshipId }: { mentorshipId: string }) {
                 </Text>
               </View>
             );
-          })
-        )}
-        <View style={{ height: 16 }} />
-      </ScrollView>
+          }}
+        />
+      )}
 
       {/* Input-Bereich */}
       {mentorship && (mentorship.status === "active" || mentorship.status === "completed") ? (
@@ -292,9 +294,10 @@ function AdminChatPanel({ userId, adminId }: { userId: string; adminId?: string 
   } = useData();
 
   const [inputText, setInputText] = useState("");
-  const scrollViewRef = useRef<ScrollView>(null);
+  const flatListRef = useRef<FlatList>(null);
 
   const messages = getAdminMessagesByUserId(userId);
+  const reversedMessages = useMemo(() => [...messages].reverse(), [messages]);
   const chatPartner = allUsers.find((u) => u.id === userId);
 
   const isAdmin = user?.role === "admin" || user?.role === "office";
@@ -310,7 +313,7 @@ function AdminChatPanel({ userId, adminId }: { userId: string; adminId?: string 
         await replyToAdmin(adminId, content);
       }
       setTimeout(() => {
-        scrollViewRef.current?.scrollToEnd({ animated: true });
+        flatListRef.current?.scrollToOffset({ offset: 0, animated: true });
       }, 100);
     } catch {
       setInputText(content);
@@ -333,24 +336,26 @@ function AdminChatPanel({ userId, adminId }: { userId: string; adminId?: string 
       </View>
 
       {/* Nachrichten */}
-      <ScrollView
-        ref={scrollViewRef}
-        style={panelStyles.messagesScroll}
-        contentContainerStyle={{ paddingHorizontal: 16, paddingVertical: 12 }}
-        onContentSizeChange={() =>
-          scrollViewRef.current?.scrollToEnd({ animated: false })
-        }
-      >
-        {messages.length === 0 ? (
+      {messages.length === 0 ? (
+        <View style={[panelStyles.messagesScroll, { justifyContent: "center" }]}>
           <View style={panelStyles.emptyMessages}>
             <Text style={[panelStyles.emptyText, { color: themeColors.textTertiary }]}>
               {t("chat.noMessages")}
             </Text>
           </View>
-        ) : (
-          messages.map((msg) => {
-            const isOwn = msg.sender_id === user.id;
-            const senderName = msg.sender?.name ?? (isOwn ? user.name : "?");
+        </View>
+      ) : (
+        <FlatList
+          ref={flatListRef}
+          data={reversedMessages}
+          keyExtractor={(item) => item.id}
+          inverted={true}
+          removeClippedSubviews={true}
+          style={panelStyles.messagesScroll}
+          contentContainerStyle={{ paddingHorizontal: 16, paddingVertical: 12 }}
+          renderItem={({ item: msg }) => {
+            const isOwn = msg.sender_id === user!.id;
+            const senderName = msg.sender?.name ?? (isOwn ? user!.name : "?");
 
             const timeStr = new Date(msg.created_at).toLocaleTimeString("de-DE", {
               hour: "2-digit",
@@ -359,7 +364,6 @@ function AdminChatPanel({ userId, adminId }: { userId: string; adminId?: string 
 
             return (
               <View
-                key={msg.id}
                 style={[
                   panelStyles.bubbleWrapper,
                   isOwn ? { alignSelf: "flex-end" } : { alignSelf: "flex-start" },
@@ -396,10 +400,9 @@ function AdminChatPanel({ userId, adminId }: { userId: string; adminId?: string 
                 </Text>
               </View>
             );
-          })
-        )}
-        <View style={{ height: 16 }} />
-      </ScrollView>
+          }}
+        />
+      )}
 
       {/* Input */}
       <View style={[panelStyles.inputContainer, { backgroundColor: themeColors.card, borderTopColor: themeColors.border }]}>
@@ -596,318 +599,8 @@ export default function ChatsScreen() {
     });
   }, [adminChatList, adminFilter, allUsers, isAdmin]);
 
-  // ── Admin-DM Chat-Liste rendern ──────────────────────────────────────────────
-
-  function renderAdminChatList() {
-    return (
-      <>
-        {/* Filter-Chips (nur Admin) */}
-        {isAdmin && (
-          <View style={[styles.filterRow, { marginBottom: 10 }]}>
-            {(["all", "mentor", "mentee"] as const).map((f) => {
-              const label = f === "all" ? "Alle" : f === "mentor" ? "Mentoren" : "Mentees";
-              const isActive = adminFilter === f;
-              return (
-                <TouchableOpacity
-                  key={f}
-                  style={[
-                    styles.filterChip,
-                    { backgroundColor: isActive ? themeColors.primary : themeColors.card, borderColor: isActive ? themeColors.primary : themeColors.border },
-                  ]}
-                  onPress={() => setAdminFilter(f)}
-                >
-                  <Text style={{ color: isActive ? COLORS.white : themeColors.textSecondary, fontSize: 13, fontWeight: "600" }}>
-                    {label}
-                  </Text>
-                </TouchableOpacity>
-              );
-            })}
-          </View>
-        )}
-
-        {/* Neuer Chat Button (nur Admin) */}
-        {isAdmin && (
-          <TouchableOpacity
-            style={[styles.newChatButton, { backgroundColor: themeColors.primary }]}
-            onPress={() => setShowNewChatModal(true)}
-          >
-            <Ionicons name="add" size={18} color={COLORS.white} />
-            <Text style={styles.newChatButtonText}>{t("chats.newAdminChat") ?? "Neuer Chat"}</Text>
-          </TouchableOpacity>
-        )}
-
-        {/* Neue-Chat Modal */}
-        {showNewChatModal && (
-          <View style={[styles.newChatModal, { backgroundColor: themeColors.card, borderColor: themeColors.border }]}>
-            <View style={styles.newChatModalHeader}>
-              <Text style={[styles.newChatModalTitle, { color: themeColors.text }]}>
-                {t("chats.selectUser") ?? "User auswaehlen"}
-              </Text>
-              <TouchableOpacity onPress={() => { setShowNewChatModal(false); setNewChatSearch(""); }}>
-                <Ionicons name="close" size={20} color={themeColors.textTertiary} />
-              </TouchableOpacity>
-            </View>
-            <TextInput
-              style={[styles.searchInput, { color: themeColors.text, backgroundColor: themeColors.elevated, borderColor: themeColors.border, borderWidth: 1, borderRadius: 8, paddingHorizontal: 12, paddingVertical: 8, marginBottom: 8 }]}
-              value={newChatSearch}
-              onChangeText={setNewChatSearch}
-              placeholder={t("chats.search") ?? "Suchen..."}
-              placeholderTextColor={themeColors.textTertiary}
-            />
-            <ScrollView style={{ maxHeight: 200 }}>
-              {newChatUserList.map((u) => (
-                <TouchableOpacity
-                  key={u.id}
-                  style={[styles.chatRow, { borderBottomWidth: 1, borderBottomColor: themeColors.border }]}
-                  onPress={() => {
-                    setSelectedAdminUserId(u.id);
-                    setShowNewChatModal(false);
-                    setNewChatSearch("");
-                  }}
-                >
-                  <View style={[styles.avatar, { backgroundColor: themeColors.primary }]}>
-                    <Text style={styles.avatarText}>{u.name.charAt(0).toUpperCase()}</Text>
-                  </View>
-                  <View style={styles.chatInfo}>
-                    <Text style={[styles.chatName, { color: themeColors.text }]}>{u.name}</Text>
-                    <Text style={[styles.chatSub, { color: themeColors.textSecondary }]}>{u.role}</Text>
-                  </View>
-                </TouchableOpacity>
-              ))}
-              {newChatUserList.length === 0 && (
-                <Text style={[{ color: themeColors.textTertiary, textAlign: "center", paddingVertical: 12, fontSize: 13 }]}>
-                  {t("chats.noResults") ?? "Keine Ergebnisse"}
-                </Text>
-              )}
-            </ScrollView>
-          </View>
-        )}
-
-        {/* Admin-DM Chat-Eintraege */}
-        {filteredAdminChatList.length === 0 ? (
-          <View style={[styles.emptyCard, { backgroundColor: themeColors.card, borderColor: themeColors.border }]}>
-            <Ionicons name="mail-outline" size={40} color={themeColors.textTertiary} style={styles.emptyIcon} />
-            <Text style={[styles.emptyTitle, { color: themeColors.text }]}>{t("chats.noAdminChats") ?? "Keine Direktnachrichten"}</Text>
-            <Text style={[styles.emptyText, { color: themeColors.textSecondary }]}>
-              {isAdmin
-                ? (t("chats.noAdminChatsAdmin") ?? "Starte einen neuen Chat mit einem Mentor oder Mentee.")
-                : (t("chats.noAdminChatsUser") ?? "Noch keine Nachrichten vom Admin.")}
-            </Text>
-          </View>
-        ) : (
-          <View style={[styles.listCard, { backgroundColor: themeColors.card, borderColor: isDark ? "#2A2A35" : themeColors.border }]}>
-            {filteredAdminChatList.map((item, idx) => {
-              const isSelected = isWideWeb && selectedAdminUserId === item.userId;
-              const partner = allUsers.find((u) => u.id === item.userId);
-              return (
-                <TouchableOpacity
-                  key={item.userId}
-                  style={[
-                    styles.chatRow,
-                    idx < filteredAdminChatList.length - 1 ? { borderBottomWidth: 1, borderBottomColor: isDark ? "#2A2A35" : themeColors.border } : {},
-                    isSelected ? { backgroundColor: isDark ? "#1E1E2C" : "#F0F4FF" } : {},
-                  ]}
-                  onPress={() => {
-                    if (isWideWeb) {
-                      setSelectedAdminUserId(item.userId);
-                    } else {
-                      // Mobile: Inline-Chat oeffnen (kein separater Screen noetig)
-                      setSelectedAdminUserId(item.userId);
-                    }
-                  }}
-                >
-                  <View style={[styles.avatar, { backgroundColor: COLORS.gold }]}>
-                    <Ionicons name="shield-checkmark" size={20} color={COLORS.white} />
-                  </View>
-                  <View style={styles.chatInfo}>
-                    <View style={styles.chatTopRow}>
-                      <Text style={[styles.chatName, { color: themeColors.text }]} numberOfLines={1}>
-                        {item.name}
-                      </Text>
-                      {item.lastMsg && (
-                        <Text style={[styles.chatTime, { color: themeColors.textTertiary }]}>
-                          {formatTime(item.lastMsg.created_at, t("chats.yesterday"))}
-                        </Text>
-                      )}
-                    </View>
-                    <Text style={[styles.chatSub, { color: themeColors.textSecondary }]} numberOfLines={1}>
-                      {isAdmin && partner ? `${partner.role === "mentor" ? "Mentor" : "Mentee"} · ` : ""}
-                      {item.lastMsg?.content ?? (t("chats.adminDM") ?? "Direktnachricht")}
-                    </Text>
-                  </View>
-                </TouchableOpacity>
-              );
-            })}
-          </View>
-        )}
-      </>
-    );
-  }
-
-  // ── Chat-Liste-Inhalt (geteilt zwischen Mobile und linker Spalte) ──────────
-
-  function renderChatList() {
-    return (
-      <>
-        {/* Admin-DM Einträge oben (nur für Mentor/Mentee, wenn vorhanden) */}
-        {!isAdmin && adminChatList.length > 0 && (
-          <View style={[styles.listCard, { backgroundColor: themeColors.card, borderColor: isDark ? "#2A2A35" : themeColors.border, marginBottom: 12 }]}>
-            {adminChatList.map((item, idx) => {
-              const isSelected = isWideWeb && selectedAdminUserId === item.userId;
-              return (
-                <TouchableOpacity
-                  key={item.userId}
-                  style={[
-                    styles.chatRow,
-                    idx < adminChatList.length - 1 ? { borderBottomWidth: 1, borderBottomColor: isDark ? "#2A2A35" : themeColors.border } : {},
-                    isSelected ? { backgroundColor: isDark ? "#1E1E2C" : "#F0F4FF" } : {},
-                  ]}
-                  onPress={() => {
-                    if (isWideWeb) {
-                      setSelectedAdminUserId(item.userId);
-                      setSelectedChatId(null);
-                    } else {
-                      setSelectedAdminUserId(item.userId);
-                    }
-                  }}
-                >
-                  <View style={[styles.avatar, { backgroundColor: COLORS.gold }]}>
-                    <Ionicons name="shield-checkmark" size={20} color={COLORS.white} />
-                  </View>
-                  <View style={styles.chatInfo}>
-                    <View style={styles.chatTopRow}>
-                      <Text style={[styles.chatName, { color: themeColors.text }]} numberOfLines={1}>
-                        {item.name}
-                      </Text>
-                      {item.lastMsg && (
-                        <Text style={[styles.chatTime, { color: themeColors.textTertiary }]}>
-                          {formatTime(item.lastMsg.created_at, t("chats.yesterday"))}
-                        </Text>
-                      )}
-                    </View>
-                    <Text style={[styles.chatSub, { color: themeColors.textSecondary }]} numberOfLines={1}>
-                      {item.lastMsg?.content ?? (t("chats.adminDM") ?? "Direktnachricht")}
-                    </Text>
-                  </View>
-                  <View style={[styles.adminBadge, { backgroundColor: COLORS.gold }]}>
-                    <Text style={styles.adminBadgeText}>Admin</Text>
-                  </View>
-                </TouchableOpacity>
-              );
-            })}
-          </View>
-        )}
-
-        {/* Suchfeld */}
-        <View style={[styles.searchWrapper, { backgroundColor: themeColors.card, borderColor: isDark ? "#2A2A35" : themeColors.border }]}>
-          <Ionicons name="search-outline" size={16} color={themeColors.textTertiary} />
-          <TextInput
-            style={[styles.searchInput, { color: themeColors.text }, Platform.OS === "web" ? ({ outlineStyle: "none" } as any) : {}]}
-            value={searchQuery}
-            onChangeText={setSearchQuery}
-            placeholder={t("chats.search") ?? "Suchen..."}
-            placeholderTextColor={themeColors.textTertiary}
-          />
-          {searchQuery.length > 0 && (
-            <TouchableOpacity onPress={() => setSearchQuery("")}>
-              <Ionicons name="close-circle" size={16} color={themeColors.textTertiary} />
-            </TouchableOpacity>
-          )}
-        </View>
-
-        {/* Zähler */}
-        <View style={styles.counters}>
-          <View style={styles.counterItem}>
-            <Text style={[styles.counterLabel, { color: themeColors.textSecondary }]}>{t("chats.total") ?? "Gesamt"}:</Text>
-            <Text style={[styles.counterValue, { color: COLORS.gold }]}>{chatList.length}</Text>
-          </View>
-          <View style={styles.counterItem}>
-            <Text style={[styles.counterLabel, { color: themeColors.textSecondary }]}>{t("chats.unread") ?? "Ungelesen"}:</Text>
-            <Text style={[styles.counterValue, { color: COLORS.gold }]}>{totalUnread}</Text>
-          </View>
-        </View>
-
-        {/* Chat-Einträge */}
-        {filteredChatList.length === 0 ? (
-          <View style={[styles.emptyCard, { backgroundColor: themeColors.card, borderColor: themeColors.border }]}>
-            <Ionicons name="chatbubbles-outline" size={40} color={themeColors.textTertiary} style={styles.emptyIcon} />
-            <Text style={[styles.emptyTitle, { color: themeColors.text }]}>{t("chats.noChats")}</Text>
-            <Text style={[styles.emptyText, { color: themeColors.textSecondary }]}>{t("chats.noChatsText")}</Text>
-          </View>
-        ) : (
-          <View style={[styles.listCard, { backgroundColor: themeColors.card, borderColor: isDark ? "#2A2A35" : themeColors.border }]}>
-            {filteredChatList.map((item, idx) => {
-              const { mentorship: m, lastMsg, unread } = item;
-              const isActive = m.status === "active";
-              const isSelected = isWideWeb && selectedChatId === m.id;
-              return (
-                <TouchableOpacity
-                  key={m.id}
-                  style={[
-                    styles.chatRow,
-                    idx < filteredChatList.length - 1 ? { borderBottomWidth: 1, borderBottomColor: isDark ? "#2A2A35" : themeColors.border } : {},
-                    isSelected ? { backgroundColor: isDark ? "#1E1E2C" : "#F0F4FF" } : {},
-                  ]}
-                  onPress={() => {
-                    if (isWideWeb) {
-                      setSelectedChatId(m.id);
-                    } else {
-                      router.push({
-                        pathname: "/chat/[mentorshipId]",
-                        params: { mentorshipId: m.id },
-                      });
-                    }
-                  }}
-                >
-                  {/* Avatar */}
-                  <View
-                    style={[
-                      styles.avatar,
-                      { backgroundColor: isActive ? COLORS.gradientStart : themeColors.border },
-                    ]}
-                  >
-                    <Text style={styles.avatarText}>
-                      {getChatTitle(m).charAt(0).toUpperCase()}
-                    </Text>
-                  </View>
-
-                  {/* Inhalt */}
-                  <View style={styles.chatInfo}>
-                    <View style={styles.chatTopRow}>
-                      <Text style={[styles.chatName, { color: themeColors.text }]} numberOfLines={1}>
-                        {getChatTitle(m)}
-                      </Text>
-                      {lastMsg && (
-                        <Text style={[styles.chatTime, { color: themeColors.textTertiary }]}>
-                          {formatTime(lastMsg.created_at, t("chats.yesterday"))}
-                        </Text>
-                      )}
-                    </View>
-                    <View style={styles.chatBottomRow}>
-                      <Text
-                        style={[styles.chatSub, { color: themeColors.textSecondary }]}
-                        numberOfLines={1}
-                        ellipsizeMode="tail"
-                      >
-                        {lastMsg ? lastMsg.content : getChatSubtitle(m)}
-                      </Text>
-                      {unread > 0 && (
-                        <View style={styles.unreadBadge}>
-                          <Text style={styles.unreadText}>
-                            {unread > 9 ? "9+" : String(unread)}
-                          </Text>
-                        </View>
-                      )}
-                    </View>
-                  </View>
-                </TouchableOpacity>
-              );
-            })}
-          </View>
-        )}
-      </>
-    );
-  }
+  // Bestimme aktive Daten je nach Tab
+  const activeChatData = isAdmin && chatTab === "admin" ? filteredAdminChatList : filteredChatList;
 
   // ── Tab-Leiste fuer Admin ─────────────────────────────────────────────────
 
@@ -943,8 +636,10 @@ export default function ChatsScreen() {
       <View style={[styles.twoColContainer, { backgroundColor: themeColors.background }]}>
         {/* Linke Spalte: Chat-Liste */}
         <View style={[styles.leftPanel, { borderRightColor: isDark ? "#2A2A35" : themeColors.border }]}>
-          <ScrollView
+          <FlatList
             style={[styles.leftScroll, { backgroundColor: themeColors.background }]}
+            data={activeChatData}
+            keyExtractor={(item: any) => (isAdmin && chatTab === "admin") ? item.userId : item.mentorship?.id}
             refreshControl={
               <RefreshControl
                 refreshing={refreshing}
@@ -952,13 +647,210 @@ export default function ChatsScreen() {
                 tintColor={COLORS.gold}
               />
             }
-          >
-            <View style={styles.leftContent}>
-              <Text style={[styles.pageTitle, { color: themeColors.text }]}>{t("chats.title")}</Text>
-              {renderTabs()}
-              {isAdmin && chatTab === "admin" ? renderAdminChatList() : renderChatList()}
-            </View>
-          </ScrollView>
+            removeClippedSubviews={true}
+            ListHeaderComponent={() => (
+              <View style={styles.leftContent}>
+                <Text style={[styles.pageTitle, { color: themeColors.text }]}>{t("chats.title")}</Text>
+                {renderTabs()}
+
+                {/* Admin-Tab Header */}
+                {isAdmin && chatTab === "admin" && (
+                  <>
+                    <View style={[styles.filterRow, { marginBottom: 10 }]}>
+                      {(["all", "mentor", "mentee"] as const).map((f) => {
+                        const label = f === "all" ? "Alle" : f === "mentor" ? "Mentoren" : "Mentees";
+                        const isActiveFilter = adminFilter === f;
+                        return (
+                          <TouchableOpacity
+                            key={f}
+                            style={[
+                              styles.filterChip,
+                              { backgroundColor: isActiveFilter ? themeColors.primary : themeColors.card, borderColor: isActiveFilter ? themeColors.primary : themeColors.border },
+                            ]}
+                            onPress={() => setAdminFilter(f)}
+                          >
+                            <Text style={{ color: isActiveFilter ? COLORS.white : themeColors.textSecondary, fontSize: 13, fontWeight: "600" }}>
+                              {label}
+                            </Text>
+                          </TouchableOpacity>
+                        );
+                      })}
+                    </View>
+                    <TouchableOpacity
+                      style={[styles.newChatButton, { backgroundColor: themeColors.primary }]}
+                      onPress={() => setShowNewChatModal(true)}
+                    >
+                      <Ionicons name="add" size={18} color={COLORS.white} />
+                      <Text style={styles.newChatButtonText}>{t("chats.newAdminChat") ?? "Neuer Chat"}</Text>
+                    </TouchableOpacity>
+                    {showNewChatModal && (
+                      <View style={[styles.newChatModal, { backgroundColor: themeColors.card, borderColor: themeColors.border }]}>
+                        <View style={styles.newChatModalHeader}>
+                          <Text style={[styles.newChatModalTitle, { color: themeColors.text }]}>
+                            {t("chats.selectUser") ?? "User auswaehlen"}
+                          </Text>
+                          <TouchableOpacity onPress={() => { setShowNewChatModal(false); setNewChatSearch(""); }}>
+                            <Ionicons name="close" size={20} color={themeColors.textTertiary} />
+                          </TouchableOpacity>
+                        </View>
+                        <TextInput
+                          style={[styles.searchInput, { color: themeColors.text, backgroundColor: themeColors.elevated, borderColor: themeColors.border, borderWidth: 1, borderRadius: 8, paddingHorizontal: 12, paddingVertical: 8, marginBottom: 8 }]}
+                          value={newChatSearch}
+                          onChangeText={setNewChatSearch}
+                          placeholder={t("chats.search") ?? "Suchen..."}
+                          placeholderTextColor={themeColors.textTertiary}
+                        />
+                        <ScrollView style={{ maxHeight: 200 }}>
+                          {newChatUserList.map((u) => (
+                            <TouchableOpacity
+                              key={u.id}
+                              style={[styles.chatRow, { borderBottomWidth: 1, borderBottomColor: themeColors.border }]}
+                              onPress={() => {
+                                setSelectedAdminUserId(u.id);
+                                setShowNewChatModal(false);
+                                setNewChatSearch("");
+                              }}
+                            >
+                              <View style={[styles.avatar, { backgroundColor: themeColors.primary }]}>
+                                <Text style={styles.avatarText}>{u.name.charAt(0).toUpperCase()}</Text>
+                              </View>
+                              <View style={styles.chatInfo}>
+                                <Text style={[styles.chatName, { color: themeColors.text }]}>{u.name}</Text>
+                                <Text style={[styles.chatSub, { color: themeColors.textSecondary }]}>{u.role}</Text>
+                              </View>
+                            </TouchableOpacity>
+                          ))}
+                          {newChatUserList.length === 0 && (
+                            <Text style={[{ color: themeColors.textTertiary, textAlign: "center", paddingVertical: 12, fontSize: 13 }]}>
+                              {t("chats.noResults") ?? "Keine Ergebnisse"}
+                            </Text>
+                          )}
+                        </ScrollView>
+                      </View>
+                    )}
+                  </>
+                )}
+
+                {/* Mentorship-Tab Header */}
+                {(!isAdmin || chatTab === "mentorship") && (
+                  <>
+                    {!isAdmin && adminChatList.length > 0 && (
+                      <View style={[styles.listCard, { backgroundColor: themeColors.card, borderColor: isDark ? "#2A2A35" : themeColors.border, marginBottom: 12 }]}>
+                        {adminChatList.map((item, idx) => {
+                          const isSelectedItem = selectedAdminUserId === item.userId;
+                          return (
+                            <TouchableOpacity
+                              key={item.userId}
+                              style={[
+                                styles.chatRow,
+                                idx < adminChatList.length - 1 ? { borderBottomWidth: 1, borderBottomColor: isDark ? "#2A2A35" : themeColors.border } : {},
+                                isSelectedItem ? { backgroundColor: isDark ? "#1E1E2C" : "#F0F4FF" } : {},
+                              ]}
+                              onPress={() => {
+                                setSelectedAdminUserId(item.userId);
+                                setSelectedChatId(null);
+                              }}
+                            >
+                              <View style={[styles.avatar, { backgroundColor: COLORS.gold }]}>
+                                <Ionicons name="shield-checkmark" size={20} color={COLORS.white} />
+                              </View>
+                              <View style={styles.chatInfo}>
+                                <View style={styles.chatTopRow}>
+                                  <Text style={[styles.chatName, { color: themeColors.text }]} numberOfLines={1}>
+                                    {item.name}
+                                  </Text>
+                                  {item.lastMsg && (
+                                    <Text style={[styles.chatTime, { color: themeColors.textTertiary }]}>
+                                      {formatTime(item.lastMsg.created_at, t("chats.yesterday"))}
+                                    </Text>
+                                  )}
+                                </View>
+                                <Text style={[styles.chatSub, { color: themeColors.textSecondary }]} numberOfLines={1}>
+                                  {item.lastMsg?.content ?? (t("chats.adminDM") ?? "Direktnachricht")}
+                                </Text>
+                              </View>
+                              <View style={[styles.adminBadge, { backgroundColor: COLORS.gold }]}>
+                                <Text style={styles.adminBadgeText}>Admin</Text>
+                              </View>
+                            </TouchableOpacity>
+                          );
+                        })}
+                      </View>
+                    )}
+                    <View style={[styles.searchWrapper, { backgroundColor: themeColors.card, borderColor: isDark ? "#2A2A35" : themeColors.border }]}>
+                      <Ionicons name="search-outline" size={16} color={themeColors.textTertiary} />
+                      <TextInput
+                        style={[styles.searchInput, { color: themeColors.text }, Platform.OS === "web" ? ({ outlineStyle: "none" } as any) : {}]}
+                        value={searchQuery}
+                        onChangeText={setSearchQuery}
+                        placeholder={t("chats.search") ?? "Suchen..."}
+                        placeholderTextColor={themeColors.textTertiary}
+                      />
+                      {searchQuery.length > 0 && (
+                        <TouchableOpacity onPress={() => setSearchQuery("")}>
+                          <Ionicons name="close-circle" size={16} color={themeColors.textTertiary} />
+                        </TouchableOpacity>
+                      )}
+                    </View>
+                    <View style={styles.counters}>
+                      <View style={styles.counterItem}>
+                        <Text style={[styles.counterLabel, { color: themeColors.textSecondary }]}>{t("chats.total") ?? "Gesamt"}:</Text>
+                        <Text style={[styles.counterValue, { color: COLORS.gold }]}>{chatList.length}</Text>
+                      </View>
+                      <View style={styles.counterItem}>
+                        <Text style={[styles.counterLabel, { color: themeColors.textSecondary }]}>{t("chats.unread") ?? "Ungelesen"}:</Text>
+                        <Text style={[styles.counterValue, { color: COLORS.gold }]}>{totalUnread}</Text>
+                      </View>
+                    </View>
+                  </>
+                )}
+              </View>
+            )}
+            ListEmptyComponent={() => {
+              if (isAdmin && chatTab === "admin") {
+                return (
+                  <View style={[styles.emptyCard, { backgroundColor: themeColors.card, borderColor: themeColors.border, marginHorizontal: 24 }]}>
+                    <Ionicons name="mail-outline" size={40} color={themeColors.textTertiary} style={styles.emptyIcon} />
+                    <Text style={[styles.emptyTitle, { color: themeColors.text }]}>{t("chats.noAdminChats") ?? "Keine Direktnachrichten"}</Text>
+                    <Text style={[styles.emptyText, { color: themeColors.textSecondary }]}>
+                      {isAdmin
+                        ? (t("chats.noAdminChatsAdmin") ?? "Starte einen neuen Chat mit einem Mentor oder Mentee.")
+                        : (t("chats.noAdminChatsUser") ?? "Noch keine Nachrichten vom Admin.")}
+                    </Text>
+                  </View>
+                );
+              }
+              return (
+                <View style={[styles.emptyCard, { backgroundColor: themeColors.card, borderColor: themeColors.border, marginHorizontal: 24 }]}>
+                  <Ionicons name="chatbubbles-outline" size={40} color={themeColors.textTertiary} style={styles.emptyIcon} />
+                  <Text style={[styles.emptyTitle, { color: themeColors.text }]}>{t("chats.noChats")}</Text>
+                  <Text style={[styles.emptyText, { color: themeColors.textSecondary }]}>{t("chats.noChatsText")}</Text>
+                </View>
+              );
+            }}
+            renderItem={({ item, index }: { item: any; index: number }) => {
+              const isFirst = index === 0;
+              const isLast = index === activeChatData.length - 1;
+              const wrapperStyle = [
+                isFirst ? { borderTopLeftRadius: 16, borderTopRightRadius: 16, borderTopWidth: 1, borderLeftWidth: 1, borderRightWidth: 1 } : { borderLeftWidth: 1, borderRightWidth: 1 },
+                isLast ? { borderBottomLeftRadius: 16, borderBottomRightRadius: 16, borderBottomWidth: 1 } : {},
+                { backgroundColor: themeColors.card, borderColor: isDark ? "#2A2A35" : themeColors.border, marginHorizontal: 24, overflow: "hidden" as const },
+              ];
+
+              if (isAdmin && chatTab === "admin") {
+                return (
+                  <View style={wrapperStyle}>
+                    {renderAdminChatItem({ item, index })}
+                  </View>
+                );
+              }
+              return (
+                <View style={wrapperStyle}>
+                  {renderMentorshipChatItem({ item, index })}
+                </View>
+              );
+            }}
+          />
         </View>
 
         {/* Rechte Spalte: Chat-Inhalt */}
@@ -1008,10 +900,324 @@ export default function ChatsScreen() {
     );
   }
 
+  function renderMentorshipChatItem({ item, index }: { item: typeof filteredChatList[0]; index: number }) {
+    const { mentorship: m, lastMsg, unread } = item;
+    const isActive = m.status === "active";
+    const isSelected = isWideWeb && selectedChatId === m.id;
+    return (
+      <TouchableOpacity
+        style={[
+          styles.chatRow,
+          index < filteredChatList.length - 1 ? { borderBottomWidth: 1, borderBottomColor: isDark ? "#2A2A35" : themeColors.border } : {},
+          isSelected ? { backgroundColor: isDark ? "#1E1E2C" : "#F0F4FF" } : {},
+        ]}
+        onPress={() => {
+          if (isWideWeb) {
+            setSelectedChatId(m.id);
+          } else {
+            router.push({
+              pathname: "/chat/[mentorshipId]",
+              params: { mentorshipId: m.id },
+            });
+          }
+        }}
+      >
+        <View
+          style={[
+            styles.avatar,
+            { backgroundColor: isActive ? COLORS.gradientStart : themeColors.border },
+          ]}
+        >
+          <Text style={styles.avatarText}>
+            {getChatTitle(m).charAt(0).toUpperCase()}
+          </Text>
+        </View>
+        <View style={styles.chatInfo}>
+          <View style={styles.chatTopRow}>
+            <Text style={[styles.chatName, { color: themeColors.text }]} numberOfLines={1}>
+              {getChatTitle(m)}
+            </Text>
+            {lastMsg && (
+              <Text style={[styles.chatTime, { color: themeColors.textTertiary }]}>
+                {formatTime(lastMsg.created_at, t("chats.yesterday"))}
+              </Text>
+            )}
+          </View>
+          <View style={styles.chatBottomRow}>
+            <Text
+              style={[styles.chatSub, { color: themeColors.textSecondary }]}
+              numberOfLines={1}
+              ellipsizeMode="tail"
+            >
+              {lastMsg ? lastMsg.content : getChatSubtitle(m)}
+            </Text>
+            {unread > 0 && (
+              <View style={styles.unreadBadge}>
+                <Text style={styles.unreadText}>
+                  {unread > 9 ? "9+" : String(unread)}
+                </Text>
+              </View>
+            )}
+          </View>
+        </View>
+      </TouchableOpacity>
+    );
+  }
+
+  function renderAdminChatItem({ item, index }: { item: typeof filteredAdminChatList[0]; index: number }) {
+    const isSelected = isWideWeb && selectedAdminUserId === item.userId;
+    const partner = allUsers.find((u) => u.id === item.userId);
+    return (
+      <TouchableOpacity
+        style={[
+          styles.chatRow,
+          index < filteredAdminChatList.length - 1 ? { borderBottomWidth: 1, borderBottomColor: isDark ? "#2A2A35" : themeColors.border } : {},
+          isSelected ? { backgroundColor: isDark ? "#1E1E2C" : "#F0F4FF" } : {},
+        ]}
+        onPress={() => {
+          if (isWideWeb) {
+            setSelectedAdminUserId(item.userId);
+          } else {
+            setSelectedAdminUserId(item.userId);
+          }
+        }}
+      >
+        <View style={[styles.avatar, { backgroundColor: COLORS.gold }]}>
+          <Ionicons name="shield-checkmark" size={20} color={COLORS.white} />
+        </View>
+        <View style={styles.chatInfo}>
+          <View style={styles.chatTopRow}>
+            <Text style={[styles.chatName, { color: themeColors.text }]} numberOfLines={1}>
+              {item.name}
+            </Text>
+            {item.lastMsg && (
+              <Text style={[styles.chatTime, { color: themeColors.textTertiary }]}>
+                {formatTime(item.lastMsg.created_at, t("chats.yesterday"))}
+              </Text>
+            )}
+          </View>
+          <Text style={[styles.chatSub, { color: themeColors.textSecondary }]} numberOfLines={1}>
+            {isAdmin && partner ? `${partner.role === "mentor" ? "Mentor" : "Mentee"} · ` : ""}
+            {item.lastMsg?.content ?? (t("chats.adminDM") ?? "Direktnachricht")}
+          </Text>
+        </View>
+      </TouchableOpacity>
+    );
+  }
+
+  function renderMobileListHeader() {
+    return (
+      <View style={styles.page}>
+        <Text style={[styles.pageTitle, { color: themeColors.text }]}>{t("chats.title")}</Text>
+        {totalUnread > 0 && (
+          <Text style={[styles.pageSubtitle, { color: themeColors.textSecondary }]}>
+            {t("chats.unreadHint").replace("{0}", String(totalUnread))}
+          </Text>
+        )}
+        {renderTabs()}
+
+        {/* Admin-Tab Header: Filter + New Chat + Modal */}
+        {isAdmin && chatTab === "admin" && (
+          <>
+            {/* Filter-Chips */}
+            <View style={[styles.filterRow, { marginBottom: 10 }]}>
+              {(["all", "mentor", "mentee"] as const).map((f) => {
+                const label = f === "all" ? "Alle" : f === "mentor" ? "Mentoren" : "Mentees";
+                const isActiveFilter = adminFilter === f;
+                return (
+                  <TouchableOpacity
+                    key={f}
+                    style={[
+                      styles.filterChip,
+                      { backgroundColor: isActiveFilter ? themeColors.primary : themeColors.card, borderColor: isActiveFilter ? themeColors.primary : themeColors.border },
+                    ]}
+                    onPress={() => setAdminFilter(f)}
+                  >
+                    <Text style={{ color: isActiveFilter ? COLORS.white : themeColors.textSecondary, fontSize: 13, fontWeight: "600" }}>
+                      {label}
+                    </Text>
+                  </TouchableOpacity>
+                );
+              })}
+            </View>
+
+            {/* Neuer Chat Button */}
+            <TouchableOpacity
+              style={[styles.newChatButton, { backgroundColor: themeColors.primary }]}
+              onPress={() => setShowNewChatModal(true)}
+            >
+              <Ionicons name="add" size={18} color={COLORS.white} />
+              <Text style={styles.newChatButtonText}>{t("chats.newAdminChat") ?? "Neuer Chat"}</Text>
+            </TouchableOpacity>
+
+            {/* Neue-Chat Modal */}
+            {showNewChatModal && (
+              <View style={[styles.newChatModal, { backgroundColor: themeColors.card, borderColor: themeColors.border }]}>
+                <View style={styles.newChatModalHeader}>
+                  <Text style={[styles.newChatModalTitle, { color: themeColors.text }]}>
+                    {t("chats.selectUser") ?? "User auswaehlen"}
+                  </Text>
+                  <TouchableOpacity onPress={() => { setShowNewChatModal(false); setNewChatSearch(""); }}>
+                    <Ionicons name="close" size={20} color={themeColors.textTertiary} />
+                  </TouchableOpacity>
+                </View>
+                <TextInput
+                  style={[styles.searchInput, { color: themeColors.text, backgroundColor: themeColors.elevated, borderColor: themeColors.border, borderWidth: 1, borderRadius: 8, paddingHorizontal: 12, paddingVertical: 8, marginBottom: 8 }]}
+                  value={newChatSearch}
+                  onChangeText={setNewChatSearch}
+                  placeholder={t("chats.search") ?? "Suchen..."}
+                  placeholderTextColor={themeColors.textTertiary}
+                />
+                <ScrollView style={{ maxHeight: 200 }}>
+                  {newChatUserList.map((u) => (
+                    <TouchableOpacity
+                      key={u.id}
+                      style={[styles.chatRow, { borderBottomWidth: 1, borderBottomColor: themeColors.border }]}
+                      onPress={() => {
+                        setSelectedAdminUserId(u.id);
+                        setShowNewChatModal(false);
+                        setNewChatSearch("");
+                      }}
+                    >
+                      <View style={[styles.avatar, { backgroundColor: themeColors.primary }]}>
+                        <Text style={styles.avatarText}>{u.name.charAt(0).toUpperCase()}</Text>
+                      </View>
+                      <View style={styles.chatInfo}>
+                        <Text style={[styles.chatName, { color: themeColors.text }]}>{u.name}</Text>
+                        <Text style={[styles.chatSub, { color: themeColors.textSecondary }]}>{u.role}</Text>
+                      </View>
+                    </TouchableOpacity>
+                  ))}
+                  {newChatUserList.length === 0 && (
+                    <Text style={[{ color: themeColors.textTertiary, textAlign: "center", paddingVertical: 12, fontSize: 13 }]}>
+                      {t("chats.noResults") ?? "Keine Ergebnisse"}
+                    </Text>
+                  )}
+                </ScrollView>
+              </View>
+            )}
+          </>
+        )}
+
+        {/* Mentorship-Tab Header: Admin-DMs + Search + Counters */}
+        {(!isAdmin || chatTab === "mentorship") && (
+          <>
+            {/* Admin-DM Eintraege oben (nur fuer Mentor/Mentee) */}
+            {!isAdmin && adminChatList.length > 0 && (
+              <View style={[styles.listCard, { backgroundColor: themeColors.card, borderColor: isDark ? "#2A2A35" : themeColors.border, marginBottom: 12 }]}>
+                {adminChatList.map((item, idx) => {
+                  const isSelected = isWideWeb && selectedAdminUserId === item.userId;
+                  return (
+                    <TouchableOpacity
+                      key={item.userId}
+                      style={[
+                        styles.chatRow,
+                        idx < adminChatList.length - 1 ? { borderBottomWidth: 1, borderBottomColor: isDark ? "#2A2A35" : themeColors.border } : {},
+                        isSelected ? { backgroundColor: isDark ? "#1E1E2C" : "#F0F4FF" } : {},
+                      ]}
+                      onPress={() => {
+                        if (isWideWeb) {
+                          setSelectedAdminUserId(item.userId);
+                          setSelectedChatId(null);
+                        } else {
+                          setSelectedAdminUserId(item.userId);
+                        }
+                      }}
+                    >
+                      <View style={[styles.avatar, { backgroundColor: COLORS.gold }]}>
+                        <Ionicons name="shield-checkmark" size={20} color={COLORS.white} />
+                      </View>
+                      <View style={styles.chatInfo}>
+                        <View style={styles.chatTopRow}>
+                          <Text style={[styles.chatName, { color: themeColors.text }]} numberOfLines={1}>
+                            {item.name}
+                          </Text>
+                          {item.lastMsg && (
+                            <Text style={[styles.chatTime, { color: themeColors.textTertiary }]}>
+                              {formatTime(item.lastMsg.created_at, t("chats.yesterday"))}
+                            </Text>
+                          )}
+                        </View>
+                        <Text style={[styles.chatSub, { color: themeColors.textSecondary }]} numberOfLines={1}>
+                          {item.lastMsg?.content ?? (t("chats.adminDM") ?? "Direktnachricht")}
+                        </Text>
+                      </View>
+                      <View style={[styles.adminBadge, { backgroundColor: COLORS.gold }]}>
+                        <Text style={styles.adminBadgeText}>Admin</Text>
+                      </View>
+                    </TouchableOpacity>
+                  );
+                })}
+              </View>
+            )}
+
+            {/* Suchfeld */}
+            <View style={[styles.searchWrapper, { backgroundColor: themeColors.card, borderColor: isDark ? "#2A2A35" : themeColors.border }]}>
+              <Ionicons name="search-outline" size={16} color={themeColors.textTertiary} />
+              <TextInput
+                style={[styles.searchInput, { color: themeColors.text }, Platform.OS === "web" ? ({ outlineStyle: "none" } as any) : {}]}
+                value={searchQuery}
+                onChangeText={setSearchQuery}
+                placeholder={t("chats.search") ?? "Suchen..."}
+                placeholderTextColor={themeColors.textTertiary}
+              />
+              {searchQuery.length > 0 && (
+                <TouchableOpacity onPress={() => setSearchQuery("")}>
+                  <Ionicons name="close-circle" size={16} color={themeColors.textTertiary} />
+                </TouchableOpacity>
+              )}
+            </View>
+
+            {/* Zaehler */}
+            <View style={styles.counters}>
+              <View style={styles.counterItem}>
+                <Text style={[styles.counterLabel, { color: themeColors.textSecondary }]}>{t("chats.total") ?? "Gesamt"}:</Text>
+                <Text style={[styles.counterValue, { color: COLORS.gold }]}>{chatList.length}</Text>
+              </View>
+              <View style={styles.counterItem}>
+                <Text style={[styles.counterLabel, { color: themeColors.textSecondary }]}>{t("chats.unread") ?? "Ungelesen"}:</Text>
+                <Text style={[styles.counterValue, { color: COLORS.gold }]}>{totalUnread}</Text>
+              </View>
+            </View>
+          </>
+        )}
+      </View>
+    );
+  }
+
+  function renderMobileListEmpty() {
+    if (isAdmin && chatTab === "admin") {
+      return (
+        <View style={{ paddingHorizontal: 24 }}>
+          <View style={[styles.emptyCard, { backgroundColor: themeColors.card, borderColor: themeColors.border }]}>
+            <Ionicons name="mail-outline" size={40} color={themeColors.textTertiary} style={styles.emptyIcon} />
+            <Text style={[styles.emptyTitle, { color: themeColors.text }]}>{t("chats.noAdminChats") ?? "Keine Direktnachrichten"}</Text>
+            <Text style={[styles.emptyText, { color: themeColors.textSecondary }]}>
+              {isAdmin
+                ? (t("chats.noAdminChatsAdmin") ?? "Starte einen neuen Chat mit einem Mentor oder Mentee.")
+                : (t("chats.noAdminChatsUser") ?? "Noch keine Nachrichten vom Admin.")}
+            </Text>
+          </View>
+        </View>
+      );
+    }
+    return (
+      <View style={{ paddingHorizontal: 24 }}>
+        <View style={[styles.emptyCard, { backgroundColor: themeColors.card, borderColor: themeColors.border }]}>
+          <Ionicons name="chatbubbles-outline" size={40} color={themeColors.textTertiary} style={styles.emptyIcon} />
+          <Text style={[styles.emptyTitle, { color: themeColors.text }]}>{t("chats.noChats")}</Text>
+          <Text style={[styles.emptyText, { color: themeColors.textSecondary }]}>{t("chats.noChatsText")}</Text>
+        </View>
+      </View>
+    );
+  }
+
   return (
     <Container fullWidth={Platform.OS === "web"}>
-      <ScrollView
+      <FlatList
         style={[styles.scrollView, { backgroundColor: themeColors.background }]}
+        data={activeChatData}
+        keyExtractor={(item: any) => (isAdmin && chatTab === "admin") ? item.userId : item.mentorship?.id}
         refreshControl={
           <RefreshControl
             refreshing={refreshing}
@@ -1019,18 +1225,34 @@ export default function ChatsScreen() {
             tintColor={COLORS.gold}
           />
         }
-      >
-        <View style={styles.page}>
-          <Text style={[styles.pageTitle, { color: themeColors.text }]}>{t("chats.title")}</Text>
-          {totalUnread > 0 && (
-            <Text style={[styles.pageSubtitle, { color: themeColors.textSecondary }]}>
-              {t("chats.unreadHint").replace("{0}", String(totalUnread))}
-            </Text>
-          )}
-          {renderTabs()}
-          {isAdmin && chatTab === "admin" ? renderAdminChatList() : renderChatList()}
-        </View>
-      </ScrollView>
+        ListHeaderComponent={renderMobileListHeader}
+        ListEmptyComponent={renderMobileListEmpty}
+        removeClippedSubviews={true}
+        contentContainerStyle={activeChatData.length > 0 ? {} : { flexGrow: 1 }}
+        renderItem={({ item, index }: { item: any; index: number }) => {
+          // Wrapper: listCard-Stil um die gesamte Liste simulieren
+          const isFirst = index === 0;
+          const isLast = index === activeChatData.length - 1;
+          const wrapperStyle = [
+            isFirst ? { borderTopLeftRadius: 16, borderTopRightRadius: 16, borderTopWidth: 1, borderLeftWidth: 1, borderRightWidth: 1 } : { borderLeftWidth: 1, borderRightWidth: 1 },
+            isLast ? { borderBottomLeftRadius: 16, borderBottomRightRadius: 16, borderBottomWidth: 1 } : {},
+            { backgroundColor: themeColors.card, borderColor: isDark ? "#2A2A35" : themeColors.border, marginHorizontal: 24, overflow: "hidden" as const },
+          ];
+
+          if (isAdmin && chatTab === "admin") {
+            return (
+              <View style={wrapperStyle}>
+                {renderAdminChatItem({ item, index })}
+              </View>
+            );
+          }
+          return (
+            <View style={wrapperStyle}>
+              {renderMentorshipChatItem({ item, index })}
+            </View>
+          );
+        }}
+      />
     </Container>
   );
 }

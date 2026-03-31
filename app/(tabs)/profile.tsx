@@ -5,13 +5,13 @@ import {
   Text,
   Image,
   ScrollView,
-  TouchableOpacity,
   RefreshControl,
   StyleSheet,
   Alert,
   Platform,
   Linking,
 } from "react-native";
+import { BNMPressable } from "../../components/BNMPressable";
 import { useRouter } from "expo-router";
 import { useAuth } from "../../contexts/AuthContext";
 import { useData } from "../../contexts/DataContext";
@@ -175,6 +175,7 @@ export default function ProfileScreen() {
               source={{ uri: user.avatar_url }}
               style={styles.avatarImage}
               resizeMode="cover"
+              accessibilityLabel={`Profilbild von ${user.name}`}
             />
           ) : (
             <View style={styles.avatarCircle}>
@@ -205,7 +206,7 @@ export default function ProfileScreen() {
             {THEME_OPTIONS.map((option) => {
               const isActive = mode === option.value;
               return (
-                <TouchableOpacity
+                <BNMPressable
                   key={option.value}
                   style={[
                     themeToggleStyles.option,
@@ -215,7 +216,9 @@ export default function ProfileScreen() {
                     },
                   ]}
                   onPress={() => setMode(option.value)}
-                  activeOpacity={0.7}
+                  accessibilityRole="radio"
+                  accessibilityState={{ checked: isActive }}
+                  accessibilityLabel={t(option.labelKey)}
                 >
                   <Text style={themeToggleStyles.optionIcon}>{option.icon}</Text>
                   <Text
@@ -226,7 +229,7 @@ export default function ProfileScreen() {
                   >
                     {t(option.labelKey)}
                   </Text>
-                </TouchableOpacity>
+                </BNMPressable>
               );
             })}
           </View>
@@ -293,14 +296,16 @@ export default function ProfileScreen() {
               value={CONTACT_LABELS[partnerContact.person.contact_preference] ?? partnerContact.person.contact_preference}
               isLast
             />
-            <TouchableOpacity
+            <BNMPressable
               style={[styles.partnerMessageBtn]}
               onPress={() =>
                 navigateToChat(router, partnerContact.mentorshipId)
               }
+              accessibilityRole="button"
+              accessibilityLabel={t("profile.sendMessage")}
             >
               <Text style={styles.partnerMessageBtnText}>{t("profile.sendMessage")}</Text>
-            </TouchableOpacity>
+            </BNMPressable>
           </View>
         )}
 
@@ -309,43 +314,54 @@ export default function ProfileScreen() {
           <Text style={[styles.sectionLabel, { paddingHorizontal: 16, paddingTop: 16, paddingBottom: 8, color: themeColors.textTertiary }]}>
             {t("profile.account")}
           </Text>
-          <TouchableOpacity
+          <BNMPressable
             style={[styles.menuItem, { borderBottomColor: themeColors.border }]}
             onPress={() => router.push("/edit-profile")}
+            accessibilityRole="button"
+            accessibilityLabel={t("profile.editProfile")}
           >
             <Text style={[styles.menuItemText, { color: themeColors.text }]}>{t("profile.editProfile")}</Text>
             <Text style={[styles.menuArrow, { color: themeColors.textTertiary }]}>›</Text>
-          </TouchableOpacity>
-          <TouchableOpacity
+          </BNMPressable>
+          <BNMPressable
             style={[styles.menuItem, { borderBottomColor: themeColors.border }]}
             onPress={() => router.push("/change-password")}
+            accessibilityRole="button"
+            accessibilityLabel={t("profile.changePassword")}
           >
             <Text style={[styles.menuItemText, { color: themeColors.text }]}>{t("profile.changePassword")}</Text>
             <Text style={[styles.menuArrow, { color: themeColors.textTertiary }]}>›</Text>
-          </TouchableOpacity>
-          <TouchableOpacity
+          </BNMPressable>
+          <BNMPressable
             style={[styles.menuItem, { borderBottomColor: themeColors.border }]}
             onPress={() => router.push("/notification-settings")}
+            accessibilityRole="button"
+            accessibilityLabel={t("profile.notifications")}
           >
             <Text style={[styles.menuItemText, { color: themeColors.text }]}>{t("profile.notifications")}</Text>
             <Text style={[styles.menuArrow, { color: themeColors.textTertiary }]}>›</Text>
-          </TouchableOpacity>
-          <TouchableOpacity
+          </BNMPressable>
+          <BNMPressable
             style={[styles.menuItem, { borderBottomColor: themeColors.border }]}
             onPress={() => router.push("/settings")}
+            accessibilityRole="button"
+            accessibilityLabel={t("profile.settings")}
           >
             <Text style={[styles.menuItemText, { color: themeColors.text }]}>{t("profile.settings")}</Text>
             <Text style={[styles.menuArrow, { color: themeColors.textTertiary }]}>›</Text>
-          </TouchableOpacity>
+          </BNMPressable>
         </View>
 
         {/* Logout */}
-        <TouchableOpacity
+        <BNMPressable
           style={[styles.logoutButton, { backgroundColor: isDark ? "#3a1a1a" : "#fef2f2", borderColor: isDark ? "#7a2a2a" : "#fecaca" }]}
           onPress={handleLogout}
+          hapticStyle="warning"
+          accessibilityRole="button"
+          accessibilityLabel={t("profile.logout")}
         >
           <Text style={[styles.logoutText, { color: isDark ? "#f87171" : "#dc2626" }]}>{t("profile.logout")}</Text>
-        </TouchableOpacity>
+        </BNMPressable>
 
         {/* App-Footer */}
         <View style={styles.footerBox}>
@@ -354,17 +370,29 @@ export default function ProfileScreen() {
             Ein iERA Projekt in Kooperation mit IMAN
           </Text>
           <View style={styles.footerLinks}>
-            <TouchableOpacity onPress={() => Linking.openURL("https://iman.ngo/datenschutzerklaerung/")}>
+            <BNMPressable
+              onPress={() => Linking.openURL("https://iman.ngo/datenschutzerklaerung/")}
+              accessibilityRole="link"
+              accessibilityLabel={t("footer.privacy")}
+            >
               <Text style={[styles.footerLink, { color: themeColors.link }]}>{t("footer.privacy")}</Text>
-            </TouchableOpacity>
+            </BNMPressable>
             <Text style={[styles.footerSep, { color: themeColors.textTertiary }]}>·</Text>
-            <TouchableOpacity onPress={() => Linking.openURL("https://iman.ngo/impressum/")}>
+            <BNMPressable
+              onPress={() => Linking.openURL("https://iman.ngo/impressum/")}
+              accessibilityRole="link"
+              accessibilityLabel={t("footer.imprint")}
+            >
               <Text style={[styles.footerLink, { color: themeColors.link }]}>{t("footer.imprint")}</Text>
-            </TouchableOpacity>
+            </BNMPressable>
             <Text style={[styles.footerSep, { color: themeColors.textTertiary }]}>·</Text>
-            <TouchableOpacity onPress={() => Linking.openURL("https://iman.ngo/agb/")}>
+            <BNMPressable
+              onPress={() => Linking.openURL("https://iman.ngo/agb/")}
+              accessibilityRole="link"
+              accessibilityLabel="Allgemeine Geschäftsbedingungen"
+            >
               <Text style={[styles.footerLink, { color: themeColors.link }]}>AGB</Text>
-            </TouchableOpacity>
+            </BNMPressable>
           </View>
         </View>
 
@@ -374,9 +402,9 @@ export default function ProfileScreen() {
             <View style={[styles.overlayCard, { backgroundColor: themeColors.card }]}>
               <Text style={[styles.overlayTitle, { color: themeColors.text }]}>{t("footer.privacyTitle")}</Text>
               <Text style={[styles.overlayText, { color: themeColors.textSecondary }]}>{t("footer.privacyText")}</Text>
-              <TouchableOpacity style={styles.overlayClose} onPress={() => setShowPrivacy(false)}>
+              <BNMPressable style={styles.overlayClose} onPress={() => setShowPrivacy(false)} accessibilityRole="button" accessibilityLabel={t("common.back")}>
                 <Text style={styles.overlayCloseText}>{t("common.back")}</Text>
-              </TouchableOpacity>
+              </BNMPressable>
             </View>
           </View>
         )}
@@ -387,9 +415,9 @@ export default function ProfileScreen() {
             <View style={[styles.overlayCard, { backgroundColor: themeColors.card }]}>
               <Text style={[styles.overlayTitle, { color: themeColors.text }]}>{t("footer.imprintTitle")}</Text>
               <Text style={[styles.overlayText, { color: themeColors.textSecondary }]}>{t("footer.imprintText")}</Text>
-              <TouchableOpacity style={styles.overlayClose} onPress={() => setShowImprint(false)}>
+              <BNMPressable style={styles.overlayClose} onPress={() => setShowImprint(false)} accessibilityRole="button" accessibilityLabel={t("common.back")}>
                 <Text style={styles.overlayCloseText}>{t("common.back")}</Text>
-              </TouchableOpacity>
+              </BNMPressable>
             </View>
           </View>
         )}

@@ -55,12 +55,13 @@ export function SlideOverPanel({ visible, onClose, children, title }: SlideOverP
   return (
     <View style={styles.container}>
       {/* Overlay */}
-      <TouchableWithoutFeedback onPress={onClose}>
+      <TouchableWithoutFeedback onPress={onClose} accessibilityLabel="Schließen" accessibilityRole="button">
         <Animated.View style={[styles.overlay, { opacity: opacityAnim }]} />
       </TouchableWithoutFeedback>
 
       {/* Zentriertes Modal */}
       <Animated.View
+        accessibilityViewIsModal={true}
         style={[
           styles.modal,
           {
@@ -81,7 +82,7 @@ export function SlideOverPanel({ visible, onClose, children, title }: SlideOverP
           ) : (
             <View />
           )}
-          <TouchableOpacity onPress={onClose} style={[styles.closeButton, { backgroundColor: themeColors.elevated }]} activeOpacity={0.7}>
+          <TouchableOpacity onPress={onClose} style={[styles.closeButton, { backgroundColor: themeColors.elevated }]} activeOpacity={0.7} accessibilityRole="button" accessibilityLabel="Schließen">
             <Text style={[styles.closeButtonText, { color: themeColors.textSecondary }]}>✕</Text>
           </TouchableOpacity>
         </View>
@@ -101,6 +102,8 @@ export function SlideOverPanel({ visible, onClose, children, title }: SlideOverP
             style={[styles.closeFooterButton, { backgroundColor: isDark ? "#FFCA28" : "#EEA71B" }]}
             onPress={onClose}
             activeOpacity={0.8}
+            accessibilityRole="button"
+            accessibilityLabel="Schließen"
           >
             <Text style={[styles.closeFooterText, { color: isDark ? "#0E0E14" : "#fff" }]}>Schließen</Text>
           </TouchableOpacity>
@@ -147,9 +150,9 @@ const styles = StyleSheet.create({
     fontWeight: "700",
   },
   closeButton: {
-    width: 32,
-    height: 32,
-    borderRadius: 16,
+    width: 44,
+    height: 44,
+    borderRadius: 22,
     alignItems: "center",
     justifyContent: "center",
   },

@@ -3,7 +3,6 @@ import {
   View,
   Text,
   TextInput,
-  TouchableOpacity,
   ScrollView,
   ActivityIndicator,
   KeyboardAvoidingView,
@@ -11,6 +10,7 @@ import {
   StyleSheet,
   Linking,
 } from "react-native";
+import { BNMPressable } from "../../components/BNMPressable";
 import { useRouter } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
 import { useAuth } from "../../contexts/AuthContext";
@@ -94,6 +94,7 @@ export default function LoginScreen() {
             autoCorrect={false}
             value={email}
             onChangeText={setEmail}
+            accessibilityLabel={t("login.email")}
           />
 
           {/* Passwort */}
@@ -106,17 +107,20 @@ export default function LoginScreen() {
               secureTextEntry={!showPassword}
               value={password}
               onChangeText={setPassword}
+              accessibilityLabel={t("login.password")}
             />
-            <TouchableOpacity
+            <BNMPressable
               style={styles.eyeButton}
               onPress={() => setShowPassword((v) => !v)}
+              accessibilityRole="button"
+              accessibilityLabel={showPassword ? "Passwort verbergen" : "Passwort anzeigen"}
             >
               <Ionicons
                 name={showPassword ? "eye-outline" : "eye-off-outline"}
                 size={20}
                 color={themeColors.textSecondary}
               />
-            </TouchableOpacity>
+            </BNMPressable>
           </View>
 
           {/* Fehlermeldung */}
@@ -127,41 +131,50 @@ export default function LoginScreen() {
           ) : null}
 
           {/* Passwort vergessen */}
-          <TouchableOpacity
+          <BNMPressable
             style={styles.forgotPasswordRow}
             onPress={() => router.push("/(auth)/forgot-password")}
+            accessibilityRole="link"
+            accessibilityLabel={t("login.forgotPassword")}
           >
             <Text style={[styles.forgotPasswordText, { color: themeColors.link }]}>{t("login.forgotPassword")}</Text>
-          </TouchableOpacity>
+          </BNMPressable>
 
           {/* Login-Button */}
-          <TouchableOpacity
+          <BNMPressable
             style={styles.loginButton}
             onPress={handleLogin}
             disabled={isLoading}
+            accessibilityRole="button"
+            accessibilityLabel={t("login.submit")}
+            accessibilityState={{ disabled: isLoading }}
           >
             {isLoading ? (
               <ActivityIndicator color="#FFFFFF" />
             ) : (
               <Text style={styles.loginButtonText}>{t("login.submit")}</Text>
             )}
-          </TouchableOpacity>
+          </BNMPressable>
 
           {/* Registrierungs-CTA */}
-          <TouchableOpacity
+          <BNMPressable
             style={styles.publicRegisterButton}
             onPress={() => router.push("/(auth)/register-public")}
+            accessibilityRole="button"
+            accessibilityLabel={t("login.publicRegister")}
           >
             <Text style={[styles.publicRegisterText, { color: themeColors.text }]}>{t("login.publicRegister")}</Text>
-          </TouchableOpacity>
+          </BNMPressable>
 
           {/* Mentor-Bewerbung */}
           <View style={styles.registerRow}>
-            <TouchableOpacity
+            <BNMPressable
               onPress={() => router.push("/(auth)/register-mentor")}
+              accessibilityRole="link"
+              accessibilityLabel={t("login.registerMentor")}
             >
               <Text style={[styles.linkText, { color: themeColors.textTertiary }]}>{t("login.registerMentor")}</Text>
-            </TouchableOpacity>
+            </BNMPressable>
           </View>
 
           {/* Footer */}
@@ -170,17 +183,17 @@ export default function LoginScreen() {
               Ein iERA Projekt in Kooperation mit IMAN
             </Text>
             <View style={styles.loginFooterLinks}>
-              <TouchableOpacity onPress={() => Linking.openURL("https://iman.ngo/datenschutzerklaerung/")}>
+              <BNMPressable onPress={() => Linking.openURL("https://iman.ngo/datenschutzerklaerung/")} accessibilityRole="link" accessibilityLabel="Datenschutzerklärung">
                 <Text style={[styles.loginFooterLink, { color: themeColors.link }]}>Datenschutz</Text>
-              </TouchableOpacity>
+              </BNMPressable>
               <Text style={[styles.loginFooterSep, { color: themeColors.textTertiary }]}>·</Text>
-              <TouchableOpacity onPress={() => Linking.openURL("https://iman.ngo/impressum/")}>
+              <BNMPressable onPress={() => Linking.openURL("https://iman.ngo/impressum/")} accessibilityRole="link" accessibilityLabel="Impressum">
                 <Text style={[styles.loginFooterLink, { color: themeColors.link }]}>Impressum</Text>
-              </TouchableOpacity>
+              </BNMPressable>
               <Text style={[styles.loginFooterSep, { color: themeColors.textTertiary }]}>·</Text>
-              <TouchableOpacity onPress={() => Linking.openURL("https://iman.ngo/agb/")}>
+              <BNMPressable onPress={() => Linking.openURL("https://iman.ngo/agb/")} accessibilityRole="link" accessibilityLabel="Allgemeine Geschäftsbedingungen">
                 <Text style={[styles.loginFooterLink, { color: themeColors.link }]}>AGB</Text>
-              </TouchableOpacity>
+              </BNMPressable>
             </View>
           </View>
         </View>
@@ -273,7 +286,11 @@ const styles = StyleSheet.create({
   },
   eyeButton: {
     paddingHorizontal: 12,
-    paddingVertical: 10,
+    paddingVertical: 12,
+    minWidth: 44,
+    minHeight: 44,
+    alignItems: "center",
+    justifyContent: "center",
   },
   eyeText: { fontSize: 18 },
   errorBox: {

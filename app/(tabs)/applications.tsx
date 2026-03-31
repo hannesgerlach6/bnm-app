@@ -1,14 +1,14 @@
-import React, { useState } from "react";
+import React, { useState, useCallback } from "react";
 import {
   View,
   Text,
-  ScrollView,
-  TouchableOpacity,
+  FlatList,
   TextInput,
   StyleSheet,
   Modal,
   Platform,
 } from "react-native";
+import { BNMPressable } from "../../components/BNMPressable";
 import { showError, showSuccess, showConfirm } from "../../lib/errorHandler";
 import { useAuth } from "../../contexts/AuthContext";
 import { useData } from "../../contexts/DataContext";
@@ -163,82 +163,101 @@ export default function ApplicationsTabScreen() {
     { key: "r5", label: t("applications.rejectReason5") },
   ];
 
+  const renderApplication = useCallback(({ item: app }: { item: MentorApplication }) => (
+    <View style={styles.flatListItem}>
+      <ApplicationCard
+        application={app}
+        type="mentor"
+        onApprove={() => handleApproveMentor(app)}
+        onReject={() => openRejectModal(app)}
+      />
+    </View>
+  ), []);
+
+  const listHeader = useCallback(() => (
+    <View style={styles.page}>
+      <Text style={[styles.pageTitle, { color: themeColors.text }]}>{t("applications.title")}</Text>
+
+      {/* Suche */}
+      <TextInput
+        style={[styles.searchInput, { backgroundColor: themeColors.card, borderColor: themeColors.border, color: themeColors.text }]}
+        placeholder={t("applications.search")}
+        placeholderTextColor={themeColors.textTertiary}
+        value={search}
+        onChangeText={(v) => setSearch(v)}
+        accessibilityLabel="Bewerbungen durchsuchen"
+      />
+
+      {/* ─── Mentor-Bewerbungen ─── */}
+      <Text style={[styles.pageSubtitle, { color: themeColors.textSecondary }]}>
+        {t("applications.pendingMentor")
+          .replace("{0}", String(pendingMentorCount))
+          .replace("{1}", pendingMentorCount !== 1 ? "en" : "")}
+      </Text>
+      <View style={styles.filterRow}>
+        {(
+          [
+            { key: "pending", label: t("applications.filterOpen") },
+            { key: "approved", label: t("applications.filterApproved") },
+            { key: "rejected", label: t("applications.filterRejected") },
+          ] as const
+        ).map((tab) => {
+          const count = mentorApps.filter((a) => a.status === tab.key).length;
+          return (
+            <BNMPressable
+              key={tab.key}
+              style={[
+                styles.filterChip,
+                mentorFilter === tab.key ? styles.filterChipActive : [styles.filterChipInactive, { backgroundColor: themeColors.card, borderColor: themeColors.border }],
+              ]}
+              onPress={() => setMentorFilter(tab.key)}
+              accessibilityRole="radio"
+              accessibilityLabel={`${tab.label} (${count})`}
+              accessibilityState={{ checked: mentorFilter === tab.key }}
+            >
+              <Text
+                style={
+                  mentorFilter === tab.key
+                    ? styles.filterChipTextActive
+                    : [styles.filterChipTextInactive, { color: themeColors.textSecondary }]
+                }
+              >
+                {tab.label} ({count})
+              </Text>
+            </BNMPressable>
+          );
+        })}
+      </View>
+    </View>
+  ), [themeColors, search, mentorFilter, pendingMentorCount, mentorApps]);
+
+  const listEmpty = useCallback(() => (
+    <View style={[styles.emptyCard, { backgroundColor: themeColors.card, borderColor: themeColors.border, marginHorizontal: 24 }]}>
+      <Text style={[styles.emptyText, { color: themeColors.textTertiary }]}>
+        {mentorFilter === "pending"
+          ? t("applications.noOpen")
+          : mentorFilter === "approved"
+          ? t("applications.noApproved")
+          : t("applications.noRejected")}
+      </Text>
+    </View>
+  ), [themeColors, mentorFilter]);
+
+  const keyExtractor = useCallback((item: MentorApplication) => item.id, []);
+
   return (
     <Container fullWidth={Platform.OS === "web"}>
-      <ScrollView style={[styles.scrollView, { backgroundColor: themeColors.background }]}>
-        <View style={styles.page}>
-          <Text style={[styles.pageTitle, { color: themeColors.text }]}>{t("applications.title")}</Text>
-
-          {/* Suche */}
-          <TextInput
-            style={[styles.searchInput, { backgroundColor: themeColors.card, borderColor: themeColors.border, color: themeColors.text }]}
-            placeholder={t("applications.search")}
-            placeholderTextColor={themeColors.textTertiary}
-            value={search}
-            onChangeText={(v) => setSearch(v)}
-          />
-
-          {/* ─── Mentor-Bewerbungen ─── */}
-          <Text style={[styles.pageSubtitle, { color: themeColors.textSecondary }]}>
-            {t("applications.pendingMentor")
-              .replace("{0}", String(pendingMentorCount))
-              .replace("{1}", pendingMentorCount !== 1 ? "en" : "")}
-          </Text>
-          <View style={styles.filterRow}>
-            {(
-              [
-                { key: "pending", label: t("applications.filterOpen") },
-                { key: "approved", label: t("applications.filterApproved") },
-                { key: "rejected", label: t("applications.filterRejected") },
-              ] as const
-            ).map((tab) => {
-              const count = mentorApps.filter((a) => a.status === tab.key).length;
-              return (
-                <TouchableOpacity
-                  key={tab.key}
-                  style={[
-                    styles.filterChip,
-                    mentorFilter === tab.key ? styles.filterChipActive : [styles.filterChipInactive, { backgroundColor: themeColors.card, borderColor: themeColors.border }],
-                  ]}
-                  onPress={() => setMentorFilter(tab.key)}
-                >
-                  <Text
-                    style={
-                      mentorFilter === tab.key
-                        ? styles.filterChipTextActive
-                        : [styles.filterChipTextInactive, { color: themeColors.textSecondary }]
-                    }
-                  >
-                    {tab.label} ({count})
-                  </Text>
-                </TouchableOpacity>
-              );
-            })}
-          </View>
-
-          {filteredMentorApps.length === 0 ? (
-            <View style={[styles.emptyCard, { backgroundColor: themeColors.card, borderColor: themeColors.border }]}>
-              <Text style={[styles.emptyText, { color: themeColors.textTertiary }]}>
-                {mentorFilter === "pending"
-                  ? t("applications.noOpen")
-                  : mentorFilter === "approved"
-                  ? t("applications.noApproved")
-                  : t("applications.noRejected")}
-              </Text>
-            </View>
-          ) : (
-            filteredMentorApps.map((app) => (
-              <ApplicationCard
-                key={app.id}
-                application={app}
-                type="mentor"
-                onApprove={() => handleApproveMentor(app)}
-                onReject={() => openRejectModal(app)}
-              />
-            ))
-          )}
-        </View>
-      </ScrollView>
+      <FlatList
+        data={filteredMentorApps}
+        renderItem={renderApplication}
+        keyExtractor={keyExtractor}
+        ListHeaderComponent={listHeader}
+        ListEmptyComponent={listEmpty}
+        contentContainerStyle={styles.flatListContent}
+        style={[styles.scrollView, { backgroundColor: themeColors.background }]}
+        removeClippedSubviews={true}
+        windowSize={10}
+      />
 
       {/* ─── Ablehnung-Modal (Mentor) ─── */}
       <Modal
@@ -262,7 +281,7 @@ export default function ApplicationsTabScreen() {
             </Text>
 
             {rejectReasons.map((r) => (
-              <TouchableOpacity
+              <BNMPressable
                 key={r.key}
                 style={[
                   styles.reasonRow,
@@ -273,6 +292,9 @@ export default function ApplicationsTabScreen() {
                   setSelectedReason(r.key);
                   setRejectReasonError("");
                 }}
+                accessibilityRole="radio"
+                accessibilityLabel={r.label}
+                accessibilityState={{ checked: selectedReason === r.key }}
               >
                 <View style={[
                   styles.radioOuter,
@@ -283,7 +305,7 @@ export default function ApplicationsTabScreen() {
                   )}
                 </View>
                 <Text style={[styles.reasonLabel, { color: themeColors.text }]}>{r.label}</Text>
-              </TouchableOpacity>
+              </BNMPressable>
             ))}
 
             {/* Freies Textfeld bei "Sonstiger Grund" */}
@@ -306,6 +328,7 @@ export default function ApplicationsTabScreen() {
                 }}
                 multiline
                 numberOfLines={3}
+                accessibilityLabel="Eigenen Ablehnungsgrund eingeben"
               />
             )}
 
@@ -314,24 +337,31 @@ export default function ApplicationsTabScreen() {
             )}
 
             <View style={styles.modalButtonRow}>
-              <TouchableOpacity
+              <BNMPressable
                 style={[styles.modalCancelButton, { borderColor: themeColors.border }]}
                 onPress={closeRejectModal}
                 disabled={isRejecting}
+                accessibilityRole="button"
+                accessibilityLabel={t("applications.rejectCancelButton")}
+                accessibilityState={{ disabled: isRejecting }}
               >
                 <Text style={[styles.modalCancelText, { color: themeColors.textSecondary }]}>
                   {t("applications.rejectCancelButton")}
                 </Text>
-              </TouchableOpacity>
-              <TouchableOpacity
+              </BNMPressable>
+              <BNMPressable
                 style={[styles.modalRejectButton, isRejecting ? { opacity: 0.6 } : {}]}
                 onPress={handleConfirmReject}
                 disabled={isRejecting}
+                hapticStyle="error"
+                accessibilityRole="button"
+                accessibilityLabel={t("applications.rejectConfirmButton")}
+                accessibilityState={{ disabled: isRejecting }}
               >
                 <Text style={styles.modalRejectText}>
                   {isRejecting ? "..." : t("applications.rejectConfirmButton")}
                 </Text>
-              </TouchableOpacity>
+              </BNMPressable>
             </View>
           </View>
         </View>
@@ -383,10 +413,11 @@ function ApplicationCard({
   return (
     <View style={[styles.card, { backgroundColor: themeColors.card, borderColor: themeColors.border }]}>
       {/* Kompakte Übersichtszeile — immer sichtbar */}
-      <TouchableOpacity
+      <BNMPressable
         style={styles.cardSummaryRow}
         onPress={() => setExpanded((v) => !v)}
-        activeOpacity={0.75}
+        accessibilityRole="button"
+        accessibilityLabel={`${application.name}, ${statusLabel} – ${expanded ? "Einklappen" : "Aufklappen"}`}
       >
         <View style={{ flex: 1 }}>
           <View style={{ flexDirection: "row", alignItems: "center", gap: 8, flexWrap: "wrap" }}>
@@ -402,7 +433,7 @@ function ApplicationCard({
         <Text style={[styles.accordionArrow, { color: themeColors.textTertiary }]}>
           {expanded ? "▲" : "▼"}
         </Text>
-      </TouchableOpacity>
+      </BNMPressable>
 
       {/* Detail-Bereich — nur bei expanded sichtbar */}
       {expanded && (
@@ -479,18 +510,23 @@ function ApplicationCard({
           {/* Aktions-Buttons (nur für offene Einträge) */}
           {isPending && (
             <View style={styles.actionRow}>
-              <TouchableOpacity
+              <BNMPressable
                 style={[styles.rejectButton, { backgroundColor: isDark ? "#3a1a1a" : "#fef2f2", borderColor: isDark ? "#7a2a2a" : "#fecaca" }]}
                 onPress={onReject}
+                accessibilityRole="button"
+                accessibilityLabel={`${application.name} ${t("applications.reject")}`}
               >
                 <Text style={[styles.rejectButtonText, { color: isDark ? "#f87171" : "#dc2626" }]}>{t("applications.reject")}</Text>
-              </TouchableOpacity>
-              <TouchableOpacity
+              </BNMPressable>
+              <BNMPressable
                 style={[styles.approveButton, { backgroundColor: approveColor }]}
                 onPress={onApprove}
+                hapticStyle="success"
+                accessibilityRole="button"
+                accessibilityLabel={`${application.name} ${approveLabel}`}
               >
                 <Text style={styles.approveButtonText}>{approveLabel}</Text>
-              </TouchableOpacity>
+              </BNMPressable>
             </View>
           )}
         </>
@@ -518,7 +554,9 @@ const styles = StyleSheet.create({
   },
   accessDeniedText: { fontWeight: "600" },
   scrollView: { flex: 1 },
-  page: { padding: 24 },
+  flatListContent: { paddingBottom: 24 },
+  flatListItem: { paddingHorizontal: 24 },
+  page: { padding: 24, paddingBottom: 0 },
   pageTitle: { fontSize: 26, fontWeight: "800", letterSpacing: -0.3, textAlign: "center", marginBottom: 12 },
   pageSubtitle: { marginBottom: 16, fontSize: 13, textAlign: "center" },
 

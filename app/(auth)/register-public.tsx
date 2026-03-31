@@ -250,6 +250,8 @@ export default function RegisterPublicScreen() {
           <TouchableOpacity
             style={styles.backToLoginButton}
             onPress={() => router.replace("/(tabs)")}
+            accessibilityRole="button"
+            accessibilityLabel={t("register.toDashboard")}
           >
             <Text style={styles.backToLoginText}>{t("register.toDashboard")}</Text>
           </TouchableOpacity>
@@ -293,6 +295,9 @@ export default function RegisterPublicScreen() {
                 key={opt.value}
                 style={[styles.pill, { backgroundColor: bgColor, borderColor }]}
                 onPress={() => onSelect(opt.value)}
+                accessibilityRole="radio"
+                accessibilityState={{ checked: active }}
+                accessibilityLabel={opt.label}
               >
                 <Text style={[styles.pillText, { color: textColor, fontWeight: active ? "600" : "500" }]}>
                   {opt.label}
@@ -323,6 +328,9 @@ export default function RegisterPublicScreen() {
           style={styles.checkboxRow}
           onPress={onToggle}
           activeOpacity={0.7}
+          accessibilityRole="checkbox"
+          accessibilityState={{ checked }}
+          accessibilityLabel={label}
         >
           <View
             style={[
@@ -394,6 +402,7 @@ export default function RegisterPublicScreen() {
                 placeholderTextColor={themeColors.textTertiary}
                 value={firstName}
                 onChangeText={setFirstName}
+                accessibilityLabel={t("register.firstName")}
               />
             </FormField>
 
@@ -405,6 +414,7 @@ export default function RegisterPublicScreen() {
                 placeholderTextColor={themeColors.textTertiary}
                 value={lastName}
                 onChangeText={setLastName}
+                accessibilityLabel={t("register.lastName")}
               />
             </FormField>
 
@@ -419,6 +429,7 @@ export default function RegisterPublicScreen() {
                 autoCorrect={false}
                 value={email}
                 onChangeText={setEmail}
+                accessibilityLabel={t("register.email")}
               />
             </FormField>
 
@@ -431,6 +442,7 @@ export default function RegisterPublicScreen() {
                 keyboardType="phone-pad"
                 value={phone}
                 onChangeText={setPhone}
+                accessibilityLabel={t("register.phone")}
               />
             </FormField>
 
@@ -457,6 +469,7 @@ export default function RegisterPublicScreen() {
                 keyboardType="numeric"
                 value={age}
                 onChangeText={setAge}
+                accessibilityLabel={t("register.age")}
               />
             </FormField>
 
@@ -471,6 +484,7 @@ export default function RegisterPublicScreen() {
                   maxLength={5}
                   value={plz}
                   onChangeText={setPlz}
+                  accessibilityLabel="PLZ"
                 />
                 <TextInput
                   style={[styles.input, styles.inputCity, { backgroundColor: themeColors.card, color: themeColors.text }, errors.city ? styles.inputError : { borderColor: themeColors.border }]}
@@ -478,6 +492,7 @@ export default function RegisterPublicScreen() {
                   placeholderTextColor={themeColors.textTertiary}
                   value={city}
                   onChangeText={setCity}
+                  accessibilityLabel={t("register.cityPlaceholder")}
                 />
               </View>
             </FormField>
@@ -560,6 +575,9 @@ export default function RegisterPublicScreen() {
                 style={styles.checkboxRow}
                 onPress={() => setConfirmPrivacy((v) => !v)}
                 activeOpacity={0.7}
+                accessibilityRole="checkbox"
+                accessibilityState={{ checked: confirmPrivacy }}
+                accessibilityLabel={t("register.confirmPrivacyPrefix")}
               >
                 <View
                   style={[
@@ -622,6 +640,7 @@ export default function RegisterPublicScreen() {
                 textAlignVertical="top"
                 value={additionalMessage}
                 onChangeText={setAdditionalMessage}
+                accessibilityLabel={t("register.additionalMessage")}
               />
             </FormField>
 
@@ -638,10 +657,13 @@ export default function RegisterPublicScreen() {
                   secureTextEntry={!showPassword}
                   value={password}
                   onChangeText={setPassword}
+                  accessibilityLabel={t("register.password")}
                 />
                 <TouchableOpacity
                   style={{ paddingHorizontal: 10 }}
                   onPress={() => setShowPassword(!showPassword)}
+                  accessibilityRole="button"
+                  accessibilityLabel={showPassword ? t("register.hidePassword") : t("register.showPassword")}
                 >
                   <Text style={{ color: themeColors.textSecondary, fontSize: 13 }}>
                     {showPassword ? t("register.hidePassword") : t("register.showPassword")}
@@ -660,6 +682,7 @@ export default function RegisterPublicScreen() {
                 secureTextEntry={!showPassword}
                 value={passwordConfirm}
                 onChangeText={setPasswordConfirm}
+                accessibilityLabel={t("register.passwordConfirm")}
               />
             </FormField>
 
@@ -682,6 +705,9 @@ export default function RegisterPublicScreen() {
               style={[styles.submitButton, isSubmitting ? { opacity: 0.6 } : {}]}
               onPress={handleSubmit}
               disabled={isSubmitting}
+              accessibilityRole="button"
+              accessibilityLabel={isSubmitting ? t("register.submitting") : t("register.submit")}
+              accessibilityState={{ disabled: isSubmitting }}
             >
               <Text style={styles.submitButtonText}>
                 {isSubmitting ? t("register.submitting") : t("register.submit")}
@@ -693,7 +719,11 @@ export default function RegisterPublicScreen() {
               <Text style={[styles.loginLinkText, { color: themeColors.textSecondary }]}>
                 {t("register.alreadyRegistered")}{" "}
               </Text>
-              <TouchableOpacity onPress={() => router.replace("/(auth)/login")}>
+              <TouchableOpacity
+                onPress={() => router.replace("/(auth)/login")}
+                accessibilityRole="link"
+                accessibilityLabel={t("register.loginLink")}
+              >
                 <Text style={[styles.loginLink, { color: themeColors.link }]}>
                   {t("register.loginLink")}
                 </Text>

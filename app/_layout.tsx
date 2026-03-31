@@ -15,6 +15,8 @@ import { ThemeProvider, useTheme, useThemeColors } from "../contexts/ThemeContex
 import { LoadingScreen } from "../components/LoadingScreen";
 import { registerForPushNotifications } from "../lib/notificationService";
 import { AdminSidebar } from "../components/AdminSidebar";
+import { CommandPalette } from "../components/CommandPalette";
+import { OfflineBanner } from "../components/OfflineBanner";
 
 // Expo Notifications nur auf Native importieren
 let Notifications: typeof import("expo-notifications") | null = null;
@@ -179,6 +181,8 @@ function RootLayoutInner() {
       <NavigationThemeProvider value={navigationTheme}>
         <StatusBar style={isDark ? "light" : "dark"} />
         <NavigationGuard />
+        <CommandPalette />
+        <OfflineBanner />
         <View style={{ flexDirection: "row", flex: 1, backgroundColor: themeColors.background }}>
           <AdminSidebar />
           <View style={{ flex: 1, overflow: "hidden" }}>
@@ -223,6 +227,8 @@ function RootLayoutInner() {
     <NavigationThemeProvider value={navigationTheme}>
       <StatusBar style={isDark ? "light" : "dark"} />
       <NavigationGuard />
+      <CommandPalette />
+      <OfflineBanner />
       <Stack>
         <Stack.Screen name="(auth)" options={{ headerShown: false }} />
         <Stack.Screen name="(tabs)" options={{ headerShown: false }} />

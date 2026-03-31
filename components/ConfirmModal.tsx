@@ -2,12 +2,12 @@ import React from "react";
 import {
   View,
   Text,
-  TouchableOpacity,
   StyleSheet,
   Pressable,
   Modal,
 } from "react-native";
 import { COLORS } from "../constants/Colors";
+import { BNMPressable } from "./BNMPressable";
 import { useLanguage } from "../contexts/LanguageContext";
 import { useTheme, useThemeColors } from "../contexts/ThemeContext";
 
@@ -62,26 +62,27 @@ export function ConfirmModal({
   const isConfirm = type === "confirm";
 
   return (
-    <Modal visible={visible} transparent animationType="fade" statusBarTranslucent onRequestClose={isConfirm ? onCancel : onConfirm}>
+    <Modal visible={visible} transparent animationType="fade" statusBarTranslucent onRequestClose={isConfirm ? onCancel : onConfirm} accessible={true} accessibilityViewIsModal={true}>
     <View style={styles.overlay}>
-      <Pressable style={styles.backdrop} onPress={isConfirm ? onCancel : onConfirm} />
+      <Pressable style={styles.backdrop} onPress={isConfirm ? onCancel : onConfirm} accessibilityLabel="Schließen" accessibilityRole="button" />
       <View style={[styles.card, { backgroundColor: themeColors.card }]}>
         {type !== "confirm" ? <TypeIcon type={type} isDark={isDark} /> : null}
 
         <Text style={[styles.title, { color: themeColors.text }]}>{title}</Text>
-        <Text style={[styles.message, { color: themeColors.textSecondary }]}>{message}</Text>
+        <Text style={[styles.message, { color: themeColors.textSecondary }]} accessibilityRole={type === "error" || type === "success" ? "alert" : undefined}>{message}</Text>
 
         <View style={styles.buttonRow}>
           {isConfirm && onCancel && (
-            <TouchableOpacity
+            <BNMPressable
               style={[styles.cancelButton, { borderColor: themeColors.border }]}
               onPress={onCancel}
-              activeOpacity={0.7}
+              accessibilityRole="button"
+              accessibilityLabel={t("common.cancel")}
             >
               <Text style={[styles.cancelButtonText, { color: themeColors.textSecondary }]}>{t("common.cancel")}</Text>
-            </TouchableOpacity>
+            </BNMPressable>
           )}
-          <TouchableOpacity
+          <BNMPressable
             style={[
               styles.confirmButton,
               type === "error" && { backgroundColor: COLORS.error },
@@ -89,12 +90,14 @@ export function ConfirmModal({
               !isConfirm && styles.confirmButtonFull,
             ]}
             onPress={onConfirm}
-            activeOpacity={0.7}
+            hapticStyle={type === "error" ? "error" : undefined}
+            accessibilityRole="button"
+            accessibilityLabel={isConfirm ? t("common.confirm") : t("common.ok")}
           >
             <Text style={styles.confirmButtonText}>
               {isConfirm ? t("common.confirm") : t("common.ok")}
             </Text>
-          </TouchableOpacity>
+          </BNMPressable>
         </View>
       </View>
     </View>
