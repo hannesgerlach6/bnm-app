@@ -282,20 +282,20 @@ function AdminDashboard({ showSystemSettings = true }: { showSystemSettings?: bo
             <Text style={[styles.pageSubtitle, { color: themeColors.textSecondary }]}>{t("dashboard.subtitle")}</Text>
           </View>
           <TouchableOpacity
-            style={[styles.refreshButton, { backgroundColor: "transparent", borderColor: isDark ? "#FFCA28" : themeColors.border }]}
+            style={[styles.refreshButton, { backgroundColor: "transparent", borderColor: isDark ? themeColors.accent : themeColors.border }]}
             onPress={() => refreshData(true)}
             activeOpacity={0.7}
           >
-            <Ionicons name="reload-outline" size={16} color={isDark ? "#FFCA28" : themeColors.textSecondary} />
-            <Text style={[styles.refreshButtonText, { color: isDark ? "#FFCA28" : themeColors.textSecondary }]}>{t("dashboard.refresh")}</Text>
+            <Ionicons name="reload-outline" size={16} color={isDark ? themeColors.accent : themeColors.textSecondary} />
+            <Text style={[styles.refreshButtonText, { color: isDark ? themeColors.accent : themeColors.textSecondary }]}>{t("dashboard.refresh")}</Text>
           </TouchableOpacity>
         </View>
 
         {/* ── Zeitraum-Bar ────────────────────────────────────────────────── */}
-        <View style={[styles.periodBar, { backgroundColor: themeColors.card, borderColor: isDark ? "#3A3520" : themeColors.border }]}>
+        <View style={[styles.periodBar, { backgroundColor: themeColors.card, borderColor: themeColors.border }]}>
           <View style={styles.periodBarLeft}>
-            <Ionicons name="calendar-outline" size={15} color={isDark ? "#FFCA28" : themeColors.textSecondary} />
-            <Text style={[styles.periodBarLabel, { color: isDark ? "#FFCA28" : themeColors.textSecondary }]}>{t("dashboard.periodBar")}</Text>
+            <Ionicons name="calendar-outline" size={15} color={isDark ? themeColors.accent : themeColors.textSecondary} />
+            <Text style={[styles.periodBarLabel, { color: isDark ? themeColors.accent : themeColors.textSecondary }]}>{t("dashboard.periodBar")}</Text>
           </View>
           <View style={styles.periodBarButtons}>
             {(["thisMonth", "lastMonth", "thisQuarter", "thisYear"] as const).map((p) => (
@@ -304,14 +304,14 @@ function AdminDashboard({ showSystemSettings = true }: { showSystemSettings?: bo
                 style={[
                   styles.periodBtn,
                   activePeriod === p
-                    ? { backgroundColor: isDark ? "#FFCA28" : COLORS.gold, borderColor: isDark ? "#FFCA28" : COLORS.gold }
-                    : { backgroundColor: "transparent", borderColor: isDark ? "#3A3520" : themeColors.border },
+                    ? { backgroundColor: themeColors.accent, borderColor: themeColors.accent }
+                    : { backgroundColor: "transparent", borderColor: themeColors.border },
                 ]}
                 onPress={() => setActivePeriod(p)}
               >
                 <Text style={[
                   styles.periodBtnText,
-                  { color: activePeriod === p ? "#0E0E14" : themeColors.textSecondary },
+                  { color: activePeriod === p ? themeColors.black : themeColors.textSecondary },
                 ]}>
                   {t(`dashboard.period${p.charAt(0).toUpperCase() + p.slice(1)}` as any)}
                 </Text>
@@ -468,7 +468,7 @@ function AdminDashboard({ showSystemSettings = true }: { showSystemSettings?: bo
                 <Text style={[styles.cardTitle, { color: themeColors.text }]}>{t("dashboard.recentActivity")}</Text>
                 {allSortedSessions.length > 5 && (
                   <TouchableOpacity onPress={() => setShowAllActivities((v) => !v)} activeOpacity={0.7}>
-                    <Text style={{ color: isDark ? "#FFCA28" : COLORS.gold, fontSize: 13, fontWeight: "600" }}>
+                    <Text style={{ color: themeColors.accent, fontSize: 13, fontWeight: "600" }}>
                       {showAllActivities ? t("dashboard.showLessActivities") : t("dashboard.showAllActivities").replace("{0}", String(allSortedSessions.length))}
                     </Text>
                   </TouchableOpacity>
@@ -640,7 +640,7 @@ function AdminDashboard({ showSystemSettings = true }: { showSystemSettings?: bo
                 <Text style={{ color: themeColors.textSecondary, fontSize: 11, fontWeight: "600", textAlign: "center" }}>
                   {t("matchingOverview.formula")}
                 </Text>
-                <Text style={{ color: isDark ? "#FFCA28" : COLORS.gold, fontSize: 13, fontWeight: "800", textAlign: "center", marginTop: 4 }}>
+                <Text style={{ color: themeColors.accent, fontSize: 13, fontWeight: "800", textAlign: "center", marginTop: 4 }}>
                   Match% = Punkte / 55 × 100
                 </Text>
               </View>
@@ -1461,14 +1461,14 @@ function StatCard({
 }) {
   const themeColors = useThemeColors();
   const { isDark } = useTheme();
-  const valueColor = isDark ? (highlight ? "#FFCA28" : themeColors.text) : themeColors.text;
+  const valueColor = isDark ? (highlight ? themeColors.accent : themeColors.text) : themeColors.text;
   return (
     <View style={[styles.statCard, {
       backgroundColor: isDark ? themeColors.card : "#FFFFFF",
-      borderColor: isDark ? color + "20" : themeColors.border,
+      borderColor: isDark ? color + "25" : themeColors.border,
     }]}>
-      {/* Subtiler Gradient-Streifen oben */}
-      <View style={[styles.statGradientTop, { backgroundColor: color + (isDark ? "15" : "10") }]} />
+      {/* Linker Akzent-Balken */}
+      <View style={[styles.statAccentBar, { backgroundColor: color }]} />
       <View style={styles.statCardInner}>
         <View style={{ flex: 1 }}>
           <Text style={[styles.statValue, { color: valueColor }]}>{value}</Text>
@@ -1478,7 +1478,7 @@ function StatCard({
           )}
         </View>
         {iconName && (
-          <View style={[styles.statIconCircle, { backgroundColor: color + "18" }]}>
+          <View style={[styles.statIconCircle, { backgroundColor: color + (isDark ? "22" : "15") }]}>
             <Ionicons name={iconName as any} size={20} color={color} />
           </View>
         )}
@@ -1761,19 +1761,21 @@ const styles = StyleSheet.create({
     flex: 1,
     borderRadius: 16,
     borderWidth: 1,
+    flexDirection: "row",
     overflow: "hidden",
     ...SHADOWS.md,
     minHeight: 100,
   },
-  statGradientTop: {
-    height: 3,
-    width: "100%",
+  statAccentBar: {
+    width: 4,
+    alignSelf: "stretch",
   },
   statCardInner: {
     flexDirection: "row",
     alignItems: "center",
-    padding: 16,
-    paddingTop: 14,
+    flex: 1,
+    padding: 14,
+    paddingLeft: 12,
   },
   statIconCircle: {
     width: 44,
@@ -1782,10 +1784,11 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
     marginLeft: 8,
+    flexShrink: 0,
   },
   statLabel: { fontSize: 12, marginTop: 4, fontWeight: "500" },
   statSublabel: { fontSize: 11, marginTop: 2 },
-  statValue: { fontSize: 28, fontWeight: "800", letterSpacing: -0.5 },
+  statValue: { fontSize: 26, fontWeight: "800", letterSpacing: -0.5 },
   rankHintText: { fontSize: 11, textAlign: "center", marginTop: -4 },
   progressTrack: { height: 6, borderRadius: 3, overflow: "hidden" },
   progressFill: { height: "100%", borderRadius: 3 },

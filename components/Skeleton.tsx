@@ -42,7 +42,7 @@ function SkeletonBase({ style }: { style?: ViewStyle }) {
 
 // Rechteckige Karte
 export function SkeletonCard({ height = 80, style }: { height?: number; style?: ViewStyle }) {
-  return <SkeletonBase style={{ height, borderRadius: 8, ...(style ?? {}) }} />;
+  return <SkeletonBase style={{ height, borderRadius: 14, ...(style ?? {}) }} />;
 }
 
 // Schmale Linie
@@ -150,7 +150,7 @@ export function SkeletonChatMessages({ count = 5 }: { count?: number }) {
               style={{
                 height: 44 + (i % 2) * 20,
                 width: `${50 + (i % 3) * 15}%` as `${number}%`,
-                borderRadius: 12,
+                borderRadius: 14,
               }}
             />
           </View>
@@ -163,7 +163,7 @@ export function SkeletonChatMessages({ count = 5 }: { count?: number }) {
 const skeletonStyles = StyleSheet.create({
   kpiCard: {
     flex: 1,
-    borderRadius: 8,
+    borderRadius: 16,
     padding: 14,
     borderWidth: 1,
     margin: 4,
@@ -173,7 +173,7 @@ const skeletonStyles = StyleSheet.create({
     marginBottom: 0,
   },
   section: {
-    borderRadius: 8,
+    borderRadius: 16,
     padding: 16,
     borderWidth: 1,
     marginTop: 12,
@@ -187,7 +187,7 @@ const styles = StyleSheet.create({
   userCard: {
     flexDirection: "row",
     alignItems: "center",
-    borderRadius: 8,
+    borderRadius: 14,
     padding: 14,
     marginBottom: 10,
     gap: 12,

@@ -19,7 +19,7 @@ import { useAuth } from "../contexts/AuthContext";
 import { BNMLogo } from "./BNMLogo";
 import { useData } from "../contexts/DataContext";
 import { useLanguage } from "../contexts/LanguageContext";
-import { useThemeColors } from "../contexts/ThemeContext";
+import { useTheme, useThemeColors } from "../contexts/ThemeContext";
 import { COLORS, SPACING, RADIUS } from "../constants/Colors";
 
 const SIDEBAR_EXPANDED = 250;
@@ -47,15 +47,15 @@ function SidebarItem({
   collapsed,
 }: SidebarItemProps) {
   const themeColors = useThemeColors();
-  const isDark = themeColors.background === "#0E0E14";
+  const { isDark } = useTheme();
   const [isHovered, setIsHovered] = useState(false);
 
-  const activeAccent = isDark ? "#FFCA28" : "#EEA71B";
-  const activeTextColor = isDark ? "#FFCA28" : "#0E0E14";
-  const activeBg = isDark ? "rgba(255,202,40,0.08)" : "rgba(238,167,27,0.10)";
+  const activeAccent = themeColors.accent;
+  const activeTextColor = isDark ? themeColors.accent : themeColors.text;
+  const activeBg = isDark ? "rgba(238,167,27,0.10)" : "rgba(238,167,27,0.10)";
   const hoverBg = isDark ? "rgba(255,255,255,0.04)" : "rgba(0,0,0,0.03)";
-  const inactiveIconColor = isDark ? "#6E6E7A" : themeColors.textSecondary;
-  const inactiveTextColor = isDark ? "#9E9EAA" : themeColors.textSecondary;
+  const inactiveIconColor = themeColors.textSecondary;
+  const inactiveTextColor = themeColors.textSecondary;
 
   const webHoverProps = Platform.OS === "web" ? {
     onMouseEnter: () => setIsHovered(true),
@@ -94,7 +94,7 @@ function SidebarItem({
         styles.iconCircle,
         collapsed && styles.iconCircleCollapsed,
         isActive
-          ? { backgroundColor: isDark ? "rgba(255,202,40,0.15)" : "rgba(238,167,27,0.15)" }
+          ? { backgroundColor: "rgba(238,167,27,0.15)" }
           : { backgroundColor: "transparent" },
       ]}>
         <Ionicons
@@ -137,9 +137,9 @@ function SidebarItem({
 
       {/* Web Tooltip bei Hover im Collapsed-Modus */}
       {collapsed && isHovered && Platform.OS === "web" && (
-        <View style={[styles.tooltip, { backgroundColor: isDark ? "#1E1E2A" : "#1a1a2e" }]}>
+        <View style={[styles.tooltip, { backgroundColor: isDark ? themeColors.elevated : "#1a1a2e" }]}>
           <Text style={styles.tooltipText}>{label}</Text>
-          <View style={[styles.tooltipArrow, { borderRightColor: isDark ? "#1E1E2A" : "#1a1a2e" }]} />
+          <View style={[styles.tooltipArrow, { borderRightColor: isDark ? themeColors.elevated : "#1a1a2e" }]} />
         </View>
       )}
     </BNMPressable>
@@ -152,7 +152,7 @@ export function AdminSidebar() {
   const router = useRouter();
   const pathname = usePathname();
   const themeColors = useThemeColors();
-  const isDark = themeColors.background === "#0E0E14";
+  const { isDark } = useTheme();
   const { t } = useLanguage();
   const { getUnreadCount, getTotalUnreadMessages } = useData();
   const { user, logout } = useAuth();
@@ -244,13 +244,13 @@ export function AdminSidebar() {
         {
           width: sidebarWidth,
           minWidth: sidebarWidth,
-          backgroundColor: isDark ? "#0A0A10" : "#FAFBFC",
-          borderRightColor: isDark ? "#1A1A24" : themeColors.border,
+          backgroundColor: themeColors.surface,
+          borderRightColor: themeColors.border,
         },
       ]}
     >
       {/* Logo + Collapse Toggle */}
-      <View style={[styles.logoArea, { borderBottomColor: isDark ? "#1A1A24" : themeColors.border }]}>
+      <View style={[styles.logoArea, { borderBottomColor: themeColors.border }]}>
         {!collapsed && (
           <View style={{ marginBottom: 12 }}>
             <BNMLogo size={48} showSubtitle={false} />
@@ -258,14 +258,14 @@ export function AdminSidebar() {
         )}
         <BNMPressable
           onPress={toggleCollapsed}
-          style={[styles.collapseBtn, { backgroundColor: isDark ? "rgba(255,255,255,0.05)" : "rgba(0,0,0,0.04)" }]}
+          style={[styles.collapseBtn, { backgroundColor: isDark ? "rgba(255,255,255,0.05)" : "rgba(10,58,90,0.05)" }]}
           accessibilityRole="button"
           accessibilityLabel={collapsed ? "Sidebar ausklappen" : "Sidebar einklappen"}
         >
           <Ionicons
             name={collapsed ? "chevron-forward-outline" : "chevron-back-outline"}
             size={16}
-            color={isDark ? "#6E6E7A" : themeColors.textTertiary}
+            color={themeColors.textTertiary}
           />
         </BNMPressable>
       </View>
@@ -273,7 +273,7 @@ export function AdminSidebar() {
       {/* Sektions-Label */}
       {!collapsed && (
         <View style={styles.sectionLabelWrap}>
-          <Text style={[styles.sectionLabel, { color: isDark ? "#4E4E5A" : themeColors.textTertiary }]}>
+          <Text style={[styles.sectionLabel, { color: themeColors.textTertiary }]}>
             NAVIGATION
           </Text>
         </View>
@@ -300,7 +300,7 @@ export function AdminSidebar() {
       </ScrollView>
 
       {/* Unten: Profil + Logout */}
-      <View style={[styles.bottomArea, { borderTopColor: isDark ? "#1A1A24" : themeColors.border }]}>
+      <View style={[styles.bottomArea, { borderTopColor: themeColors.border }]}>
         <SidebarItem
           key="profile"
           label={t("tabs.profile")}
