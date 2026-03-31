@@ -242,10 +242,6 @@ export default function DocumentSessionScreen() {
 
     const newFieldErrors: Record<string, string> = {};
 
-    if (!details.trim()) {
-      newFieldErrors.details = t("docSession.detailsRequired");
-    }
-
     if (!date.trim()) {
       newFieldErrors.date = t("docSession.dateError");
     } else {

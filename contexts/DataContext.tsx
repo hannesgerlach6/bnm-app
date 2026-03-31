@@ -424,7 +424,9 @@ export function DataProvider({ children }: { children: ReactNode }) {
         // Kein Cache oder Cache leer/veraltet: normal laden mit Loading-Indikator
         // Safety-Timer canceln — loadAllData wird jetzt direkt aufgerufen
         clearTimeout(safetyTimer);
-        loadAllData(false);
+        // Fallback: nach 15 Sekunden isLoading force-auf-false setzen falls loadAllData hängt
+        const loadingFallback = setTimeout(() => setIsLoading(false), 15_000);
+        loadAllData(false).finally(() => clearTimeout(loadingFallback));
       }
     })();
 

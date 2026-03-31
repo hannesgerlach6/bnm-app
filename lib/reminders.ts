@@ -48,14 +48,15 @@ export function checkReminders(
     // Schwellwert überschritten?
     if (daysSinceLastSession <= thresholdMs) continue;
 
-    // Bereits eine Erinnerung in den letzten 2 Tagen gesendet?
-    const recentReminder = notifications.find(
+    // Bereits eine ungelesene Erinnerung vorhanden ODER eine innerhalb des Cooldowns?
+    // → Keine neue erstellen, sonst wächst der Badge mit jeder App-Öffnung.
+    const existingReminder = notifications.find(
       (n) =>
         n.type === 'reminder' &&
         n.related_id === mentorship.id &&
-        now - new Date(n.created_at).getTime() < cooldownMs
+        (!n.read || now - new Date(n.created_at).getTime() < cooldownMs)
     );
-    if (recentReminder) continue;
+    if (existingReminder) continue;
 
     // Erinnerung generieren
     const menteeName = mentorship.mentee?.name ?? 'deinem Mentee';
