@@ -29,9 +29,11 @@ Alle SQL-Änderungen dokumentieren. Selbstständig handeln.
   5. `supabase/fix-realtime.sql` — Realtime für profiles + mentorships
   6. `supabase/fix-duplicate-check.sql` — Duplikats-Check Funktion
   7. `supabase/qa-table.sql` — Q&A Tabelle
-  8. Dashboard: Auth → Email → "Confirm email" OFF
-  9. Test-User manuell anlegen + Profile-INSERT
-  10. `lib/supabase.ts`: URL + Anon Key ändern (2 Zeilen)
+  8. `supabase/fix-mentorship-notes.sql` — notes-Spalte für Mentorships
+  9. `supabase/fix-admin-chat.sql` — Admin darf in Chats schreiben (RLS)
+  10. Dashboard: Auth → Email → "Confirm email" OFF
+  11. Test-User manuell anlegen + Profile-INSERT
+  12. `lib/supabase.ts`: URL + Anon Key ändern (2 Zeilen)
 
 ## ROLLEN
 

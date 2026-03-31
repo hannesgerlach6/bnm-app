@@ -140,6 +140,13 @@ export default function ChatScreen() {
               msg.sender ??
               (isOwn ? { name: user.name } : { name: chatPartnerName ?? "?" });
 
+            // Admin/Office: Rolle statt echtem Namen anzeigen
+            const senderRole = (msg.sender as any)?.role;
+            const displayName =
+              senderRole === "admin" ? "Admin" :
+              senderRole === "office" ? "Office" :
+              sender.name ?? chatPartnerName ?? "?";
+
             const timeStr = new Date(msg.created_at).toLocaleTimeString("de-DE", {
               hour: "2-digit",
               minute: "2-digit",
@@ -154,7 +161,7 @@ export default function ChatScreen() {
                 ]}
               >
                 {!isOwn && (
-                  <Text style={[styles.senderName, { color: themeColors.textTertiary }]}>{sender.name}</Text>
+                  <Text style={[styles.senderName, { color: themeColors.textTertiary }]}>{displayName}</Text>
                 )}
                 <TouchableOpacity
                   activeOpacity={0.8}
@@ -196,14 +203,8 @@ export default function ChatScreen() {
         <View style={{ height: 16 }} />
       </ScrollView>
 
-      {/* Input-Bereich — nur bei aktiver Betreuung, nicht für Admin/Office (nur Lesen) */}
-      {user?.role === "admin" || user?.role === "office" ? (
-        <View style={[styles.inputContainer, { backgroundColor: themeColors.card, borderTopColor: themeColors.border, paddingBottom: Platform.OS !== "web" ? Math.max(insets.bottom, 16) + 12 : 10 }]}>
-          <Text style={[styles.inactiveHint, { color: themeColors.textTertiary }]}>
-            {t("chat.adminReadOnly")}
-          </Text>
-        </View>
-      ) : mentorship && (mentorship.status === "active" || mentorship.status === "completed") ? (
+      {/* Input-Bereich — Admin/Office dürfen schreiben (als Beobachter/Moderator) */}
+      {mentorship && (mentorship.status === "active" || mentorship.status === "completed") ? (
         <View style={[styles.inputContainer, { backgroundColor: themeColors.card, borderTopColor: themeColors.border, paddingBottom: Platform.OS !== "web" ? Math.max(insets.bottom, 16) + 12 : 10 }]}>
           <TextInput
             style={[styles.textInput, { backgroundColor: themeColors.elevated, borderColor: themeColors.border, color: themeColors.text }]}

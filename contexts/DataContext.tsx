@@ -998,11 +998,13 @@ export function DataProvider({ children }: { children: ReactNode }) {
           const row = payload.new as Record<string, unknown>;
           const incomingMentorshipId = row.mentorship_id as string;
 
-          // Rollenfilter: Nur Nachrichten aus eigenen Mentorships verarbeiten
-          if (authUser) {
+          // Rollenfilter: Nur Nachrichten aus eigenen Mentorships verarbeiten.
+          // Wenn mentorshipsRef noch leer ist (Daten noch nicht geladen), Nachricht
+          // trotzdem durchlassen — Supabase RLS filtert bereits serverseitig,
+          // Duplikate werden durch den setMessages-Check unten verhindert.
+          if (authUser && mentorshipsRef.current.length > 0) {
             const role = authUser.role;
             if (role !== "admin" && role !== "office") {
-              // mentorshipsRef.current ist immer aktuell (kein Closure-Problem)
               const isOwn = mentorshipsRef.current.some((m) => {
                 if (m.id !== incomingMentorshipId) return false;
                 if (role === "mentor") return m.mentor_id === authUser.id;
