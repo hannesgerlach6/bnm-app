@@ -31,9 +31,10 @@ Alle SQL-Änderungen dokumentieren. Selbstständig handeln.
   7. `supabase/qa-table.sql` — Q&A Tabelle
   8. `supabase/fix-mentorship-notes.sql` — notes-Spalte für Mentorships
   9. `supabase/fix-admin-chat.sql` — Admin darf in Chats schreiben (RLS)
-  10. Dashboard: Auth → Email → "Confirm email" OFF
-  11. Test-User manuell anlegen + Profile-INSERT
-  12. `lib/supabase.ts`: URL + Anon Key ändern (2 Zeilen)
+  10. `supabase/fix-profiles-rls.sql` — Admin/Office-Profile für alle sichtbar (Chat-Name-Fix)
+  12. Dashboard: Auth → Email → "Confirm email" OFF
+  13. Test-User manuell anlegen + Profile-INSERT
+  14. `lib/supabase.ts`: URL + Anon Key ändern (2 Zeilen)
 
 ## ROLLEN
 
