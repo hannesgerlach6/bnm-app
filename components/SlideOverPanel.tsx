@@ -52,7 +52,7 @@ export function SlideOverPanel({ visible, onClose, children, title }: SlideOverP
   if (Platform.OS !== "web") return null;
   if (!visible) return null;
 
-  const goldBorder = isDark ? "#3A3520" : themeColors.border;
+  const goldBorder = themeColors.border;
 
   return (
     <View style={styles.container}>
@@ -74,7 +74,7 @@ export function SlideOverPanel({ visible, onClose, children, title }: SlideOverP
             transform: [{ scale: scaleAnim }],
             opacity: opacityAnim,
           },
-          Platform.OS === "web" ? ({ boxShadow: "0 20px 60px rgba(0,0,0,0.4)" } as any) : {},
+          Platform.OS === "web" ? ({ boxShadow: "0 24px 64px rgba(10,58,90,0.35), 0 4px 16px rgba(0,0,0,0.2)" } as any) : {},
         ]}
       >
         {/* Header */}
@@ -101,13 +101,13 @@ export function SlideOverPanel({ visible, onClose, children, title }: SlideOverP
         {/* Footer: Schließen Button */}
         <View style={[styles.modalFooter, { borderTopColor: goldBorder }]}>
           <TouchableOpacity
-            style={[styles.closeFooterButton, { backgroundColor: isDark ? "#FFCA28" : "#EEA71B" }]}
+            style={[styles.closeFooterButton, { backgroundColor: themeColors.accent }]}
             onPress={onClose}
             activeOpacity={0.8}
             accessibilityRole="button"
             accessibilityLabel={t("common.close")}
           >
-            <Text style={[styles.closeFooterText, { color: isDark ? "#0E0E14" : "#fff" }]}>{t("common.close")}</Text>
+            <Text style={[styles.closeFooterText, { color: themeColors.black }]}>{t("common.close")}</Text>
           </TouchableOpacity>
         </View>
       </Animated.View>
@@ -135,7 +135,7 @@ const styles = StyleSheet.create({
     backgroundColor: "rgba(0,0,0,0.45)",
   },
   modal: {
-    borderRadius: 16,
+    borderRadius: 20,
     borderWidth: 1,
     overflow: "hidden",
   },
@@ -175,8 +175,8 @@ const styles = StyleSheet.create({
     paddingHorizontal: 24,
   },
   closeFooterButton: {
-    borderRadius: 10,
-    paddingVertical: 12,
+    borderRadius: 14,
+    paddingVertical: 13,
     alignItems: "center",
   },
   closeFooterText: {

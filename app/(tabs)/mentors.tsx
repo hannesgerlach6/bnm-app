@@ -455,7 +455,7 @@ const styles = StyleSheet.create({
   pageTitle: { fontSize: 26, fontWeight: "800", letterSpacing: -0.3, textAlign: "center" },
   pageSubtitle: { fontSize: 13, textAlign: "center" },
   searchInput: {
-    borderRadius: 12,
+    borderRadius: 14,
     borderWidth: 1,
     paddingHorizontal: 14,
     paddingVertical: 10,
@@ -506,7 +506,7 @@ const styles = StyleSheet.create({
   },
   csvButtonText: { fontSize: 12, fontWeight: "600" },
   blockedBadge: {
-    borderRadius: 8,
+    borderRadius: 10,
     paddingHorizontal: 5,
     paddingVertical: 1,
   },
@@ -556,7 +556,7 @@ const styles = StyleSheet.create({
   footerBarText: { fontSize: 14, fontWeight: "500" },
   footerDeleteBtn: {
     backgroundColor: COLORS.error,
-    borderRadius: 12,
+    borderRadius: 14,
     paddingHorizontal: 16,
     paddingVertical: 8,
   },
@@ -580,7 +580,7 @@ const styles = StyleSheet.create({
   modalButtons: { flexDirection: "row", gap: 10 },
   modalBtn: {
     flex: 1,
-    borderRadius: 12,
+    borderRadius: 14,
     borderWidth: 1,
     paddingVertical: 10,
     alignItems: "center",
@@ -591,7 +591,7 @@ const styles = StyleSheet.create({
   modalBtnDisabled: { backgroundColor: "#666", borderColor: "#666", opacity: 0.5 },
   deleteInput: {
     borderWidth: 1,
-    borderRadius: 12,
+    borderRadius: 14,
     paddingHorizontal: 12,
     paddingVertical: 10,
     fontSize: 15,

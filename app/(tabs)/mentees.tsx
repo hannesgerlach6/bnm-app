@@ -680,7 +680,7 @@ function MentorMenteesView() {
                 {t("mentees.noMenteesText")}
               </Text>
               <BNMPressable
-                style={{ backgroundColor: COLORS.gradientStart, borderRadius: 5, paddingVertical: 9, paddingHorizontal: 20 }}
+                style={{ backgroundColor: COLORS.gradientStart, borderRadius: 10, paddingVertical: 10, paddingHorizontal: 20 }}
                 onPress={() => router.push("/assign")}
               >
                 <Text style={{ color: COLORS.white, fontWeight: "600", fontSize: 14 }}>
@@ -1108,7 +1108,7 @@ const styles = StyleSheet.create({
     gap: 12,
     paddingHorizontal: 14,
     paddingVertical: 8,
-    borderRadius: 6,
+    borderRadius: 12,
     borderWidth: 1,
     marginBottom: 12,
   },
@@ -1145,7 +1145,7 @@ const styles = StyleSheet.create({
   footerBarText: { fontSize: 14, fontWeight: "500" },
   footerDeleteBtn: {
     backgroundColor: COLORS.error,
-    borderRadius: 6,
+    borderRadius: 10,
     paddingHorizontal: 16,
     paddingVertical: 8,
   },
@@ -1169,7 +1169,7 @@ const styles = StyleSheet.create({
   modalButtons: { flexDirection: "row", gap: 10 },
   modalBtn: {
     flex: 1,
-    borderRadius: 6,
+    borderRadius: 10,
     borderWidth: 1,
     paddingVertical: 10,
     alignItems: "center",
@@ -1179,7 +1179,7 @@ const styles = StyleSheet.create({
   modalBtnDisabled: { backgroundColor: "#666", borderColor: "#666", opacity: 0.5 },
   deleteInput: {
     borderWidth: 1,
-    borderRadius: 6,
+    borderRadius: 10,
     paddingHorizontal: 12,
     paddingVertical: 10,
     fontSize: 15,
@@ -1192,7 +1192,7 @@ const styles = StyleSheet.create({
   pageSubtitle: { fontSize: 13, textAlign: "center" as const },
   csvButton: {
     borderWidth: 1,
-    borderRadius: 6,
+    borderRadius: 10,
     paddingHorizontal: 10,
     paddingVertical: 6,
     marginTop: 4,
@@ -1201,7 +1201,7 @@ const styles = StyleSheet.create({
   sectionTitle: { fontSize: 18, fontWeight: "600", marginBottom: 10 },
   searchInput: {
     borderWidth: 1,
-    borderRadius: 12,
+    borderRadius: 14,
     paddingHorizontal: 14,
     paddingVertical: 10,
     marginBottom: 12,
@@ -1216,7 +1216,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 10,
     paddingVertical: 10,
     minHeight: 44,
-    borderRadius: 5,
+    borderRadius: 10,
     borderWidth: 1,
     flexShrink: 0,
   },
@@ -1250,7 +1250,7 @@ const styles = StyleSheet.create({
   menteeCardHeader: { flexDirection: "row", alignItems: "flex-start", justifyContent: "space-between", marginBottom: 8 },
   meneeName: { fontWeight: "700", fontSize: 15, letterSpacing: -0.2 },
   menteeSubText: { fontSize: 12 },
-  statusBadge: { paddingHorizontal: 10, paddingVertical: 4, borderRadius: 8 },
+  statusBadge: { paddingHorizontal: 10, paddingVertical: 4, borderRadius: 10 },
   statusText: { fontSize: 12, fontWeight: "500" },
   mentorLabel: { fontSize: 12, marginBottom: 8 },
   progressRow: { flexDirection: "row", alignItems: "center", gap: 8 },
@@ -1260,7 +1260,7 @@ const styles = StyleSheet.create({
   assignButton: {
     marginTop: 10,
     backgroundColor: COLORS.gradientStart,
-    borderRadius: 12,
+    borderRadius: 14,
     paddingVertical: 10,
     paddingHorizontal: 20,
     alignItems: "center",
@@ -1301,7 +1301,7 @@ const styles = StyleSheet.create({
   blockedBadgeText: { fontSize: 11, fontWeight: "600" },
   selfAssignButton: {
     backgroundColor: COLORS.gradientStart,
-    borderRadius: 12,
+    borderRadius: 14,
     paddingVertical: 10,
     paddingHorizontal: 16,
     marginBottom: 12,
@@ -1310,7 +1310,7 @@ const styles = StyleSheet.create({
   selfAssignText: { color: COLORS.white, fontWeight: "600", fontSize: 14 },
   progressHeaderCard: {
     backgroundColor: COLORS.gradientStart,  // intentional accent color
-    borderRadius: 8,
+    borderRadius: 14,
     padding: 16,
     marginBottom: 16,
     ...SHADOWS.md,
@@ -1324,8 +1324,8 @@ const styles = StyleSheet.create({
     backgroundColor: "rgba(39,174,96,0.08)",
     borderWidth: 1,
     borderColor: "rgba(39,174,96,0.3)",
-    borderRadius: 5,
-    paddingVertical: 9,
+    borderRadius: 10,
+    paddingVertical: 10,
     paddingHorizontal: 16,
     marginBottom: 24,
     flexDirection: "row",
