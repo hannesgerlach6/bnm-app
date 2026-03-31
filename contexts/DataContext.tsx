@@ -2209,50 +2209,51 @@ export function DataProvider({ children }: { children: ReactNode }) {
       const isMenteeRegistration = app.motivation === "Anmeldung als neuer Muslim (öffentliches Formular)";
 
       if (!isMenteeRegistration) {
-        // Admin-Session sichern BEVOR signUp aufgerufen wird
-        // signUp loggt automatisch den neuen User ein → Admin-Session geht verloren
-        const { data: adminSession } = await supabase.auth.getSession();
+        // Prüfen ob der User bereits einen Account hat (vermeidet 422-Fehler von signUp)
+        const { data: existingProfile } = await supabase
+          .from("profiles")
+          .select("id")
+          .eq("email", app.email)
+          .maybeSingle();
 
-        // Mentor: Zufälliges temporäres Passwort
-        const tempPassword = "BNM-" + Math.floor(100000 + Math.random() * 900000);
+        if (existingProfile) {
+          // Account existiert bereits → nur Status aktualisieren, kein E-Mail
+          showSuccess("Bewerbung genehmigt. Account war bereits vorhanden.");
+        } else {
+          // Admin-Session sichern BEVOR signUp aufgerufen wird
+          // signUp loggt automatisch den neuen User ein → Admin-Session geht verloren
+          const { data: adminSession } = await supabase.auth.getSession();
 
-        const { data: signUpData, error: signUpError } = await supabaseAnon.auth.signUp({
-          email: app.email,
-          password: tempPassword,
-          options: {
-            data: {
-              name: app.name,
-              role: "mentor",
-              gender: app.gender,
-              city: app.city,
-              age: app.age,
+          // Mentor: Zufälliges temporäres Passwort
+          const tempPassword = "BNM-" + Math.floor(100000 + Math.random() * 900000);
+
+          const { data: signUpData, error: signUpError } = await supabaseAnon.auth.signUp({
+            email: app.email,
+            password: tempPassword,
+            options: {
+              data: {
+                name: app.name,
+                role: "mentor",
+                gender: app.gender,
+                city: app.city,
+                age: app.age,
+              },
             },
-          },
-        });
-
-        // Admin-Session sofort wiederherstellen
-        if (adminSession?.session) {
-          await supabase.auth.setSession({
-            access_token: adminSession.session.access_token,
-            refresh_token: adminSession.session.refresh_token,
           });
-        }
 
-        // Prüfen ob der Account bereits existiert (user_already_exists / 422)
-        const userAlreadyExists =
-          signUpError &&
-          (signUpError.message.includes("already registered") ||
-            signUpError.message.includes("User already registered") ||
-            (signUpError as any).status === 422 ||
-            (signUpError as any).code === "user_already_exists");
+          // Admin-Session sofort wiederherstellen
+          if (adminSession?.session) {
+            await supabase.auth.setSession({
+              access_token: adminSession.session.access_token,
+              refresh_token: adminSession.session.refresh_token,
+            });
+          }
 
-        if (signUpError && !userAlreadyExists) {
-          // Echter Fehler → abbrechen
-          showError(`Fehler beim Erstellen des Accounts: ${signUpError.message}`);
-          return;
-        }
+          if (signUpError) {
+            showError(`Fehler beim Erstellen des Accounts: ${signUpError.message}`);
+            return;
+          }
 
-        if (!userAlreadyExists) {
           // Neuer Account: Profil nachladen (mit Verzögerung, damit der DB-Trigger Zeit hat)
           if (signUpData?.user) {
             await new Promise((r) => setTimeout(r, 1000));
@@ -2282,9 +2283,6 @@ export function DataProvider({ children }: { children: ReactNode }) {
               "Willkommen als Mentor bei BNM. Du bist jetzt aktiv.",
             );
           }
-        } else {
-          // Account existiert bereits → nur Status aktualisieren, kein E-Mail
-          showSuccess("Bewerbung genehmigt. Account war bereits vorhanden.");
         }
       }
 
