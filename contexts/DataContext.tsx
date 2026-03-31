@@ -1404,8 +1404,9 @@ export function DataProvider({ children }: { children: ReactNode }) {
         const lastDate = existing.last_activity_date as string | null;
         if (lastDate === today) return;
 
+        // UTC-konsistent: getUTCDate statt getDate (vermeidet Zeitzone-Bug 0–2 Uhr)
         const yesterday = new Date();
-        yesterday.setDate(yesterday.getDate() - 1);
+        yesterday.setUTCDate(yesterday.getUTCDate() - 1);
         const yesterdayStr = yesterday.toISOString().split("T")[0];
 
         const newStreakCount = lastDate === yesterdayStr ? (existing.current_streak as number) + 1 : 1;
