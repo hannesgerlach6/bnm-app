@@ -393,8 +393,9 @@ export function DataProvider({ children }: { children: ReactNode }) {
     (async () => {
       const cached = await readCache();
 
-      // Cache gilt als nutzbar, wenn users vorhanden (mind. 2 Einträge)
-      const cacheUsable = cached !== null && cached.users.length >= 2;
+      // Cache gilt als nutzbar, wenn mindestens 1 User vorhanden
+      // (>= 2 würde bei neuen Usern die nur sich selbst sehen immer fehlschlagen)
+      const cacheUsable = cached !== null && cached.users.length >= 1;
 
       if (cacheUsable && cached) {
         // Cache sofort anzeigen → kein leerer Screen während des Ladens
