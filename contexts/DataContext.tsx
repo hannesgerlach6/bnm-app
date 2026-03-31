@@ -502,6 +502,16 @@ export function DataProvider({ children }: { children: ReactNode }) {
       // Platzhalter für Queries die nur für bestimmte Rollen ausgeführt werden
       const empty = Promise.resolve({ data: null, error: null });
 
+      // Timeout: Wenn Supabase-Queries nach 12s nicht antworten → Fehler werfen
+      // Verhindert dauerhaftes "isLoading=true" bei hängender Verbindung
+      const withTimeout = <T>(p: Promise<T>): Promise<T> =>
+        Promise.race([
+          p,
+          new Promise<T>((_, reject) =>
+            setTimeout(() => reject(new Error("Supabase query timeout (12s)")), 12_000)
+          ),
+        ]);
+
       const [
         profilesRes,
         mentorshipsRes,
@@ -519,7 +529,7 @@ export function DataProvider({ children }: { children: ReactNode }) {
         achievementsRes,
         thanksRes,
         streakRes,
-      ] = await Promise.all([
+      ] = await withTimeout(Promise.all([
         supabase.from("profiles").select("*"),
         supabase.from("mentorships").select("*"),
         supabase.from("sessions").select("*"),
@@ -540,7 +550,7 @@ export function DataProvider({ children }: { children: ReactNode }) {
         isMentor ? supabase.from("achievements").select("*").eq("user_id", authUser!.id) : empty,
         isMentor ? supabase.from("thanks").select("*").eq("mentor_id", authUser!.id).order("created_at", { ascending: false }) : empty,
         isMentor ? supabase.from("streaks").select("*").eq("user_id", authUser!.id).maybeSingle() : empty,
-      ] as const);
+      ] as const));
 
       // Error-Logging: Supabase-Fehler sichtbar machen
       if (profilesRes.error) console.warn("[DataContext] profiles error:", profilesRes.error.message);
@@ -677,13 +687,16 @@ export function DataProvider({ children }: { children: ReactNode }) {
       }
 
       // Messages — nur eigene Mentorships laden (Rollenfilter)
+      // Wenn ownMentorshipIds leer ist (RLS-Timing: Mentorships noch nicht zurückgekommen),
+      // ALLE Messages behalten — Supabase-RLS filtert bereits serverseitig.
+      // Kein versehentliches Leeren des Chats beim Reload.
       if (messagesRes.data) {
         const profileMap: Record<string, User> = {};
         if (profilesRes.data) {
           profilesRes.data.map(mapProfile).forEach((u) => (profileMap[u.id] = u));
         }
         const msgs: Message[] = messagesRes.data
-          .filter((row) => ownMentorshipIds.has(row.mentorship_id as string))
+          .filter((row) => ownMentorshipIds.size === 0 || ownMentorshipIds.has(row.mentorship_id as string))
           .map((row) => ({
             id: row.id as string,
             mentorship_id: row.mentorship_id as string,

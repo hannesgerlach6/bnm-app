@@ -140,11 +140,17 @@ export default function ChatScreen() {
               msg.sender ??
               (isOwn ? { name: user.name } : { name: chatPartnerName ?? "?" });
 
-            // Admin/Office: Rolle statt echtem Namen anzeigen
+            // Sender-Anzeige: Admin/Office → Rolle zeigen
+            // Wenn Sender weder Mentor noch Mentee der Mentorship ist → muss Admin/Office sein
+            // (Profil evtl. nicht sichtbar wegen Gender-RLS → Fallback via Mentorship-IDs)
             const senderRole = (msg.sender as any)?.role;
+            const isThirdParty = !isOwn
+              && msg.sender_id !== mentorship?.mentor_id
+              && msg.sender_id !== mentorship?.mentee_id;
             const displayName =
               senderRole === "admin" ? "Admin" :
               senderRole === "office" ? "Office" :
+              isThirdParty ? "Admin" :
               sender.name ?? chatPartnerName ?? "?";
 
             const timeStr = new Date(msg.created_at).toLocaleTimeString("de-DE", {
