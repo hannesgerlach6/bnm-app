@@ -276,7 +276,6 @@ function AdminDashboard({ showSystemSettings = true }: { showSystemSettings?: bo
     <>
     <ScrollView
       style={[styles.scrollView, { backgroundColor: themeColors.background }]}
-      contentContainerStyle={{ paddingTop: insets.top }}
       refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor={COLORS.gold} />}
     >
       <View style={styles.page}>
@@ -873,7 +872,6 @@ function MentorDashboard() {
   return (
     <ScrollView
       style={[styles.scrollView, { backgroundColor: themeColors.background }]}
-      contentContainerStyle={{ paddingTop: insets.top }}
       refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor={COLORS.gold} />}
     >
       <View style={styles.page}>
@@ -1290,7 +1288,6 @@ function MenteeDashboard() {
   return (
     <ScrollView
       style={[styles.scrollView, { backgroundColor: themeColors.background }]}
-      contentContainerStyle={{ paddingTop: insets.top }}
       refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor={COLORS.gold} />}
     >
       <View style={styles.page}>

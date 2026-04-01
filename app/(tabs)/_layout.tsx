@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import {
   TouchableOpacity,
   View,
@@ -15,6 +15,7 @@ import { useData } from "../../contexts/DataContext";
 import { useLanguage } from "../../contexts/LanguageContext";
 import { useThemeColors } from "../../contexts/ThemeContext";
 import { COLORS } from "../../constants/Colors";
+import { AdminMobileDrawer } from "../../components/AdminMobileDrawer";
 
 // ─── Bell Button ────────────────────────────────────────────────────────────
 
@@ -334,6 +335,58 @@ function AdminSidebarLayout() {
   );
 }
 
+// ─── Admin Mobile Layout (Hamburger-Menü, kein TabBar) ──────────────────────
+
+function AdminMobileLayout() {
+  const themeColors = useThemeColors();
+  const { t } = useLanguage();
+  const { user } = useAuth();
+  const isOffice = user?.role === "office";
+  const [drawerOpen, setDrawerOpen] = useState(false);
+
+  const headerLeft = useCallback(() => (
+    <TouchableOpacity
+      onPress={() => setDrawerOpen(true)}
+      style={{ paddingLeft: 16, paddingRight: 8, width: 44, height: 44, alignItems: "center", justifyContent: "center" }}
+      accessibilityRole="button"
+      accessibilityLabel="Menü öffnen"
+    >
+      <Ionicons name="menu" size={26} color={COLORS.gold} />
+    </TouchableOpacity>
+  ), []);
+
+  const headerRight = useCallback(() => <BellButton />, []);
+
+  return (
+    <>
+      <Tabs
+        screenOptions={{
+          tabBarStyle: { display: "none", height: 0, overflow: "hidden" },
+          headerShown: true,
+          headerStyle: { backgroundColor: themeColors.headerBackground },
+          headerTintColor: themeColors.headerText,
+          headerLeft,
+          headerRight,
+          lazy: false,
+        }}
+      >
+        <Tabs.Screen name="index" options={{ title: t("tabs.dashboard") }} />
+        <Tabs.Screen name="mentees" options={{ title: t("tabs.mentees") }} />
+        <Tabs.Screen name="chats" options={{ title: t("tabs.chats"), href: isOffice ? null : undefined }} />
+        <Tabs.Screen name="leaderboard" options={{ href: null }} />
+        <Tabs.Screen name="faq" options={{ href: null }} />
+        <Tabs.Screen name="mentors" options={{ title: t("sidebar.mentors") }} />
+        <Tabs.Screen name="applications" options={{ title: t("sidebar.applications") }} />
+        <Tabs.Screen name="tools" options={{ title: "Tools" }} />
+        <Tabs.Screen name="reports" options={{ title: t("tabs.reports") }} />
+        <Tabs.Screen name="feedback" options={{ title: t("tabs.feedback") }} />
+        <Tabs.Screen name="profile" options={{ title: t("tabs.profile") }} />
+      </Tabs>
+      <AdminMobileDrawer open={drawerOpen} onClose={() => setDrawerOpen(false)} />
+    </>
+  );
+}
+
 // ─── Root Layout Switcher ────────────────────────────────────────────────────
 
 export default function TabLayout() {
@@ -345,12 +398,21 @@ export default function TabLayout() {
 
   const isAdminOrOffice = user?.role === "admin" || user?.role === "office";
   const isWeb = Platform.OS === "web";
+  const isMobile = Platform.OS !== "web";
+
   // Sidebar nur auf Web und bei Admin/Office, und nur wenn Viewport breit genug (>= 768px)
   // hasMounted verhindert Hydration-Mismatch (Server: width=0, Client: echter Viewport)
   const useSidebar = hasMounted && isWeb && isAdminOrOffice && width >= 768;
 
+  // Admin/Office auf Mobile: Hamburger-Menü statt TabBar
+  const useMobileAdminDrawer = hasMounted && isMobile && isAdminOrOffice;
+
   if (useSidebar) {
     return <AdminSidebarLayout />;
+  }
+
+  if (useMobileAdminDrawer) {
+    return <AdminMobileLayout />;
   }
 
   return <TabsLayout />;
