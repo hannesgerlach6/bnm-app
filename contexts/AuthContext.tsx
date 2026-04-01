@@ -80,7 +80,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const login = useCallback(
     async (email: string, password: string): Promise<"ok" | "banned" | "invalid"> => {
-      setIsLoading(true);
+      // KEIN setIsLoading(true) hier — isLoading ist nur für den initialen Session-Check.
+      // setIsLoading(true) würde _layout.tsx dazu bringen den Login-Screen zu unmounten,
+      // sodass Fehlermeldungen nach Rückkehr verloren gehen (sieht aus wie "Page-Refresh").
       try {
         const { data, error } = await supabase.auth.signInWithPassword({
           email: email.trim().toLowerCase(),
@@ -88,7 +90,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         });
 
         if (error || !data.user) {
-          setIsLoading(false);
           // Supabase setzt banned_until → Login schlägt mit "User is banned" fehl
           if (error?.message?.toLowerCase().includes("ban") || error?.message?.toLowerCase().includes("user_banned")) {
             return "banned";
@@ -101,15 +102,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         // Fallback: is_active prüfen falls banned_until doch nicht gesetzt war
         if (profile?.is_active === false) {
           await supabase.auth.signOut();
-          setIsLoading(false);
           return "banned";
         }
 
         setUser(profile);
-        setIsLoading(false);
         return "ok";
       } catch {
-        setIsLoading(false);
         return "invalid";
       }
     },

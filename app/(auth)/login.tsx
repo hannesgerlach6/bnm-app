@@ -21,7 +21,7 @@ import { BNMLogo } from "../../components/BNMLogo";
 
 export default function LoginScreen() {
   const router = useRouter();
-  const { login, isLoading } = useAuth();
+  const { login } = useAuth();
   const { t } = useLanguage();
   const themeColors = useThemeColors();
   const { isDark } = useTheme();
@@ -30,6 +30,7 @@ export default function LoginScreen() {
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [errorMsg, setErrorMsg] = useState("");
+  const [loggingIn, setLoggingIn] = useState(false);
 
   async function handleLogin() {
     if (!email.trim() || !password.trim()) {
@@ -37,7 +38,9 @@ export default function LoginScreen() {
       return;
     }
     setErrorMsg("");
+    setLoggingIn(true);
     const result = await login(email.trim(), password);
+    setLoggingIn(false);
     if (result === "banned") {
       setErrorMsg(t("login.errorBanned"));
     } else if (result !== "ok") {
@@ -114,12 +117,12 @@ export default function LoginScreen() {
           <BNMPressable
             style={styles.loginButton}
             onPress={handleLogin}
-            disabled={isLoading}
+            disabled={loggingIn}
             accessibilityRole="button"
             accessibilityLabel={t("login.submit")}
-            accessibilityState={{ disabled: isLoading }}
+            accessibilityState={{ disabled: loggingIn }}
           >
-            {isLoading ? (
+            {loggingIn ? (
               <ActivityIndicator color="#FFFFFF" />
             ) : (
               <Text style={styles.loginButtonText}>{t("login.submit")}</Text>
