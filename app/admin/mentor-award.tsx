@@ -70,6 +70,25 @@ export default function MentorAwardScreen() {
   const [loadingPast, setLoadingPast] = useState(true);
   const [viewingPastAward, setViewingPastAward] = useState<MentorAward | null>(null);
 
+  // Mentor des Monats berechnen (höchster Score) — MUSS vor Early-Return stehen (Hooks-Regel)
+  const topMentor = useMemo(() => {
+    const mentors = users.filter((u) => u.role === "mentor");
+    if (mentors.length === 0) return null;
+    const scored = mentors.map((mentor) => {
+      const myMs = mentorships.filter((m) => m.mentor_id === mentor.id);
+      const completedCount = myMs.filter((m) => m.status === "completed").length;
+      const sessionCount = sessions.filter((s) => myMs.some((m) => m.id === s.mentorship_id)).length;
+      const score = completedCount * 10 + sessionCount * 3;
+      return { mentor, score, completedCount, sessionCount };
+    }).sort((a, b) => b.score - a.score);
+    return scored[0].score > 0 ? scored[0] : null;
+  }, [users, mentorships, sessions]);
+
+  // Vergangene Awards laden — MUSS vor Early-Return stehen (Hooks-Regel)
+  useEffect(() => {
+    loadPastAwards();
+  }, []);
+
   // Vergangener Monat?
   const isMonthEnded =
     selectedYear < now.getFullYear() ||
@@ -87,31 +106,8 @@ export default function MentorAwardScreen() {
   // Vergangener Monat ohne gespeicherten Award
   const noAwardForPeriod = isMonthEnded && effectiveAward === null;
 
-  // Erstellen nur erlaubt wenn echte Daten vorhanden
+  // Erstellen nur erlaubt wenn echte Daten vorhanden (topMentor bereits oben deklariert)
   const canCreateCertificate = !noAwardForPeriod && (effectiveAward !== null || (!isMonthEnded && topMentor !== null));
-
-  // Zugriff nur für Admin
-  if (!authUser || (authUser.role !== "admin" && authUser.role !== "office")) {
-    return (
-      <View style={{ flex: 1, alignItems: "center", justifyContent: "center", backgroundColor: themeColors.background }}>
-        <Text style={{ color: themeColors.error }}>{t("applications.accessDenied")}</Text>
-      </View>
-    );
-  }
-
-  // Mentor des Monats berechnen (höchster Score)
-  const topMentor = useMemo(() => {
-    const mentors = users.filter((u) => u.role === "mentor");
-    if (mentors.length === 0) return null;
-    const scored = mentors.map((mentor) => {
-      const myMs = mentorships.filter((m) => m.mentor_id === mentor.id);
-      const completedCount = myMs.filter((m) => m.status === "completed").length;
-      const sessionCount = sessions.filter((s) => myMs.some((m) => m.id === s.mentorship_id)).length;
-      const score = completedCount * 10 + sessionCount * 3;
-      return { mentor, score, completedCount, sessionCount };
-    }).sort((a, b) => b.score - a.score);
-    return scored[0].score > 0 ? scored[0] : null;
-  }, [users, mentorships, sessions]);
 
   // Wenn mentorId per params übergeben, diesen Mentor verwenden
   const paramMentor = params.mentorId ? getUserById(params.mentorId) : null;
@@ -124,10 +120,14 @@ export default function MentorAwardScreen() {
   const displayMonth = effectiveAward?.month ?? selectedMonth;
   const displayYear = effectiveAward?.year ?? selectedYear;
 
-  // Vergangene Awards laden
-  useEffect(() => {
-    loadPastAwards();
-  }, []);
+  // Zugriff nur für Admin — Early-Return NACH allen Hooks
+  if (!authUser || (authUser.role !== "admin" && authUser.role !== "office")) {
+    return (
+      <View style={{ flex: 1, alignItems: "center", justifyContent: "center", backgroundColor: themeColors.background }}>
+        <Text style={{ color: themeColors.error }}>{t("applications.accessDenied")}</Text>
+      </View>
+    );
+  }
 
   async function loadPastAwards() {
     setLoadingPast(true);
