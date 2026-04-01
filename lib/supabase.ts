@@ -13,7 +13,9 @@ export const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
     autoRefreshToken: true,
     detectSessionInUrl: true,
     debug: false,
-    lock: undefined, // Deaktiviert den Navigator.locks Lock — verhindert AbortError auf Web
+    // navigator.locks komplett deaktivieren — verhindert AbortError + Lock-Timeout auf Web.
+    // lock: undefined deaktiviert NICHT, es braucht eine no-op Funktion.
+    lock: (_name: string, _timeout: number, fn: () => Promise<unknown>) => fn(),
     flowType: "pkce",
   },
 });
