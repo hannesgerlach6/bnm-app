@@ -114,7 +114,8 @@ function RootLayoutInner() {
 
   useEffect(() => {
     if (loaded) {
-      SplashScreen.hideAsync();
+      // .catch() verhindert den Expo-Go-Fehler "No native splash screen registered"
+      SplashScreen.hideAsync().catch(() => {});
     }
   }, [loaded]);
 
