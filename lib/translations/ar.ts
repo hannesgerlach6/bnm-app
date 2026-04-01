@@ -643,6 +643,7 @@ const ar: Record<TranslationKeys, string> = {
   "changePassword.errorTooShort": "يجب أن تتكون كلمة المرور الجديدة من 8 أحرف على الأقل.",
   "changePassword.errorMatch": "كلمتا المرور غير متطابقتين.",
   "changePassword.errorSame": "يجب أن تختلف كلمة المرور الجديدة عن القديمة.",
+  "changePassword.errorTimeout": "انتهت مهلة الطلب – يرجى المحاولة مرة أخرى.",
   "changePassword.successMsg": "تم تغيير كلمة مرورك بنجاح.",
 
   // Notifications

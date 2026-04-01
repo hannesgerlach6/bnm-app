@@ -641,6 +641,7 @@ const de = {
   "changePassword.errorTooShort": "Das neue Passwort muss mindestens 8 Zeichen lang sein.",
   "changePassword.errorMatch": "Die Passwörter stimmen nicht überein.",
   "changePassword.errorSame": "Das neue Passwort muss sich vom alten unterscheiden.",
+  "changePassword.errorTimeout": "Zeitüberschreitung – bitte erneut versuchen.",
   "changePassword.successMsg": "Dein Passwort wurde erfolgreich geändert.",
 
   // Notifications

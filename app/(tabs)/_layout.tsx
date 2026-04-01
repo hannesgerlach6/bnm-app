@@ -335,7 +335,11 @@ function TabsLayout() {
           title: t("tabs.ranking"),
           href: showLeaderboard ? undefined : null,
           tabBarIcon: ({ color, focused }) => (
-            <TabIcon iosName="trophy" iosActiveName="trophy.fill" ionName="trophy" color={color} focused={focused} />
+            // Ionicons statt SymbolView — trophy SF Symbol hat schlechte Proportionen im Tab Bar
+            <View style={tabStyles.iconWrapper}>
+              <Ionicons name={focused ? "trophy" : "trophy-outline"} size={22} color={color} />
+              {focused && <View style={[tabStyles.activeDot, { backgroundColor: color }]} />}
+            </View>
           ),
         }}
       />

@@ -643,6 +643,7 @@ const tr: Record<TranslationKeys, string> = {
   "changePassword.errorTooShort": "Yeni şifre en az 8 karakter olmalıdır.",
   "changePassword.errorMatch": "Şifreler eşleşmiyor.",
   "changePassword.errorSame": "Yeni şifre eskisinden farklı olmalıdır.",
+  "changePassword.errorTimeout": "İstek zaman aşımına uğradı – lütfen tekrar deneyin.",
   "changePassword.successMsg": "Şifren başarıyla değiştirildi.",
 
   // Notifications

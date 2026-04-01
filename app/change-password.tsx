@@ -51,16 +51,26 @@ export default function ChangePasswordScreen() {
 
     setIsSaving(true);
     try {
-      // Session vor updateUser() frisch holen — ohne diesen Schritt schlägt
-      // updateUser() auf manchen Geräten mit "Auth session missing" fehl,
-      // weil der Access-Token abgelaufen ist (besonders bei Mentoren).
-      await supabase.auth.refreshSession().catch(() => {});
-      const { error: updateError } = await supabase.auth.updateUser({ password: newPassword });
-      if (updateError) {
-        showError(updateError.message);
+      // Promise.race mit 12s Timeout — updateUser() hängt auf Android manchmal
+      // dauerhaft (kein Resolve/Reject), was den Button permanent als "Wird geändert..."
+      // einfriert. Mit dem Timeout-Race wird spätestens nach 12s reagiert.
+      const timeoutResult = new Promise<null>((resolve) =>
+        setTimeout(() => resolve(null), 12000)
+      );
+      const result = await Promise.race([
+        supabase.auth.updateUser({ password: newPassword }),
+        timeoutResult,
+      ]);
+
+      if (result === null) {
+        showError(t("changePassword.errorTimeout") ?? "Zeitüberschreitung – bitte erneut versuchen.");
+      } else if (result.error) {
+        showError(result.error.message);
       } else {
         showSuccess(t("changePassword.successMsg"), () => router.back());
       }
+    } catch (e: any) {
+      showError(e?.message ?? t("common.error"));
     } finally {
       setIsSaving(false);
     }
@@ -77,7 +87,7 @@ export default function ChangePasswordScreen() {
     <Container fullWidth={Platform.OS === "web"}>
       <KeyboardAvoidingView
         style={[styles.root, { backgroundColor: themeColors.background }]}
-        behavior={Platform.OS === "ios" ? "padding" : "height"}
+        behavior="padding"
       >
         {/* Header */}
         <View style={[styles.header, { backgroundColor: themeColors.card, borderBottomColor: themeColors.border, paddingTop: insets.top + 16 }]}>

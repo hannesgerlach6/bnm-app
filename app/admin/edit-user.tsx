@@ -172,7 +172,7 @@ function EditUserForm({ userId }: { userId: string }) {
     <Container fullWidth={Platform.OS === "web"}>
       <KeyboardAvoidingView
         style={styles.flex1}
-        behavior={Platform.OS === "ios" ? "padding" : "height"}
+        behavior="padding"
       >
         {/* Header */}
         <View style={[styles.header, { backgroundColor: themeColors.card, borderBottomColor: themeColors.border }]}>

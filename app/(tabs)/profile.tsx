@@ -75,7 +75,8 @@ export default function ProfileScreen() {
     }
     if (user.role === "mentee") {
       const mentorship = getMentorshipByMenteeId(user.id);
-      if (!mentorship || !mentorship.mentor) return null;
+      // Mentor erst anzeigen wenn Admin die Zuweisung bestätigt hat (status === "active")
+      if (!mentorship || mentorship.status !== "active" || !mentorship.mentor) return null;
       return { person: mentorship.mentor, label: t("profile.myMentorSection"), mentorshipId: mentorship.id };
     }
     return null;

@@ -643,6 +643,7 @@ const en: Record<TranslationKeys, string> = {
   "changePassword.errorTooShort": "The new password must be at least 8 characters long.",
   "changePassword.errorMatch": "Passwords do not match.",
   "changePassword.errorSame": "The new password must differ from the old one.",
+  "changePassword.errorTimeout": "Request timed out – please try again.",
   "changePassword.successMsg": "Your password has been successfully changed.",
 
   // Notifications

@@ -129,7 +129,7 @@ function ChatPanel({ mentorshipId }: { mentorshipId: string }) {
   return (
     <KeyboardAvoidingView
       style={panelStyles.container}
-      behavior={Platform.OS === "ios" ? "padding" : "height"}
+      behavior="padding"
       keyboardVerticalOffset={Platform.OS === "ios" ? 90 : 0}
     >
       {/* Chat-Header */}
@@ -406,6 +406,7 @@ function AdminChatPanel({ userId, adminId }: { userId: string; adminId?: string 
     getAdminMessagesByUserId,
     sendAdminMessage,
     replyToAdmin,
+    markAdminChatAsRead,
     users: allUsers,
   } = useData();
 
@@ -417,6 +418,14 @@ function AdminChatPanel({ userId, adminId }: { userId: string; adminId?: string 
   const chatPartner = allUsers.find((u) => u.id === userId);
 
   const isAdmin = user?.role === "admin" || user?.role === "office";
+
+  // Badge löschen: Admin-DMs als gelesen markieren wenn der Chat geöffnet wird
+  useEffect(() => {
+    if (!isAdmin) {
+      markAdminChatAsRead(userId);
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [userId, isAdmin, messages.length]);
 
   async function handleSend() {
     if (!inputText.trim() || !user) return;
@@ -442,7 +451,7 @@ function AdminChatPanel({ userId, adminId }: { userId: string; adminId?: string 
   return (
     <KeyboardAvoidingView
       style={panelStyles.container}
-      behavior={Platform.OS === "ios" ? "padding" : "height"}
+      behavior="padding"
       keyboardVerticalOffset={Platform.OS === "ios" ? 90 : 0}
     >
       {/* Header */}

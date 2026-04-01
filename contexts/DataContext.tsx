@@ -187,6 +187,7 @@ export interface DataContextValue {
   getTotalUnreadMessages: () => number;
   getTotalUnreadAdminMessages: () => number;
   markChatAsRead: (mentorshipId: string) => Promise<void>;
+  markAdminChatAsRead: (userId: string) => Promise<void>;
 
   // Refresh
   refreshData: (force?: boolean) => Promise<void>;
@@ -2960,6 +2961,35 @@ export function DataProvider({ children }: { children: ReactNode }) {
     ).length;
   }, [adminMessages, authUser]);
 
+  // Admin-DMs als gelesen markieren (für Mentor/Mentee wenn sie den Admin-Chat öffnen)
+  const markAdminChatAsRead = useCallback(
+    async (userId: string) => {
+      if (!authUser) return;
+      const now = new Date().toISOString();
+
+      const { error } = await supabase
+        .from("admin_messages")
+        .update({ read_at: now })
+        .eq("user_id", userId)
+        .neq("sender_id", authUser.id)
+        .is("read_at", null);
+
+      if (error) {
+        console.warn("markAdminChatAsRead failed:", error.message);
+        return;
+      }
+
+      setAdminMessages((prev) =>
+        prev.map((m) =>
+          m.user_id === userId && m.sender_id !== authUser.id && !m.read_at
+            ? { ...m, read_at: now }
+            : m
+        )
+      );
+    },
+    [authUser?.id]
+  );
+
   const markChatAsRead = useCallback(
     async (mentorshipId: string) => {
       if (!authUser) return;
@@ -3077,6 +3107,7 @@ export function DataProvider({ children }: { children: ReactNode }) {
         getTotalUnreadMessages,
         getTotalUnreadAdminMessages,
         markChatAsRead,
+        markAdminChatAsRead,
         refreshData,
         isLoading,
       }}

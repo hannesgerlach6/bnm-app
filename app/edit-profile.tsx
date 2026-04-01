@@ -152,7 +152,7 @@ export default function EditProfileScreen() {
     <Container fullWidth={Platform.OS === "web"}>
       <KeyboardAvoidingView
         style={[styles.root, { backgroundColor: themeColors.background }]}
-        behavior={Platform.OS === "ios" ? "padding" : "height"}
+        behavior="padding"
       >
         {/* Header */}
         <View style={[styles.header, { backgroundColor: themeColors.card, borderBottomColor: themeColors.border, paddingTop: insets.top + 16 }]}>
