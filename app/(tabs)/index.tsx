@@ -10,7 +10,6 @@ import { useLanguage } from "../../contexts/LanguageContext";
 import { showError, showSuccess } from "../../lib/errorHandler";
 import type { Mentorship, Feedback } from "../../types";
 import { COLORS, SHADOWS, RADIUS, TYPOGRAPHY } from "../../constants/Colors";
-import { FAB } from "../../components/FAB";
 import { Confetti } from "../../components/Confetti";
 import { Container } from "../../components/Container";
 import { useTheme, useThemeColors } from "../../contexts/ThemeContext";
@@ -1117,14 +1116,6 @@ function MentorDashboard() {
 
       </View>
     </ScrollView>
-    <FAB
-      icon="document-text-outline"
-      color={COLORS.gold}
-      actions={[
-        { icon: "create-outline", label: t("mentor.documentSession"), onPress: () => router.push("/document-session"), color: COLORS.gradientStart },
-        { icon: "chatbubble-outline", label: t("tabs.chats"), onPress: () => router.push("/(tabs)/chats"), color: COLORS.cta },
-      ]}
-    />
     </View>
   );
 }
