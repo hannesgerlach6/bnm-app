@@ -174,10 +174,8 @@ function RootLayoutInner() {
 
   const navigationTheme = isDark ? BNMDarkTheme : BNMLightTheme;
 
-  // Auf Web für Admin/Office: Sidebar permanent neben dem Stack anzeigen,
-  // damit sie auch auf Detail-Screens (assign, mentorship/[id], admin/...) sichtbar bleibt.
-  const isAdminOrOffice = user?.role === "admin" || user?.role === "office";
-  const showPermanentSidebar = hasMounted && Platform.OS === "web" && isAdminOrOffice && width >= 768;
+  // Auf Web: Sidebar permanent neben dem Stack für alle eingeloggten User
+  const showPermanentSidebar = hasMounted && Platform.OS === "web" && !!user && width >= 768;
 
   // Gemeinsame Screen-Transition-Options (nur auf Native — Web hat eigene CSS-Transitions)
   const isNative = Platform.OS !== "web";
@@ -225,6 +223,8 @@ function RootLayoutInner() {
               <Stack.Screen name="admin/donor-report" options={{ headerShown: false }} />
               <Stack.Screen name="admin/pending-approvals" options={{ headerShown: false }} />
               <Stack.Screen name="admin/mentor-award" options={{ headerShown: false }} />
+              <Stack.Screen name="admin/message-templates" options={{ headerShown: false }} />
+              <Stack.Screen name="admin/certificate-generator" options={{ headerShown: false }} />
             </Stack>
           </View>
         </View>
@@ -395,6 +395,18 @@ function RootLayoutInner() {
         />
         <Stack.Screen
           name="admin/mentor-award"
+          options={{
+            headerShown: false,
+          }}
+        />
+        <Stack.Screen
+          name="admin/message-templates"
+          options={{
+            headerShown: false,
+          }}
+        />
+        <Stack.Screen
+          name="admin/certificate-generator"
           options={{
             headerShown: false,
           }}
