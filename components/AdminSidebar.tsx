@@ -1,6 +1,6 @@
 /**
- * AdminSidebar — Einklappbar (Collapsed/Expanded), scrollbar bei Zoom,
- * inspiriert von Musemind Dashboard Sidebar Navigation.
+ * AppSidebar — Einklappbar (Collapsed/Expanded), scrollbar bei Zoom,
+ * rollenabhängige Navigation für alle User auf Web.
  */
 import React, { useState, useEffect } from "react";
 import {
@@ -146,9 +146,9 @@ function SidebarItem({
   );
 }
 
-// ─── AdminSidebar ─────────────────────────────────────────────────────────────
+// ─── AppSidebar ──────────────────────────────────────────────────────────────
 
-export function AdminSidebar() {
+export function AppSidebar() {
   const router = useRouter();
   const pathname = usePathname();
   const themeColors = useThemeColors();
@@ -197,26 +197,47 @@ export function AdminSidebar() {
     ? "tools"
     : pathname.includes("/feedback")
     ? "feedback"
-    : pathname.includes("/chats")
+    : pathname.includes("/chats") || pathname.includes("/chat/")
     ? "chats"
     : pathname.includes("/leaderboard")
     ? "leaderboard"
+    : pathname.includes("/faq") || pathname.includes("/qa")
+    ? "faq"
     : pathname.includes("/profile")
     ? "profile"
     : "index";
 
-  const mainItems = [
-    { key: "index", label: t("tabs.dashboard"), iconName: "grid-outline", iconNameActive: "grid", href: "/(tabs)/" },
-    { key: "mentees", label: t("tabs.mentees"), iconName: "people-outline", iconNameActive: "people", href: "/(tabs)/mentees" },
-    { key: "mentors", label: t("sidebar.mentors"), iconName: "school-outline", iconNameActive: "school", href: "/(tabs)/mentors" },
-    { key: "applications", label: t("sidebar.applications"), iconName: "document-text-outline", iconNameActive: "document-text", href: "/(tabs)/applications" },
-    { key: "tools", label: "Tools", iconName: "construct-outline", iconNameActive: "construct", href: "/(tabs)/tools" },
-    { key: "feedback", label: t("tabs.feedback"), iconName: "star-outline", iconNameActive: "star", href: "/(tabs)/feedback" },
-    ...(!isOffice
-      ? [{ key: "chats", label: t("tabs.chats"), iconName: "chatbubbles-outline", iconNameActive: "chatbubbles", href: "/(tabs)/chats", badge: chatUnread }]
-      : []),
-    { key: "reports", label: t("tabs.reports"), iconName: "stats-chart-outline", iconNameActive: "stats-chart", href: "/(tabs)/reports" },
-  ];
+  const role = user?.role;
+  const isMentor = role === "mentor";
+  const isMentee = role === "mentee";
+
+  // Rollenabhängige Menüpunkte
+  const mainItems = isMentee
+    ? [
+        { key: "index", label: t("tabs.dashboard"), iconName: "grid-outline", iconNameActive: "grid", href: "/(tabs)/" },
+        { key: "chats", label: t("tabs.chats"), iconName: "chatbubbles-outline", iconNameActive: "chatbubbles", href: "/(tabs)/chats", badge: chatUnread },
+        { key: "faq", label: t("tabs.faq"), iconName: "help-circle-outline", iconNameActive: "help-circle", href: "/(tabs)/faq" },
+      ]
+    : isMentor
+    ? [
+        { key: "index", label: t("tabs.dashboard"), iconName: "grid-outline", iconNameActive: "grid", href: "/(tabs)/" },
+        { key: "mentees", label: t("tabs.mentees"), iconName: "people-outline", iconNameActive: "people", href: "/(tabs)/mentees" },
+        { key: "chats", label: t("tabs.chats"), iconName: "chatbubbles-outline", iconNameActive: "chatbubbles", href: "/(tabs)/chats", badge: chatUnread },
+        { key: "leaderboard", label: t("tabs.ranking"), iconName: "trophy-outline", iconNameActive: "trophy", href: "/(tabs)/leaderboard" },
+      ]
+    : [
+        // Admin/Office
+        { key: "index", label: t("tabs.dashboard"), iconName: "grid-outline", iconNameActive: "grid", href: "/(tabs)/" },
+        { key: "mentees", label: t("tabs.mentees"), iconName: "people-outline", iconNameActive: "people", href: "/(tabs)/mentees" },
+        { key: "mentors", label: t("sidebar.mentors"), iconName: "school-outline", iconNameActive: "school", href: "/(tabs)/mentors" },
+        { key: "applications", label: t("sidebar.applications"), iconName: "document-text-outline", iconNameActive: "document-text", href: "/(tabs)/applications" },
+        { key: "tools", label: "Tools", iconName: "construct-outline", iconNameActive: "construct", href: "/(tabs)/tools" },
+        { key: "feedback", label: t("tabs.feedback"), iconName: "star-outline", iconNameActive: "star", href: "/(tabs)/feedback" },
+        ...(!isOffice
+          ? [{ key: "chats", label: t("tabs.chats"), iconName: "chatbubbles-outline", iconNameActive: "chatbubbles", href: "/(tabs)/chats", badge: chatUnread }]
+          : []),
+        { key: "reports", label: t("tabs.reports"), iconName: "stats-chart-outline", iconNameActive: "stats-chart", href: "/(tabs)/reports" },
+      ];
 
   const handleLogout = () => {
     if (Platform.OS === "web") {
@@ -512,3 +533,6 @@ const styles = StyleSheet.create({
     flexShrink: 1,
   },
 });
+
+/** @deprecated Nutze AppSidebar */
+export const AdminSidebar = AppSidebar;

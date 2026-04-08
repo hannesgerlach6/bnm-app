@@ -14,7 +14,7 @@ import { LanguageProvider } from "../contexts/LanguageContext";
 import { ThemeProvider, useTheme, useThemeColors } from "../contexts/ThemeContext";
 import { LoadingScreen } from "../components/LoadingScreen";
 import { registerForPushNotifications } from "../lib/notificationService";
-import { AdminSidebar } from "../components/AdminSidebar";
+import { AppSidebar } from "../components/AdminSidebar";
 import { CommandPalette } from "../components/CommandPalette";
 import { OfflineBanner } from "../components/OfflineBanner";
 import { ToastProvider } from "../components/Toast";
@@ -174,10 +174,9 @@ function RootLayoutInner() {
 
   const navigationTheme = isDark ? BNMDarkTheme : BNMLightTheme;
 
-  // Auf Web für Admin/Office: Sidebar permanent neben dem Stack anzeigen,
+  // Auf Web: Sidebar permanent neben dem Stack anzeigen für alle eingeloggten User,
   // damit sie auch auf Detail-Screens (assign, mentorship/[id], admin/...) sichtbar bleibt.
-  const isAdminOrOffice = user?.role === "admin" || user?.role === "office";
-  const showPermanentSidebar = hasMounted && Platform.OS === "web" && isAdminOrOffice && width >= 768;
+  const showPermanentSidebar = hasMounted && Platform.OS === "web" && !!user && width >= 768;
 
   // Gemeinsame Screen-Transition-Options (nur auf Native — Web hat eigene CSS-Transitions)
   const isNative = Platform.OS !== "web";
@@ -193,7 +192,7 @@ function RootLayoutInner() {
         <CommandPalette />
         <OfflineBanner />
         <View style={{ flexDirection: "row", flex: 1, backgroundColor: themeColors.background }}>
-          <AdminSidebar />
+          <AppSidebar />
           <View style={{ flex: 1, overflow: "hidden" }}>
             <Stack screenOptions={{ ...slideAnimation }}>
               <Stack.Screen name="(auth)" options={{ headerShown: false, ...fadeAnimation }} />

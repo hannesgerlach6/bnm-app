@@ -32,7 +32,11 @@ export function AdminMobileDrawer({ open, onClose }: Props) {
   const { user, logout } = useAuth();
   const { getTotalUnreadMessages } = useData();
 
-  const isOffice = user?.role === "office";
+  const role = user?.role;
+  const isOffice = role === "office";
+  const isAdminOrOffice = role === "admin" || role === "office";
+  const isMentor = role === "mentor";
+  const isMentee = role === "mentee";
   const chatUnread = isOffice ? 0 : getTotalUnreadMessages();
 
   const [visible, setVisible] = useState(false);
@@ -55,76 +59,36 @@ export function AdminMobileDrawer({ open, onClose }: Props) {
     }
   }, [open]);
 
-  const navItems = [
-    {
-      key: "/",
-      label: t("tabs.dashboard"),
-      icon: "grid-outline" as const,
-      iconActive: "grid" as const,
-      href: "/(tabs)/",
-    },
-    {
-      key: "/mentees",
-      label: t("tabs.mentees"),
-      icon: "people-outline" as const,
-      iconActive: "people" as const,
-      href: "/(tabs)/mentees",
-    },
-    {
-      key: "/mentors",
-      label: t("sidebar.mentors"),
-      icon: "school-outline" as const,
-      iconActive: "school" as const,
-      href: "/(tabs)/mentors",
-    },
-    {
-      key: "/applications",
-      label: t("sidebar.applications"),
-      icon: "document-text-outline" as const,
-      iconActive: "document-text" as const,
-      href: "/(tabs)/applications",
-    },
-    ...(!isOffice
-      ? [
-          {
-            key: "/chats",
-            label: t("tabs.chats"),
-            icon: "chatbubbles-outline" as const,
-            iconActive: "chatbubbles" as const,
-            href: "/(tabs)/chats",
-            badge: chatUnread,
-          },
-        ]
-      : []),
-    {
-      key: "/tools",
-      label: "Tools",
-      icon: "construct-outline" as const,
-      iconActive: "construct" as const,
-      href: "/(tabs)/tools",
-    },
-    {
-      key: "/reports",
-      label: t("tabs.reports"),
-      icon: "stats-chart-outline" as const,
-      iconActive: "stats-chart" as const,
-      href: "/(tabs)/reports",
-    },
-    {
-      key: "/feedback",
-      label: t("tabs.feedback"),
-      icon: "star-outline" as const,
-      iconActive: "star" as const,
-      href: "/(tabs)/feedback",
-    },
-    {
-      key: "/profile",
-      label: t("tabs.profile"),
-      icon: "person-circle-outline" as const,
-      iconActive: "person-circle" as const,
-      href: "/(tabs)/profile",
-    },
-  ];
+  // Rollenabhängige Menüpunkte
+  const navItems = isMentee
+    ? [
+        { key: "/", label: t("tabs.dashboard"), icon: "grid-outline" as const, iconActive: "grid" as const, href: "/(tabs)/" },
+        { key: "/chats", label: t("tabs.chats"), icon: "chatbubbles-outline" as const, iconActive: "chatbubbles" as const, href: "/(tabs)/chats", badge: chatUnread },
+        { key: "/faq", label: t("tabs.faq"), icon: "help-circle-outline" as const, iconActive: "help-circle" as const, href: "/(tabs)/faq" },
+        { key: "/profile", label: t("tabs.profile"), icon: "person-circle-outline" as const, iconActive: "person-circle" as const, href: "/(tabs)/profile" },
+      ]
+    : isMentor
+    ? [
+        { key: "/", label: t("tabs.dashboard"), icon: "grid-outline" as const, iconActive: "grid" as const, href: "/(tabs)/" },
+        { key: "/mentees", label: t("tabs.mentees"), icon: "people-outline" as const, iconActive: "people" as const, href: "/(tabs)/mentees" },
+        { key: "/chats", label: t("tabs.chats"), icon: "chatbubbles-outline" as const, iconActive: "chatbubbles" as const, href: "/(tabs)/chats", badge: chatUnread },
+        { key: "/leaderboard", label: t("tabs.ranking"), icon: "trophy-outline" as const, iconActive: "trophy" as const, href: "/(tabs)/leaderboard" },
+        { key: "/profile", label: t("tabs.profile"), icon: "person-circle-outline" as const, iconActive: "person-circle" as const, href: "/(tabs)/profile" },
+      ]
+    : [
+        // Admin/Office
+        { key: "/", label: t("tabs.dashboard"), icon: "grid-outline" as const, iconActive: "grid" as const, href: "/(tabs)/" },
+        { key: "/mentees", label: t("tabs.mentees"), icon: "people-outline" as const, iconActive: "people" as const, href: "/(tabs)/mentees" },
+        { key: "/mentors", label: t("sidebar.mentors"), icon: "school-outline" as const, iconActive: "school" as const, href: "/(tabs)/mentors" },
+        { key: "/applications", label: t("sidebar.applications"), icon: "document-text-outline" as const, iconActive: "document-text" as const, href: "/(tabs)/applications" },
+        ...(!isOffice
+          ? [{ key: "/chats", label: t("tabs.chats"), icon: "chatbubbles-outline" as const, iconActive: "chatbubbles" as const, href: "/(tabs)/chats", badge: chatUnread }]
+          : []),
+        { key: "/tools", label: "Tools", icon: "construct-outline" as const, iconActive: "construct" as const, href: "/(tabs)/tools" },
+        { key: "/reports", label: t("tabs.reports"), icon: "stats-chart-outline" as const, iconActive: "stats-chart" as const, href: "/(tabs)/reports" },
+        { key: "/feedback", label: t("tabs.feedback"), icon: "star-outline" as const, iconActive: "star" as const, href: "/(tabs)/feedback" },
+        { key: "/profile", label: t("tabs.profile"), icon: "person-circle-outline" as const, iconActive: "person-circle" as const, href: "/(tabs)/profile" },
+      ];
 
   function isActive(key: string) {
     if (key === "/") return pathname === "/" || pathname === "/index";
@@ -156,7 +120,7 @@ export function AdminMobileDrawer({ open, onClose }: Props) {
           <View>
             <Text style={styles.drawerBrand}>BNM</Text>
             <Text style={[styles.drawerRole, { color: themeColors.textSecondary }]}>
-              {user?.role === "admin" ? t("profile.roleAdmin") : t("profile.roleOffice")}
+              {role === "admin" ? t("profile.roleAdmin") : role === "office" ? t("profile.roleOffice") : role === "mentor" ? t("profile.roleMentor") : t("profile.roleMentee")}
             </Text>
           </View>
           <TouchableOpacity

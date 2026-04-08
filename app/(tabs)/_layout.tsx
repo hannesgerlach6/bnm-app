@@ -511,20 +511,23 @@ export default function TabLayout() {
   const isWeb = Platform.OS === "web";
   const isMobile = Platform.OS !== "web";
 
-  // Sidebar nur auf Web und bei Admin/Office, und nur wenn Viewport breit genug (>= 768px)
-  // hasMounted verhindert Hydration-Mismatch (Server: width=0, Client: echter Viewport)
-  const useSidebar = hasMounted && isWeb && isAdminOrOffice && width >= 768;
+  // Web Desktop (>= 768px): Sidebar für ALLE eingeloggten User
+  const useSidebar = hasMounted && isWeb && !!user && width >= 768;
 
-  // Admin/Office auf Mobile: Hamburger-Menü statt TabBar
+  // Web Mobile (< 768px): Hamburger-Drawer für ALLE eingeloggten User
+  const useWebMobileDrawer = hasMounted && isWeb && !!user && width < 768;
+
+  // Native Mobile: Hamburger nur für Admin/Office
   const useMobileAdminDrawer = hasMounted && isMobile && isAdminOrOffice;
 
   if (useSidebar) {
     return <AdminSidebarLayout />;
   }
 
-  if (useMobileAdminDrawer) {
+  if (useWebMobileDrawer || useMobileAdminDrawer) {
     return <AdminMobileLayout />;
   }
 
+  // Native Mentor/Mentee: Bottom-Tabs
   return <TabsLayout />;
 }
