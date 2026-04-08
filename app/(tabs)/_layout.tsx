@@ -511,8 +511,8 @@ export default function TabLayout() {
   const isWeb = Platform.OS === "web";
   const isMobile = Platform.OS !== "web";
 
-  // Sidebar nur auf Web und bei Admin/Office, und nur wenn Viewport breit genug (>= 768px)
-  const useSidebar = hasMounted && isWeb && isAdminOrOffice && width >= 768;
+  // Web Desktop (>= 768px): Sidebar für alle eingeloggten User
+  const useSidebar = hasMounted && isWeb && !!user && width >= 768;
 
   // Admin/Office auf Mobile: Hamburger-Menü statt TabBar
   const useMobileAdminDrawer = hasMounted && isMobile && isAdminOrOffice;
