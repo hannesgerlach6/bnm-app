@@ -124,15 +124,19 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   );
 
   const logout = useCallback(async () => {
-    // Sofort User-State löschen → Navigation reagiert unmittelbar,
-    // unabhängig vom Netz oder Supabase-Antwortzeit.
+    // Sofort User-State löschen → Navigation reagiert unmittelbar
     setUser(null);
-    // Cleanup asynchron im Hintergrund (fire-and-forget)
+    // Cleanup asynchron im Hintergrund
     const userId = user?.id;
     if (userId) {
       unregisterPushToken(userId).catch(() => {});
     }
-    supabase.auth.signOut().catch(() => {});
+    await supabase.auth.signOut().catch(() => {});
+    // Auf Web: Hard-Reload damit DataContext, Subscriptions, etc. sauber zurückgesetzt werden.
+    // Verhindert "Wird geladen..."-Hänger durch stale isLoading-State.
+    if (typeof window !== "undefined") {
+      window.location.href = "/";
+    }
   }, [user?.id]);
 
   const refreshUser = useCallback(async () => {

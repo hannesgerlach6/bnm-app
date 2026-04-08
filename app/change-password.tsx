@@ -57,6 +57,7 @@ export default function ChangePasswordScreen() {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user?.email) {
         showError(t("changePassword.errorFailed"));
+        setIsSaving(false);
         return;
       }
       const { error: signInError } = await supabaseAnon.auth.signInWithPassword({
@@ -65,6 +66,7 @@ export default function ChangePasswordScreen() {
       });
       if (signInError) {
         showError(t("changePassword.errorCurrent"));
+        setIsSaving(false);
         return;
       }
 

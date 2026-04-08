@@ -65,8 +65,8 @@ serve(async (req) => {
   if (attachments?.length) body.attachments = attachments;
 
   try {
-    // resendKey trimmen — Whitespace/Newlines im Secret verursachen "not a valid ByteString"
-    const cleanKey = resendKey.trim();
+    // resendKey aggressiv bereinigen — Whitespace, Newlines, BOM, Non-ASCII entfernen
+    const cleanKey = resendKey.replace(/[^\x20-\x7E]/g, "").trim();
 
     const res = await fetch("https://api.resend.com/emails", {
       method: "POST",
