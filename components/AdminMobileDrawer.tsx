@@ -188,7 +188,7 @@ export function AdminMobileDrawer({ open, onClose }: Props) {
           accessibilityRole="button"
           accessibilityLabel={t("sidebar.logout")}
         >
-          <Ionicons name="log-out-outline" size={18} color=COLORS.error />
+          <Ionicons name="log-out-outline" size={18} color={COLORS.error} />
           <Text style={styles.logoutLabel}>{t("sidebar.logout")}</Text>
         </BNMPressable>
       </Animated.View>
