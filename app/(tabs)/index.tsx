@@ -9,7 +9,7 @@ import { useData } from "../../contexts/DataContext";
 import { useLanguage } from "../../contexts/LanguageContext";
 import { showError, showSuccess } from "../../lib/errorHandler";
 import type { Mentorship, Feedback } from "../../types";
-import { COLORS, SHADOWS, RADIUS, TYPOGRAPHY } from "../../constants/Colors";
+import { COLORS, SHADOWS, RADIUS, TYPOGRAPHY, SEMANTIC, sem } from "../../constants/Colors";
 import { Confetti } from "../../components/Confetti";
 import { Container } from "../../components/Container";
 import { useTheme, useThemeColors } from "../../contexts/ThemeContext";
@@ -351,15 +351,15 @@ function AdminDashboard({ showSystemSettings = true }: { showSystemSettings?: bo
               <StatCard
                 label={t("dashboard.totalMentees")}
                 value={allMentees.length}
-                color="#6366f1"
+                color=SEMANTIC.indigo
                 iconName="school-outline"
               />
             </KpiGrid>
 
             {/* ── Neue Mentees (volle Breite) ── */}
             {unassignedMentees.length > 0 && (
-              <View style={[styles.amberBox, { backgroundColor: isDark ? "#3a2e1a" : "#fffbeb", borderColor: isDark ? "#6b4e1a" : "#fde68a" }]}>
-                <Text style={[styles.amberTitle, { color: isDark ? "#fbbf24" : "#92400e" }]}>
+              <View style={[styles.amberBox, { backgroundColor: sem(SEMANTIC.amberBg, isDark), borderColor: sem(SEMANTIC.amberBorder, isDark) }]}>
+                <Text style={[styles.amberTitle, { color: sem(SEMANTIC.amberText, isDark) }]}>
                   {t("dashboard.newMenteesWaiting").replace("{0}", String(unassignedMentees.length))}
                 </Text>
                 {unassignedMentees.map((mentee) => (
@@ -381,38 +381,38 @@ function AdminDashboard({ showSystemSettings = true }: { showSystemSettings?: bo
             {/* ── Pending Approvals (volle Breite) ── */}
             {pendingApprovalsCount > 0 && (
               <TouchableOpacity
-                style={[styles.pendingApprovalsButton, { backgroundColor: isDark ? "#3a2e1a" : "#fffbeb", borderColor: isDark ? "#6b4e1a" : "#fde68a" }]}
+                style={[styles.pendingApprovalsButton, { backgroundColor: sem(SEMANTIC.amberBg, isDark), borderColor: sem(SEMANTIC.amberBorder, isDark) }]}
                 onPress={() => router.push("/admin/pending-approvals")}
               >
                 <View style={styles.applicationsButtonContent}>
-                  <Text style={[styles.pendingApprovalsText, { color: isDark ? "#fbbf24" : "#78350f" }]}>{t("dashboard.pendingApprovals")}</Text>
-                  <Text style={[styles.pendingApprovalsSub, { color: isDark ? "#fbbf24" : "#92400e" }]}>
+                  <Text style={[styles.pendingApprovalsText, { color: sem(SEMANTIC.amberTextAlt, isDark) }]}>{t("dashboard.pendingApprovals")}</Text>
+                  <Text style={[styles.pendingApprovalsSub, { color: sem(SEMANTIC.amberText, isDark) }]}>
                     {t("dashboard.pendingApprovalsCount").replace("{0}", String(pendingApprovalsCount)).replace("{1}", pendingApprovalsCount === 1 ? "" : "en")}
                   </Text>
                 </View>
                 <View style={styles.applicationsBadge}><Text style={styles.applicationsBadgeText}>{pendingApprovalsCount}</Text></View>
-                <Text style={[styles.applicationsArrow, { color: isDark ? "#fbbf24" : "#78350f" }]}>›</Text>
+                <Text style={[styles.applicationsArrow, { color: sem(SEMANTIC.amberTextAlt, isDark) }]}>›</Text>
               </TouchableOpacity>
             )}
 
             {/* ── Offene Mentor-Bewerbungen ── */}
             {pendingMentorAppsCount > 0 && (
               <TouchableOpacity
-                style={[styles.pendingApprovalsButton, { backgroundColor: isDark ? "#1a2a3a" : "#eff6ff", borderColor: isDark ? "#1e3a5a" : "#bfdbfe" }]}
+                style={[styles.pendingApprovalsButton, { backgroundColor: sem(SEMANTIC.blueBg, isDark), borderColor: sem(SEMANTIC.blueBorder, isDark) }]}
                 onPress={() => router.push("/(tabs)/applications")}
               >
                 <View style={styles.applicationsButtonContent}>
-                  <Text style={[styles.pendingApprovalsText, { color: isDark ? "#93c5fd" : "#1d4ed8" }]}>{t("dashboard.pendingMentorApps")}</Text>
-                  <Text style={[styles.pendingApprovalsSub, { color: isDark ? "#93c5fd" : "#2563eb" }]}>
+                  <Text style={[styles.pendingApprovalsText, { color: sem(SEMANTIC.blueText, isDark) }]}>{t("dashboard.pendingMentorApps")}</Text>
+                  <Text style={[styles.pendingApprovalsSub, { color: sem(SEMANTIC.blueText, isDark) }]}>
                     {pendingMentorAppsCount === 1
                       ? t("dashboard.pendingMentorAppsCount1")
                       : t("dashboard.pendingMentorAppsCountN").replace("{0}", String(pendingMentorAppsCount))}
                   </Text>
                 </View>
-                <View style={[styles.applicationsBadge, { backgroundColor: isDark ? "#1e3a6e" : "#3b82f6" }]}>
+                <View style={[styles.applicationsBadge, { backgroundColor: sem(SEMANTIC.blueBadgeBg, isDark) }]}>
                   <Text style={styles.applicationsBadgeText}>{pendingMentorAppsCount}</Text>
                 </View>
-                <Text style={[styles.applicationsArrow, { color: isDark ? "#93c5fd" : "#1d4ed8" }]}>›</Text>
+                <Text style={[styles.applicationsArrow, { color: sem(SEMANTIC.blueText, isDark) }]}>›</Text>
               </TouchableOpacity>
             )}
 
@@ -893,7 +893,7 @@ function MentorDashboard() {
 
         {/* ── Motivation des Tages (direkt unter Namen) ── */}
         {todayHadith && (
-          <View style={[styles.mentorHadithCard, { borderColor: isDark ? "#3A3520" : "rgba(238,167,27,0.3)" }]}>
+          <View style={[styles.mentorHadithCard, { borderColor: sem(SEMANTIC.goldBorder, isDark) }]}>
             <View style={styles.hadithCardHeader}>
               <Text style={styles.hadithStar}>★</Text>
               <Text style={[styles.hadithCardLabel, { color: themeColors.text }]}>{t("motivation.title")}</Text>
@@ -923,7 +923,7 @@ function MentorDashboard() {
               <StatCard label={t("dashboard.statsActive")} value={mentorStats.active} color={COLORS.gradientStart} iconName="people-outline" highlight />
               <StatCard label={t("dashboard.statsCompleted")} value={mentorStats.completed} color={COLORS.cta} iconName="checkmark-circle-outline" />
               <StatCard label={t("dashboard.statsSessions")} value={mentorStats.totalSessions} color={COLORS.gold} iconName="document-text-outline" />
-              <StatCard label={t("dashboard.statsRank")} value={mentorStats.rank} color="#6366f1" iconName="trophy-outline" sublabel={`/ ${mentorStats.totalMentors}`} />
+              <StatCard label={t("dashboard.statsRank")} value={mentorStats.rank} color=SEMANTIC.indigo iconName="trophy-outline" sublabel={`/ ${mentorStats.totalMentors}`} />
             </KpiGrid>
 
             {/* ── Vernachlässigte Mentees (volle Breite) ─────── */}
@@ -937,17 +937,17 @@ function MentorDashboard() {
                   const menteeName = item.mentorship.mentee?.name ?? "?";
                   const isUrgent = item.daysSince > 10;
                   const bgColor = isUrgent
-                    ? (isDark ? "#3a1a1a" : "#fff1f2")
+                    ? (sem(SEMANTIC.redBg, isDark))
                     : (isDark ? "#3a2e0a" : "#fffbeb");
                   const borderColor = isUrgent
-                    ? (isDark ? "#7a2a2a" : "#fecdd3")
-                    : (isDark ? "#6b4e1a" : "#fde68a");
+                    ? (sem(SEMANTIC.redBorder, isDark))
+                    : (sem(SEMANTIC.amberBorder, isDark));
                   const borderLeftColor = isUrgent
-                    ? (isDark ? "#f87171" : "#ef4444")
+                    ? (sem(SEMANTIC.redText, isDark))
                     : (isDark ? "#fbbf24" : "#f59e0b");
                   const textColor = isUrgent
-                    ? (isDark ? "#f87171" : "#991b1b")
-                    : (isDark ? "#fbbf24" : "#92400e");
+                    ? (sem(SEMANTIC.redTextDark, isDark))
+                    : (sem(SEMANTIC.amberText, isDark));
                   const message = isUrgent
                     ? t("mentor.neglectedUrgent").replace("{0}", menteeName).replace("{1}", String(item.daysSince))
                     : t("mentor.neglectedWarning").replace("{0}", menteeName).replace("{1}", String(item.daysSince));
@@ -978,7 +978,7 @@ function MentorDashboard() {
 
             {/* ── Row: Gamification + Achievements ──────────────────── */}
             <DashboardRow>
-            <View style={[styles.levelCard, styles.dashCol, { backgroundColor: themeColors.card, borderColor: isDark ? "#3A3520" : themeColors.border }]}>
+            <View style={[styles.levelCard, styles.dashCol, { backgroundColor: themeColors.card, borderColor: sem(SEMANTIC.goldBorder, isDark) }]}>
               {/* Level-Badge + XP-Zähler */}
               <View style={styles.levelHeaderRow}>
                 <View style={styles.levelBadgeRow}>
@@ -988,7 +988,7 @@ function MentorDashboard() {
                     </Text>
                   </View>
                 </View>
-                <View style={[styles.levelScoreBadge, { backgroundColor: isDark ? "#2A2518" : "#FFF8E1" }]}>
+                <View style={[styles.levelScoreBadge, { backgroundColor: sem(SEMANTIC.goldBg, isDark) }]}>
                   <Text style={[styles.levelScoreText, { color: COLORS.gold }]}>{myXP} {t("gamification.xpLabel")}</Text>
                 </View>
               </View>
@@ -1027,7 +1027,7 @@ function MentorDashboard() {
             </View>
 
             {/* ── Achievements (Grid 2x4) ── */}
-            <View style={[styles.dashCol, styles.levelCard, { backgroundColor: themeColors.card, borderColor: isDark ? "#3A3520" : themeColors.border, marginBottom: 0 }]}>
+            <View style={[styles.dashCol, styles.levelCard, { backgroundColor: themeColors.card, borderColor: sem(SEMANTIC.goldBorder, isDark), marginBottom: 0 }]}>
               <Text style={[styles.mentorSectionTitle, { color: themeColors.textSecondary, marginBottom: 10 }]}>
                 {t("gamification.achievementsTitle")}
               </Text>
@@ -1043,9 +1043,9 @@ function MentorDashboard() {
                           width: "22%",
                           minWidth: 60,
                           backgroundColor: isUnlocked
-                            ? (isDark ? "#2A2518" : "#FFF8E1")
+                            ? (sem(SEMANTIC.goldBg, isDark))
                             : (isDark ? "#1A1A24" : themeColors.border + "66"),
-                          borderColor: isUnlocked ? COLORS.gold : (isDark ? "#3A3520" : themeColors.border),
+                          borderColor: isUnlocked ? COLORS.gold : (sem(SEMANTIC.goldBorder, isDark)),
                           opacity: isUnlocked ? 1 : 0.5,
                         },
                       ]}
@@ -1080,7 +1080,7 @@ function MentorDashboard() {
         <View style={styles.dashCol}>
           {/* Deine Wirkung */}
           {impactStats.total > 0 && (
-            <View style={[styles.levelCard, { backgroundColor: themeColors.card, borderColor: isDark ? "#3A3520" : themeColors.border }]}>
+            <View style={[styles.levelCard, { backgroundColor: themeColors.card, borderColor: sem(SEMANTIC.goldBorder, isDark) }]}>
               <Text style={[styles.levelTitle, { color: themeColors.text, marginBottom: 8 }]}>
                 {t("gamification.impactTitle").replace("{0}", String(impactStats.total))}
               </Text>
@@ -1141,12 +1141,12 @@ function MentorRatingsSection({
   const displayed = showAll ? feedbacks : feedbacks.slice(0, 3);
 
   return (
-    <View style={[styles.ratingsCard, { backgroundColor: themeColors.card, borderColor: isDark ? "#3A3520" : themeColors.border }]}>
+    <View style={[styles.ratingsCard, { backgroundColor: themeColors.card, borderColor: sem(SEMANTIC.goldBorder, isDark) }]}>
       {/* Header */}
       <View style={styles.ratingsSectionHeader}>
         <Text style={[styles.cardTitle, { color: themeColors.text, marginBottom: 0 }]}>{t("mentor.myRatings")}</Text>
         {avgRating !== null && (
-          <View style={[styles.avgRatingBadge, { backgroundColor: isDark ? "#2A2518" : "#FFF8E1" }]}>
+          <View style={[styles.avgRatingBadge, { backgroundColor: sem(SEMANTIC.goldBg, isDark) }]}>
             <Text style={[styles.avgRatingValue, { color: COLORS.gold }]}>{avgRating.toFixed(1)} ★</Text>
           </View>
         )}
@@ -1177,7 +1177,7 @@ function MentorRatingsSection({
                 key={f.id}
                 style={[
                   styles.feedbackRow,
-                  !isLast && [styles.feedbackRowBorder, { borderBottomColor: isDark ? "#3A3520" : themeColors.border }],
+                  !isLast && [styles.feedbackRowBorder, { borderBottomColor: sem(SEMANTIC.goldBorder, isDark) }],
                 ]}
                 onPress={() => ms && router.push({ pathname: "/mentorship/[id]", params: { id: ms.id } })}
                 activeOpacity={0.7}
@@ -1308,7 +1308,7 @@ function MenteeDashboard() {
 
         {/* ── Motivation des Tages (direkt unter Greeting) ── */}
         {todayHadith && (
-          <View style={[styles.menteeHadithBigCard, { backgroundColor: isDark ? "#1A1A2E" : "#f0f4ff", borderColor: isDark ? "#3A3520" : "rgba(238,167,27,0.3)" }]}>
+          <View style={[styles.menteeHadithBigCard, { backgroundColor: isDark ? "#1A1A2E" : "#f0f4ff", borderColor: sem(SEMANTIC.goldBorder, isDark) }]}>
             <View style={styles.hadithCardHeader}>
               <Text style={styles.hadithStar}>★</Text>
               <Text style={[styles.hadithCardLabel, { color: themeColors.text, fontSize: 16 }]}>{t("motivation.title")}</Text>
@@ -1353,14 +1353,14 @@ function MenteeDashboard() {
                 <StatCard
                   label="Tage dabei"
                   value={daysSinceStart}
-                  color="#6366f1"
+                  color=SEMANTIC.indigo
                   iconName="calendar-outline"
                 />
               )}
             </KpiGrid>
 
             {/* ── Schritte-Fortschritt (volle Breite) ── */}
-            <View style={[styles.levelCard, { backgroundColor: themeColors.card, borderColor: isDark ? "#3A3520" : themeColors.border }]}>
+            <View style={[styles.levelCard, { backgroundColor: themeColors.card, borderColor: sem(SEMANTIC.goldBorder, isDark) }]}>
               <Text style={{ fontSize: 11, fontWeight: "700", color: themeColors.textTertiary, letterSpacing: 0.8, textTransform: "uppercase", marginBottom: 10 }}>
                 {t("menteeProgress.title")}
               </Text>
@@ -1389,7 +1389,7 @@ function MenteeDashboard() {
             {/* ── Danke sagen ── */}
             {mentorship.status === "active" && mentorship.mentor_id && (
               <TouchableOpacity
-                style={[styles.thankButton, { backgroundColor: isDark ? "#1A2A1A" : "#dcfce7", borderColor: isDark ? "#2d6a4a" : "#86efac" }]}
+                style={[styles.thankButton, { backgroundColor: sem(SEMANTIC.greenBg, isDark), borderColor: sem(SEMANTIC.greenBorder, isDark) }]}
                 onPress={() => setShowThanksModal(true)}
                 activeOpacity={0.7}
               >
@@ -1401,7 +1401,7 @@ function MenteeDashboard() {
             {(mentorship.status === "active" || mentorship.status === "completed") && allDone && (
               <>
                 <Confetti />
-                <View style={[styles.congratsBanner, { backgroundColor: isDark ? themeColors.successLight : "#dcfce7", borderColor: isDark ? "#2d6a4a" : "#86efac" }]}>
+                <View style={[styles.congratsBanner, { backgroundColor: isDark ? themeColors.successLight : "#dcfce7", borderColor: sem(SEMANTIC.greenBorder, isDark) }]}>
                   <Ionicons name="ribbon-outline" size={28} color={isDark ? themeColors.success : "#15803d"} style={{ marginBottom: 4 }} />
                   <Text style={[styles.congratsTitle, { color: isDark ? themeColors.success : "#15803d" }]}>{t("mentorship.congratulations")}</Text>
                   <Text style={[styles.congratsText, { color: isDark ? themeColors.success : "#16a34a" }]}>{t("mentorship.allStepsDone")}</Text>
@@ -1415,9 +1415,9 @@ function MenteeDashboard() {
                 <View style={[styles.modalCard, { backgroundColor: themeColors.card }]}>
                   <Text style={[styles.modalTitle, { color: themeColors.text }]}>{t("gamification.thankTitle")}</Text>
                   <Text style={[styles.modalBody, { color: themeColors.textSecondary }]}>{t("gamification.thankMessage")}</Text>
-                  <TextInput style={[styles.thankInput, { color: themeColors.text, borderColor: isDark ? "#3A3520" : themeColors.border, backgroundColor: isDark ? "#1A1A24" : themeColors.background }]} placeholder={t("gamification.thankMessagePlaceholder")} placeholderTextColor={themeColors.textTertiary} value={thanksMessage} onChangeText={setThanksMessage} multiline numberOfLines={3} />
+                  <TextInput style={[styles.thankInput, { color: themeColors.text, borderColor: sem(SEMANTIC.goldBorder, isDark), backgroundColor: isDark ? "#1A1A24" : themeColors.background }]} placeholder={t("gamification.thankMessagePlaceholder")} placeholderTextColor={themeColors.textTertiary} value={thanksMessage} onChangeText={setThanksMessage} multiline numberOfLines={3} />
                   <View style={styles.modalButtonRow}>
-                    <TouchableOpacity style={[styles.modalCancelBtn, { borderColor: isDark ? "#3A3520" : themeColors.border }]} onPress={() => { setShowThanksModal(false); setThanksMessage(""); }}>
+                    <TouchableOpacity style={[styles.modalCancelBtn, { borderColor: sem(SEMANTIC.goldBorder, isDark) }]} onPress={() => { setShowThanksModal(false); setThanksMessage(""); }}>
                       <Text style={[styles.modalCancelText, { color: themeColors.textSecondary }]}>{t("gamification.thankCancel")}</Text>
                     </TouchableOpacity>
                     <TouchableOpacity style={[styles.modalConfirmBtn, { opacity: sendingThanks ? 0.6 : 1 }]} onPress={handleSendThanks} disabled={sendingThanks}>
@@ -2133,13 +2133,13 @@ const styles = StyleSheet.create({
   },
   feedbackBannerText: { fontWeight: "600", fontSize: 13, flex: 1 },
   feedbackBannerButton: {
-    backgroundColor: "#f59e0b",
+    backgroundColor: COLORS.gold,
     borderRadius: RADIUS.sm,
     paddingHorizontal: 12,
     paddingVertical: 7,
     flexShrink: 0,
   },
-  feedbackBannerButtonText: { color: "#ffffff", fontWeight: "700", fontSize: 12 },
+  feedbackBannerButtonText: { color: COLORS.white, fontWeight: "700", fontSize: 12 },
   hadithCard: {
     backgroundColor: "rgba(238,167,27,0.05)",
     borderWidth: 1,
@@ -2217,7 +2217,7 @@ const styles = StyleSheet.create({
   warningArrow: { fontSize: 18, marginLeft: 4 },
 
   reminderBtn: {
-    backgroundColor: "#3b82f6",
+    backgroundColor: SEMANTIC.blueBadgeBg.light,
     borderRadius: RADIUS.sm,
     width: 32,
     height: 32,
@@ -2248,7 +2248,7 @@ const styles = StyleSheet.create({
   momAdminStar: { color: COLORS.gold, fontSize: 18, marginRight: 6 },
   momAdminTitle: { fontWeight: "700", color: COLORS.secondary, fontSize: 11, letterSpacing: 0.8 },
   momAdminName: { ...TYPOGRAPHY.styles.h3, fontWeight: TYPOGRAPHY.weight.extrabold, color: COLORS.primary, marginBottom: 10 },
-  momAdminSub: { fontSize: 11, color: "#6B7280" },
+  momAdminSub: { fontSize: 11, color: COLORS.tertiary },
   momAdminStatsRow: { flexDirection: "row", gap: 8, marginBottom: 8 },
   momAdminStat: {
     flex: 1,
@@ -2272,7 +2272,7 @@ const styles = StyleSheet.create({
     alignItems: "center" as const,
     alignSelf: "stretch" as const,
   },
-  momAwardButtonText: { color: "#92600a", fontSize: 13, fontWeight: "700" as const },
+  momAwardButtonText: { color: SEMANTIC.amberText.light, fontSize: 13, fontWeight: "700" as const },
 
   // Offene Zuweisungen
   openAssignmentsCard: {
@@ -2287,16 +2287,16 @@ const styles = StyleSheet.create({
 
   // Motivationscard (Mentee)
   motivationCard: {
-    backgroundColor: "#0A3A5A",
+    backgroundColor: COLORS.gradientStart,
     borderWidth: 2,
-    borderColor: "#EEA71B",
+    borderColor: COLORS.gold,
     borderRadius: RADIUS.sm,
     padding: 16,
     marginBottom: 16,
   },
   motivationHeader: { flexDirection: "row", alignItems: "center", marginBottom: 10 },
-  motivationStar: { color: "#EEA71B", fontSize: 18, marginRight: 8 },
-  motivationTitle: { fontWeight: "700", color: "#EEA71B", fontSize: 14 },
+  motivationStar: { color: COLORS.gold, fontSize: 18, marginRight: 8 },
+  motivationTitle: { fontWeight: "700", color: COLORS.gold, fontSize: 14 },
   motivationArabic: {
     color: COLORS.white,
     fontSize: 18,
@@ -2341,7 +2341,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 14,
     paddingVertical: 7,
   },
-  motivationNextText: { color: "#EEA71B", fontSize: 12, fontWeight: "700" },
+  motivationNextText: { color: COLORS.gold, fontSize: 12, fontWeight: "700" },
 
   // Quick-Tool Grid
   quickToolGrid: {
@@ -2544,7 +2544,7 @@ const styles = StyleSheet.create({
   thankButtonText: {
     fontSize: 15,
     fontWeight: "700",
-    color: "#15803d",
+    color: SEMANTIC.greenText.light,
   },
   // Modal
   modalOverlay: {
@@ -2605,7 +2605,7 @@ const styles = StyleSheet.create({
   modalConfirmText: {
     fontSize: 14,
     fontWeight: "700",
-    color: "#0E0E14",
+    color: COLORS.primary,
   },
   // Kompakte Mentees-Card im Mentor-Dashboard
   compactMenteesCard: {

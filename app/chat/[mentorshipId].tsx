@@ -364,8 +364,8 @@ const styles = StyleSheet.create({
     zIndex: 10,
   },
   scrollFabBtn: {
-    width: 40,
-    height: 40,
+    width: 44,
+    height: 44,
     borderRadius: RADIUS.full,
     alignItems: "center",
     justifyContent: "center",

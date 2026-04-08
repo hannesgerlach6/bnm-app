@@ -15,7 +15,7 @@ Alle SQL-Änderungen dokumentieren. Selbstständig handeln.
 - **Routing:** Expo Router | **Styling:** StyleSheet.create() + COLORS (constants/Colors.ts)
 - **Backend:** Supabase (PostgreSQL, Auth, Realtime, Storage)
 - **E-Mail:** Resend API (lib/emailService.ts), Override an hasan.sevenler@partner.ki
-- **Repo:** github.com/hsevenlerpartnerki/bnm-app (private)
+- **Repo:** github.com/hannesgerlach6/bnm-app (private)
 
 ## SUPABASE
 
@@ -34,7 +34,8 @@ Alle SQL-Änderungen dokumentieren. Selbstständig handeln.
   10. `supabase/fix-profiles-rls.sql` — Admin/Office-Profile für alle sichtbar (Chat-Name-Fix)
   11. `supabase/fix-messages-update.sql` — messages UPDATE Policy (markChatAsRead + Badge-Fix)
   12. `supabase/fix-missing-rls.sql` — sessions/notifications/mentorships/profiles Policies
-  13. Dashboard: Auth → Email → "Confirm email" OFF
+  13. `supabase/fix-self-delete.sql` — Self-Delete für Mentor/Mentee (Soft-Delete, Reports bleiben)
+  14. Dashboard: Auth → Email → "Confirm email" OFF
   13. Test-User manuell anlegen + Profile-INSERT
   14. `lib/supabase.ts`: URL + Anon Key ändern (2 Zeilen)
 

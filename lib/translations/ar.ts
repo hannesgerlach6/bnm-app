@@ -1476,6 +1476,8 @@ const ar: Record<TranslationKeys, string> = {
 
   // Settings – account deleted
   "settings.accountDeleted": "تم حذف حسابك بنجاح.",
+  "settings.dangerZone": "منطقة الخطر",
+  "settings.deleteError": "فشل حذف الحساب. يُرجى المحاولة لاحقًا.",
 
   // Chat – send error
   "chat.sendError": "تعذّر إرسال الرسالة.",

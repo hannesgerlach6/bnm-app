@@ -14,17 +14,29 @@
     },
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "com.bnm.app",
+      "bundleIdentifier": "ngo.iman.bnm",
+      "buildNumber": "1",
       "infoPlist": {
+        "NSCameraUsageDescription": "BNM benötigt Zugriff auf die Kamera für dein Profilbild.",
+        "NSPhotoLibraryUsageDescription": "BNM benötigt Zugriff auf deine Fotos für dein Profilbild.",
+        "NSPhotoLibraryAddUsageDescription": "BNM möchte Bilder in deiner Fotobibliothek speichern.",
         "ITSAppUsesNonExemptEncryption": false
       }
     },
     "android": {
       "adaptiveIcon": {
-        "foregroundImage": "./assets/images/bnm-logo.png",
+        "foregroundImage": "./assets/images/adaptive-icon.png",
         "backgroundColor": "#F9FAFB"
       },
-      "package": "com.bnm.app"
+      "package": "ngo.iman.bnm",
+      "permissions": [
+        "CAMERA",
+        "READ_EXTERNAL_STORAGE",
+        "WRITE_EXTERNAL_STORAGE",
+        "RECEIVE_BOOT_COMPLETED",
+        "VIBRATE",
+        "SCHEDULE_EXACT_ALARM"
+      ]
     },
     "web": {
       "bundler": "metro",

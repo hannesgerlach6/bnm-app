@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import {
   View,
   Text,
@@ -8,8 +8,10 @@ import {
   StyleSheet,
   Linking,
   Platform,
+  ActivityIndicator,
 } from "react-native";
-import { showSuccess, showConfirm } from "../lib/errorHandler";
+import { showSuccess, showConfirm, showError } from "../lib/errorHandler";
+import { supabase } from "../lib/supabase";
 import { useRouter } from "expo-router";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useAuth } from "../contexts/AuthContext";
@@ -37,11 +39,23 @@ export default function SettingsScreen() {
   const { isDark } = useTheme();
 
   const isAdminOrOffice = user?.role === "admin" || user?.role === "office";
+  const canDeleteAccount = user?.role === "mentor" || user?.role === "mentee";
+  const [deleting, setDeleting] = useState(false);
 
   async function handleDeleteAccount() {
     const ok = await showConfirm(t("settings.deleteTitle"), t("settings.deleteConfirm"));
-    if (ok) {
+    if (!ok) return;
+
+    setDeleting(true);
+    try {
+      const { data, error } = await supabase.rpc("delete_own_account");
+      if (error) throw error;
+      if (data === false) throw new Error("Nicht berechtigt");
       showSuccess(t("settings.accountDeleted"), logout);
+    } catch (e: any) {
+      showError(t("settings.deleteError"));
+    } finally {
+      setDeleting(false);
     }
   }
 
@@ -163,6 +177,25 @@ export default function SettingsScreen() {
             <Text style={[styles.privacyText, { color: themeColors.textSecondary }]}>{t("settings.privacyText2")}</Text>
           </View>
 
+          {/* Sektion: Konto löschen (nur Mentor/Mentee) */}
+          {canDeleteAccount && (
+            <>
+              <Text style={[styles.sectionLabel, { color: COLORS.error, marginTop: 20 }]}>{t("settings.dangerZone")}</Text>
+              <TouchableOpacity
+                style={[styles.deleteButton, { borderColor: COLORS.error }]}
+                onPress={handleDeleteAccount}
+                disabled={deleting}
+                activeOpacity={0.7}
+              >
+                {deleting ? (
+                  <ActivityIndicator size="small" color={COLORS.error} />
+                ) : (
+                  <Text style={styles.deleteButtonText}>{t("settings.deleteAccount")}</Text>
+                )}
+              </TouchableOpacity>
+            </>
+          )}
+
           <Text style={[styles.footerText, { color: themeColors.textTertiary }]}>{t("settings.footer")}</Text>
         </ScrollView>
       </View>
@@ -223,7 +256,7 @@ const styles = StyleSheet.create({
   },
   languageLabelGroup: { flex: 1 },
   languageLabel: { fontSize: 14 },
-  languageLabelSelected: { fontWeight: "600", color: COLORS.gradientStart },
+  languageLabelSelected: { fontWeight: "600", color: COLORS.gold },
   rtlHint: {
     fontSize: 11,
     marginTop: 2,

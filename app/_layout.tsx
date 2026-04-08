@@ -18,6 +18,7 @@ import { AdminSidebar } from "../components/AdminSidebar";
 import { CommandPalette } from "../components/CommandPalette";
 import { OfflineBanner } from "../components/OfflineBanner";
 import { ToastProvider } from "../components/Toast";
+import { LIGHT_COLORS, DARK_COLORS, COLORS } from "../constants/Colors";
 
 // Expo Notifications nur auf Native importieren
 let Notifications: typeof import("expo-notifications") | null = null;
@@ -37,12 +38,12 @@ const BNMLightTheme = {
   ...DefaultTheme,
   colors: {
     ...DefaultTheme.colors,
-    primary: "#101828",
-    background: "#F5F5F7",
-    card: "#FFFFFF",
-    text: "#101828",
-    border: "#E5E7EB",
-    notification: "#EEA71B",
+    primary: LIGHT_COLORS.primary,
+    background: LIGHT_COLORS.background,
+    card: LIGHT_COLORS.card,
+    text: LIGHT_COLORS.text,
+    border: LIGHT_COLORS.border,
+    notification: COLORS.gold,
   },
 };
 
@@ -51,12 +52,12 @@ const BNMDarkTheme = {
   dark: true,
   colors: {
     ...DefaultTheme.colors,
-    primary: "#F5F5F7",
-    background: "#0F1117",
-    card: "#1A1D28",
-    text: "#F5F5F7",
-    border: "#2D3140",
-    notification: "#EEA71B",
+    primary: DARK_COLORS.text,
+    background: DARK_COLORS.background,
+    card: DARK_COLORS.card,
+    text: DARK_COLORS.text,
+    border: DARK_COLORS.border,
+    notification: COLORS.gold,
   },
 };
 

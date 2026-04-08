@@ -1,5 +1,6 @@
 import React, { ReactNode } from "react";
-import { View, Platform, StyleSheet } from "react-native";
+import { View, Platform, StyleSheet, useWindowDimensions } from "react-native";
+import { BREAKPOINTS } from "../constants/Colors";
 
 interface ContainerProps {
   children: ReactNode;
@@ -10,11 +11,13 @@ interface ContainerProps {
 
 /**
  * Responsive Wrapper-Komponente.
- * Auf Web ohne fullWidth: Content wird auf max. 900px begrenzt und zentriert.
+ * Auf Web ohne fullWidth: Content wird auf max. 900px begrenzt und zentriert, mit responsivem Padding.
  * Auf Web mit fullWidth: volle Breite (für Sidebar-Layouts).
  * Auf Native: volle Breite (kein Wrapper-Overhead).
  */
 export function Container({ children, style, fullWidth }: ContainerProps) {
+  const { width } = useWindowDimensions();
+
   if (Platform.OS !== "web") {
     return <>{children}</>;
   }
@@ -25,9 +28,11 @@ export function Container({ children, style, fullWidth }: ContainerProps) {
     );
   }
 
+  const horizontalPadding = width >= BREAKPOINTS.wide ? 48 : width >= BREAKPOINTS.tablet ? 32 : 16;
+
   return (
     <View style={styles.outerWeb}>
-      <View style={[styles.innerWeb, style]}>{children}</View>
+      <View style={[styles.innerWeb, { paddingHorizontal: horizontalPadding }, style]}>{children}</View>
     </View>
   );
 }

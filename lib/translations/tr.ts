@@ -1476,6 +1476,8 @@ const tr: Record<TranslationKeys, string> = {
 
   // Settings – account deleted
   "settings.accountDeleted": "Hesabınız başarıyla silindi.",
+  "settings.dangerZone": "TEHLİKE BÖLGESİ",
+  "settings.deleteError": "Hesap silinemedi. Lütfen daha sonra tekrar deneyin.",
 
   // Chat – send error
   "chat.sendError": "Mesaj gönderilemedi.",

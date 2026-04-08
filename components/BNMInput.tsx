@@ -255,8 +255,8 @@ const styles = StyleSheet.create({
     textAlignVertical: "top",
   },
   rightIconBtn: {
-    width: 36,
-    height: 36,
+    width: 44,
+    height: 44,
     alignItems: "center",
     justifyContent: "center",
     borderRadius: RADIUS.xs,

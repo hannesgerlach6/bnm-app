@@ -11,6 +11,7 @@ import {
   Platform,
   Linking,
 } from "react-native";
+import { Ionicons } from "@expo/vector-icons";
 import { BNMPressable } from "../../components/BNMPressable";
 import { useRouter } from "expo-router";
 import { useAuth } from "../../contexts/AuthContext";
@@ -20,11 +21,8 @@ import { useTheme, useThemeColors } from "../../contexts/ThemeContext";
 import { navigateToChat } from "../../lib/chatNavigation";
 import type { ThemeMode } from "../../contexts/ThemeContext";
 import type { UserRole } from "../../types";
-import { COLORS, SHADOWS, RADIUS, TYPOGRAPHY } from "../../constants/Colors";
+import { COLORS, RADIUS, SEMANTIC, sem } from "../../constants/Colors";
 import { Container } from "../../components/Container";
-import { BNMLogo } from "../../components/BNMLogo";
-
-// Contact labels are now resolved via t() inside the component
 
 export default function ProfileScreen() {
   const router = useRouter();
@@ -63,11 +61,9 @@ export default function ProfileScreen() {
     email: t("contactPref.email"),
   };
 
-  // Kontaktinfo des Mentorship-Partners
   const partnerContact = useMemo(() => {
     if (!user) return null;
     if (user.role === "mentor") {
-      // Aktive Mentees des Mentors
       const myMentorships = getMentorshipsByMentorId(user.id).filter((m) => m.status === "active");
       if (myMentorships.length === 0) return null;
       const mentee = myMentorships[0].mentee;
@@ -75,7 +71,6 @@ export default function ProfileScreen() {
     }
     if (user.role === "mentee") {
       const mentorship = getMentorshipByMenteeId(user.id);
-      // Mentor erst anzeigen wenn Admin die Zuweisung bestätigt hat (status === "active")
       if (!mentorship || mentorship.status !== "active" || !mentorship.mentor) return null;
       return { person: mentorship.mentor, label: t("profile.myMentorSection"), mentorshipId: mentorship.id };
     }
@@ -92,7 +87,6 @@ export default function ProfileScreen() {
       myMentorships.some((m) => m.id === s.mentorship_id)
     ).length;
 
-    // Ranking berechnen
     const allMentors = users.filter((u) => u.role === "mentor");
     const scores = allMentors.map((mentor) => {
       const ms = getMentorshipsByMentorId(mentor.id);
@@ -140,299 +134,291 @@ export default function ProfileScreen() {
 
   const roleBgColor =
     user.role === "admin"
-      ? (isDark ? "#2e1a4a" : "#f3e8ff")
+      ? sem(SEMANTIC.purpleBg, isDark)
       : user.role === "mentor"
       ? themeColors.primaryLight
       : themeColors.successLight;
 
   const roleTextColor =
     user.role === "admin"
-      ? (isDark ? "#c084fc" : "#7e22ce")
+      ? sem(SEMANTIC.purpleText, isDark)
       : user.role === "mentor"
       ? themeColors.primary
       : themeColors.success;
 
   const THEME_OPTIONS: { value: ThemeMode; labelKey: "theme.light" | "theme.dark" | "theme.system"; icon: string }[] = [
-    { value: "light", labelKey: "theme.light", icon: "☀️" },
-    { value: "dark", labelKey: "theme.dark", icon: "🌙" },
-    { value: "system", labelKey: "theme.system", icon: "📱" },
+    { value: "light", labelKey: "theme.light", icon: "sunny-outline" },
+    { value: "dark", labelKey: "theme.dark", icon: "moon-outline" },
+    { value: "system", labelKey: "theme.system", icon: "phone-portrait-outline" },
   ];
 
+  // ─── Shared Content Blocks ───
+
+  const profileHeaderBlock = (
+    <View style={[styles.profileHeader, { backgroundColor: themeColors.card }]}>
+      {user.avatar_url ? (
+        <Image
+          source={{ uri: user.avatar_url }}
+          style={[styles.avatarImage, { borderColor: COLORS.gold }]}
+          resizeMode="cover"
+          accessibilityLabel={`Profilbild von ${user.name}`}
+        />
+      ) : (
+        <View style={[styles.avatarCircle, { backgroundColor: themeColors.primaryLight }]}>
+          <Text style={[styles.avatarText, { color: themeColors.primary }]}>{initials}</Text>
+        </View>
+      )}
+      <Text style={[styles.userName, { color: themeColors.text }]}>{user.name}</Text>
+      <Text style={[styles.userEmail, { color: themeColors.textTertiary }]}>{user.email}</Text>
+
+      <View style={[styles.roleBadge, { backgroundColor: roleBgColor }]}>
+        <Text style={[styles.roleBadgeText, { color: roleTextColor }]}>
+          {ROLE_LABELS[user.role]}
+        </Text>
+      </View>
+
+      <Text style={[styles.genderText, { color: themeColors.textTertiary }]}>
+        {user.gender === "male" ? t("mentees.brother") : t("mentees.sister")}
+      </Text>
+
+      <BNMPressable
+        style={[styles.editProfileBtn, { backgroundColor: themeColors.text }]}
+        onPress={() => router.push("/edit-profile")}
+        accessibilityRole="button"
+        accessibilityLabel={t("profile.editProfile")}
+      >
+        <Text style={[styles.editProfileBtnText, { color: themeColors.background }]}>{t("profile.editProfile")}</Text>
+      </BNMPressable>
+    </View>
+  );
+
+  const personalInfoBlock = (
+    <>
+      <Text style={[styles.sectionHeader, { color: themeColors.textTertiary }]}>{t("profile.personalInfo")}</Text>
+      <View style={[styles.card, { backgroundColor: themeColors.card, borderColor: themeColors.border }]}>
+        <InfoRow icon="mail-outline" label={t("profile.email")} value={user.email} />
+        <InfoRow icon="location-outline" label={t("profile.city")} value={user.city} />
+        <InfoRow icon="calendar-outline" label={t("profile.age")} value={`${user.age} ${t("profile.ageYears")}`} />
+        {user.phone && <InfoRow icon="call-outline" label={t("profile.phone")} value={user.phone} />}
+        <InfoRow
+          icon="chatbubble-outline"
+          label={t("profile.contact")}
+          value={CONTACT_LABELS[user.contact_preference] ?? user.contact_preference}
+          isLast
+        />
+      </View>
+    </>
+  );
+
+  const partnerBlock = partnerContact && user.role === "mentee" ? (
+    <>
+      <Text style={[styles.sectionHeader, { color: themeColors.textTertiary }]}>{t("profile.partnerInfo")}</Text>
+      <View style={[styles.card, { backgroundColor: themeColors.card, borderColor: themeColors.border }]}>
+        <Text style={[styles.partnerName, { color: themeColors.text }]}>
+          {partnerContact.label}: {partnerContact.person.name}
+        </Text>
+        <InfoRow icon="mail-outline" label={t("profile.partnerEmail")} value={partnerContact.person.email} />
+        {partnerContact.person.phone ? (
+          <InfoRow icon="call-outline" label={t("profile.partnerPhone")} value={partnerContact.person.phone} />
+        ) : null}
+        <InfoRow
+          icon="chatbubble-outline"
+          label={t("profile.partnerContact")}
+          value={CONTACT_LABELS[partnerContact.person.contact_preference] ?? partnerContact.person.contact_preference}
+          isLast
+        />
+        <BNMPressable
+          style={[styles.partnerMessageBtn, { backgroundColor: themeColors.primary }]}
+          onPress={() => navigateToChat(router, partnerContact.mentorshipId)}
+          accessibilityRole="button"
+          accessibilityLabel={t("profile.sendMessage")}
+        >
+          <Ionicons name="chatbubble-ellipses-outline" size={16} color={COLORS.white} style={{ marginRight: 6 }} />
+          <Text style={styles.partnerMessageBtnText}>{t("profile.sendMessage")}</Text>
+        </BNMPressable>
+      </View>
+    </>
+  ) : null;
+
+  const accountBlock = (
+    <>
+      <Text style={[styles.sectionHeader, { color: themeColors.textTertiary }]}>{t("profile.account")}</Text>
+      <View style={[styles.card, { backgroundColor: themeColors.card, borderColor: themeColors.border, padding: 0, overflow: "hidden" }]}>
+        <MenuItem
+          icon="key-outline"
+          label={t("profile.changePassword")}
+          onPress={() => router.push("/change-password")}
+        />
+        <MenuItem
+          icon="notifications-outline"
+          label={t("profile.notifications")}
+          onPress={() => router.push("/notification-settings")}
+        />
+        <MenuItem
+          icon="settings-outline"
+          label={t("profile.settings")}
+          onPress={() => router.push("/settings")}
+          isLast
+        />
+      </View>
+    </>
+  );
+
+  const themeBlock = (
+    <>
+      <Text style={[styles.sectionHeader, { color: themeColors.textTertiary }]}>{t("theme.appearance")}</Text>
+      <View style={[styles.card, { backgroundColor: themeColors.card, borderColor: themeColors.border }]}>
+        <View style={styles.themeRow}>
+          {THEME_OPTIONS.map((option) => {
+            const isActive = mode === option.value;
+            return (
+              <BNMPressable
+                key={option.value}
+                style={[
+                  styles.themeOption,
+                  {
+                    backgroundColor: isActive ? COLORS.gradientStart : themeColors.background,
+                    borderColor: isActive ? COLORS.gradientStart : themeColors.border,
+                  },
+                ]}
+                onPress={() => setMode(option.value)}
+                accessibilityRole="radio"
+                accessibilityState={{ checked: isActive }}
+                accessibilityLabel={t(option.labelKey)}
+              >
+                <Ionicons
+                  name={option.icon as any}
+                  size={18}
+                  color={isActive ? COLORS.white : themeColors.textSecondary}
+                />
+                <Text
+                  style={[
+                    styles.themeOptionLabel,
+                    { color: isActive ? COLORS.white : themeColors.textSecondary },
+                  ]}
+                >
+                  {t(option.labelKey)}
+                </Text>
+              </BNMPressable>
+            );
+          })}
+        </View>
+      </View>
+    </>
+  );
+
+  const statsBlock = user.role === "mentor" && mentorStats ? (
+    <>
+      <Text style={[styles.sectionHeader, { color: themeColors.textTertiary }]}>{t("profile.myStats")}</Text>
+      <View style={[styles.card, { backgroundColor: themeColors.card, borderColor: themeColors.border }]}>
+        <View style={styles.statsGrid}>
+          <StatItem value={String(mentorStats.active)} label={t("profile.activeMentorships")} color={themeColors.accent} />
+          <StatItem value={String(mentorStats.completed)} label={t("profile.completedMentorships")} color={themeColors.success} />
+          <StatItem value={String(mentorStats.totalSessions)} label={t("profile.totalSessions")} color={themeColors.primary} />
+          <StatItem value={`#${mentorStats.rank}`} label={t("profile.ranking")} color={COLORS.gold} />
+        </View>
+        <Text style={[styles.rankHint, { color: themeColors.textTertiary }]}>
+          {t("profile.rankingOf").replace("{0}", String(mentorStats.totalMentors))}
+        </Text>
+      </View>
+    </>
+  ) : null;
+
+  const logoutBlock = (
+    <View style={styles.logoutSection}>
+      <BNMPressable
+        style={styles.logoutRow}
+        onPress={handleLogout}
+        hapticStyle="warning"
+        accessibilityRole="button"
+        accessibilityLabel={t("profile.logout")}
+      >
+        <Ionicons name="log-out-outline" size={20} color={themeColors.error} />
+        <Text style={[styles.logoutText, { color: themeColors.error }]}>{t("profile.logout")}</Text>
+      </BNMPressable>
+    </View>
+  );
+
+  const footerBlock = (
+    <View style={styles.footerBox}>
+      <Text style={[styles.footerVersion, { color: themeColors.textTertiary }]}>{t("footer.version")}</Text>
+      <Text style={[styles.footerPartner, { color: themeColors.textTertiary }]}>
+        Ein iERA Projekt in Kooperation mit IMAN
+      </Text>
+      <View style={styles.footerLinks}>
+        <BNMPressable onPress={() => Linking.openURL("https://iman.ngo/datenschutzerklaerung/")} accessibilityRole="link" accessibilityLabel={t("footer.privacy")}>
+          <Text style={[styles.footerLink, { color: themeColors.link }]}>{t("footer.privacy")}</Text>
+        </BNMPressable>
+        <Text style={[styles.footerSep, { color: themeColors.textTertiary }]}>·</Text>
+        <BNMPressable onPress={() => Linking.openURL("https://iman.ngo/impressum/")} accessibilityRole="link" accessibilityLabel={t("footer.imprint")}>
+          <Text style={[styles.footerLink, { color: themeColors.link }]}>{t("footer.imprint")}</Text>
+        </BNMPressable>
+        <Text style={[styles.footerSep, { color: themeColors.textTertiary }]}>·</Text>
+        <BNMPressable onPress={() => Linking.openURL("https://iman.ngo/agb/")} accessibilityRole="link" accessibilityLabel="Allgemeine Geschäftsbedingungen">
+          <Text style={[styles.footerLink, { color: themeColors.link }]}>AGB</Text>
+        </BNMPressable>
+      </View>
+    </View>
+  );
+
+  const modals = (
+    <>
+      {showPrivacy && (
+        <View style={styles.overlay}>
+          <View style={[styles.overlayCard, { backgroundColor: themeColors.card }]}>
+            <Text style={[styles.overlayTitle, { color: themeColors.text }]}>{t("footer.privacyTitle")}</Text>
+            <Text style={[styles.overlayText, { color: themeColors.textSecondary }]}>{t("footer.privacyText")}</Text>
+            <BNMPressable style={[styles.overlayClose, { backgroundColor: themeColors.primary }]} onPress={() => setShowPrivacy(false)} accessibilityRole="button" accessibilityLabel={t("common.back")}>
+              <Text style={styles.overlayCloseText}>{t("common.back")}</Text>
+            </BNMPressable>
+          </View>
+        </View>
+      )}
+      {showImprint && (
+        <View style={styles.overlay}>
+          <View style={[styles.overlayCard, { backgroundColor: themeColors.card }]}>
+            <Text style={[styles.overlayTitle, { color: themeColors.text }]}>{t("footer.imprintTitle")}</Text>
+            <Text style={[styles.overlayText, { color: themeColors.textSecondary }]}>{t("footer.imprintText")}</Text>
+            <BNMPressable style={[styles.overlayClose, { backgroundColor: themeColors.primary }]} onPress={() => setShowImprint(false)} accessibilityRole="button" accessibilityLabel={t("common.back")}>
+              <Text style={styles.overlayCloseText}>{t("common.back")}</Text>
+            </BNMPressable>
+          </View>
+        </View>
+      )}
+    </>
+  );
+
   return (
-    <Container fullWidth={Platform.OS === "web"}>
+    <Container>
     <ScrollView
       style={[styles.scrollView, { backgroundColor: themeColors.background }]}
       refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor={themeColors.accent} />}
     >
       <View style={styles.page}>
-        {/* Hero-Header mit dunklem Blau */}
-        <View style={[styles.heroHeader, { backgroundColor: themeColors.primary }]}>
-          {/* BNM Logo oben rechts */}
-          <View style={styles.heroLogoPosition}>
-            <BNMLogo size={40} showSubtitle={false} />
-          </View>
-          {user.avatar_url ? (
-            <Image
-              source={{ uri: user.avatar_url }}
-              style={[styles.avatarImage, { borderColor: themeColors.accent }]}
-              resizeMode="cover"
-              accessibilityLabel={`Profilbild von ${user.name}`}
-            />
-          ) : (
-            <View style={[styles.avatarCircle, { backgroundColor: themeColors.accent }]}>
-              <Text style={styles.avatarText}>{initials}</Text>
-            </View>
-          )}
-          <Text style={styles.userName}>{user.name}</Text>
-
-          {/* Rollen-Badge */}
-          <View style={[styles.roleBadge, { backgroundColor: roleBgColor }]}>
-            <Text style={[styles.roleBadgeText, { color: roleTextColor }]}>
-              {ROLE_LABELS[user.role]}
-            </Text>
-          </View>
-
-          {/* Geschlecht-Badge */}
-          <View style={styles.genderBadge}>
-            <Text style={styles.genderText}>
-              {user.gender === "male" ? t("mentees.brother") : t("mentees.sister")}
-            </Text>
-          </View>
-        </View>
-
-        {/* Erscheinungsbild / Theme-Toggle */}
-        <View style={[styles.infoCard, { backgroundColor: themeColors.card, borderColor: themeColors.border }]}>
-          <Text style={[styles.sectionLabel, { color: themeColors.textTertiary }]}>{t("theme.appearance")}</Text>
-          <View style={themeToggleStyles.row}>
-            {THEME_OPTIONS.map((option) => {
-              const isActive = mode === option.value;
-              return (
-                <BNMPressable
-                  key={option.value}
-                  style={[
-                    themeToggleStyles.option,
-                    {
-                      backgroundColor: isActive ? COLORS.gradientStart : themeColors.background,
-                      borderColor: isActive ? COLORS.gradientStart : themeColors.border,
-                    },
-                  ]}
-                  onPress={() => setMode(option.value)}
-                  accessibilityRole="radio"
-                  accessibilityState={{ checked: isActive }}
-                  accessibilityLabel={t(option.labelKey)}
-                >
-                  <Text style={themeToggleStyles.optionIcon}>{option.icon}</Text>
-                  <Text
-                    style={[
-                      themeToggleStyles.optionLabel,
-                      { color: isActive ? COLORS.white : themeColors.textSecondary },
-                    ]}
-                  >
-                    {t(option.labelKey)}
-                  </Text>
-                </BNMPressable>
-              );
-            })}
-          </View>
-        </View>
-
-        {/* Persönliche Infos */}
-        <View style={[styles.infoCard, { backgroundColor: themeColors.card }]}>
-          <Text style={[styles.sectionLabel, { color: themeColors.textTertiary }]}>{t("profile.personalInfo")}</Text>
-
-          <InfoRow label={t("profile.email")} value={user.email} />
-          <InfoRow label={t("profile.city")} value={user.city} />
-          <InfoRow label={t("profile.age")} value={`${user.age} ${t("profile.ageYears")}`} />
-          {user.phone && <InfoRow label={t("profile.phone")} value={user.phone} />}
-          <InfoRow
-            label={t("profile.contact")}
-            value={CONTACT_LABELS[user.contact_preference] ?? user.contact_preference}
-            isLast
-          />
-        </View>
-
-        {/* Mentor-Statistiken */}
-        {user.role === "mentor" && mentorStats && (
-          <View style={[styles.infoCard, { backgroundColor: themeColors.card }]}>
-            <Text style={[styles.sectionLabel, { color: themeColors.textTertiary }]}>{t("profile.myStats")}</Text>
-            <View style={styles.statsGrid}>
-              <View style={[styles.statItem, { backgroundColor: themeColors.statItem, borderLeftColor: themeColors.accent }]}>
-                <Text style={[styles.statValue, { color: themeColors.text }]}>{mentorStats.active}</Text>
-                <Text style={[styles.statLabel, { color: themeColors.textTertiary }]}>{t("profile.activeMentorships")}</Text>
-              </View>
-              <View style={[styles.statItem, { backgroundColor: themeColors.statItem, borderLeftColor: themeColors.success }]}>
-                <Text style={[styles.statValue, { color: themeColors.success }]}>{mentorStats.completed}</Text>
-                <Text style={[styles.statLabel, { color: themeColors.textTertiary }]}>{t("profile.completedMentorships")}</Text>
-              </View>
-              <View style={[styles.statItem, { backgroundColor: themeColors.statItem, borderLeftColor: themeColors.primary }]}>
-                <Text style={[styles.statValue, { color: themeColors.primary }]}>{mentorStats.totalSessions}</Text>
-                <Text style={[styles.statLabel, { color: themeColors.textTertiary }]}>{t("profile.totalSessions")}</Text>
-              </View>
-              <View style={[styles.statItem, { backgroundColor: themeColors.statItem, borderLeftColor: themeColors.accent }]}>
-                <Text style={[styles.statValue, { color: themeColors.accent }]}>
-                  #{mentorStats.rank}
-                </Text>
-                <Text style={[styles.statLabel, { color: themeColors.textTertiary }]}>{t("profile.ranking")}</Text>
-              </View>
-            </View>
-            <Text style={[styles.rankHint, { color: themeColors.textTertiary }]}>
-              {t("profile.rankingOf").replace("{0}", String(mentorStats.totalMentors))}
-            </Text>
-          </View>
-        )}
-
-        {/* Kontaktinfo Mentorship-Partner — nur für Mentees sichtbar */}
-        {partnerContact && user.role === "mentee" && (
-          <View style={[styles.infoCard, { backgroundColor: themeColors.card }]}>
-            <Text style={[styles.sectionLabel, { color: themeColors.textTertiary }]}>{t("profile.partnerInfo")}</Text>
-            <Text style={[styles.infoValue, { textAlign: "left", maxWidth: "100%", fontWeight: "700", color: themeColors.text, marginBottom: 8 }]}>
-              {partnerContact.label}: {partnerContact.person.name}
-            </Text>
-            <InfoRow label={t("profile.partnerEmail")} value={partnerContact.person.email} />
-            {partnerContact.person.phone ? (
-              <InfoRow label={t("profile.partnerPhone")} value={partnerContact.person.phone} />
-            ) : null}
-            <InfoRow
-              label={t("profile.partnerContact")}
-              value={CONTACT_LABELS[partnerContact.person.contact_preference] ?? partnerContact.person.contact_preference}
-              isLast
-            />
-            <BNMPressable
-              style={[styles.partnerMessageBtn, { backgroundColor: themeColors.primary }]}
-              onPress={() =>
-                navigateToChat(router, partnerContact.mentorshipId)
-              }
-              accessibilityRole="button"
-              accessibilityLabel={t("profile.sendMessage")}
-            >
-              <Text style={styles.partnerMessageBtnText}>{t("profile.sendMessage")}</Text>
-            </BNMPressable>
-          </View>
-        )}
-
-        {/* Konto-Aktionen */}
-        <View style={[styles.infoCard, { padding: 0, overflow: "hidden", backgroundColor: themeColors.card }]}>
-          <Text style={[styles.sectionLabel, { paddingHorizontal: 16, paddingTop: 16, paddingBottom: 8, color: themeColors.textTertiary }]}>
-            {t("profile.account")}
-          </Text>
-          <BNMPressable
-            style={[styles.menuItem, { borderBottomColor: themeColors.border }]}
-            onPress={() => router.push("/edit-profile")}
-            accessibilityRole="button"
-            accessibilityLabel={t("profile.editProfile")}
-          >
-            <Text style={[styles.menuItemText, { color: themeColors.text }]}>{t("profile.editProfile")}</Text>
-            <Text style={[styles.menuArrow, { color: themeColors.textTertiary }]}>›</Text>
-          </BNMPressable>
-          <BNMPressable
-            style={[styles.menuItem, { borderBottomColor: themeColors.border }]}
-            onPress={() => router.push("/change-password")}
-            accessibilityRole="button"
-            accessibilityLabel={t("profile.changePassword")}
-          >
-            <Text style={[styles.menuItemText, { color: themeColors.text }]}>{t("profile.changePassword")}</Text>
-            <Text style={[styles.menuArrow, { color: themeColors.textTertiary }]}>›</Text>
-          </BNMPressable>
-          <BNMPressable
-            style={[styles.menuItem, { borderBottomColor: themeColors.border }]}
-            onPress={() => router.push("/notification-settings")}
-            accessibilityRole="button"
-            accessibilityLabel={t("profile.notifications")}
-          >
-            <Text style={[styles.menuItemText, { color: themeColors.text }]}>{t("profile.notifications")}</Text>
-            <Text style={[styles.menuArrow, { color: themeColors.textTertiary }]}>›</Text>
-          </BNMPressable>
-          <BNMPressable
-            style={[styles.menuItem, { borderBottomColor: themeColors.border }]}
-            onPress={() => router.push("/settings")}
-            accessibilityRole="button"
-            accessibilityLabel={t("profile.settings")}
-          >
-            <Text style={[styles.menuItemText, { color: themeColors.text }]}>{t("profile.settings")}</Text>
-            <Text style={[styles.menuArrow, { color: themeColors.textTertiary }]}>›</Text>
-          </BNMPressable>
-        </View>
-
-        {/* Logout */}
-        <BNMPressable
-          style={[styles.logoutButton, { backgroundColor: themeColors.errorLight, borderColor: themeColors.error + "40" }]}
-          onPress={handleLogout}
-          hapticStyle="warning"
-          accessibilityRole="button"
-          accessibilityLabel={t("profile.logout")}
-        >
-          <Text style={[styles.logoutText, { color: themeColors.error }]}>{t("profile.logout")}</Text>
-        </BNMPressable>
-
-        {/* App-Footer */}
-        <View style={styles.footerBox}>
-          <Text style={[styles.footerVersion, { color: themeColors.textTertiary }]}>{t("footer.version")}</Text>
-          <Text style={[styles.footerPartner, { color: themeColors.textTertiary }]}>
-            Ein iERA Projekt in Kooperation mit IMAN
-          </Text>
-          <View style={styles.footerLinks}>
-            <BNMPressable
-              onPress={() => Linking.openURL("https://iman.ngo/datenschutzerklaerung/")}
-              accessibilityRole="link"
-              accessibilityLabel={t("footer.privacy")}
-            >
-              <Text style={[styles.footerLink, { color: themeColors.link }]}>{t("footer.privacy")}</Text>
-            </BNMPressable>
-            <Text style={[styles.footerSep, { color: themeColors.textTertiary }]}>·</Text>
-            <BNMPressable
-              onPress={() => Linking.openURL("https://iman.ngo/impressum/")}
-              accessibilityRole="link"
-              accessibilityLabel={t("footer.imprint")}
-            >
-              <Text style={[styles.footerLink, { color: themeColors.link }]}>{t("footer.imprint")}</Text>
-            </BNMPressable>
-            <Text style={[styles.footerSep, { color: themeColors.textTertiary }]}>·</Text>
-            <BNMPressable
-              onPress={() => Linking.openURL("https://iman.ngo/agb/")}
-              accessibilityRole="link"
-              accessibilityLabel="Allgemeine Geschäftsbedingungen"
-            >
-              <Text style={[styles.footerLink, { color: themeColors.link }]}>AGB</Text>
-            </BNMPressable>
-          </View>
-        </View>
-
-        {/* Datenschutz Modal */}
-        {showPrivacy && (
-          <View style={styles.overlay}>
-            <View style={[styles.overlayCard, { backgroundColor: themeColors.card }]}>
-              <Text style={[styles.overlayTitle, { color: themeColors.text }]}>{t("footer.privacyTitle")}</Text>
-              <Text style={[styles.overlayText, { color: themeColors.textSecondary }]}>{t("footer.privacyText")}</Text>
-              <BNMPressable style={[styles.overlayClose, { backgroundColor: themeColors.primary }]} onPress={() => setShowPrivacy(false)} accessibilityRole="button" accessibilityLabel={t("common.back")}>
-                <Text style={styles.overlayCloseText}>{t("common.back")}</Text>
-              </BNMPressable>
-            </View>
-          </View>
-        )}
-
-        {/* Impressum Modal */}
-        {showImprint && (
-          <View style={styles.overlay}>
-            <View style={[styles.overlayCard, { backgroundColor: themeColors.card }]}>
-              <Text style={[styles.overlayTitle, { color: themeColors.text }]}>{t("footer.imprintTitle")}</Text>
-              <Text style={[styles.overlayText, { color: themeColors.textSecondary }]}>{t("footer.imprintText")}</Text>
-              <BNMPressable style={[styles.overlayClose, { backgroundColor: themeColors.primary }]} onPress={() => setShowImprint(false)} accessibilityRole="button" accessibilityLabel={t("common.back")}>
-                <Text style={styles.overlayCloseText}>{t("common.back")}</Text>
-              </BNMPressable>
-            </View>
-          </View>
-        )}
+        {profileHeaderBlock}
+        {personalInfoBlock}
+        {partnerBlock}
+        {accountBlock}
+        {themeBlock}
+        {statsBlock}
+        {logoutBlock}
+        {footerBlock}
+        {modals}
       </View>
     </ScrollView>
     </Container>
   );
 }
 
+/* ─── Sub-Components ─── */
+
 function InfoRow({
+  icon,
   label,
   value,
   isLast,
 }: {
+  icon?: string;
   label: string;
   value: string;
   isLast?: boolean;
@@ -442,93 +428,186 @@ function InfoRow({
     <View
       style={[
         styles.infoRow,
-        isLast ? {} : { borderBottomWidth: 1, borderBottomColor: themeColors.border },
+        isLast ? {} : { borderBottomWidth: StyleSheet.hairlineWidth, borderBottomColor: themeColors.border },
       ]}
     >
-      <Text style={[styles.infoLabel, { color: themeColors.textSecondary }]}>{label}</Text>
+      <View style={styles.infoRowLeft}>
+        {icon && (
+          <Ionicons name={icon as any} size={18} color={themeColors.textTertiary} style={{ marginRight: 10 }} />
+        )}
+        <Text style={[styles.infoLabel, { color: themeColors.textSecondary }]}>{label}</Text>
+      </View>
       <Text style={[styles.infoValue, { color: themeColors.text }]}>{value}</Text>
     </View>
   );
 }
 
+function MenuItem({
+  icon,
+  label,
+  onPress,
+  isLast,
+}: {
+  icon: string;
+  label: string;
+  onPress: () => void;
+  isLast?: boolean;
+}) {
+  const themeColors = useThemeColors();
+  return (
+    <BNMPressable
+      style={[
+        styles.menuItem,
+        isLast ? {} : { borderBottomWidth: StyleSheet.hairlineWidth, borderBottomColor: themeColors.border },
+      ]}
+      onPress={onPress}
+      accessibilityRole="button"
+      accessibilityLabel={label}
+    >
+      <View style={styles.menuItemLeft}>
+        <Ionicons name={icon as any} size={20} color={themeColors.textSecondary} />
+        <Text style={[styles.menuItemText, { color: themeColors.text }]}>{label}</Text>
+      </View>
+      <Ionicons name="chevron-forward" size={18} color={themeColors.textTertiary} />
+    </BNMPressable>
+  );
+}
+
+function StatItem({ value, label, color }: { value: string; label: string; color: string }) {
+  const themeColors = useThemeColors();
+  return (
+    <View style={[styles.statItem, { backgroundColor: themeColors.background }]}>
+      <Text style={[styles.statValue, { color }]}>{value}</Text>
+      <Text style={[styles.statLabel, { color: themeColors.textTertiary }]}>{label}</Text>
+    </View>
+  );
+}
+
+/* ─── Styles ─── */
+
 const styles = StyleSheet.create({
   scrollView: { flex: 1 },
-  page: { padding: 16 },
-  heroHeader: {
-    borderRadius: RADIUS.md,
-    padding: 20,
+  page: { padding: 16, paddingBottom: 32 },
+
+  // --- Profile Header ---
+  profileHeader: {
     alignItems: "center",
-    marginBottom: 16,
-    ...SHADOWS.md,
-    position: "relative",
-  },
-  heroLogoPosition: {
-    position: "absolute",
-    top: 12,
-    right: 12,
-    opacity: 0.85,
+    paddingVertical: 28,
+    paddingHorizontal: 16,
+    borderRadius: RADIUS.md,
+    marginBottom: 8,
   },
   avatarCircle: {
-    width: 64,
-    height: 64,
-    borderRadius: 32,
+    width: 80,
+    height: 80,
+    borderRadius: 40,
     alignItems: "center",
     justifyContent: "center",
-    marginBottom: 10,
+    marginBottom: 12,
   },
   avatarImage: {
-    width: 64,
-    height: 64,
-    borderRadius: 32,
-    marginBottom: 10,
-    borderWidth: 2,
+    width: 80,
+    height: 80,
+    borderRadius: 40,
+    marginBottom: 12,
+    borderWidth: 2.5,
   },
-  avatarText: { color: "#FFFFFF", fontSize: 22, fontWeight: "800" },
-  userName: { fontSize: 18, fontWeight: "800", color: "#FFFFFF", marginBottom: 6 },
-  roleBadge: { paddingHorizontal: 12, paddingVertical: 4, borderRadius: RADIUS.xs },
+  avatarText: { fontSize: 26, fontWeight: "700" },
+  userName: { fontSize: 20, fontWeight: "700", marginBottom: 2 },
+  userEmail: { fontSize: 14, marginBottom: 8 },
+  roleBadge: { paddingHorizontal: 12, paddingVertical: 4, borderRadius: RADIUS.full },
   roleBadgeText: { fontSize: 12, fontWeight: "600" },
-  genderBadge: { marginTop: 8 },
-  genderText: { color: "#FFFFFF", opacity: 0.75, fontSize: 13 },
-  infoCard: {
-    borderRadius: RADIUS.md,
-    padding: 16,
-    marginBottom: 12,
-    ...SHADOWS.sm,
+  genderText: { fontSize: 13, marginTop: 4 },
+  editProfileBtn: {
+    marginTop: 16,
+    paddingHorizontal: 24,
+    paddingVertical: 10,
+    borderRadius: RADIUS.full,
   },
-  sectionLabel: {
-    ...TYPOGRAPHY.styles.label,
-    letterSpacing: 1,
-    marginBottom: 12,
+  editProfileBtnText: {
+    fontSize: 14,
+    fontWeight: "600",
+  },
+
+  // --- Section Header ---
+  sectionHeader: {
+    fontSize: 12,
+    fontWeight: "600",
+    letterSpacing: 0.8,
     textTransform: "uppercase",
+    marginTop: 20,
+    marginBottom: 8,
+    marginLeft: 4,
   },
+
+  // --- Card ---
+  card: {
+    borderRadius: RADIUS.md,
+    borderWidth: StyleSheet.hairlineWidth,
+    padding: 16,
+  },
+
+  // --- Info Rows ---
   infoRow: {
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
-    paddingVertical: 10,
+    paddingVertical: 11,
+  },
+  infoRowLeft: {
+    flexDirection: "row",
+    alignItems: "center",
   },
   infoLabel: { fontSize: 13 },
   infoValue: {
     fontSize: 14,
     fontWeight: "500",
-    maxWidth: "60%",
+    maxWidth: "55%",
     textAlign: "right",
   },
+
+  // --- Menu Items ---
   menuItem: {
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
     paddingHorizontal: 16,
-    paddingVertical: 12,
-    borderBottomWidth: 1,
+    paddingVertical: 14,
   },
-  menuItemText: { fontSize: 14 },
-  menuArrow: { fontSize: 18 },
+  menuItemLeft: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 12,
+  },
+  menuItemText: { fontSize: 15 },
+
+  // --- Theme Toggle ---
+  themeRow: {
+    flexDirection: "row",
+    gap: 8,
+  },
+  themeOption: {
+    flex: 1,
+    flexDirection: "column",
+    alignItems: "center",
+    justifyContent: "center",
+    paddingVertical: 10,
+    paddingHorizontal: 4,
+    borderRadius: RADIUS.sm,
+    borderWidth: 1.5,
+    gap: 4,
+  },
+  themeOptionLabel: {
+    fontSize: 12,
+    fontWeight: "600",
+    textAlign: "center",
+  },
+
+  // --- Stats ---
   statsGrid: {
     flexDirection: "row",
     flexWrap: "wrap",
-    gap: 12,
-    marginBottom: 8,
+    gap: 10,
   },
   statItem: {
     flex: 1,
@@ -536,32 +615,50 @@ const styles = StyleSheet.create({
     borderRadius: RADIUS.sm,
     padding: 12,
     alignItems: "center",
-    borderLeftWidth: 3,
   },
-  statValue: { fontSize: 24, fontWeight: "800" },
+  statValue: { fontSize: 22, fontWeight: "800" },
   statLabel: { fontSize: 11, marginTop: 2, textAlign: "center" },
-  rankHint: { fontSize: 11, textAlign: "center", marginTop: 4 },
-  logoutButton: {
-    borderWidth: 1,
-    borderRadius: RADIUS.sm,
-    paddingVertical: 10,
-    alignItems: "center",
-    marginBottom: 12,
+  rankHint: { fontSize: 11, textAlign: "center", marginTop: 6 },
+
+  // --- Partner ---
+  partnerName: {
+    fontWeight: "700",
+    fontSize: 15,
+    marginBottom: 8,
   },
-  logoutText: { fontWeight: "600" },
   partnerMessageBtn: {
-    marginTop: 10,
-    borderRadius: RADIUS.sm,
+    marginTop: 12,
+    borderRadius: RADIUS.full,
     paddingVertical: 10,
     alignItems: "center",
+    flexDirection: "row",
+    justifyContent: "center",
   },
-  partnerMessageBtnText: { color: "#FFFFFF", fontWeight: "600", fontSize: 13 },
-  footerBox: { alignItems: "center", marginBottom: 16 },
+  partnerMessageBtnText: { color: COLORS.white, fontWeight: "600", fontSize: 13 },
+
+  // --- Logout ---
+  logoutSection: {
+    marginTop: 24,
+    marginBottom: 8,
+  },
+  logoutRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    gap: 8,
+    paddingVertical: 12,
+  },
+  logoutText: { fontWeight: "600", fontSize: 15 },
+
+  // --- Footer ---
+  footerBox: { alignItems: "center", marginTop: 8, marginBottom: 16 },
   footerVersion: { fontSize: 12, marginBottom: 4 },
   footerPartner: { fontSize: 11, marginBottom: 8, textAlign: "center" },
   footerLinks: { flexDirection: "row", alignItems: "center", gap: 6 },
   footerLink: { fontSize: 12 },
   footerSep: { fontSize: 12 },
+
+  // --- Overlays ---
   overlay: {
     position: "absolute",
     top: 0,
@@ -586,32 +683,5 @@ const styles = StyleSheet.create({
     paddingVertical: 10,
     alignItems: "center",
   },
-  overlayCloseText: { color: "#FFFFFF", fontWeight: "600" },
-});
-
-// Styles für den Theme-Toggle (SegmentedControl-ähnlich)
-const themeToggleStyles = StyleSheet.create({
-  row: {
-    flexDirection: "row",
-    gap: 8,
-  },
-  option: {
-    flex: 1,
-    flexDirection: "column",
-    alignItems: "center",
-    justifyContent: "center",
-    paddingVertical: 10,
-    paddingHorizontal: 4,
-    borderRadius: RADIUS.sm,
-    borderWidth: 1.5,
-    gap: 4,
-  },
-  optionIcon: {
-    fontSize: 18,
-  },
-  optionLabel: {
-    fontSize: 12,
-    fontWeight: "600",
-    textAlign: "center",
-  },
+  overlayCloseText: { color: COLORS.white, fontWeight: "600" },
 });

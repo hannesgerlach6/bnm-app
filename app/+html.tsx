@@ -34,8 +34,13 @@ export default function Root({ children }: PropsWithChildren) {
         <ScrollViewStyleReset />
         <style dangerouslySetInnerHTML={{ __html: `
           html, body, #root { height: 100%; margin: 0; padding: 0; overflow: hidden; }
-          body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
+          body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; -webkit-font-smoothing: antialiased; }
           input, textarea, select { font-size: 16px !important; } /* Verhindert Auto-Zoom auf iOS */
+          * { -webkit-tap-highlight-color: transparent; touch-action: manipulation; }
+          /* Smooth scroll für Mobile Web */
+          [data-testid="scroll-view"] { -webkit-overflow-scrolling: touch; }
+          /* PWA safe areas */
+          #root { padding-top: env(safe-area-inset-top); padding-bottom: env(safe-area-inset-bottom); padding-left: env(safe-area-inset-left); padding-right: env(safe-area-inset-right); }
         `}} />
       </head>
       <body>{children}</body>

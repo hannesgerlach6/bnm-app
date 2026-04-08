@@ -579,6 +579,7 @@ export default function ChatsScreen() {
     adminMessages,
     getAdminMessagesByUserId,
     getAdminChatPartners,
+    markAdminChatAsRead,
     users: allUsers,
   } = useData();
   const [refreshing, setRefreshing] = useState(false);
@@ -598,6 +599,12 @@ export default function ChatsScreen() {
       setSelectedChatId(params.openChat);
     }
   }, [params.openChat]);
+
+  // Mentor/Mentee: Admin-DMs automatisch als gelesen markieren wenn Chat-Tab geöffnet wird
+  useEffect(() => {
+    if (!user || user.role === "admin" || user.role === "office") return;
+    markAdminChatAsRead(user.id);
+  }, [user?.id, user?.role, markAdminChatAsRead, adminMessages.length]);
 
   // Zwei-Spalten-Layout nur auf Web bei ausreichend Breite
   const isWideWeb = Platform.OS === "web" && width > 768;

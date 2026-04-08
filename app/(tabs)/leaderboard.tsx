@@ -326,7 +326,7 @@ export default function LeaderboardScreen() {
                       </Text>
                     </TouchableOpacity>
                   );
-                })() : <View style={styles.podiumCardEmpty} />}
+                })() : top3.length > 1 ? <View style={styles.podiumCardEmpty} /> : null}
 
                 {/* Platz 1 (größte Karte, mittig) */}
                 {top3[0] ? (() => {
@@ -391,7 +391,7 @@ export default function LeaderboardScreen() {
                       </Text>
                     </TouchableOpacity>
                   );
-                })() : <View style={styles.podiumCardEmpty} />}
+                })() : top3.length > 2 ? <View style={styles.podiumCardEmpty} /> : null}
               </View>
 
               {/* ── Restliche Plätze (ab Platz 4) ──────────────────────── */}
@@ -538,36 +538,37 @@ const styles = StyleSheet.create({
   podiumRow: {
     flexDirection: "row",
     alignItems: "flex-end",
-    justifyContent: "center",
-    gap: 10,
+    justifyContent: "stretch",
+    gap: 8,
     marginBottom: 16,
-    paddingHorizontal: 4,
   },
   podiumCard: {
-    borderRadius: RADIUS.lg,
+    borderRadius: RADIUS.md,
     borderWidth: 2,
-    padding: 14,
+    paddingVertical: 12,
+    paddingHorizontal: 10,
     alignItems: "center",
     flex: 1,
+    minWidth: 0,
   },
   podiumCard1: {
-    // Platz 1: größte Karte — steht am höchsten
-    paddingVertical: 20,
+    // Platz 1: größte Karte — steht am höchsten, horizontal betont
+    paddingVertical: 16,
     paddingHorizontal: 16,
     marginBottom: 0,
     shadowColor: "#EEA71B",
-    shadowOffset: { width: 0, height: 6 },
-    shadowOpacity: 0.35,
-    shadowRadius: 16,
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.30,
+    shadowRadius: 12,
     elevation: 8,
   },
   podiumCard2: {
-    // Platz 2: mittel — deutlich tiefer als 1
-    marginBottom: 28,
+    // Platz 2: mittel
+    marginBottom: 16,
   },
   podiumCard3: {
-    // Platz 3: noch tiefer
-    marginBottom: 40,
+    // Platz 3: etwas tiefer
+    marginBottom: 24,
   },
   podiumCardEmpty: { flex: 1 },
   podiumCardMe: {

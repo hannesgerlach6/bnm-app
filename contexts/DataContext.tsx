@@ -365,10 +365,12 @@ export function DataProvider({ children }: { children: ReactNode }) {
   const [isLoading, setIsLoading] = useState(true);
 
   const realtimeChannelRef = useRef<ReturnType<typeof supabase.channel> | null>(null);
-  // Ref für Mentorships — immer aktuell, auch in Realtime-Callbacks (Closure-Problem vermeiden)
+  // Refs — immer aktuell, auch in Realtime-Callbacks (Closure-Problem vermeiden)
   const mentorshipsRef = useRef<Mentorship[]>([]);
+  const hasLoadedOnceRef = useRef(false);
   // Guard: verhindert parallele foreground-Loads (würden State inkonsistent machen)
   const isActiveLoadRef = useRef(false);
+  const loadStartTimeRef = useRef(0);
 
   // ─── Initial Load ────────────────────────────────────────────────────────────
 
@@ -388,6 +390,8 @@ export function DataProvider({ children }: { children: ReactNode }) {
       setThanks([]);
       setStreak(null);
       setIsLoading(false);
+      hasLoadedOnceRef.current = false;
+      isActiveLoadRef.current = false;
       return;
     }
 
@@ -412,6 +416,7 @@ export function DataProvider({ children }: { children: ReactNode }) {
         setAppSettings(cached.appSettings);
         setMentorOfMonthVisible(cached.mentorOfMonthVisible);
         setIsLoading(false);
+        hasLoadedOnceRef.current = true;
 
         // IMMER im Hintergrund frisch laden — Messages, Notifications,
         // Applications werden nicht gecacht und müssen immer geholt werden
@@ -484,33 +489,33 @@ export function DataProvider({ children }: { children: ReactNode }) {
   }, [authUser?.id]);
 
   async function loadAllData(background = false) {
-    // Concurrent-Load-Guard: Kein paralleler foreground-Load erlaubt
+    // ── Concurrent-Load-Guard ──
+    // Foreground: Nur 1 gleichzeitig, mit Stale-Guard (10s) als Deadlock-Prevention
     if (!background) {
-      if (isActiveLoadRef.current) return;
-      isActiveLoadRef.current = true;
-    }
-    if (!background) setIsLoading(true);
-    try {
-      // Session-Check: Nur laden wenn gültige Supabase-Session vorhanden
-      const { data: sessionData } = await supabase.auth.getSession();
-      if (!sessionData?.session) {
-        // Keine Session → Auth redirectet automatisch zum Login, nicht weiter laden
-        if (!background) setIsLoading(false);
-        return;
+      if (isActiveLoadRef.current) {
+        const stale = Date.now() - loadStartTimeRef.current > 5_000;
+        if (!stale) return; // Noch aktiv, nicht doppelt laden
+        console.warn("[DataContext] Stale load lock (>10s), forcing reset");
       }
+      isActiveLoadRef.current = true;
+      loadStartTimeRef.current = Date.now();
+      setIsLoading(true);
+    }
+    try {
+      // Session-Check
+      const { data: sessionData } = await supabase.auth.getSession();
+      if (!sessionData?.session) return;
 
       const isAdminOrOffice = authUser?.role === "admin" || authUser?.role === "office";
       const isMentor = authUser?.role === "mentor";
-      // Platzhalter für Queries die nur für bestimmte Rollen ausgeführt werden
       const empty = Promise.resolve({ data: null, error: null });
 
-      // Timeout: Wenn Supabase-Queries nach 12s nicht antworten → Fehler werfen
-      // Verhindert dauerhaftes "isLoading=true" bei hängender Verbindung
+      // Timeout: 8s — verhindert dauerhaftes isLoading bei hängender Verbindung
       const withTimeout = <T>(p: Promise<T>): Promise<T> =>
         Promise.race([
           p,
           new Promise<T>((_, reject) =>
-            setTimeout(() => reject(new Error("Supabase query timeout (12s)")), 12_000)
+            setTimeout(() => reject(new Error("Supabase query timeout (5s)")), 5_000)
           ),
         ]);
 
@@ -974,8 +979,10 @@ export function DataProvider({ children }: { children: ReactNode }) {
         showError("Daten konnten nicht geladen werden. Bitte prüfe deine Internetverbindung.");
       }
     } finally {
+      // IMMER Lock freigeben — egal ob foreground oder background
+      isActiveLoadRef.current = false;
+      hasLoadedOnceRef.current = true;
       if (!background) {
-        isActiveLoadRef.current = false;
         setIsLoading(false);
         // Force-Refresh: Wenn nach dem Laden keine User vorhanden, einmalig nochmal laden
         // (RLS-Timing: Session gerade erneuert → Profile noch nicht sichtbar)
@@ -1003,12 +1010,15 @@ export function DataProvider({ children }: { children: ReactNode }) {
           // UPDATE: read_at geändert → lokalen State aktualisieren
           if (payload.eventType === "UPDATE") {
             const row = payload.new as Record<string, unknown>;
+            const newReadAt = row.read_at ? String(row.read_at) : undefined;
             setMessages((prev) =>
-              prev.map((m) =>
-                m.id === (row.id as string)
-                  ? { ...m, read_at: (row.read_at as string) || undefined }
-                  : m
-              )
+              prev.map((m) => {
+                if (m.id !== (row.id as string)) return m;
+                // Nie ein vorhandenes read_at mit undefined überschreiben
+                // (verhindert Race-Condition wenn lokaler State schon aktualisiert wurde)
+                if (m.read_at && !newReadAt) return m;
+                return { ...m, read_at: newReadAt };
+              })
             );
             return;
           }
@@ -2891,7 +2901,9 @@ export function DataProvider({ children }: { children: ReactNode }) {
     const now = Date.now();
     if (!force && now - lastLoadRef.current < 10000) return; // 10s Throttle
     lastLoadRef.current = now;
-    await loadAllData();
+    // Wenn bereits einmal geladen → Background-Load (kein Skeleton-Blinken bei Tab-Wechsel)
+    // Nur beim allerersten Load → Foreground mit Skeleton
+    await loadAllData(hasLoadedOnceRef.current);
   }, [authUser?.id]); // intentionally only depends on authUser to avoid infinite re-creation
 
   // ─── Computed Helpers ─────────────────────────────────────────────────────────
@@ -2984,6 +2996,15 @@ export function DataProvider({ children }: { children: ReactNode }) {
       if (!authUser) return;
       const now = new Date().toISOString();
 
+      // Optimistisch: Lokalen State SOFORT aktualisieren (Badge verschwindet instant)
+      setAdminMessages((prev) =>
+        prev.map((m) =>
+          m.user_id === userId && m.sender_id !== authUser.id && !m.read_at
+            ? { ...m, read_at: now }
+            : m
+        )
+      );
+
       const { error } = await supabase
         .from("admin_messages")
         .update({ read_at: now })
@@ -2992,17 +3013,8 @@ export function DataProvider({ children }: { children: ReactNode }) {
         .is("read_at", null);
 
       if (error) {
-        console.warn("markAdminChatAsRead failed:", error.message);
-        return;
+        console.error("markAdminChatAsRead DB-UPDATE failed:", error.message);
       }
-
-      setAdminMessages((prev) =>
-        prev.map((m) =>
-          m.user_id === userId && m.sender_id !== authUser.id && !m.read_at
-            ? { ...m, read_at: now }
-            : m
-        )
-      );
     },
     [authUser?.id]
   );
@@ -3013,20 +3025,7 @@ export function DataProvider({ children }: { children: ReactNode }) {
 
       const now = new Date().toISOString();
 
-      // DB Update (idempotent — auch ohne lokalen Check sicher)
-      const { error } = await supabase
-        .from("messages")
-        .update({ read_at: now })
-        .eq("mentorship_id", mentorshipId)
-        .neq("sender_id", authUser.id)
-        .is("read_at", null);
-
-      if (error) {
-        console.warn("markChatAsRead failed:", error.message);
-        return;
-      }
-
-      // Lokalen State aktualisieren
+      // Optimistisch: Lokalen State SOFORT aktualisieren (Badge verschwindet instant)
       setMessages((prev) =>
         prev.map((m) =>
           m.mentorship_id === mentorshipId &&
@@ -3036,6 +3035,18 @@ export function DataProvider({ children }: { children: ReactNode }) {
             : m
         )
       );
+
+      // DB Update (idempotent — auch ohne lokalen Check sicher)
+      const { error } = await supabase
+        .from("messages")
+        .update({ read_at: now })
+        .eq("mentorship_id", mentorshipId)
+        .neq("sender_id", authUser.id)
+        .is("read_at", null);
+
+      if (error) {
+        console.error("markChatAsRead DB-UPDATE failed:", error.message, "— Bitte supabase/fix-messages-update.sql ausführen!");
+      }
     },
     [authUser?.id] // Stabile Dependency — kein messages-Array mehr
   );

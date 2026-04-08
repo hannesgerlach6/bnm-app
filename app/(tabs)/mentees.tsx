@@ -19,7 +19,7 @@ import { useAuth } from "../../contexts/AuthContext";
 import { useData } from "../../contexts/DataContext";
 import { useLanguage } from "../../contexts/LanguageContext";
 import type { Mentorship } from "../../types";
-import { COLORS, SHADOWS, RADIUS } from "../../constants/Colors";
+import { COLORS, SHADOWS, RADIUS, SEMANTIC, sem } from "../../constants/Colors";
 import { Container } from "../../components/Container";
 import { showError, showSuccess } from "../../lib/errorHandler";
 import { SkeletonList } from "../../components/Skeleton";
@@ -472,7 +472,7 @@ function AdminMenteesView() {
           <BNMPressable
             style={[
               styles.menteeCard,
-              { backgroundColor: isSelected ? (isDark ? "#1a2a1a" : "#dcfce7") : themeColors.card },
+              { backgroundColor: isSelected ? (sem(SEMANTIC.greenBg, isDark)) : themeColors.card },
               mentorship ? styles.menteeCardAssigned : [styles.menteeCardUnassigned, { borderColor: themeColors.border }],
               isSelected && styles.menteeCardSelected,
             ]}
@@ -496,8 +496,8 @@ function AdminMenteesView() {
                 <View style={{ flexDirection: "row", alignItems: "center", gap: 6 }}>
                   <Text style={[styles.meneeName, { color: themeColors.text }]}>{mentee.name}</Text>
                   {mentee.is_active === false && (
-                    <View style={[styles.blockedBadge, { backgroundColor: isDark ? "#3a1a1a" : "#fee2e2" }]}>
-                      <Text style={[styles.blockedBadgeText, { color: isDark ? "#f87171" : "#b91c1c" }]}>{t("editUser.blocked")}</Text>
+                    <View style={[styles.blockedBadge, { backgroundColor: sem(SEMANTIC.redBg, isDark) }]}>
+                      <Text style={[styles.blockedBadgeText, { color: sem(SEMANTIC.redTextDark, isDark) }]}>{t("editUser.blocked")}</Text>
                     </View>
                   )}
                 </View>
@@ -700,7 +700,7 @@ function MentorMenteesView() {
                   <StatusBadge status="active" label={t("mentees.active")} compact />
                 </View>
                 <View style={styles.mentorSplitProgressRow}>
-                  <View style={[styles.mentorSplitTrack, { backgroundColor: isDark ? "#2A2520" : themeColors.border }]}>
+                  <View style={[styles.mentorSplitTrack, { backgroundColor: sem(SEMANTIC.goldBorder, isDark) }]}>
                     <View style={[styles.mentorSplitFill, { width: `${progress}%` as any }]} />
                   </View>
                   <Text style={[styles.mentorSplitProgressText, { color: themeColors.textSecondary }]}>
@@ -715,7 +715,7 @@ function MentorMenteesView() {
           const completedSteps = getCompletedStepIds(mentorship.id);
           return (
             <BNMPressable
-              style={[styles.completedCompactCard, { backgroundColor: themeColors.card, borderColor: isDark ? "#2d6a4a" : "#bbf7d0" }]}
+              style={[styles.completedCompactCard, { backgroundColor: themeColors.card, borderColor: sem(SEMANTIC.greenBorder, isDark) }]}
               onPress={() => {
                 if (Platform.OS === "web") {
                   setSelectedMenteeId(mentorship.mentee_id);
@@ -734,8 +734,8 @@ function MentorMenteesView() {
                   )}
                 </View>
                 <View style={styles.completedCardRight}>
-                  <View style={[styles.completedBadge, { backgroundColor: isDark ? "#1a3a2a" : "#dcfce7" }]}>
-                    <Text style={[styles.completedBadgeText, { color: isDark ? "#4ade80" : "#15803d" }]}>
+                  <View style={[styles.completedBadge, { backgroundColor: sem(SEMANTIC.greenBg, isDark) }]}>
+                    <Text style={[styles.completedBadgeText, { color: sem(SEMANTIC.greenText, isDark) }]}>
                       {completedSteps.length}/{sessionTypes.length}
                     </Text>
                   </View>
@@ -812,8 +812,8 @@ function MentorMenteeCard({ mentorship }: { mentorship: Mentorship }) {
         {sortedTypes.map((step, idx) => {
           const isDone = completedStepIds.includes(step.id);
           const isCurrent = !isDone && idx === completedStepIds.length;
-          const chipBg = isDone ? (isDark ? "#1a3a2a" : "#dcfce7") : isCurrent ? (isDark ? "#3a2e1a" : "#fef3c7") : themeColors.background;
-          const chipColor = isDone ? (isDark ? "#4ade80" : "#15803d") : isCurrent ? (isDark ? "#fbbf24" : "#b45309") : themeColors.textTertiary;
+          const chipBg = isDone ? (sem(SEMANTIC.greenBg, isDark)) : isCurrent ? (sem(SEMANTIC.amberBg, isDark)) : themeColors.background;
+          const chipColor = isDone ? (sem(SEMANTIC.greenText, isDark)) : isCurrent ? (sem(SEMANTIC.amberText, isDark)) : themeColors.textTertiary;
           const chipWeight: "normal" | "500" = isDone || isCurrent ? "500" : "normal";
           return (
             <View key={step.id} style={[styles.stepChip, { backgroundColor: chipBg }]}>
@@ -997,14 +997,14 @@ function MenteeProgressView() {
                       <Text style={{ color: themeColors.textTertiary, fontSize: 12 }}>{t("mentees.locked")}</Text>
                     )}
                     {isCurrent && (
-                      <View style={{ backgroundColor: isDark ? "#3a2e1a" : "#fef3c7", paddingHorizontal: 8, paddingVertical: 2, borderRadius: 4 }}>
-                        <Text style={{ color: isDark ? "#fbbf24" : "#b45309", fontSize: 12, fontWeight: "500" }}>{t("mentees.current")}</Text>
+                      <View style={{ backgroundColor: sem(SEMANTIC.amberBg, isDark), paddingHorizontal: 8, paddingVertical: 2, borderRadius: 4 }}>
+                        <Text style={{ color: sem(SEMANTIC.amberText, isDark), fontSize: 12, fontWeight: "500" }}>{t("mentees.current")}</Text>
                       </View>
                     )}
                   </View>
                   <Text style={[styles.stepDetailDesc, { color: themeColors.textTertiary }]}>{step.description}</Text>
                   {isDone && session && (
-                    <Text style={{ color: isDark ? "#4ade80" : "#16a34a", fontSize: 12, marginTop: 4 }}>
+                    <Text style={{ color: sem(SEMANTIC.greenTextAlt, isDark), fontSize: 12, marginTop: 4 }}>
                       {t("mentees.completedOn")}{" "}
                       {new Date(session.date).toLocaleDateString("de-DE")}
                       {session.is_online ? ` (${t("mentees.online")})` : ` (${t("mentees.offline")})`}

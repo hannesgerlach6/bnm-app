@@ -172,8 +172,8 @@ function GlassTabBar({ state, descriptors, navigation }: BottomTabBarProps) {
     glassStyles.container,
     {
       paddingBottom: Math.max(insets.bottom, 8),
-      borderTopColor: isDark ? "rgba(255,255,255,0.08)" : "rgba(0,0,0,0.06)",
-      backgroundColor: isDark ? "rgba(11,15,24,0.85)" : "rgba(255,255,255,0.85)",
+      borderTopColor: isDark ? themeColors.border : "rgba(0,0,0,0.06)",
+      backgroundColor: isDark ? `${themeColors.background}D9` : "rgba(255,255,255,0.85)",
     },
   ];
 
@@ -241,7 +241,6 @@ const glassStyles = StyleSheet.create({
     ...(Platform.OS === "web" ? {
       // @ts-ignore
       backdropFilter: "blur(20px) saturate(180%)",
-      backgroundColor: "rgba(255,255,255,0.65)",
     } : {}),
   },
   tab: {
@@ -252,7 +251,7 @@ const glassStyles = StyleSheet.create({
     gap: 2,
   },
   label: {
-    fontSize: 10,
+    fontSize: TYPOGRAPHY.size.xs,
     fontWeight: TYPOGRAPHY.weight.semibold,
     letterSpacing: 0.2,
     marginTop: 1,

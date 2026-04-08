@@ -1422,6 +1422,8 @@ const de = {
 
   // Settings – account deleted
   "settings.accountDeleted": "Dein Konto wurde erfolgreich gelöscht.",
+  "settings.dangerZone": "GEFAHRENZONE",
+  "settings.deleteError": "Fehler beim Löschen des Kontos. Bitte versuche es später erneut.",
 
   // Chat – send error
   "chat.sendError": "Nachricht konnte nicht gesendet werden.",

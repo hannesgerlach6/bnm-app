@@ -1422,6 +1422,8 @@ const en: Record<TranslationKeys, string> = {
 
   // Settings – account deleted
   "settings.accountDeleted": "Your account has been successfully deleted.",
+  "settings.dangerZone": "DANGER ZONE",
+  "settings.deleteError": "Failed to delete account. Please try again later.",
 
   // Chat – send error
   "chat.sendError": "Could not send message.",

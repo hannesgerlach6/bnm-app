@@ -52,7 +52,7 @@ function SidebarItem({
 
   const activeAccent = themeColors.accent;
   const activeTextColor = isDark ? themeColors.accent : themeColors.text;
-  const activeBg = isDark ? "rgba(238,167,27,0.10)" : "rgba(238,167,27,0.10)";
+  const activeBg = isDark ? "rgba(238,167,27,0.10)" : "rgba(238,167,27,0.08)";
   const hoverBg = isDark ? "rgba(255,255,255,0.04)" : "rgba(0,0,0,0.03)";
   const inactiveIconColor = themeColors.textSecondary;
   const inactiveTextColor = themeColors.textSecondary;
@@ -137,9 +137,9 @@ function SidebarItem({
 
       {/* Web Tooltip bei Hover im Collapsed-Modus */}
       {collapsed && isHovered && Platform.OS === "web" && (
-        <View style={[styles.tooltip, { backgroundColor: isDark ? themeColors.elevated : "#1a1a2e" }]}>
+        <View style={[styles.tooltip, { backgroundColor: isDark ? themeColors.elevated : themeColors.text }]}>
           <Text style={styles.tooltipText}>{label}</Text>
-          <View style={[styles.tooltipArrow, { borderRightColor: isDark ? themeColors.elevated : "#1a1a2e" }]} />
+          <View style={[styles.tooltipArrow, { borderRightColor: isDark ? themeColors.elevated : themeColors.text }]} />
         </View>
       )}
     </BNMPressable>
@@ -320,7 +320,7 @@ export function AdminSidebar() {
           title={collapsed ? t("sidebar.logout") : undefined}
         >
           <View style={styles.logoutIconCircle}>
-            <Ionicons name="log-out-outline" size={16} color="#EF5350" />
+            <Ionicons name="log-out-outline" size={16} color=COLORS.error />
           </View>
           {!collapsed && <Text style={styles.logoutLabel}>{t("sidebar.logout")}</Text>}
         </BNMPressable>
@@ -415,7 +415,7 @@ const styles = StyleSheet.create({
     flexShrink: 1,
   },
   badge: {
-    backgroundColor: "#EF5350",
+    backgroundColor: COLORS.error,
     borderRadius: RADIUS.full,
     minWidth: 18,
     height: 18,
@@ -428,7 +428,7 @@ const styles = StyleSheet.create({
     position: "absolute",
     top: -2,
     right: -4,
-    backgroundColor: "#EF5350",
+    backgroundColor: COLORS.error,
     borderRadius: RADIUS.full,
     minWidth: 16,
     height: 16,
@@ -453,7 +453,7 @@ const styles = StyleSheet.create({
     ...(Platform.OS === "web" ? { whiteSpace: "nowrap", pointerEvents: "none" } : {}),
   },
   tooltipText: {
-    color: "#F5F5F7",
+    color: COLORS.white,
     fontSize: 12,
     fontWeight: "600",
   },
@@ -507,7 +507,7 @@ const styles = StyleSheet.create({
   logoutLabel: {
     fontSize: 13,
     fontWeight: "500",
-    color: "#EF5350",
+    color: COLORS.error,
     flex: 1,
     flexShrink: 1,
   },

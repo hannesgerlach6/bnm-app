@@ -61,12 +61,32 @@ export interface Session {
   mentorship?: Mentorship;
 }
 
+export interface QuestionnaireAnswers {
+  q1_1: number;       // Rating 1-5: Gesamtzufriedenheit
+  q1_2: string;       // Text: Wichtigster Grund
+  q1_3: number;       // Rating 1-5: Mentor-Unterstützung
+  q2_1: number;       // Rating 1-5: Fragen ernst genommen
+  q2_2: string[];     // Multi-Select: Mehr Unterstützung gewünscht
+  q2_2b?: string;     // Text: Erläuterung "Andere"
+  q3_1: number;       // Rating 1-5: Persönliche Beziehung
+  q3_2: string;       // Text: Was gefallen/schwierig
+  q3_3: number;       // Rating 1-5: Ermutigt/gestärkt
+  q4_1: string;       // Text: Besonders gut gefallen
+  q4_2: string[];     // Multi-Select: Besser machen
+  q4_2b?: string;     // Text: Erläuterung "Andere"
+  q4_3: string;       // Single-Select: Kontakt halten
+  q4_4: string;       // Single-Select: Aktueller Stand
+  q4_5?: string;      // Text: Warum vorzeitig beendet
+  q5_1?: string;      // Text: Weitere Anmerkungen
+}
+
 export interface Feedback {
   id: string;
   mentorship_id: string;
   submitted_by: string;
   rating: number;
   comments?: string;
+  answers?: QuestionnaireAnswers;
   created_at: string;
 }
 

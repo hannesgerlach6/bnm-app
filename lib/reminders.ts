@@ -1,7 +1,7 @@
 import type { Mentorship, Session, Notification } from '../types';
 
-const REMINDER_THRESHOLD_DAYS = 3;
-const REMINDER_COOLDOWN_DAYS = 2;
+const REMINDER_THRESHOLD_DAYS = 5;
+const REMINDER_COOLDOWN_DAYS = 5;
 
 /**
  * Prüft ob Mentoren Erinnerungen bekommen sollten.

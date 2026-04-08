@@ -238,6 +238,51 @@ export const DARK_COLORS = {
   input: "#222230",
 } as const;
 
+// ─── Responsive Breakpoints ──────────────────────────────────────────────────
+export const BREAKPOINTS = {
+  mobile: 375,
+  tablet: 768,
+  desktop: 1024,
+  wide: 1280,
+} as const;
+
+// ─── Semantische Farb-Aliase (light/dark Paare für wiederkehrende Muster) ────
+export const SEMANTIC = {
+  // Amber/Warning Boxen (Dashboard, Mentees)
+  amberBg:     { light: "#fffbeb", dark: "#3a2e1a" },
+  amberBorder: { light: "#fde68a", dark: "#6b4e1a" },
+  amberText:   { light: "#92400e", dark: "#fbbf24" },
+  amberTextAlt:{ light: "#78350f", dark: "#fbbf24" },
+  // Blue/Info Boxen
+  blueBg:      { light: "#eff6ff", dark: "#1a2a3a" },
+  blueBorder:  { light: "#bfdbfe", dark: "#1e3a5a" },
+  blueText:    { light: "#1d4ed8", dark: "#93c5fd" },
+  blueBadgeBg: { light: "#3b82f6", dark: "#1e3a6e" },
+  // Error/Red Boxen
+  redBg:       { light: "#fff1f2", dark: "#3a1a1a" },
+  redBorder:   { light: "#fecdd3", dark: "#7a2a2a" },
+  redText:     { light: "#ef4444", dark: "#f87171" },
+  redTextDark: { light: "#991b1b", dark: "#f87171" },
+  // Green/Success Boxen
+  greenBg:     { light: "#dcfce7", dark: "#1a2a1a" },
+  greenBorder: { light: "#86efac", dark: "#2d6a4a" },
+  greenText:   { light: "#15803d", dark: "#4ade80" },
+  greenTextAlt:{ light: "#16a34a", dark: "#34D399" },
+  // Purple (Admin-Badge)
+  purpleBg:    { light: "#f3e8ff", dark: "#2e1a4a" },
+  purpleText:  { light: "#7e22ce", dark: "#c084fc" },
+  // Gold-Tint (Level-Cards, Achievements)
+  goldBg:      { light: "#FFF8E1", dark: "#2A2518" },
+  goldBorder:  { light: "rgba(238,167,27,0.3)", dark: "#3A3520" },
+  // Indigo (Stats)
+  indigo:      "#6366f1",
+} as const;
+
+// Helper: Farbe basierend auf isDark auswählen
+export function sem(pair: { light: string; dark: string }, isDark: boolean): string {
+  return isDark ? pair.dark : pair.light;
+}
+
 // Lockerer Typ für Theme-Farben
 export type ThemeColors = {
   [K in keyof typeof LIGHT_COLORS]: string;
