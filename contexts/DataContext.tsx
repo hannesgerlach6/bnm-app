@@ -367,6 +367,7 @@ export function DataProvider({ children }: { children: ReactNode }) {
   const realtimeChannelRef = useRef<ReturnType<typeof supabase.channel> | null>(null);
   // Refs — immer aktuell, auch in Realtime-Callbacks (Closure-Problem vermeiden)
   const mentorshipsRef = useRef<Mentorship[]>([]);
+  const usersRef = useRef<User[]>([]);
   const hasLoadedOnceRef = useRef(false);
   // Guard: verhindert parallele foreground-Loads (würden State inkonsistent machen)
   const isActiveLoadRef = useRef(false);
@@ -408,8 +409,14 @@ export function DataProvider({ children }: { children: ReactNode }) {
       if (cacheUsable && cached) {
         // Cache sofort anzeigen → kein leerer Screen während des Ladens
         setUsers(cached.users);
-        // Mentorships ohne mentor/mentee-Objekte (werden beim Background-Refresh aufgelöst)
-        setMentorships(cached.mentorships as Mentorship[]);
+        // Mentorships aus Cache: mentor/mentee-Objekte sofort auflösen
+        const userMap: Record<string, User> = {};
+        cached.users.forEach((u) => (userMap[u.id] = u));
+        setMentorships(cached.mentorships.map((ms) => ({
+          ...ms,
+          mentor: userMap[(ms as any).mentor_id],
+          mentee: userMap[(ms as any).mentee_id],
+        })) as Mentorship[]);
         setSessions(cached.sessions);
         setSessionTypes(cached.sessionTypes);
         setFeedback(cached.feedback);
@@ -431,23 +438,31 @@ export function DataProvider({ children }: { children: ReactNode }) {
       }
     })();
 
-    // Subscriptions nach loadAllData starten (mentorships-State wird gefüllt)
-    const cleanupMessages = subscribeToMessages();
-    const cleanupProfiles = subscribeToProfiles();
-    const cleanupMentorships = subscribeToMentorships();
-    const cleanupAdminMessages = subscribeToAdminMessages();
+    // Subscriptions erst starten nachdem initiale Daten geladen sind
+    let cleanups: (() => void)[] = [];
+    const startSubscriptions = () => {
+      cleanups = [
+        subscribeToMessages(),
+        subscribeToProfiles(),
+        subscribeToMentorships(),
+        subscribeToAdminMessages(),
+      ];
+    };
+    // Kurze Verzögerung damit loadAllData den State füllen kann
+    const subTimer = setTimeout(startSubscriptions, 2000);
     return () => {
-      cleanupMessages();
-      cleanupProfiles();
-      cleanupMentorships();
-      cleanupAdminMessages();
+      clearTimeout(subTimer);
+      cleanups.forEach((fn) => fn());
     };
   }, [authUser?.id]);
 
-  // Ref immer aktuell halten — wird in Realtime-Callbacks genutzt
+  // Refs immer aktuell halten — wird in Realtime-Callbacks genutzt
   useEffect(() => {
     mentorshipsRef.current = mentorships;
   }, [mentorships]);
+  useEffect(() => {
+    usersRef.current = users;
+  }, [users]);
 
   // ─── Visibility Change: Auto-Reload wenn Tab wieder aktiv wird ───────────
   // Löst das Problem: Supabase Realtime kann bei längerem Inaktiv-Tab die WebSocket-
@@ -1065,7 +1080,7 @@ export function DataProvider({ children }: { children: ReactNode }) {
           }
 
           // Sender aus State oder aus DB laden
-          let sender: User | undefined = users.find((u) => u.id === row.sender_id);
+          let sender: User | undefined = usersRef.current.find((u) => u.id === row.sender_id);
           if (!sender) {
             const { data } = await supabase
               .from("profiles")
@@ -1161,8 +1176,8 @@ export function DataProvider({ children }: { children: ReactNode }) {
               assigned_by: row.assigned_by as string,
               assigned_at: row.assigned_at as string,
               completed_at: (row.completed_at as string) ?? undefined,
-              mentor: users.find((u) => u.id === row.mentor_id),
-              mentee: users.find((u) => u.id === row.mentee_id),
+              mentor: usersRef.current.find((u) => u.id === row.mentor_id),
+              mentee: usersRef.current.find((u) => u.id === row.mentee_id),
               mentee_confirmed_steps: (row.mentee_confirmed_steps as string[]) ?? [],
             };
             setMentorships((prev) => {
@@ -1204,7 +1219,7 @@ export function DataProvider({ children }: { children: ReactNode }) {
         (payload) => {
           if (payload.eventType === "INSERT") {
             const row = payload.new as any;
-            const sender = users.find((u) => u.id === row.sender_id);
+            const sender = usersRef.current.find((u) => u.id === row.sender_id);
             const newMsg: AdminMessage = {
               id: row.id,
               admin_id: row.admin_id,
