@@ -1,9 +1,23 @@
 import { Platform } from "react-native";
 
-// pdf-lib: Statischer Import — dynamisches import() verursacht "n.default is undefined" in Metro Web.
-// Das Package wird nur auf Web genutzt (Platform-Check in jeder Funktion).
-// Tree-shaking entfernt es aus Native Bundles da alle Funktionen early-returnen.
-import { PDFDocument, StandardFonts, rgb } from "pdf-lib";
+// pdf-lib wird zur Laufzeit über CDN geladen (Metro/Expo Web kann es nicht statisch bundlen).
+// Cached nach erstem Load.
+let _pdfLib: any = null;
+async function getPdfLib(): Promise<{ PDFDocument: any; StandardFonts: any; rgb: any }> {
+  if (_pdfLib) return _pdfLib;
+  if (typeof window === "undefined") throw new Error("PDF nur auf Web verfügbar");
+  // CDN-basierter Load — vermeidet Metro-Bundling-Probleme
+  const script = document.createElement("script");
+  script.src = "https://unpkg.com/pdf-lib@1.17.1/dist/pdf-lib.min.js";
+  await new Promise<void>((resolve, reject) => {
+    script.onload = () => resolve();
+    script.onerror = () => reject(new Error("pdf-lib CDN konnte nicht geladen werden"));
+    document.head.appendChild(script);
+  });
+  const w = window as any;
+  _pdfLib = { PDFDocument: w.PDFLib.PDFDocument, StandardFonts: w.PDFLib.StandardFonts, rgb: w.PDFLib.rgb };
+  return _pdfLib;
+}
 
 // ============================================================
 // PDF-Generator für BNM-Berichte
@@ -172,7 +186,7 @@ function drawSummaryBox(
 export async function downloadMonthlyReportPDF(data: ReportData): Promise<boolean> {
   if (Platform.OS !== "web") return false;
   try {
-    // PDFDocument, StandardFonts, rgb sind top-level importiert
+    const { PDFDocument, StandardFonts, rgb } = await getPdfLib();
     const doc = await PDFDocument.create();
     const font = await doc.embedFont(StandardFonts.Helvetica);
     const bold = await doc.embedFont(StandardFonts.HelveticaBold);
@@ -313,7 +327,7 @@ export async function downloadMonthlyReportPDF(data: ReportData): Promise<boolea
 export async function generateMentorAwardPDFBytes(data: AwardData): Promise<Uint8Array | null> {
   if (Platform.OS !== "web") return null;
   try {
-    // PDFDocument, StandardFonts, rgb sind top-level importiert
+    const { PDFDocument, StandardFonts, rgb } = await getPdfLib();
     const aDoc = await PDFDocument.create();
     const aFont = await aDoc.embedFont(StandardFonts.Helvetica);
     const aBold = await aDoc.embedFont(StandardFonts.HelveticaBold);
@@ -497,7 +511,7 @@ export async function downloadMentorAwardPNG(data: AwardData): Promise<boolean> 
 export async function downloadDonorReportPDF(data: DonorReportData): Promise<boolean> {
   if (Platform.OS !== "web") return false;
   try {
-    // PDFDocument, StandardFonts, rgb sind top-level importiert
+    const { PDFDocument, StandardFonts, rgb } = await getPdfLib();
     const doc = await PDFDocument.create();
     const font = await doc.embedFont(StandardFonts.Helvetica);
     const bold = await doc.embedFont(StandardFonts.HelveticaBold);
