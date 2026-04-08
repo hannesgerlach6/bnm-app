@@ -514,16 +514,20 @@ export default function TabLayout() {
   // Web Desktop (>= 768px): Sidebar für alle eingeloggten User
   const useSidebar = hasMounted && isWeb && !!user && width >= 768;
 
-  // Admin/Office auf Mobile: Hamburger-Menü statt TabBar
-  const useMobileAdminDrawer = hasMounted && isMobile && isAdminOrOffice;
+  // Web Mobile (< 768px): Hamburger-Drawer für alle User
+  const useWebMobileDrawer = hasMounted && isWeb && !!user && width < 768;
+
+  // Native Admin/Office: Hamburger-Menü statt TabBar
+  const useNativeAdminDrawer = hasMounted && isMobile && isAdminOrOffice;
 
   if (useSidebar) {
     return <AdminSidebarLayout />;
   }
 
-  if (useMobileAdminDrawer) {
+  if (useWebMobileDrawer || useNativeAdminDrawer) {
     return <AdminMobileLayout />;
   }
 
+  // Native Mentor/Mentee: Bottom-Tabs
   return <TabsLayout />;
 }
