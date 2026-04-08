@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import {
   View,
   Text,
+  TextInput,
   ScrollView,
   StyleSheet,
   KeyboardAvoidingView,
@@ -81,6 +82,8 @@ function EditUserForm({ userId }: { userId: string }) {
   const [isBlocking, setIsBlocking] = useState(false);
   const [isResetting, setIsResetting] = useState(false);
   const [resetTempPw, setResetTempPw] = useState<string | null>(null);
+  const [showResetModal, setShowResetModal] = useState(false);
+  const [customPassword, setCustomPassword] = useState("");
   const [errors, setErrors] = useState<Record<string, string>>({});
 
   const isBlocked = target.is_active === false;
@@ -137,19 +140,22 @@ function EditUserForm({ userId }: { userId: string }) {
     }
   }
 
-  async function handleResetPassword() {
-    const ok = await showConfirm(
-      t("editUser.resetPasswordTitle"),
-      t("editUser.resetPasswordText").replace("{0}", target.name)
-    );
-    if (!ok) return;
+  function handleResetPassword() {
+    setCustomPassword("BNM-" + Math.floor(100000 + Math.random() * 900000));
+    setShowResetModal(true);
+  }
 
-    const tempPassword = "BNM-" + Math.floor(100000 + Math.random() * 900000);
+  async function confirmResetPassword() {
+    if (customPassword.length < 6) {
+      showError(t("editUser.resetPasswordTooShort"));
+      return;
+    }
+    setShowResetModal(false);
     setIsResetting(true);
     try {
       const { error } = await supabase.rpc("admin_reset_user_password", {
         target_user_id: userId,
-        new_password: tempPassword,
+        new_password: customPassword,
       });
       if (error) {
         showError(t("editUser.resetPasswordError") + ": " + error.message);
@@ -157,10 +163,10 @@ function EditUserForm({ userId }: { userId: string }) {
       }
       // Flag setzen damit User nach Login zum PW-Ändern aufgefordert wird
       await supabase.from("profiles").update({ force_password_change: true }).eq("id", userId);
-      // E-Mail mit neuem Passwort senden (geht an Override-Adresse)
-      await sendCredentialsEmail(target.email, target.name, tempPassword);
-      // Temp-PW im Modal anzeigen (Fallback falls E-Mail fehlschlägt)
-      setResetTempPw(tempPassword);
+      // E-Mail mit neuem Passwort senden
+      await sendCredentialsEmail(target.email, target.name, customPassword);
+      // PW im Modal anzeigen (Fallback falls E-Mail fehlschlägt)
+      setResetTempPw(customPassword);
     } catch (e: any) {
       showError(t("editUser.resetPasswordError") + (e?.message ? ": " + e.message : ""));
     } finally {
@@ -303,6 +309,35 @@ function EditUserForm({ userId }: { userId: string }) {
         </ScrollView>
       </KeyboardAvoidingView>
 
+      {/* Modal: PW wählen */}
+      <Modal visible={showResetModal} transparent animationType="fade">
+        <View style={styles.modalOverlay}>
+          <View style={[styles.modalCard, { backgroundColor: themeColors.card }]}>
+            <Text style={[styles.modalTitle, { color: themeColors.text }]}>{t("editUser.resetPasswordTitle")}</Text>
+            <Text style={[styles.modalBody, { color: themeColors.textSecondary }]}>
+              {t("editUser.resetPasswordChoose")}
+            </Text>
+            <TextInput
+              style={[styles.pwInput, { color: themeColors.text, borderColor: themeColors.border, backgroundColor: themeColors.elevated }]}
+              value={customPassword}
+              onChangeText={setCustomPassword}
+              placeholder="Neues Passwort"
+              placeholderTextColor={themeColors.textTertiary}
+              autoCapitalize="none"
+              autoCorrect={false}
+            />
+            <View style={{ flexDirection: "row", gap: 10, marginTop: 16 }}>
+              <BNMPressable style={[styles.modalClose, { flex: 1, backgroundColor: themeColors.background, borderWidth: 1, borderColor: themeColors.border }]} onPress={() => setShowResetModal(false)}>
+                <Text style={[styles.modalCloseText, { color: themeColors.textSecondary }]}>{t("common.cancel")}</Text>
+              </BNMPressable>
+              <BNMPressable style={[styles.modalClose, { flex: 1, backgroundColor: themeColors.primary }]} onPress={confirmResetPassword}>
+                <Text style={[styles.modalCloseText, { color: COLORS.white }]}>{t("editUser.resetPasswordConfirm")}</Text>
+              </BNMPressable>
+            </View>
+          </View>
+        </View>
+      </Modal>
+
       {/* Modal: Temp-PW anzeigen (Fallback falls E-Mail fehlschlägt) */}
       <Modal visible={resetTempPw !== null} transparent animationType="fade">
         <View style={styles.modalOverlay}>
@@ -437,6 +472,14 @@ const styles = StyleSheet.create({
     marginBottom: 12,
   },
   pwValue: { fontSize: 22, fontWeight: "800", letterSpacing: 2 },
+  pwInput: {
+    borderWidth: 1,
+    borderRadius: RADIUS.sm,
+    padding: 12,
+    fontSize: 16,
+    fontWeight: "600",
+    marginTop: 8,
+  },
   modalHint: { fontSize: 12, marginBottom: 20, lineHeight: 18 },
   modalClose: {
     borderRadius: RADIUS.sm,
