@@ -45,10 +45,12 @@ serve(async (req) => {
   }
 
   // Reset-Link über Supabase Admin API generieren
+  const appUrl = "https://bnm-app.vercel.app";
   const supabase = createClient(supabaseUrl, serviceRoleKey);
   const { data, error } = await supabase.auth.admin.generateLink({
     type: "recovery",
     email: email.trim().toLowerCase(),
+    options: { redirectTo: `${appUrl}/reset-password` },
   });
 
   if (error || !data?.properties?.action_link) {
@@ -59,8 +61,11 @@ serve(async (req) => {
     });
   }
 
-  // Reset-Link per Resend senden
-  const resetLink = data.properties.action_link;
+  // Reset-Link: localhost:3000 durch echte App-URL ersetzen (Fallback falls Supabase Default ignoriert)
+  const resetLink = data.properties.action_link.replace(
+    /redirect_to=[^&]*/,
+    `redirect_to=${encodeURIComponent(appUrl + "/reset-password")}`
+  );
   const htmlBody = `
 <div style="font-family:Arial,sans-serif;max-width:600px;margin:0 auto">
   <div style="background:#0A3A5A;padding:24px;text-align:center">
