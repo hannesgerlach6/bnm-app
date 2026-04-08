@@ -351,7 +351,7 @@ function AdminDashboard({ showSystemSettings = true }: { showSystemSettings?: bo
               <StatCard
                 label={t("dashboard.totalMentees")}
                 value={allMentees.length}
-                color=SEMANTIC.indigo
+                color={SEMANTIC.indigo}
                 iconName="school-outline"
               />
             </KpiGrid>
@@ -923,7 +923,7 @@ function MentorDashboard() {
               <StatCard label={t("dashboard.statsActive")} value={mentorStats.active} color={COLORS.gradientStart} iconName="people-outline" highlight />
               <StatCard label={t("dashboard.statsCompleted")} value={mentorStats.completed} color={COLORS.cta} iconName="checkmark-circle-outline" />
               <StatCard label={t("dashboard.statsSessions")} value={mentorStats.totalSessions} color={COLORS.gold} iconName="document-text-outline" />
-              <StatCard label={t("dashboard.statsRank")} value={mentorStats.rank} color=SEMANTIC.indigo iconName="trophy-outline" sublabel={`/ ${mentorStats.totalMentors}`} />
+              <StatCard label={t("dashboard.statsRank")} value={mentorStats.rank} color={SEMANTIC.indigo} iconName="trophy-outline" sublabel={`/ ${mentorStats.totalMentors}`} />
             </KpiGrid>
 
             {/* ── Vernachlässigte Mentees (volle Breite) ─────── */}
@@ -1353,7 +1353,7 @@ function MenteeDashboard() {
                 <StatCard
                   label="Tage dabei"
                   value={daysSinceStart}
-                  color=SEMANTIC.indigo
+                  color={SEMANTIC.indigo}
                   iconName="calendar-outline"
                 />
               )}
