@@ -320,7 +320,7 @@ export function AdminSidebar() {
           title={collapsed ? t("sidebar.logout") : undefined}
         >
           <View style={styles.logoutIconCircle}>
-            <Ionicons name="log-out-outline" size={16} color=COLORS.error />
+            <Ionicons name="log-out-outline" size={16} color={COLORS.error} />
           </View>
           {!collapsed && <Text style={styles.logoutLabel}>{t("sidebar.logout")}</Text>}
         </BNMPressable>
