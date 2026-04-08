@@ -424,8 +424,9 @@ function TabsLayout() {
 
 function SidebarTabLayout() {
   const { user } = useAuth();
-  const themeColors = useThemeColors();
   const isAdminOrOffice = user?.role === "admin" || user?.role === "office";
+  const isMentor = user?.role === "mentor";
+  const isMentee = user?.role === "mentee";
 
   return (
     <View style={{ flexDirection: "row", flex: 1 }}>
@@ -436,19 +437,18 @@ function SidebarTabLayout() {
           screenOptions={{
             tabBarStyle: { display: "none", height: 0, overflow: "hidden" },
             headerShown: false,
-            lazy: false,
           }}
         >
           <Tabs.Screen name="index" options={{ title: "Dashboard" }} />
-          <Tabs.Screen name="mentees" options={{ title: "Mentees" }} />
+          <Tabs.Screen name="mentees" options={{ title: "Mentees", href: isMentee ? null : undefined }} />
           <Tabs.Screen name="chats" options={{ title: "Chats" }} />
-          <Tabs.Screen name="leaderboard" options={{ title: "Ranking" }} />
-          <Tabs.Screen name="faq" options={{ title: "FAQ" }} />
-          <Tabs.Screen name="mentors" options={{ title: "Mentoren" }} />
-          <Tabs.Screen name="applications" options={{ title: "Bewerbungen" }} />
-          <Tabs.Screen name="tools" options={{ title: "Tools" }} />
-          <Tabs.Screen name="reports" options={{ title: "Berichte" }} />
-          <Tabs.Screen name="feedback" options={{ title: "Feedback" }} />
+          <Tabs.Screen name="leaderboard" options={{ title: "Ranking", href: isMentee ? null : undefined }} />
+          <Tabs.Screen name="faq" options={{ title: "FAQ", href: isMentor ? null : undefined }} />
+          <Tabs.Screen name="mentors" options={{ href: null }} />
+          <Tabs.Screen name="applications" options={{ href: null }} />
+          <Tabs.Screen name="tools" options={{ href: null }} />
+          <Tabs.Screen name="reports" options={{ href: null }} />
+          <Tabs.Screen name="feedback" options={{ href: null }} />
           <Tabs.Screen name="profile" options={{ title: "Profil" }} />
         </Tabs>
       </View>
