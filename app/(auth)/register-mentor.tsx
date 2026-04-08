@@ -324,8 +324,17 @@ export default function RegisterMentorScreen() {
             label={t("registerMentor.birthdate")}
             icon="calendar-outline"
             value={form.birthdate}
-            onChangeText={(v) => update("birthdate", v)}
-            keyboardType="numeric"
+            onChangeText={(v) => {
+              // Auto-Format: Punkte nach Tag und Monat einfügen (TT.MM.JJJJ)
+              const digits = v.replace(/\D/g, "").slice(0, 8);
+              let formatted = digits;
+              if (digits.length > 2) formatted = digits.slice(0, 2) + "." + digits.slice(2);
+              if (digits.length > 4) formatted = digits.slice(0, 2) + "." + digits.slice(2, 4) + "." + digits.slice(4);
+              update("birthdate", formatted);
+            }}
+            keyboardType="number-pad"
+            maxLength={10}
+            placeholder="TT.MM.JJJJ"
             error={errors.birthdate}
             accessibilityLabel={t("registerMentor.birthdate")}
           />
