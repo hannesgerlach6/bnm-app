@@ -419,16 +419,11 @@ function TabsLayout() {
 // Sidebar wird vom Root-Layout (_layout.tsx) gerendert — hier nur Tabs ohne TabBar
 
 function AdminSidebarLayout() {
-  const themeColors = useThemeColors();
-
-  // Alle Screens registrieren — Navigation erfolgt über die Sidebar,
-  // daher müssen alle Screens verfügbar sein (auch für Mentor/Mentee)
   return (
     <Tabs
       screenOptions={{
         tabBarStyle: { display: "none", height: 0, overflow: "hidden" },
         headerShown: false,
-        lazy: false,
       }}
     >
       <Tabs.Screen name="index" options={{ title: "Dashboard" }} />
@@ -478,7 +473,6 @@ function AdminMobileLayout() {
           headerTintColor: themeColors.headerText,
           headerLeft,
           headerRight,
-          lazy: false,
         }}
       >
         <Tabs.Screen name="index" options={{ title: t("tabs.dashboard") }} />
