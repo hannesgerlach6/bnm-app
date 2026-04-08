@@ -514,14 +514,21 @@ export function DataProvider({ children }: { children: ReactNode }) {
       const isMentor = authUser?.role === "mentor";
       const empty = Promise.resolve({ data: null, error: null });
 
-      // Timeout: 15s — verhindert dauerhaftes isLoading bei hängender Verbindung
+      // Timeout: 5s — verhindert dauerhaftes isLoading bei hängender Verbindung
       const withTimeout = <T>(p: Promise<T>): Promise<T> =>
         Promise.race([
           p,
           new Promise<T>((_, reject) =>
-            setTimeout(() => reject(new Error("Supabase query timeout (15s)")), 15_000)
+            setTimeout(() => reject(new Error("Supabase query timeout (5s)")), 5_000)
           ),
         ]);
+
+      // Jede Query einzeln mit Timeout wrappen — eine hängende Query blockiert nicht alle anderen
+      const safe = <T>(p: Promise<T>): Promise<T> =>
+        withTimeout(p).catch((err) => {
+          console.warn("[DataContext] Query failed:", err?.message);
+          return { data: null, error: err } as unknown as T;
+        });
 
       const [
         profilesRes,
@@ -540,28 +547,26 @@ export function DataProvider({ children }: { children: ReactNode }) {
         achievementsRes,
         thanksRes,
         streakRes,
-      ] = await withTimeout(Promise.all([
-        supabase.from("profiles").select("*"),
-        supabase.from("mentorships").select("*"),
-        supabase.from("sessions").select("*"),
-        supabase.from("session_types").select("*").order("sort_order"),
-        supabase.from("feedback").select("*"),
-        supabase.from("notifications").select("*").eq("user_id", authUser!.id),
-        supabase.from("mentor_applications").select("*"),
-        supabase.from("app_settings").select("*"),
-        supabase.from("messages").select("*"),
-        supabase.from("hadithe").select("*").order("sort_order", { ascending: true }),
-        supabase.from("qa_entries").select("*").order("created_at", { ascending: true }),
-        // admin_messages: jetzt parallel statt sequenziell
-        isAdminOrOffice
+      ] = await Promise.all([
+        safe(supabase.from("profiles").select("*")),
+        safe(supabase.from("mentorships").select("*")),
+        safe(supabase.from("sessions").select("*")),
+        safe(supabase.from("session_types").select("*").order("sort_order")),
+        safe(supabase.from("feedback").select("*")),
+        safe(supabase.from("notifications").select("*").eq("user_id", authUser!.id)),
+        safe(supabase.from("mentor_applications").select("*")),
+        safe(supabase.from("app_settings").select("*")),
+        safe(supabase.from("messages").select("*")),
+        safe(supabase.from("hadithe").select("*").order("sort_order", { ascending: true })),
+        safe(supabase.from("qa_entries").select("*").order("created_at", { ascending: true })),
+        safe(isAdminOrOffice
           ? supabase.from("admin_messages").select("*").order("created_at", { ascending: true })
-          : supabase.from("admin_messages").select("*").eq("user_id", authUser!.id).order("created_at", { ascending: true }),
-        // Gamification (nur für Mentoren): jetzt parallel statt sequenziell
-        isMentor ? supabase.from("xp_log").select("*").eq("user_id", authUser!.id).order("created_at", { ascending: false }).limit(100) : empty,
-        isMentor ? supabase.from("achievements").select("*").eq("user_id", authUser!.id) : empty,
-        isMentor ? supabase.from("thanks").select("*").eq("mentor_id", authUser!.id).order("created_at", { ascending: false }) : empty,
-        isMentor ? supabase.from("streaks").select("*").eq("user_id", authUser!.id).maybeSingle() : empty,
-      ] as const));
+          : supabase.from("admin_messages").select("*").eq("user_id", authUser!.id).order("created_at", { ascending: true })),
+        isMentor ? safe(supabase.from("xp_log").select("*").eq("user_id", authUser!.id).order("created_at", { ascending: false }).limit(100)) : empty,
+        isMentor ? safe(supabase.from("achievements").select("*").eq("user_id", authUser!.id)) : empty,
+        isMentor ? safe(supabase.from("thanks").select("*").eq("mentor_id", authUser!.id).order("created_at", { ascending: false })) : empty,
+        isMentor ? safe(supabase.from("streaks").select("*").eq("user_id", authUser!.id).maybeSingle()) : empty,
+      ] as const);
 
       // Error-Logging: Supabase-Fehler sichtbar machen
       if (profilesRes.error) console.warn("[DataContext] profiles error:", profilesRes.error.message);
