@@ -61,11 +61,11 @@ serve(async (req) => {
     });
   }
 
-  // Reset-Link: localhost:3000 durch echte App-URL ersetzen (Fallback falls Supabase Default ignoriert)
-  const resetLink = data.properties.action_link.replace(
-    /redirect_to=[^&]*/,
-    `redirect_to=${encodeURIComponent(appUrl + "/reset-password")}`
-  );
+  // Statt den Supabase-Verify-Endpoint zu nutzen (braucht Redirect-URL-Whitelist),
+  // extrahieren wir den Token und bauen einen direkten App-Link.
+  // Die App verifiziert den Token selbst über supabase.auth.verifyOtp().
+  const hashed_token = data.properties.hashed_token;
+  const resetLink = `${appUrl}/reset-password?token=${encodeURIComponent(hashed_token)}&email=${encodeURIComponent(email.trim().toLowerCase())}`;
   const htmlBody = `
 <div style="font-family:Arial,sans-serif;max-width:600px;margin:0 auto">
   <div style="background:#0A3A5A;padding:24px;text-align:center">

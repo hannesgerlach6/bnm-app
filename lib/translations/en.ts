@@ -1017,6 +1017,8 @@ const en: Record<TranslationKeys, string> = {
   "resetPassword.successText": "Your password has been changed successfully. You will be redirected to login.",
   "resetPassword.errorFailed": "Password could not be changed. Please try again.",
   "resetPassword.backToLogin": "Back to Login",
+  "resetPassword.errorExpired": "Link expired",
+  "resetPassword.errorExpiredText": "This link is no longer valid. Please request a new one.",
 
   // Chat – Delete Message
   "chat.deleteMessage": "Delete Message",

@@ -6,9 +6,10 @@ import {
   StyleSheet,
   ScrollView,
   Platform,
+  ActivityIndicator,
 } from "react-native";
 import { BNMPressable } from "../components/BNMPressable";
-import { useRouter } from "expo-router";
+import { useRouter, useLocalSearchParams } from "expo-router";
 import { supabase } from "../lib/supabase";
 import { COLORS, RADIUS, SEMANTIC, sem } from "../constants/Colors";
 import { useLanguage } from "../contexts/LanguageContext";
@@ -20,6 +21,7 @@ export default function ResetPasswordScreen() {
   const { t } = useLanguage();
   const themeColors = useThemeColors();
   const { isDark } = useTheme();
+  const params = useLocalSearchParams<{ token?: string; email?: string }>();
 
   const [newPassword, setNewPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
@@ -27,29 +29,43 @@ export default function ResetPasswordScreen() {
   const [showConfirm, setShowConfirm] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isDone, setIsDone] = useState(false);
+  const [isVerifying, setIsVerifying] = useState(true);
+  const [verifyError, setVerifyError] = useState(false);
 
-  // Supabase sendet den Token per URL-Fragment: #access_token=...&type=recovery
-  // Auf Web liest Supabase JS Client das automatisch aus dem Hash.
-  // Auf Native muss der Deep-Link via expo-linking geparst werden.
-  // Da dieser Screen primär über den Browser-Link aufgerufen wird (Web-App),
-  // hört der Supabase-Client automatisch auf den onAuthStateChange-Event.
+  // Token aus URL verifizieren und Session setzen
   useEffect(() => {
-    if (Platform.OS !== "web") return;
-
-    // Supabase JS Client liest auf Web automatisch den Hash aus der URL
-    // und setzt die Session. Wir müssen nur warten.
-    const {
-      data: { subscription },
-    } = supabase.auth.onAuthStateChange((event) => {
-      if (event === "PASSWORD_RECOVERY") {
-        // Session wurde gesetzt — Formular ist bereit
+    async function verifyToken() {
+      // Variante 1: Token + Email als Query-Parameter (von unserer Edge Function)
+      if (params.token && params.email) {
+        const { error } = await supabase.auth.verifyOtp({
+          token_hash: params.token,
+          type: "recovery",
+        });
+        if (error) {
+          setVerifyError(true);
+        }
+        setIsVerifying(false);
+        return;
       }
-    });
 
-    return () => {
-      subscription.unsubscribe();
-    };
-  }, []);
+      // Variante 2: Supabase liest den Hash automatisch (#access_token=...)
+      if (Platform.OS === "web" && window.location.hash.includes("access_token")) {
+        // Supabase JS Client verarbeitet das automatisch
+        const { data: { subscription } } = supabase.auth.onAuthStateChange((event) => {
+          if (event === "PASSWORD_RECOVERY") {
+            setIsVerifying(false);
+          }
+        });
+        // Timeout falls kein Event kommt
+        setTimeout(() => setIsVerifying(false), 5000);
+        return () => subscription.unsubscribe();
+      }
+
+      // Kein Token gefunden
+      setIsVerifying(false);
+    }
+    verifyToken();
+  }, [params.token, params.email]);
 
   function validate(): string | null {
     if (newPassword.length < 8) return t("resetPassword.errorTooShort");
@@ -89,7 +105,20 @@ export default function ResetPasswordScreen() {
         <Text style={[styles.title, { color: themeColors.text }]}>{t("resetPassword.title")}</Text>
         <Text style={[styles.subtitle, { color: themeColors.textSecondary }]}>{t("resetPassword.subtitle")}</Text>
 
-        {isDone ? (
+        {isVerifying ? (
+          <View style={{ alignItems: "center", padding: 32 }}>
+            <ActivityIndicator size="large" color={COLORS.gold} />
+            <Text style={{ color: themeColors.textSecondary, marginTop: 12 }}>{t("common.loading")}</Text>
+          </View>
+        ) : verifyError ? (
+          <View style={[styles.successBox, { backgroundColor: sem(SEMANTIC.redBg, isDark) }]}>
+            <Text style={[styles.successTitle, { color: sem(SEMANTIC.redText, isDark) }]}>{t("resetPassword.errorExpired")}</Text>
+            <Text style={[styles.successText, { color: sem(SEMANTIC.redText, isDark) }]}>{t("resetPassword.errorExpiredText")}</Text>
+            <BNMPressable style={[styles.submitBtn, { backgroundColor: themeColors.primary, marginTop: 16 }]} onPress={() => router.replace("/(auth)/login")}>
+              <Text style={styles.submitText}>{t("resetPassword.backToLogin")}</Text>
+            </BNMPressable>
+          </View>
+        ) : isDone ? (
           <View style={[styles.successBox, {
             backgroundColor: sem(SEMANTIC.greenBg, isDark),
           }]}>

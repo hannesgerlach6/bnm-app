@@ -1017,6 +1017,8 @@ const tr: Record<TranslationKeys, string> = {
   "resetPassword.successText": "Şifren başarıyla değiştirildi. Giriş sayfasına yönlendiriliyorsun.",
   "resetPassword.errorFailed": "Şifre değiştirilemedi. Lütfen tekrar dene.",
   "resetPassword.backToLogin": "Girişe Dön",
+  "resetPassword.errorExpired": "Bağlantı süresi doldu",
+  "resetPassword.errorExpiredText": "Bu bağlantı artık geçerli değil. Lütfen yeni bir tane isteyin.",
 
   // Chat – Mesaj Sil
   "chat.deleteMessage": "Mesajı Sil",
