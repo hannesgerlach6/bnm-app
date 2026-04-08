@@ -483,25 +483,23 @@ export default function TabLayout() {
   const isWeb = Platform.OS === "web";
   const isMobile = Platform.OS !== "web";
 
-  // Web Desktop (>= 768px): Sidebar-Layout (TabBar hidden, Navigation via Root-Sidebar)
-  // Für ALLE Rollen auf Web — die Root-Layout Sidebar übernimmt die Navigation
-  const useSidebarLayout = hasMounted && isWeb && !!user && width >= 768;
+  // Sidebar nur auf Web und bei Admin/Office, und nur wenn Viewport breit genug (>= 768px)
+  const useSidebar = hasMounted && isWeb && isAdminOrOffice && width >= 768;
 
-  // Web Mobile (< 768px): Hamburger-Drawer für ALLE auf Web
-  const useWebMobileDrawer = hasMounted && isWeb && !!user && width < 768;
-
-  // Native Mobile: Hamburger nur für Admin/Office
+  // Admin/Office auf Mobile: Hamburger-Menü statt TabBar
   const useMobileAdminDrawer = hasMounted && isMobile && isAdminOrOffice;
 
-  if (useSidebarLayout) {
-    // TabBar ausblenden — Root-Layout zeigt die Sidebar
+  // Web: Alle Rollen mit Sidebar → TabBar ausblenden (Root-Sidebar navigiert)
+  const hideTabBarForSidebar = hasMounted && isWeb && !!user && width >= 768;
+
+  if (useSidebar) {
     return <TabsLayout hiddenTabBar />;
   }
 
-  if (useWebMobileDrawer || useMobileAdminDrawer) {
+  if (useMobileAdminDrawer) {
     return <AdminMobileLayout />;
   }
 
-  // Native Mentor/Mentee: Bottom-Tabs
-  return <TabsLayout />;
+  // Web Mobile + Native: Bottom-Tabs (ggf. mit hidden TabBar wenn Root-Sidebar aktiv)
+  return <TabsLayout hiddenTabBar={hideTabBarForSidebar} />;
 }
