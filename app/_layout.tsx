@@ -184,52 +184,41 @@ function RootLayoutInner() {
   const slideAnimation = isNative ? { animation: "slide_from_right" as const, animationDuration: 250 } : {};
   const modalAnimation = isNative ? { animation: "slide_from_bottom" as const, animationDuration: 300, presentation: "modal" as const } : { presentation: "modal" as const };
 
-  if (showPermanentSidebar) {
-    return (
-      <NavigationThemeProvider value={navigationTheme}>
-        <StatusBar style={isDark ? "light" : "dark"} />
-        <NavigationGuard />
-        <CommandPalette />
-        <OfflineBanner />
-        <View style={{ flexDirection: "row", flex: 1, backgroundColor: themeColors.background }}>
-          <AppSidebar />
-          <View style={{ flex: 1, overflow: "hidden" }}>
-            <Stack screenOptions={{ ...slideAnimation }}>
-              <Stack.Screen name="(auth)" options={{ headerShown: false, ...fadeAnimation }} />
-              <Stack.Screen name="(tabs)" options={{ headerShown: false, ...fadeAnimation }} />
-              <Stack.Screen name="+not-found" />
-              <Stack.Screen name="onboarding" options={{ headerShown: false }} />
-              <Stack.Screen name="notifications" options={{ headerShown: false }} />
-              <Stack.Screen name="settings" options={{ headerShown: false }} />
-              <Stack.Screen name="notification-settings" options={{ headerShown: false }} />
-              <Stack.Screen name="edit-profile" options={{ headerShown: false }} />
-              <Stack.Screen name="change-password" options={{ headerShown: false }} />
-              <Stack.Screen name="mentee/[id]" options={{ headerShown: false }} />
-              <Stack.Screen name="mentor/[id]" options={{ headerShown: false }} />
-              <Stack.Screen name="assign" options={{ headerShown: false }} />
-              <Stack.Screen name="document-session" options={{ headerShown: false }} />
-              <Stack.Screen name="feedback" options={{ headerShown: false }} />
-              <Stack.Screen name="mentorship/[id]" options={{ title: "Betreuung", headerStyle: { backgroundColor: themeColors.headerBackground }, headerTintColor: themeColors.headerText }} />
-              <Stack.Screen name="chat/[mentorshipId]" options={{ title: "Chat", headerStyle: { backgroundColor: themeColors.headerBackground }, headerTintColor: themeColors.headerText }} />
-              <Stack.Screen name="admin/session-types" options={{ title: "Session-Typen", headerStyle: { backgroundColor: themeColors.headerBackground }, headerTintColor: themeColors.headerText }} />
-              <Stack.Screen name="reset-password" options={{ title: "Passwort zurücksetzen", headerStyle: { backgroundColor: themeColors.headerBackground }, headerTintColor: themeColors.headerText }} />
-              <Stack.Screen name="hadithe" options={{ headerShown: false }} />
-              <Stack.Screen name="donor-report" options={{ headerShown: false }} />
-              <Stack.Screen name="admin/edit-user" options={{ headerShown: false }} />
-              <Stack.Screen name="admin/statistics" options={{ headerShown: false }} />
-              <Stack.Screen name="admin/csv-import" options={{ headerShown: false }} />
-              <Stack.Screen name="qa" options={{ headerShown: false }} />
-              <Stack.Screen name="admin/qa-management" options={{ headerShown: false }} />
-              <Stack.Screen name="admin/hadithe-management" options={{ headerShown: false }} />
-              <Stack.Screen name="admin/donor-report" options={{ headerShown: false }} />
-              <Stack.Screen name="admin/pending-approvals" options={{ headerShown: false }} />
-              <Stack.Screen name="admin/mentor-award" options={{ headerShown: false }} />
-            </Stack>
-          </View>
-        </View>
-      </NavigationThemeProvider>
-    );
-  }
+  // Ein einziger Stack — Sidebar wird bedingt darum gewickelt.
+  // Wichtig: Kein bedingtes Mounting von <Stack>, sonst wird der Router-State zerstört.
+  const stackContent = (
+    <Stack screenOptions={{ ...slideAnimation }}>
+      <Stack.Screen name="(auth)" options={{ headerShown: false, ...fadeAnimation }} />
+      <Stack.Screen name="(tabs)" options={{ headerShown: false, ...fadeAnimation }} />
+      <Stack.Screen name="+not-found" />
+      <Stack.Screen name="onboarding" options={{ headerShown: false, ...fadeAnimation }} />
+      <Stack.Screen name="notifications" options={{ headerShown: false }} />
+      <Stack.Screen name="settings" options={{ headerShown: false }} />
+      <Stack.Screen name="notification-settings" options={{ headerShown: false }} />
+      <Stack.Screen name="edit-profile" options={{ headerShown: false }} />
+      <Stack.Screen name="change-password" options={{ headerShown: false }} />
+      <Stack.Screen name="mentee/[id]" options={{ headerShown: false }} />
+      <Stack.Screen name="mentor/[id]" options={{ headerShown: false }} />
+      <Stack.Screen name="assign" options={{ headerShown: false }} />
+      <Stack.Screen name="document-session" options={{ headerShown: false }} />
+      <Stack.Screen name="feedback" options={{ headerShown: false }} />
+      <Stack.Screen name="mentorship/[id]" options={{ title: "Betreuung", headerStyle: { backgroundColor: themeColors.headerBackground }, headerTintColor: themeColors.headerText }} />
+      <Stack.Screen name="chat/[mentorshipId]" options={{ title: "Chat", headerStyle: { backgroundColor: themeColors.headerBackground }, headerTintColor: themeColors.headerText }} />
+      <Stack.Screen name="admin/session-types" options={{ title: "Session-Typen", headerStyle: { backgroundColor: themeColors.headerBackground }, headerTintColor: themeColors.headerText }} />
+      <Stack.Screen name="reset-password" options={{ title: "Passwort zurücksetzen", headerStyle: { backgroundColor: themeColors.headerBackground }, headerTintColor: themeColors.headerText }} />
+      <Stack.Screen name="hadithe" options={{ headerShown: false }} />
+      <Stack.Screen name="donor-report" options={{ headerShown: false }} />
+      <Stack.Screen name="admin/edit-user" options={{ headerShown: false }} />
+      <Stack.Screen name="admin/statistics" options={{ headerShown: false }} />
+      <Stack.Screen name="admin/csv-import" options={{ headerShown: false }} />
+      <Stack.Screen name="qa" options={{ headerShown: false }} />
+      <Stack.Screen name="admin/qa-management" options={{ headerShown: false }} />
+      <Stack.Screen name="admin/hadithe-management" options={{ headerShown: false }} />
+      <Stack.Screen name="admin/donor-report" options={{ headerShown: false }} />
+      <Stack.Screen name="admin/pending-approvals" options={{ headerShown: false }} />
+      <Stack.Screen name="admin/mentor-award" options={{ headerShown: false }} />
+    </Stack>
+  );
 
   return (
     <NavigationThemeProvider value={navigationTheme}>
@@ -237,168 +226,16 @@ function RootLayoutInner() {
       <NavigationGuard />
       <CommandPalette />
       <OfflineBanner />
-      <Stack screenOptions={{ ...slideAnimation }}>
-        <Stack.Screen name="(auth)" options={{ headerShown: false, ...fadeAnimation }} />
-        <Stack.Screen name="(tabs)" options={{ headerShown: false, ...fadeAnimation }} />
-        <Stack.Screen name="+not-found" />
-        <Stack.Screen
-          name="onboarding"
-          options={{ headerShown: false, ...fadeAnimation }}
-        />
-        <Stack.Screen
-          name="notifications"
-          options={{ headerShown: false }}
-        />
-        <Stack.Screen
-          name="settings"
-          options={{ headerShown: false }}
-        />
-        <Stack.Screen
-          name="notification-settings"
-          options={{ headerShown: false }}
-        />
-        <Stack.Screen
-          name="edit-profile"
-          options={{ headerShown: false }}
-        />
-        <Stack.Screen
-          name="change-password"
-          options={{ headerShown: false }}
-        />
-        <Stack.Screen
-          name="mentee/[id]"
-          options={{ headerShown: false }}
-        />
-        <Stack.Screen
-          name="mentor/[id]"
-          options={{ headerShown: false }}
-        />
-        <Stack.Screen
-          name="assign"
-          options={{
-            ...modalAnimation,
-            title: "Mentor zuweisen",
-            headerStyle: { backgroundColor: themeColors.headerBackground },
-            headerTintColor: themeColors.headerText,
-          }}
-        />
-        <Stack.Screen
-          name="document-session"
-          options={{
-            ...modalAnimation,
-            title: "Session dokumentieren",
-            headerStyle: { backgroundColor: themeColors.headerBackground },
-            headerTintColor: themeColors.headerText,
-          }}
-        />
-        <Stack.Screen
-          name="feedback"
-          options={{
-            ...modalAnimation,
-            title: "Feedback",
-            headerStyle: { backgroundColor: themeColors.headerBackground },
-            headerTintColor: themeColors.headerText,
-          }}
-        />
-        <Stack.Screen
-          name="mentorship/[id]"
-          options={{
-            title: "Betreuung",
-            headerStyle: { backgroundColor: themeColors.headerBackground },
-            headerTintColor: themeColors.headerText,
-          }}
-        />
-        <Stack.Screen
-          name="chat/[mentorshipId]"
-          options={{
-            title: "Chat",
-            headerStyle: { backgroundColor: themeColors.headerBackground },
-            headerTintColor: themeColors.headerText,
-          }}
-        />
-        <Stack.Screen
-          name="admin/session-types"
-          options={{
-            title: "Session-Typen",
-            headerStyle: { backgroundColor: themeColors.headerBackground },
-            headerTintColor: themeColors.headerText,
-          }}
-        />
-        <Stack.Screen
-          name="reset-password"
-          options={{
-            title: "Passwort zurücksetzen",
-            headerStyle: { backgroundColor: themeColors.headerBackground },
-            headerTintColor: themeColors.headerText,
-          }}
-        />
-        <Stack.Screen
-          name="hadithe"
-          options={{
-            headerShown: false,
-          }}
-        />
-        <Stack.Screen
-          name="donor-report"
-          options={{
-            headerShown: false,
-          }}
-        />
-        <Stack.Screen
-          name="admin/edit-user"
-          options={{
-            headerShown: false,
-          }}
-        />
-        <Stack.Screen
-          name="admin/statistics"
-          options={{
-            headerShown: false,
-          }}
-        />
-        <Stack.Screen
-          name="admin/csv-import"
-          options={{
-            headerShown: false,
-          }}
-        />
-        <Stack.Screen
-          name="qa"
-          options={{
-            headerShown: false,
-          }}
-        />
-        <Stack.Screen
-          name="admin/qa-management"
-          options={{
-            headerShown: false,
-          }}
-        />
-        <Stack.Screen
-          name="admin/hadithe-management"
-          options={{
-            headerShown: false,
-          }}
-        />
-        <Stack.Screen
-          name="admin/donor-report"
-          options={{
-            headerShown: false,
-          }}
-        />
-        <Stack.Screen
-          name="admin/pending-approvals"
-          options={{
-            headerShown: false,
-          }}
-        />
-        <Stack.Screen
-          name="admin/mentor-award"
-          options={{
-            headerShown: false,
-          }}
-        />
-      </Stack>
+      {showPermanentSidebar ? (
+        <View style={{ flexDirection: "row", flex: 1, backgroundColor: themeColors.background }}>
+          <AppSidebar />
+          <View style={{ flex: 1, overflow: "hidden" }}>
+            {stackContent}
+          </View>
+        </View>
+      ) : (
+        stackContent
+      )}
     </NavigationThemeProvider>
   );
 }

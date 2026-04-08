@@ -535,4 +535,4 @@ const styles = StyleSheet.create({
 });
 
 /** @deprecated Nutze AppSidebar */
-export const AdminSidebar = AppSidebar;
+export { AppSidebar as AdminSidebar };
