@@ -308,7 +308,7 @@ export default function LeaderboardScreen() {
                       <TouchableOpacity
                         key={item.mentorId}
                         style={styles.podiumSlot}
-                        onPress={() => router.push({ pathname: "/mentor/[id]", params: { id: item.mentorId } })}
+                        onPress={() => { if (Platform.OS !== "web") router.push({ pathname: "/mentor/[id]", params: { id: item.mentorId } }); }}
                         accessibilityRole="button"
                         accessibilityLabel={`Platz 2: ${item.name}, ${item.score} Punkte`}
                       >
@@ -335,7 +335,7 @@ export default function LeaderboardScreen() {
                       <TouchableOpacity
                         key={item.mentorId}
                         style={styles.podiumSlot}
-                        onPress={() => router.push({ pathname: "/mentor/[id]", params: { id: item.mentorId } })}
+                        onPress={() => { if (Platform.OS !== "web") router.push({ pathname: "/mentor/[id]", params: { id: item.mentorId } }); }}
                         accessibilityRole="button"
                         accessibilityLabel={`Platz 1: ${item.name}, ${item.score} Punkte`}
                       >
@@ -363,7 +363,7 @@ export default function LeaderboardScreen() {
                       <TouchableOpacity
                         key={item.mentorId}
                         style={styles.podiumSlot}
-                        onPress={() => router.push({ pathname: "/mentor/[id]", params: { id: item.mentorId } })}
+                        onPress={() => { if (Platform.OS !== "web") router.push({ pathname: "/mentor/[id]", params: { id: item.mentorId } }); }}
                         accessibilityRole="button"
                         accessibilityLabel={`Platz 3: ${item.name}, ${item.score} Punkte`}
                       >
@@ -399,9 +399,7 @@ export default function LeaderboardScreen() {
                           idx < rest.length - 1 ? [styles.rankRowBorder, { borderBottomColor: themeColors.border }] : {},
                           isMe ? [styles.rankRowHighlight, { borderWidth: 2, borderColor: COLORS.gold, borderRadius: RADIUS.sm }] : {},
                         ]}
-                        onPress={() =>
-                          router.push({ pathname: "/mentor/[id]", params: { id: item.mentorId } })
-                        }
+                        onPress={() => { if (Platform.OS !== "web") router.push({ pathname: "/mentor/[id]", params: { id: item.mentorId } }); }}
                         accessibilityRole="button"
                         accessibilityLabel={`Platz ${index + 1}: ${item.name}, ${item.score} Punkte`}
                       >
