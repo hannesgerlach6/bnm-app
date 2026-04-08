@@ -163,7 +163,7 @@ export default function LoginScreen() {
                   <Text style={[styles.loginFooterLink, { color: themeColors.link }]}>Impressum</Text>
                 </BNMPressable>
                 <Text style={[styles.loginFooterSep, { color: themeColors.textTertiary }]}>·</Text>
-                <BNMPressable onPress={() => Linking.openURL("https://iman.ngo/agb/")} accessibilityRole="link" accessibilityLabel="Allgemeine Geschäftsbedingungen">
+                <BNMPressable onPress={() => Linking.openURL("https://iman.ngo/agbs/")} accessibilityRole="link" accessibilityLabel="Allgemeine Geschäftsbedingungen">
                   <Text style={[styles.loginFooterLink, { color: themeColors.link }]}>AGB</Text>
                 </BNMPressable>
               </View>

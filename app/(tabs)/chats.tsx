@@ -13,6 +13,7 @@ import {
   KeyboardAvoidingView,
   useWindowDimensions,
   Animated,
+  Modal,
   NativeSyntheticEvent,
   NativeScrollEvent,
 } from "react-native";
@@ -54,9 +55,11 @@ function ChatPanel({ mentorshipId }: { mentorshipId: string }) {
     sendMessage,
     deleteMessage,
     markChatAsRead,
+    messageTemplates,
   } = useData();
 
   const [inputText, setInputText] = useState("");
+  const [showTemplates, setShowTemplates] = useState(false);
   const flatListRef = useRef<FlatList>(null);
   const [showScrollFab, setShowScrollFab] = useState(false);
   const fabOpacity = useRef(new Animated.Value(0)).current;
@@ -280,6 +283,16 @@ function ChatPanel({ mentorshipId }: { mentorshipId: string }) {
       {/* Input-Bereich */}
       {mentorship && (mentorship.status === "active" || mentorship.status === "completed") ? (
         <View style={[panelStyles.inputContainer, { backgroundColor: themeColors.card, borderTopColor: themeColors.border }]}>
+          {/* Vorlagen-Button */}
+          {messageTemplates.length > 0 && (user?.role === "mentor" || user?.role === "admin" || user?.role === "office") && (
+            <TouchableOpacity
+              style={panelStyles.templateButton}
+              onPress={() => setShowTemplates(true)}
+              accessibilityLabel={t("chat.templates")}
+            >
+              <Ionicons name="document-text-outline" size={22} color={themeColors.textSecondary} />
+            </TouchableOpacity>
+          )}
           <TextInput
             style={[panelStyles.textInput, { backgroundColor: themeColors.elevated, borderColor: themeColors.border, color: themeColors.text }]}
             value={inputText}
@@ -306,6 +319,44 @@ function ChatPanel({ mentorshipId }: { mentorshipId: string }) {
             {t("chat.notActiveHint")}
           </Text>
         </View>
+      )}
+      {/* Vorlagen-Modal */}
+      {showTemplates && (
+        <Modal visible={showTemplates} transparent animationType="slide" onRequestClose={() => setShowTemplates(false)}>
+          <TouchableOpacity style={panelStyles.modalOverlay} activeOpacity={1} onPress={() => setShowTemplates(false)}>
+            <View style={[panelStyles.modalSheet, { backgroundColor: themeColors.card }]} onStartShouldSetResponder={() => true}>
+              <View style={[panelStyles.modalHandle, { backgroundColor: themeColors.border }]} />
+              <Text style={[panelStyles.modalTitle, { color: themeColors.text }]}>{t("chat.templates")}</Text>
+              <ScrollView style={panelStyles.modalScroll} showsVerticalScrollIndicator={false}>
+                {messageTemplates.map((tmpl) => {
+                  const menteeName = mentorship?.mentee?.name?.split(" ")[0] ?? "";
+                  const menteeGender = mentorship?.mentee?.gender;
+                  const anrede = menteeGender === "male" ? t("chat.templateBrother") : t("chat.templateSister");
+                  const mentorName = user?.name ?? "";
+                  return (
+                    <TouchableOpacity
+                      key={tmpl.id}
+                      style={[panelStyles.templateCard, { borderColor: themeColors.border }]}
+                      onPress={() => {
+                        const text = tmpl.body
+                          .replace(/\{\{NAME\}\}/g, menteeName)
+                          .replace(/\{\{ANREDE\}\}/g, anrede)
+                          .replace(/\{\{MENTOR_NAME\}\}/g, mentorName);
+                        setInputText(text);
+                        setShowTemplates(false);
+                      }}
+                    >
+                      <Text style={[panelStyles.templateCardTitle, { color: themeColors.text }]}>{tmpl.title}</Text>
+                      <Text style={[panelStyles.templateCardPreview, { color: themeColors.textSecondary }]} numberOfLines={3}>
+                        {tmpl.body.replace(/\{\{NAME\}\}/g, menteeName).replace(/\{\{ANREDE\}\}/g, anrede).replace(/\{\{MENTOR_NAME\}\}/g, mentorName)}
+                      </Text>
+                    </TouchableOpacity>
+                  );
+                })}
+              </ScrollView>
+            </View>
+          </TouchableOpacity>
+        </Modal>
       )}
     </KeyboardAvoidingView>
   );
@@ -387,6 +438,42 @@ const panelStyles = StyleSheet.create({
     justifyContent: "center",
   },
   inactiveHint: { flex: 1, textAlign: "center", fontSize: 13, paddingVertical: 4 },
+  templateButton: {
+    width: 44,
+    height: 44,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: "rgba(0,0,0,0.45)",
+    justifyContent: "flex-end",
+  },
+  modalSheet: {
+    borderTopLeftRadius: RADIUS.lg,
+    borderTopRightRadius: RADIUS.lg,
+    paddingTop: 12,
+    paddingBottom: 32,
+    paddingHorizontal: 20,
+    maxHeight: "60%",
+  },
+  modalHandle: {
+    width: 36,
+    height: 4,
+    borderRadius: 2,
+    alignSelf: "center",
+    marginBottom: 16,
+  },
+  modalTitle: { fontWeight: "700", fontSize: 16, marginBottom: 16 },
+  modalScroll: { flex: 1 },
+  templateCard: {
+    borderWidth: 1,
+    borderRadius: RADIUS.md,
+    padding: 14,
+    marginBottom: 10,
+  },
+  templateCardTitle: { fontWeight: "600", fontSize: 14, marginBottom: 4 },
+  templateCardPreview: { fontSize: 13, lineHeight: 18 },
 });
 
 // ─── Admin-DM Chat Panel ──────────────────────────────────────────────────────

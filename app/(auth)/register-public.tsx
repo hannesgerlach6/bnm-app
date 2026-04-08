@@ -596,7 +596,7 @@ export default function RegisterPublicScreen() {
                     style={{ color: "#3b82f6", textDecorationLine: "underline" }}
                     onPress={(e) => {
                       e.stopPropagation?.();
-                      Linking.openURL("https://iman.ngo/agb/");
+                      Linking.openURL("https://iman.ngo/agbs/");
                     }}
                   >
                     {t("register.confirmPrivacyLink2")}

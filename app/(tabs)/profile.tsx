@@ -354,7 +354,7 @@ export default function ProfileScreen() {
           <Text style={[styles.footerLink, { color: themeColors.link }]}>{t("footer.imprint")}</Text>
         </BNMPressable>
         <Text style={[styles.footerSep, { color: themeColors.textTertiary }]}>·</Text>
-        <BNMPressable onPress={() => Linking.openURL("https://iman.ngo/agb/")} accessibilityRole="link" accessibilityLabel="Allgemeine Geschäftsbedingungen">
+        <BNMPressable onPress={() => Linking.openURL("https://iman.ngo/agbs/")} accessibilityRole="link" accessibilityLabel="Allgemeine Geschäftsbedingungen">
           <Text style={[styles.footerLink, { color: themeColors.link }]}>AGB</Text>
         </BNMPressable>
       </View>
