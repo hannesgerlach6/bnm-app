@@ -7,6 +7,7 @@ import React, {
   useMemo,
   useRef,
   ReactNode,
+  MutableRefObject,
 } from "react";
 import { Platform } from "react-native";
 import type {
@@ -20,13 +21,16 @@ import type {
   MentorApplication,
   ApplicationStatus,
   Notification,
-  XPEntry,
-  UserAchievement,
-  ThankEntry,
-  StreakData,
   MessageTemplate,
 } from "../types";
-import { XP_VALUES, getLevelForXP } from "../lib/gamification";
+import { XP_VALUES } from "../lib/gamification";
+
+// ─── Gamification Ref Type (für GamificationContext-Kommunikation) ──────────
+export interface GamificationCallbacks {
+  awardXP: (userId: string, amount: number, reason: string, relatedId?: string) => void;
+  checkAndUnlockAchievements: (userId: string) => Promise<void>;
+  updateStreak: (userId: string) => Promise<void>;
+}
 import { supabase } from "../lib/supabase";
 import { supabaseAnon } from "../lib/supabaseAnon";
 import { useAuth } from "./AuthContext";
@@ -85,15 +89,9 @@ export interface DataContextValue {
   qaEntries: QAEntry[];
   messageTemplates: MessageTemplate[];
 
-  // Gamification
-  xpLog: XPEntry[];
-  userAchievements: UserAchievement[];
-  thanks: ThankEntry[];
-  streak: StreakData | null;
-  awardXP: (userId: string, amount: number, reason: string, relatedId?: string) => void;
-  sendThanks: (mentorshipId: string, mentorId: string, message?: string, sessionTypeId?: string) => Promise<void>;
-  checkAndUnlockAchievements: (userId: string) => Promise<void>;
-  updateStreak: (userId: string) => Promise<void>;
+  // Internal: Gamification callbacks ref (used by GamificationContext)
+  _gamificationRef: MutableRefObject<GamificationCallbacks | null>;
+  _updateUserXP: (userId: string, newXP: number, newLevel: string) => void;
 
   // App Settings
   getSetting: (key: string) => string | undefined;
@@ -363,11 +361,10 @@ export function DataProvider({ children }: { children: ReactNode }) {
   const [qaEntries, setQAEntries] = useState<QAEntry[]>([]);
   const [appSettings, setAppSettings] = useState<Record<string, string>>({});
   const [adminMessages, setAdminMessages] = useState<AdminMessage[]>([]);
-  const [xpLog, setXpLog] = useState<XPEntry[]>([]);
-  const [userAchievements, setUserAchievements] = useState<UserAchievement[]>([]);
-  const [thanks, setThanks] = useState<ThankEntry[]>([]);
-  const [streak, setStreak] = useState<StreakData | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+
+  // Ref for GamificationContext to register its functions (avoids circular dependency)
+  const gamificationRef = useRef<GamificationCallbacks | null>(null);
 
   const realtimeChannelRef = useRef<ReturnType<typeof supabase.channel> | null>(null);
   // Refs — immer aktuell, auch in Realtime-Callbacks (Closure-Problem vermeiden)
@@ -392,10 +389,6 @@ export function DataProvider({ children }: { children: ReactNode }) {
       setAdminMessages([]);
       setApplications([]);
       setNotifications([]);
-      setXpLog([]);
-      setUserAchievements([]);
-      setThanks([]);
-      setStreak(null);
       setIsLoading(false);
       hasLoadedOnceRef.current = false;
       isActiveLoadRef.current = false;
@@ -534,8 +527,6 @@ export function DataProvider({ children }: { children: ReactNode }) {
       }
 
       const isAdminOrOffice = authUser?.role === "admin" || authUser?.role === "office";
-      const isMentor = authUser?.role === "mentor";
-      const empty = Promise.resolve({ data: null, error: null });
 
       // Timeout: 5s — verhindert dauerhaftes isLoading bei hängender Verbindung
       const withTimeout = <T,>(p: Promise<T>): Promise<T> =>
@@ -567,10 +558,6 @@ export function DataProvider({ children }: { children: ReactNode }) {
         qaEntriesRes,
         messageTemplatesRes,
         adminMsgsRes,
-        xpRes,
-        achievementsRes,
-        thanksRes,
-        streakRes,
       ] = await Promise.all([
         safe(supabase.from("profiles").select("*")),
         safe(supabase.from("mentorships").select("*")),
@@ -587,10 +574,6 @@ export function DataProvider({ children }: { children: ReactNode }) {
         safe(isAdminOrOffice
           ? supabase.from("admin_messages").select("*").order("created_at", { ascending: true })
           : supabase.from("admin_messages").select("*").eq("user_id", authUser!.id).order("created_at", { ascending: true })),
-        isMentor ? safe(supabase.from("xp_log").select("*").eq("user_id", authUser!.id).order("created_at", { ascending: false }).limit(100)) : empty,
-        isMentor ? safe(supabase.from("achievements").select("*").eq("user_id", authUser!.id)) : empty,
-        isMentor ? safe(supabase.from("thanks").select("*").eq("mentor_id", authUser!.id).order("created_at", { ascending: false })) : empty,
-        isMentor ? safe(supabase.from("streaks").select("*").eq("user_id", authUser!.id).maybeSingle()) : empty,
       ] as const);
 
       // Error-Logging: Supabase-Fehler sichtbar machen
@@ -822,54 +805,6 @@ export function DataProvider({ children }: { children: ReactNode }) {
       }
 
       // ─── Gamification-Daten verarbeiten (Queries laufen parallel im Promise.all oben) ──
-      if (xpRes.data) {
-        setXpLog(
-          (xpRes.data as any[]).map((row) => ({
-            id: row.id as string,
-            user_id: row.user_id as string,
-            amount: row.amount as number,
-            reason: row.reason as string,
-            related_id: (row.related_id as string) ?? undefined,
-            created_at: row.created_at as string,
-          }))
-        );
-      }
-
-      if (achievementsRes.data) {
-        setUserAchievements(
-          (achievementsRes.data as any[]).map((row) => ({
-            id: row.id as string,
-            user_id: row.user_id as string,
-            achievement_key: row.achievement_key as string,
-            unlocked_at: row.unlocked_at as string,
-          }))
-        );
-      }
-
-      if (thanksRes.data) {
-        setThanks(
-          (thanksRes.data as any[]).map((row) => ({
-            id: row.id as string,
-            mentorship_id: row.mentorship_id as string,
-            mentee_id: row.mentee_id as string,
-            mentor_id: row.mentor_id as string,
-            session_type_id: (row.session_type_id as string) ?? undefined,
-            message: (row.message as string) ?? "",
-            created_at: row.created_at as string,
-          }))
-        );
-      }
-
-      if (streakRes.data) {
-        const row = streakRes.data as Record<string, unknown>;
-        setStreak({
-          user_id: row.user_id as string,
-          current_streak: (row.current_streak as number) ?? 0,
-          longest_streak: (row.longest_streak as number) ?? 0,
-          last_activity_date: (row.last_activity_date as string) ?? undefined,
-        });
-      }
-
       // ─── Cache schreiben (messages werden NICHT gecacht — Realtime) ─────────
       {
         const cachedUsers = profilesRes.data ? profilesRes.data.map(mapProfile) : [];
@@ -1273,234 +1208,17 @@ export function DataProvider({ children }: { children: ReactNode }) {
     };
   }
 
-  // ─── Gamification Funktionen ──────────────────────────────────────────────────
+  // ─── Gamification-Helfer (delegiert an GamificationContext via Ref) ─────────
 
-  // awardXP: Fire-and-forget — blockiert nie den Aufrufer
-  const awardXP = useCallback(
-    (userId: string, amount: number, reason: string, relatedId?: string) => {
-      (async () => {
-        try {
-          const { data: xpData } = await supabase
-            .from("xp_log")
-            .insert({
-              user_id: userId,
-              amount,
-              reason,
-              related_id: relatedId ?? null,
-            })
-            .select()
-            .single();
-
-          if (xpData) {
-            const newEntry: XPEntry = {
-              id: xpData.id,
-              user_id: xpData.user_id,
-              amount: xpData.amount,
-              reason: xpData.reason,
-              related_id: xpData.related_id ?? undefined,
-              created_at: xpData.created_at,
-            };
-            setXpLog((prev) => [newEntry, ...prev]);
-          }
-
-          // profiles.total_xp hochzählen
-          const { data: profileData } = await supabase
-            .from("profiles")
-            .select("total_xp")
-            .eq("id", userId)
-            .single();
-
-          const currentXP = (profileData?.total_xp as number) ?? 0;
-          const newXP = currentXP + amount;
-          const newLevel = getLevelForXP(newXP).key;
-
-          await supabase
-            .from("profiles")
-            .update({ total_xp: newXP, mentor_level: newLevel })
-            .eq("id", userId);
-
-          if (authUser?.id === userId) {
-            setUsers((prev) =>
-              prev.map((u) =>
-                u.id === userId ? { ...u, total_xp: newXP, mentor_level: newLevel } : u
-              )
-            );
-          }
-        } catch {
-          // Fire-and-forget: Fehler still ignorieren
-        }
-      })();
+  const _updateUserXP = useCallback(
+    (userId: string, newXP: number, newLevel: string) => {
+      setUsers((prev) =>
+        prev.map((u) =>
+          u.id === userId ? { ...u, total_xp: newXP, mentor_level: newLevel } : u
+        )
+      );
     },
-    [authUser?.id]
-  );
-
-  // sendThanks: Mentee dankt Mentor
-  const sendThanks = useCallback(
-    async (mentorshipId: string, mentorId: string, message?: string, sessionTypeId?: string) => {
-      if (!authUser) return;
-      const { data, error } = await supabase
-        .from("thanks")
-        .insert({
-          mentorship_id: mentorshipId,
-          mentee_id: authUser.id,
-          mentor_id: mentorId,
-          session_type_id: sessionTypeId ?? null,
-          message: message ?? "",
-        })
-        .select()
-        .single();
-
-      if (error || !data) {
-        throw new Error(error?.message ?? "Danke konnte nicht gesendet werden");
-      }
-
-      const newThank: ThankEntry = {
-        id: data.id,
-        mentorship_id: data.mentorship_id,
-        mentee_id: data.mentee_id,
-        mentor_id: data.mentor_id,
-        session_type_id: data.session_type_id ?? undefined,
-        message: data.message ?? "",
-        created_at: data.created_at,
-      };
-      setThanks((prev) => [newThank, ...prev]);
-
-      await awardXP(mentorId, XP_VALUES.THANK_RECEIVED, "thank_received", mentorshipId);
-    },
-    [authUser, awardXP]
-  );
-
-  // checkAndUnlockAchievements
-  const checkAndUnlockAchievements = useCallback(
-    async (userId: string) => {
-      try {
-        const { data: existingData } = await supabase
-          .from("achievements")
-          .select("achievement_key")
-          .eq("user_id", userId);
-        const existingKeys = new Set(
-          (existingData ?? []).map((r: Record<string, unknown>) => r.achievement_key as string)
-        );
-
-        const myMentorships = mentorships.filter((m) => m.mentor_id === userId);
-        const completedCount = myMentorships.filter((m) => m.status === "completed").length;
-        const activeCnt = myMentorships.filter((m) => m.status === "active").length;
-
-        const myFeedbackList = feedback.filter((f) =>
-          myMentorships.some((m) => m.id === f.mentorship_id)
-        );
-        const avgRatingVal =
-          myFeedbackList.length > 0
-            ? myFeedbackList.reduce((acc, f) => acc + f.rating, 0) / myFeedbackList.length
-            : 0;
-
-        const mySessions = sessions.filter((s) =>
-          myMentorships.some((m) => m.id === s.mentorship_id)
-        );
-
-        const { data: streakData } = await supabase
-          .from("streaks")
-          .select("longest_streak")
-          .eq("user_id", userId)
-          .maybeSingle();
-        const longestStreak = (streakData?.longest_streak as number) ?? 0;
-
-        const quranTypeIds = sessionTypes
-          .filter((st) => st.name.toLowerCase().includes("koran") || st.name.toLowerCase().includes("quran"))
-          .map((st) => st.id);
-        const quranSessions = mySessions.filter((s) => quranTypeIds.includes(s.session_type_id)).length;
-
-        const toUnlock: string[] = [];
-        if (completedCount >= 1 && !existingKeys.has("first_completion")) toUnlock.push("first_completion");
-        if (activeCnt >= 5 && !existingKeys.has("marathon")) toUnlock.push("marathon");
-        if (longestStreak >= 30 && !existingKeys.has("punctual_30")) toUnlock.push("punctual_30");
-        if (avgRatingVal >= 4.5 && myFeedbackList.length >= 3 && !existingKeys.has("five_star")) toUnlock.push("five_star");
-        if (completedCount >= 10 && !existingKeys.has("bridge_builder")) toUnlock.push("bridge_builder");
-        if (quranSessions >= 10 && !existingKeys.has("quran_teacher")) toUnlock.push("quran_teacher");
-        if (completedCount >= 5 && !existingKeys.has("community_hero")) toUnlock.push("community_hero");
-        if (completedCount >= 10 && !existingKeys.has("ten_completions")) toUnlock.push("ten_completions");
-
-        if (toUnlock.length > 0) {
-          const rows = toUnlock.map((key) => ({ user_id: userId, achievement_key: key }));
-          const { data: newAchievements } = await supabase
-            .from("achievements")
-            .insert(rows)
-            .select();
-
-          if (newAchievements) {
-            const mapped: UserAchievement[] = newAchievements.map((row: Record<string, unknown>) => ({
-              id: row.id as string,
-              user_id: row.user_id as string,
-              achievement_key: row.achievement_key as string,
-              unlocked_at: row.unlocked_at as string,
-            }));
-            setUserAchievements((prev) => [...prev, ...mapped]);
-          }
-        }
-      } catch {
-        // still ignorieren
-      }
-    },
-    [mentorships, sessions, sessionTypes, feedback]
-  );
-
-  // updateStreak: Tägliche Streak-Logik
-  const updateStreak = useCallback(
-    async (userId: string) => {
-      try {
-        const today = new Date().toISOString().split("T")[0];
-        const { data: existing } = await supabase
-          .from("streaks")
-          .select("*")
-          .eq("user_id", userId)
-          .maybeSingle();
-
-        if (!existing) {
-          const { data: inserted } = await supabase
-            .from("streaks")
-            .insert({
-              user_id: userId,
-              current_streak: 1,
-              longest_streak: 1,
-              last_activity_date: today,
-            })
-            .select()
-            .single();
-          if (inserted) {
-            setStreak({ user_id: userId, current_streak: 1, longest_streak: 1, last_activity_date: today });
-          }
-          return;
-        }
-
-        const lastDate = existing.last_activity_date as string | null;
-        if (lastDate === today) return;
-
-        // UTC-konsistent: getUTCDate statt getDate (vermeidet Zeitzone-Bug 0–2 Uhr)
-        const yesterday = new Date();
-        yesterday.setUTCDate(yesterday.getUTCDate() - 1);
-        const yesterdayStr = yesterday.toISOString().split("T")[0];
-
-        const newStreakCount = lastDate === yesterdayStr ? (existing.current_streak as number) + 1 : 1;
-        const newLongest = Math.max(newStreakCount, existing.longest_streak as number);
-
-        await supabase
-          .from("streaks")
-          .update({
-            current_streak: newStreakCount,
-            longest_streak: newLongest,
-            last_activity_date: today,
-            updated_at: new Date().toISOString(),
-          })
-          .eq("user_id", userId);
-
-        setStreak({ user_id: userId, current_streak: newStreakCount, longest_streak: newLongest, last_activity_date: today });
-
-        awardXP(userId, XP_VALUES.STREAK_DAY, "streak_day");
-      } catch {
-        // still ignorieren
-      }
-    },
-    [awardXP]
+    []
   );
 
   // ─── Mentorship Actions ───────────────────────────────────────────────────────
@@ -1871,14 +1589,14 @@ export function DataProvider({ children }: { children: ReactNode }) {
               notifyFeedbackRequested(m.mentor?.name ?? "Deinem Mentor").catch(() => {});
             }
 
-            // XP für abgeschlossene Betreuung (fire-and-forget)
-            awardXP(m.mentor_id, XP_VALUES.MENTORSHIP_COMPLETED, "mentorship_completed", mentorshipId);
-            checkAndUnlockAchievements(m.mentor_id);
+            // XP für abgeschlossene Betreuung (fire-and-forget, delegiert an GamificationContext)
+            gamificationRef.current?.awardXP(m.mentor_id, XP_VALUES.MENTORSHIP_COMPLETED, "mentorship_completed", mentorshipId);
+            gamificationRef.current?.checkAndUnlockAchievements(m.mentor_id);
           }
         }
       }
     },
-    [authUser, mentorships, createNotification, awardXP, checkAndUnlockAchievements]
+    [authUser, mentorships, createNotification]
   );
 
   // ─── Session Actions ──────────────────────────────────────────────────────────
@@ -1931,14 +1649,14 @@ export function DataProvider({ children }: { children: ReactNode }) {
         );
       }
 
-      // XP für Session-Dokumentation (fire-and-forget)
+      // XP für Session-Dokumentation (fire-and-forget, delegiert an GamificationContext)
       if (authUser?.role === "mentor") {
-        awardXP(sessionData.documented_by, XP_VALUES.SESSION_DOCUMENTED, "session_documented", data.id);
-        updateStreak(sessionData.documented_by);
-        checkAndUnlockAchievements(sessionData.documented_by);
+        gamificationRef.current?.awardXP(sessionData.documented_by, XP_VALUES.SESSION_DOCUMENTED, "session_documented", data.id);
+        gamificationRef.current?.updateStreak(sessionData.documented_by);
+        gamificationRef.current?.checkAndUnlockAchievements(sessionData.documented_by);
       }
     },
-    [sessionTypes, mentorships, createNotification, authUser, awardXP, updateStreak, checkAndUnlockAchievements]
+    [sessionTypes, mentorships, createNotification, authUser]
   );
 
   const updateSession = useCallback(
@@ -2135,16 +1853,16 @@ export function DataProvider({ children }: { children: ReactNode }) {
           ).catch(() => {});
         }
 
-        // XP für gutes Feedback (fire-and-forget)
+        // XP für gutes Feedback (fire-and-forget, delegiert an GamificationContext)
         if (feedbackData.rating === 5) {
-          awardXP(mentorship.mentor_id, XP_VALUES.FEEDBACK_5STAR, "feedback_5star", feedbackData.mentorship_id);
+          gamificationRef.current?.awardXP(mentorship.mentor_id, XP_VALUES.FEEDBACK_5STAR, "feedback_5star", feedbackData.mentorship_id);
         } else if (feedbackData.rating >= 4) {
-          awardXP(mentorship.mentor_id, XP_VALUES.FEEDBACK_4STAR, "feedback_4star", feedbackData.mentorship_id);
+          gamificationRef.current?.awardXP(mentorship.mentor_id, XP_VALUES.FEEDBACK_4STAR, "feedback_4star", feedbackData.mentorship_id);
         }
-        checkAndUnlockAchievements(mentorship.mentor_id);
+        gamificationRef.current?.checkAndUnlockAchievements(mentorship.mentor_id);
       }
     },
-    [mentorships, users, authUser, createNotification, awardXP, checkAndUnlockAchievements]
+    [mentorships, users, authUser, createNotification]
   );
 
   const getFeedbacks = useCallback(() => {
@@ -3108,14 +2826,8 @@ export function DataProvider({ children }: { children: ReactNode }) {
     applications,
     notifications,
     hadithe,
-    xpLog,
-    userAchievements,
-    thanks,
-    streak,
-    awardXP,
-    sendThanks,
-    checkAndUnlockAchievements,
-    updateStreak,
+    _gamificationRef: gamificationRef,
+    _updateUserXP,
     addHadith,
     updateHadith,
     deleteHadith,
@@ -3184,9 +2896,8 @@ export function DataProvider({ children }: { children: ReactNode }) {
     isLoading,
   }), [
     users, mentorships, sessions, sessionTypes, feedback, messages, applications,
-    notifications, hadithe, xpLog, userAchievements, thanks, streak, qaEntries,
-    messageTemplates, adminMessages, mentorOfMonthVisible, isLoading,
-    awardXP, sendThanks, checkAndUnlockAchievements, updateStreak,
+    notifications, hadithe, qaEntries,
+    messageTemplates, adminMessages, mentorOfMonthVisible, isLoading, _updateUserXP,
     addHadith, updateHadith, deleteHadith, reorderHadithe, bulkInsertHadithe,
     loadQAEntries, addQAEntry, updateQAEntry, deleteQAEntry,
     getSetting, toggleMentorOfMonth, addUser, assignMentorship,

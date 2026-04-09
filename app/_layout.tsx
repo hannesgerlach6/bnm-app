@@ -9,6 +9,7 @@ import "react-native-reanimated";
 
 import { AuthProvider, useAuth } from "../contexts/AuthContext";
 import { DataProvider } from "../contexts/DataContext";
+import { GamificationProvider } from "../contexts/GamificationContext";
 import { ModalProvider } from "../contexts/ModalContext";
 import { LanguageProvider } from "../contexts/LanguageContext";
 import { ThemeProvider, useTheme, useThemeColors } from "../contexts/ThemeContext";
@@ -440,11 +441,13 @@ export default function RootLayout() {
       <LanguageProvider>
         <AuthProvider>
           <DataProvider>
-            <ModalProvider>
-              <ToastProvider>
-                <RootLayoutInner />
-              </ToastProvider>
-            </ModalProvider>
+            <GamificationProvider>
+              <ModalProvider>
+                <ToastProvider>
+                  <RootLayoutInner />
+                </ToastProvider>
+              </ModalProvider>
+            </GamificationProvider>
           </DataProvider>
         </AuthProvider>
       </LanguageProvider>
