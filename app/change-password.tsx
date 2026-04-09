@@ -54,55 +54,61 @@ export default function ChangePasswordScreen() {
 
     setIsSaving(true);
     try {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user?.email) {
+      // Session aus dem Client holen (aus Memory, kein Network-Call)
+      const { data: { session } } = await supabase.auth.getSession();
+      const token = session?.access_token;
+      const email = authUser?.email;
+      if (!token || !email) {
         showError(t("changePassword.errorFailed"));
         setIsSaving(false);
         return;
       }
 
-      // Bei erzwungener PW-Änderung: Altes PW nicht verifizieren (Admin hat es gerade gesetzt).
-      // Bei normaler PW-Änderung: Altes PW über direkten fetch verifizieren
-      // (kein Supabase-Client nötig — vermeidet Session-/Lock-Probleme).
+      const headers = {
+        "Content-Type": "application/json",
+        "apikey": SUPABASE_ANON_KEY,
+        "Authorization": `Bearer ${token}`,
+      };
+
+      // 1) Altes PW verifizieren (nur bei normaler Änderung, nicht bei Force-Change)
       if (!isForced) {
-        const res = await fetch(`${SUPABASE_URL}/auth/v1/token?grant_type=password`, {
+        const verifyRes = await fetch(`${SUPABASE_URL}/auth/v1/token?grant_type=password`, {
           method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            "apikey": SUPABASE_ANON_KEY,
-          },
-          body: JSON.stringify({ email: user.email, password: oldPassword }),
+          headers: { "Content-Type": "application/json", "apikey": SUPABASE_ANON_KEY },
+          body: JSON.stringify({ email, password: oldPassword }),
         });
-        if (!res.ok) {
+        if (!verifyRes.ok) {
           showError(t("changePassword.errorCurrent"));
           setIsSaving(false);
           return;
         }
       }
 
-      // force_password_change ZUERST zurücksetzen (vor updateUser, wegen NavigationGuard)
-      await supabase.from("profiles").update({ force_password_change: false }).eq("id", user.id);
+      // 2) force_password_change ZUERST zurücksetzen (vor PW-Update, wegen NavigationGuard)
+      await fetch(`${SUPABASE_URL}/rest/v1/profiles?id=eq.${session.user.id}`, {
+        method: "PATCH",
+        headers,
+        body: JSON.stringify({ force_password_change: false }),
+      });
 
-      // updateUser per fetch statt Supabase-Client — der Client hängt intern
-      // beim Session-Processing, obwohl der HTTP-Request durchgeht (200).
-      const session = (await supabase.auth.getSession()).data.session;
+      // 3) Passwort ändern
       const updateRes = await fetch(`${SUPABASE_URL}/auth/v1/user`, {
         method: "PUT",
-        headers: {
-          "Content-Type": "application/json",
-          "apikey": SUPABASE_ANON_KEY,
-          "Authorization": `Bearer ${session?.access_token}`,
-        },
+        headers,
         body: JSON.stringify({ password: newPassword }),
       });
 
       if (!updateRes.ok) {
         // Flag wieder setzen falls PW-Update fehlschlägt
-        await supabase.from("profiles").update({ force_password_change: isForced }).eq("id", user.id);
+        await fetch(`${SUPABASE_URL}/rest/v1/profiles?id=eq.${session.user.id}`, {
+          method: "PATCH",
+          headers,
+          body: JSON.stringify({ force_password_change: isForced }),
+        });
         const errBody = await updateRes.json().catch(() => null);
         showError(errBody?.msg || errBody?.message || t("changePassword.errorFailed"));
       } else {
-        // Erfolg — sofort Feedback + Navigation
+        // 4) Erfolg — AuthContext aktualisieren + Feedback + Navigation
         refreshUser().catch(() => {});
         setIsSaving(false);
         showSuccess(t("changePassword.successMsg"));
