@@ -80,19 +80,30 @@ export default function ChangePasswordScreen() {
         }
       }
 
-      // WICHTIG: force_password_change ZUERST zurücksetzen, BEVOR updateUser aufgerufen wird.
-      // updateUser triggert onAuthStateChange → NavigationGuard prüft force_password_change.
-      // Wenn das Flag noch true ist, wird change-password neu gemountet und der State geht verloren.
+      // force_password_change ZUERST zurücksetzen (vor updateUser, wegen NavigationGuard)
       await supabase.from("profiles").update({ force_password_change: false }).eq("id", user.id);
 
-      const { error: updateError } = await supabase.auth.updateUser({ password: newPassword });
+      // updateUser per fetch statt Supabase-Client — der Client hängt intern
+      // beim Session-Processing, obwohl der HTTP-Request durchgeht (200).
+      const session = (await supabase.auth.getSession()).data.session;
+      const updateRes = await fetch(`${SUPABASE_URL}/auth/v1/user`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+          "apikey": SUPABASE_ANON_KEY,
+          "Authorization": `Bearer ${session?.access_token}`,
+        },
+        body: JSON.stringify({ password: newPassword }),
+      });
 
-      if (updateError) {
+      if (!updateRes.ok) {
         // Flag wieder setzen falls PW-Update fehlschlägt
         await supabase.from("profiles").update({ force_password_change: isForced }).eq("id", user.id);
-        showError(updateError.message);
+        const errBody = await updateRes.json().catch(() => null);
+        showError(errBody?.msg || errBody?.message || t("changePassword.errorFailed"));
       } else {
-        await refreshUser();
+        // Erfolg — sofort Feedback + Navigation
+        refreshUser().catch(() => {});
         setIsSaving(false);
         showSuccess(t("changePassword.successMsg"));
         setTimeout(() => router.replace("/(tabs)"), 1200);
