@@ -49,17 +49,19 @@ export default function ChatScreen() {
   const [showTemplates, setShowTemplates] = useState(false);
   const [localTemplates, setLocalTemplates] = useState<typeof messageTemplates>([]);
 
-  // Fallback: Templates direkt laden falls Context noch leer (Timing-Issue auf Mobile)
+  // Templates IMMER direkt aus DB laden (Context-Timing ist auf Native unzuverlässig)
   useEffect(() => {
-    if (messageTemplates.length > 0) {
-      setLocalTemplates(messageTemplates);
-    } else {
-      supabase.from("message_templates").select("*").eq("is_active", true).order("sort_order", { ascending: true })
-        .then(({ data }) => {
-          if (data?.length) setLocalTemplates(data.map((r: any) => ({ id: r.id, title: r.title, category: r.category, body: r.body, sort_order: r.sort_order, is_active: r.is_active })));
-        });
-    }
-  }, [messageTemplates]);
+    supabase.from("message_templates").select("*").eq("is_active", true).order("sort_order", { ascending: true })
+      .then(({ data }) => {
+        if (data?.length) {
+          setLocalTemplates(data.map((r: any) => ({
+            id: r.id, title: r.title, category: r.category,
+            body: r.body, sort_order: r.sort_order, is_active: r.is_active,
+          })));
+        }
+      })
+      .catch(() => {});
+  }, []);
 
   const templates = localTemplates.length > 0 ? localTemplates : messageTemplates;
   const flatListRef = useRef<FlatList>(null);
@@ -258,7 +260,7 @@ export default function ChatScreen() {
   return (
     <KeyboardAvoidingView
       style={[styles.flex1, { backgroundColor: themeColors.background }]}
-      behavior="padding"
+      behavior={Platform.OS === "ios" ? "padding" : undefined}
       keyboardVerticalOffset={Platform.OS === "ios" ? 90 : 0}
     >
       {/* Chat-Header-Info */}
