@@ -2,7 +2,7 @@ import React, { useState, useMemo } from "react";
 import {
   View,
   Text,
-  ScrollView,
+  FlatList,
   TextInput,
   StyleSheet,
   RefreshControl,
@@ -238,189 +238,191 @@ export default function MentorsTabScreen() {
       </KeyboardAvoidingView>
     </Modal>
 
-    <ScrollView
+    <FlatList
       style={[styles.scrollView, { backgroundColor: themeColors.background }]}
+      contentContainerStyle={styles.page}
+      data={isLoading ? [] : filtered}
+      keyExtractor={(item) => item.id}
       refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor={COLORS.gold} />}
-    >
-      <View style={styles.page}>
-        {/* Header */}
-        <View style={styles.headerRow}>
-          <View style={{ flex: 1 }}>
-            <Text style={[styles.pageTitle, { color: themeColors.text }]}>{t("adminMentors.title")}</Text>
-            <Text style={[styles.pageSubtitle, { color: themeColors.textSecondary }]}>
-              {filtered.length} {t("adminMentors.mentors")}
-            </Text>
+      ListHeaderComponent={
+        <>
+          {/* Header */}
+          <View style={styles.headerRow}>
+            <View style={{ flex: 1 }}>
+              <Text style={[styles.pageTitle, { color: themeColors.text }]}>{t("adminMentors.title")}</Text>
+              <Text style={[styles.pageSubtitle, { color: themeColors.textSecondary }]}>
+                {filtered.length} {t("adminMentors.mentors")}
+              </Text>
+            </View>
+            {!selectMode && Platform.OS === "web" && (
+              <>
+                <BNMPressable
+                  style={[styles.csvButton, { backgroundColor: themeColors.background, borderColor: themeColors.border }]}
+                  onPress={() => router.push("/admin/csv-import")}
+                  accessibilityRole="button"
+                  accessibilityLabel={t("csvImport.tabMentors")}
+                >
+                  <Text style={[styles.csvButtonText, { color: themeColors.text }]}>{t("csvImport.tabMentors")}</Text>
+                </BNMPressable>
+                <BNMPressable
+                  style={[styles.csvButton, { backgroundColor: themeColors.background, borderColor: themeColors.border }]}
+                  onPress={handleExportCsv}
+                  accessibilityRole="button"
+                  accessibilityLabel={t("csv.export")}
+                >
+                  <Text style={[styles.csvButtonText, { color: themeColors.text }]}>{t("csv.export")}</Text>
+                </BNMPressable>
+              </>
+            )}
+            <BNMPressable
+              style={[styles.csvButton, { backgroundColor: themeColors.background, borderColor: themeColors.border }]}
+              onPress={toggleSelectMode}
+              accessibilityRole="button"
+              accessibilityLabel={selectMode ? t("admin.selectModeExit") : t("admin.selectMode")}
+            >
+              <Text style={[styles.csvButtonText, { color: selectMode ? themeColors.textSecondary : themeColors.text }]}>
+                {selectMode ? t("admin.selectModeExit") : t("admin.selectMode")}
+              </Text>
+            </BNMPressable>
           </View>
-          {!selectMode && Platform.OS === "web" && (
-            <>
+
+          {/* Suchfeld */}
+          <TextInput
+            style={[styles.searchInput, { backgroundColor: themeColors.card, borderColor: themeColors.border, color: themeColors.text }]}
+            placeholder={t("adminMentors.search")}
+            placeholderTextColor={themeColors.textTertiary}
+            value={search}
+            onChangeText={setSearch}
+            accessibilityLabel={t("adminMentors.search")}
+          />
+
+          {/* Multi-Select: Alle / Keine */}
+          {selectMode && (
+            <View style={[styles.selectBar, { backgroundColor: themeColors.card, borderColor: themeColors.border }]}>
               <BNMPressable
-                style={[styles.csvButton, { backgroundColor: themeColors.background, borderColor: themeColors.border }]}
-                onPress={() => router.push("/admin/csv-import")}
+                onPress={() => setSelectedIds(new Set(filtered.map((m) => m.id)))}
                 accessibilityRole="button"
-                accessibilityLabel={t("csvImport.tabMentors")}
+                accessibilityLabel={t("admin.selectAll")}
               >
-                <Text style={[styles.csvButtonText, { color: themeColors.text }]}>{t("csvImport.tabMentors")}</Text>
+                <Text style={[styles.selectBarBtn, { color: COLORS.gradientStart }]}>{t("admin.selectAll")}</Text>
               </BNMPressable>
+              <Text style={[styles.selectBarSep, { color: themeColors.border }]}>|</Text>
               <BNMPressable
-                style={[styles.csvButton, { backgroundColor: themeColors.background, borderColor: themeColors.border }]}
-                onPress={handleExportCsv}
+                onPress={() => setSelectedIds(new Set())}
                 accessibilityRole="button"
-                accessibilityLabel={t("csv.export")}
+                accessibilityLabel={t("admin.selectNone")}
               >
-                <Text style={[styles.csvButtonText, { color: themeColors.text }]}>{t("csv.export")}</Text>
+                <Text style={[styles.selectBarBtn, { color: themeColors.textSecondary }]}>{t("admin.selectNone")}</Text>
               </BNMPressable>
-            </>
+            </View>
           )}
-          <BNMPressable
-            style={[styles.csvButton, { backgroundColor: themeColors.background, borderColor: themeColors.border }]}
-            onPress={toggleSelectMode}
-            accessibilityRole="button"
-            accessibilityLabel={selectMode ? t("admin.selectModeExit") : t("admin.selectMode")}
-          >
-            <Text style={[styles.csvButtonText, { color: selectMode ? themeColors.textSecondary : themeColors.text }]}>
-              {selectMode ? t("admin.selectModeExit") : t("admin.selectMode")}
-            </Text>
-          </BNMPressable>
-        </View>
-
-        {/* Suchfeld */}
-        <TextInput
-          style={[styles.searchInput, { backgroundColor: themeColors.card, borderColor: themeColors.border, color: themeColors.text }]}
-          placeholder={t("adminMentors.search")}
-          placeholderTextColor={themeColors.textTertiary}
-          value={search}
-          onChangeText={setSearch}
-          accessibilityLabel={t("adminMentors.search")}
-        />
-
-        {/* Multi-Select: Alle / Keine */}
-        {selectMode && (
-          <View style={[styles.selectBar, { backgroundColor: themeColors.card, borderColor: themeColors.border }]}>
-            <BNMPressable
-              onPress={() => setSelectedIds(new Set(filtered.map((m) => m.id)))}
-              accessibilityRole="button"
-              accessibilityLabel={t("admin.selectAll")}
-            >
-              <Text style={[styles.selectBarBtn, { color: COLORS.gradientStart }]}>{t("admin.selectAll")}</Text>
-            </BNMPressable>
-            <Text style={[styles.selectBarSep, { color: themeColors.border }]}>|</Text>
-            <BNMPressable
-              onPress={() => setSelectedIds(new Set())}
-              accessibilityRole="button"
-              accessibilityLabel={t("admin.selectNone")}
-            >
-              <Text style={[styles.selectBarBtn, { color: themeColors.textSecondary }]}>{t("admin.selectNone")}</Text>
-            </BNMPressable>
-          </View>
-        )}
-
-        {/* Mentor-Liste */}
-        {isLoading ? (
+        </>
+      }
+      ListEmptyComponent={
+        isLoading ? (
           <SkeletonList count={4} />
-        ) : filtered.length === 0 ? (
+        ) : (
           <EmptyState
             icon="person-outline"
             title={t("adminMentors.noMentors") ?? "Keine Mentoren gefunden"}
             description="Versuche andere Filter."
           />
-        ) : (
-          filtered.map((mentor) => {
-            const stats = mentorStats.get(mentor.id) ?? { active: 0, completed: 0, totalSessions: 0, avgRating: null };
-            const { active, completed, totalSessions, avgRating } = stats;
+        )
+      }
+      renderItem={({ item: mentor }) => {
+        const stats = mentorStats.get(mentor.id) ?? { active: 0, completed: 0, totalSessions: 0, avgRating: null };
+        const { active, completed, totalSessions, avgRating } = stats;
 
-            const initials = mentor.name
-              .split(" ")
-              .map((n) => n[0])
-              .join("")
-              .toUpperCase()
-              .slice(0, 2);
+        const initials = mentor.name
+          .split(" ")
+          .map((n) => n[0])
+          .join("")
+          .toUpperCase()
+          .slice(0, 2);
 
-            const isSelected = selectedIds.has(mentor.id);
+        const isSelected = selectedIds.has(mentor.id);
 
-            return (
-              <BNMPressable
-                key={mentor.id}
-                style={[
-                  styles.mentorCard,
-                  { backgroundColor: isSelected ? (isDark ? "#1a2a1a" : "#dcfce7") : themeColors.card },
-                  isSelected && styles.mentorCardSelected,
-                ]}
-                onPress={() => {
-                  if (selectMode) {
-                    toggleSelect(mentor.id);
-                  } else if (Platform.OS === "web") {
-                    setSelectedMentorId(mentor.id);
-                  } else {
-                    router.push({ pathname: "/mentor/[id]", params: { id: mentor.id } });
-                  }
-                }}
-                accessibilityRole="button"
-                accessibilityLabel={`${mentor.name}, ${mentor.city}, ${mentor.gender === "male" ? t("dashboard.brother") : t("dashboard.sister")}`}
-              >
-                <View style={styles.cardRow}>
-                  {selectMode && (
-                    <View
-                      style={[styles.checkbox, isSelected && styles.checkboxSelected]}
-                      accessibilityRole="checkbox"
-                      accessibilityState={{ checked: isSelected }}
-                      accessibilityLabel={`${mentor.name} auswaehlen`}
-                    >
-                      {isSelected && <Text style={styles.checkmark}>✓</Text>}
+        return (
+          <BNMPressable
+            style={[
+              styles.mentorCard,
+              { backgroundColor: isSelected ? (isDark ? "#1a2a1a" : "#dcfce7") : themeColors.card },
+              isSelected && styles.mentorCardSelected,
+            ]}
+            onPress={() => {
+              if (selectMode) {
+                toggleSelect(mentor.id);
+              } else if (Platform.OS === "web") {
+                setSelectedMentorId(mentor.id);
+              } else {
+                router.push({ pathname: "/mentor/[id]", params: { id: mentor.id } });
+              }
+            }}
+            accessibilityRole="button"
+            accessibilityLabel={`${mentor.name}, ${mentor.city}, ${mentor.gender === "male" ? t("dashboard.brother") : t("dashboard.sister")}`}
+          >
+            <View style={styles.cardRow}>
+              {selectMode && (
+                <View
+                  style={[styles.checkbox, isSelected && styles.checkboxSelected]}
+                  accessibilityRole="checkbox"
+                  accessibilityState={{ checked: isSelected }}
+                  accessibilityLabel={`${mentor.name} auswaehlen`}
+                >
+                  {isSelected && <Text style={styles.checkmark}>✓</Text>}
+                </View>
+              )}
+              <View style={styles.avatar}>
+                <Text style={styles.avatarText}>{initials}</Text>
+              </View>
+              <View style={{ flex: 1 }}>
+                <View style={{ flexDirection: "row", alignItems: "center", gap: 6, flexWrap: "wrap" }}>
+                  <Text style={[styles.mentorName, { color: themeColors.text }]}>{mentor.name}</Text>
+                  {mentor.is_active === false && (
+                    <View style={[styles.blockedBadge, { backgroundColor: isDark ? "#3a1a1a" : "#fee2e2" }]}>
+                      <Text style={[styles.blockedBadgeText, { color: isDark ? "#f87171" : "#b91c1c" }]}>{t("editUser.blocked")}</Text>
                     </View>
                   )}
-                  <View style={styles.avatar}>
-                    <Text style={styles.avatarText}>{initials}</Text>
-                  </View>
-                  <View style={{ flex: 1 }}>
-                    <View style={{ flexDirection: "row", alignItems: "center", gap: 6, flexWrap: "wrap" }}>
-                      <Text style={[styles.mentorName, { color: themeColors.text }]}>{mentor.name}</Text>
-                      {mentor.is_active === false && (
-                        <View style={[styles.blockedBadge, { backgroundColor: isDark ? "#3a1a1a" : "#fee2e2" }]}>
-                          <Text style={[styles.blockedBadgeText, { color: isDark ? "#f87171" : "#b91c1c" }]}>{t("editUser.blocked")}</Text>
-                        </View>
-                      )}
-                      {/* Mentee-Bewertung: Sterne neben dem Namen */}
-                      {avgRating !== null && (
-                        <View style={{ flexDirection: "row", alignItems: "center", gap: 2 }}>
-                          {[1,2,3,4,5].map((i) => (
-                            <Text key={i} style={{ fontSize: 12, color: avgRating >= i ? COLORS.gold : (isDark ? "#3A3A3A" : "#D1D5DB") }}>★</Text>
-                          ))}
-                          <Text style={{ fontSize: 11, color: themeColors.textTertiary, marginLeft: 2 }}>
-                            ({avgRating.toFixed(1)})
-                          </Text>
-                        </View>
-                      )}
+                  {/* Mentee-Bewertung: Sterne neben dem Namen */}
+                  {avgRating !== null && (
+                    <View style={{ flexDirection: "row", alignItems: "center", gap: 2 }}>
+                      {[1,2,3,4,5].map((i) => (
+                        <Text key={i} style={{ fontSize: 12, color: avgRating >= i ? COLORS.gold : (isDark ? "#3A3A3A" : "#D1D5DB") }}>★</Text>
+                      ))}
+                      <Text style={{ fontSize: 11, color: themeColors.textTertiary, marginLeft: 2 }}>
+                        ({avgRating.toFixed(1)})
+                      </Text>
                     </View>
-                    <Text style={[styles.mentorMeta, { color: themeColors.textTertiary }]}>
-                      {mentor.city} · {mentor.age} J. · {mentor.gender === "male" ? t("dashboard.brother") : t("dashboard.sister")}
-                    </Text>
-                  </View>
-                  {!selectMode && <Text style={[styles.arrow, { color: themeColors.textTertiary }]}>›</Text>}
+                  )}
                 </View>
+                <Text style={[styles.mentorMeta, { color: themeColors.textTertiary }]}>
+                  {mentor.city} · {mentor.age} J. · {mentor.gender === "male" ? t("dashboard.brother") : t("dashboard.sister")}
+                </Text>
+              </View>
+              {!selectMode && <Text style={[styles.arrow, { color: themeColors.textTertiary }]}>›</Text>}
+            </View>
 
-                {/* Stats-Zeile */}
-                {!selectMode && (
-                  <View style={styles.statsRow}>
-                    <View style={[styles.statChip, { backgroundColor: themeColors.background }]}>
-                      <Text style={[styles.statChipValue, { color: COLORS.gradientStart }]}>{active}</Text>
-                      <Text style={[styles.statChipLabel, { color: themeColors.textTertiary }]}>{t("adminMentors.activeMentorships")}</Text>
-                    </View>
-                    <View style={[styles.statChip, { backgroundColor: themeColors.background }]}>
-                      <Text style={[styles.statChipValue, { color: COLORS.cta }]}>{completed}</Text>
-                      <Text style={[styles.statChipLabel, { color: themeColors.textTertiary }]}>{t("adminMentors.completedMentorships")}</Text>
-                    </View>
-                    <View style={[styles.statChip, { backgroundColor: themeColors.background }]}>
-                      <Text style={[styles.statChipValue, { color: COLORS.gold }]}>{totalSessions}</Text>
-                      <Text style={[styles.statChipLabel, { color: themeColors.textTertiary }]}>{t("common.sessions")}</Text>
-                    </View>
-                  </View>
-                )}
-              </BNMPressable>
-            );
-          })
-        )}
-      </View>
-    </ScrollView>
+            {/* Stats-Zeile */}
+            {!selectMode && (
+              <View style={styles.statsRow}>
+                <View style={[styles.statChip, { backgroundColor: themeColors.background }]}>
+                  <Text style={[styles.statChipValue, { color: COLORS.gradientStart }]}>{active}</Text>
+                  <Text style={[styles.statChipLabel, { color: themeColors.textTertiary }]}>{t("adminMentors.activeMentorships")}</Text>
+                </View>
+                <View style={[styles.statChip, { backgroundColor: themeColors.background }]}>
+                  <Text style={[styles.statChipValue, { color: COLORS.cta }]}>{completed}</Text>
+                  <Text style={[styles.statChipLabel, { color: themeColors.textTertiary }]}>{t("adminMentors.completedMentorships")}</Text>
+                </View>
+                <View style={[styles.statChip, { backgroundColor: themeColors.background }]}>
+                  <Text style={[styles.statChipValue, { color: COLORS.gold }]}>{totalSessions}</Text>
+                  <Text style={[styles.statChipLabel, { color: themeColors.textTertiary }]}>{t("common.sessions")}</Text>
+                </View>
+              </View>
+            )}
+          </BNMPressable>
+        );
+      }}
+    />
 
     {/* Footer-Bar im Select-Modus */}
     {selectMode && selectedCount > 0 && (
@@ -540,7 +542,7 @@ const styles = StyleSheet.create({
     height: 22,
     borderRadius: 4,
     borderWidth: 2,
-    borderColor: "#ccc",
+    borderColor: COLORS.grayLight,
     marginRight: 6,
     alignItems: "center",
     justifyContent: "center",
@@ -594,7 +596,7 @@ const styles = StyleSheet.create({
   modalBtnText: { fontSize: 14, fontWeight: "600" },
   modalBtnDanger: { backgroundColor: COLORS.error, borderColor: COLORS.error },
   modalBtnPrimary: { backgroundColor: COLORS.gradientStart, borderColor: COLORS.gradientStart },
-  modalBtnDisabled: { backgroundColor: "#666", borderColor: "#666", opacity: 0.5 },
+  modalBtnDisabled: { backgroundColor: COLORS.gray, borderColor: COLORS.gray, opacity: 0.5 },
   deleteInput: {
     borderWidth: 1,
     borderRadius: RADIUS.md,

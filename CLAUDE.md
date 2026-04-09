@@ -133,3 +133,6 @@ iman.ngo-Stil. Dunkelblau (#0A3A5A) + Gold (#EEA71B). `constants/Colors.ts`.
 - Accessibility Labels für ~9 Admin-Screens (Agent, in Arbeit)
 - Hardcoded Shadows → SHADOWS.* Tokens (Agent, in Arbeit)
 - AdminMobileDrawer: #EF5350 → COLORS.error
+
+### 2026-04-09 — Performance
+- Mentoren-Liste (mentors.tsx): ScrollView + .map() → FlatList mit renderItem, ListHeaderComponent, ListEmptyComponent, keyExtractor
