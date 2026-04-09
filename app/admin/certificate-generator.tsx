@@ -428,7 +428,7 @@ const styles = StyleSheet.create({
   awardNameRow: { flexDirection: "row", alignItems: "center", marginHorizontal: 24, gap: 12 },
   awardNameLine: { flex: 1, height: 1, backgroundColor: COLORS.gold, opacity: 0.4 },
   awardMentorName: { textAlign: "center", fontSize: 26, fontWeight: "900", color: COLORS.primary, letterSpacing: 0.5, flexShrink: 1 },
-  awardPeriod: { textAlign: "center", fontSize: 13, color: "#6B7280", marginTop: 6, letterSpacing: 2, marginBottom: 18, fontStyle: "italic" as const },
+  awardPeriod: { textAlign: "center", fontSize: 13, color: COLORS.grayMuted, marginTop: 6, letterSpacing: 2, marginBottom: 18, fontStyle: "italic" as const },
   awardDividerWrapper: { marginHorizontal: 40, gap: 3, marginBottom: 4 },
   awardDivider: { height: 2, backgroundColor: COLORS.gold, opacity: 0.6 },
   awardDividerThin: { height: 1, backgroundColor: COLORS.gold, opacity: 0.25 },
@@ -436,11 +436,11 @@ const styles = StyleSheet.create({
   awardStatItem: { alignItems: "center", flex: 1 },
   awardStatValue: { fontSize: 28, fontWeight: "800", color: COLORS.primary },
   awardStatLabel: { fontSize: 10, color: COLORS.tertiary, marginTop: 4, textAlign: "center", letterSpacing: 0.5, fontWeight: "600" as const },
-  awardStatDivider: { width: 1, height: 40, backgroundColor: "#E5E7EB" },
+  awardStatDivider: { width: 1, height: 40, backgroundColor: COLORS.divider },
   awardFooterWrapper: { alignItems: "center", paddingHorizontal: 24, paddingBottom: 18, gap: 5 },
   awardFooterLine: { width: 64, height: 2, backgroundColor: COLORS.gold, opacity: 0.35, marginBottom: 5 },
   awardFooter: { textAlign: "center", fontSize: 11, color: COLORS.tertiary, letterSpacing: 1.2, fontStyle: "italic" as const },
-  awardFooterOrg: { textAlign: "center", fontSize: 10, color: "#D1D5DB", letterSpacing: 0.8, fontWeight: "600" as const },
+  awardFooterOrg: { textAlign: "center", fontSize: 10, color: COLORS.grayBorder, letterSpacing: 0.8, fontWeight: "600" as const },
 
   // Downloads
   downloadRow: { flexDirection: "row", gap: 12, marginBottom: 16 },

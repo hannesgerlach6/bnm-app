@@ -12,7 +12,7 @@ import { COLORS } from "../constants/Colors";
 
 const PARTICLE_COUNT = 30;
 const DURATION = 2000;
-const COLORS_POOL = [COLORS.gold, COLORS.error, "#3B82F6", COLORS.progressGreen, "#8B5CF6", "#F59E0B", COLORS.gradientStart];
+const COLORS_POOL = [COLORS.gold, COLORS.error, COLORS.blue, COLORS.progressGreen, "#8B5CF6", COLORS.warning, COLORS.gradientStart];
 
 interface ConfettiProps {
   onComplete?: () => void;

@@ -791,7 +791,7 @@ const styles = StyleSheet.create({
   titleRow: { flexDirection: "row", alignItems: "center", gap: 8, marginBottom: 2 },
   pageTitle: { fontSize: 24, fontWeight: "800" },
   betaBadge: {
-    backgroundColor: "#f59e0b",
+    backgroundColor: COLORS.warning,
     borderRadius: RADIUS.sm,
     paddingHorizontal: 7,
     paddingVertical: 2,

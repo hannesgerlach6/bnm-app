@@ -237,6 +237,8 @@ function ChatPanel({ mentorshipId }: { mentorshipId: string }) {
                       activeOpacity={0.8}
                       onLongPress={() => handleLongPress(msg.id, isOwn)}
                       delayLongPress={500}
+                      accessibilityRole="button"
+                      accessibilityLabel={`Nachricht von ${displayName}: ${msg.content}`}
                     >
                       <View
                         style={[
@@ -271,6 +273,8 @@ function ChatPanel({ mentorshipId }: { mentorshipId: string }) {
             <BNMPressable
               onPress={() => flatListRef.current?.scrollToOffset({ offset: 0, animated: true })}
               style={[panelStyles.scrollFabBtn, { backgroundColor: themeColors.card, ...SHADOWS.md }]}
+              accessibilityRole="button"
+              accessibilityLabel="Nach unten scrollen"
             >
               <Ionicons name="chevron-down" size={20} color={themeColors.text} />
             </BNMPressable>
@@ -307,6 +311,8 @@ function ChatPanel({ mentorshipId }: { mentorshipId: string }) {
             ]}
             onPress={handleSend}
             disabled={!inputText.trim()}
+            accessibilityRole="button"
+            accessibilityLabel="Nachricht senden"
           >
             <Ionicons name="send" size={18} color={COLORS.white} />
           </BNMPressable>
@@ -321,7 +327,7 @@ function ChatPanel({ mentorshipId }: { mentorshipId: string }) {
       {/* Vorlagen-Modal */}
       {showTemplates && (
         <Modal visible={showTemplates} transparent animationType="slide" onRequestClose={() => setShowTemplates(false)}>
-          <BNMPressable style={panelStyles.modalOverlay} activeOpacity={1} onPress={() => setShowTemplates(false)}>
+          <BNMPressable style={panelStyles.modalOverlay} activeOpacity={1} onPress={() => setShowTemplates(false)} accessibilityRole="button" accessibilityLabel="Vorlagen schliessen">
             <View style={[panelStyles.modalSheet, { backgroundColor: themeColors.card }]} onStartShouldSetResponder={() => true}>
               <View style={[panelStyles.modalHandle, { backgroundColor: themeColors.border }]} />
               <Text style={[panelStyles.modalTitle, { color: themeColors.text }]}>{t("chat.templates")}</Text>
@@ -343,6 +349,8 @@ function ChatPanel({ mentorshipId }: { mentorshipId: string }) {
                         setInputText(text);
                         setShowTemplates(false);
                       }}
+                      accessibilityRole="button"
+                      accessibilityLabel={`Vorlage: ${tmpl.title}`}
                     >
                       <Text style={[panelStyles.templateCardTitle, { color: themeColors.text }]}>{tmpl.title}</Text>
                       <Text style={[panelStyles.templateCardPreview, { color: themeColors.textSecondary }]} numberOfLines={3}>
@@ -630,6 +638,8 @@ function AdminChatPanel({ userId, adminId }: { userId: string; adminId?: string 
           ]}
           onPress={handleSend}
           disabled={!inputText.trim()}
+          accessibilityRole="button"
+          accessibilityLabel="Nachricht senden"
         >
           <Ionicons name="send" size={18} color={COLORS.white} />
         </BNMPressable>
@@ -825,6 +835,9 @@ export default function ChatsScreen() {
         <BNMPressable
           style={[styles.tab, chatTab === "admin" && styles.tabActive, chatTab === "admin" && { borderBottomColor: themeColors.primary }]}
           onPress={() => { setChatTab("admin"); setSelectedChatId(null); }}
+          accessibilityRole="button"
+          accessibilityLabel="Admin-Chats"
+          accessibilityState={{ selected: chatTab === "admin" }}
         >
           <Text style={[styles.tabText, { color: chatTab === "admin" ? themeColors.primary : themeColors.textSecondary }]}>
             {t("chats.adminChats") ?? "Admin-Chats"}
@@ -833,6 +846,9 @@ export default function ChatsScreen() {
         <BNMPressable
           style={[styles.tab, chatTab === "mentorship" && styles.tabActive, chatTab === "mentorship" && { borderBottomColor: themeColors.primary }]}
           onPress={() => { setChatTab("mentorship"); setSelectedAdminUserId(null); }}
+          accessibilityRole="button"
+          accessibilityLabel="Betreuungs-Chats"
+          accessibilityState={{ selected: chatTab === "mentorship" }}
         >
           <Text style={[styles.tabText, { color: chatTab === "mentorship" ? themeColors.primary : themeColors.textSecondary }]}>
             {t("chats.mentorshipChats") ?? "Betreuungs-Chats"}
@@ -881,6 +897,8 @@ export default function ChatsScreen() {
                               { backgroundColor: isActiveFilter ? themeColors.primary : themeColors.card, borderColor: isActiveFilter ? themeColors.primary : themeColors.border },
                             ]}
                             onPress={() => setAdminFilter(f)}
+                            accessibilityRole="button"
+                            accessibilityLabel={`Filter: ${label}`}
                           >
                             <Text style={{ color: isActiveFilter ? COLORS.white : themeColors.textSecondary, fontSize: 13, fontWeight: "600" }}>
                               {label}
@@ -892,6 +910,8 @@ export default function ChatsScreen() {
                     <BNMPressable
                       style={[styles.newChatButton, { backgroundColor: themeColors.primary }]}
                       onPress={() => setShowNewChatModal(true)}
+                      accessibilityRole="button"
+                      accessibilityLabel="Neuen Chat starten"
                     >
                       <Ionicons name="add" size={18} color={COLORS.white} />
                       <Text style={styles.newChatButtonText}>{t("chats.newAdminChat") ?? "Neuer Chat"}</Text>
@@ -902,7 +922,7 @@ export default function ChatsScreen() {
                           <Text style={[styles.newChatModalTitle, { color: themeColors.text }]}>
                             {t("chats.selectUser") ?? "User auswaehlen"}
                           </Text>
-                          <BNMPressable onPress={() => { setShowNewChatModal(false); setNewChatSearch(""); }}>
+                          <BNMPressable onPress={() => { setShowNewChatModal(false); setNewChatSearch(""); }} accessibilityRole="button" accessibilityLabel="Schliessen">
                             <Ionicons name="close" size={20} color={themeColors.textTertiary} />
                           </BNMPressable>
                         </View>
@@ -923,6 +943,8 @@ export default function ChatsScreen() {
                                 setShowNewChatModal(false);
                                 setNewChatSearch("");
                               }}
+                              accessibilityRole="button"
+                              accessibilityLabel={`Chat mit ${u.name} starten`}
                             >
                               <View style={[styles.avatar, { backgroundColor: themeColors.primary }]}>
                                 <Text style={styles.avatarText}>{u.name.charAt(0).toUpperCase()}</Text>
@@ -963,6 +985,8 @@ export default function ChatsScreen() {
                                 setSelectedAdminUserId(item.userId);
                                 setSelectedChatId(null);
                               }}
+                              accessibilityRole="button"
+                              accessibilityLabel={`Admin-Chat: ${item.name}`}
                             >
                               <View style={[styles.avatar, { backgroundColor: COLORS.gold }]}>
                                 <Ionicons name="shield-checkmark" size={20} color={COLORS.white} />
@@ -1000,7 +1024,7 @@ export default function ChatsScreen() {
                         placeholderTextColor={themeColors.textTertiary}
                       />
                       {searchQuery.length > 0 && (
-                        <BNMPressable onPress={() => setSearchQuery("")}>
+                        <BNMPressable onPress={() => setSearchQuery("")} accessibilityRole="button" accessibilityLabel="Suche loeschen">
                           <Ionicons name="close-circle" size={16} color={themeColors.textTertiary} />
                         </BNMPressable>
                       )}
@@ -1094,6 +1118,8 @@ export default function ChatsScreen() {
           <BNMPressable
             style={[styles.backButton, { backgroundColor: themeColors.card }]}
             onPress={() => setSelectedAdminUserId(null)}
+            accessibilityRole="link"
+            accessibilityLabel="Zurueck"
           >
             <Ionicons name="arrow-back" size={20} color={themeColors.text} />
             <Text style={[{ color: themeColors.text, marginLeft: 8, fontSize: 15, fontWeight: "600" }]}>
@@ -1130,6 +1156,8 @@ export default function ChatsScreen() {
             });
           }
         }}
+        accessibilityRole="button"
+        accessibilityLabel={`Chat mit ${getChatTitle(m)}${unread > 0 ? `, ${unread} ungelesen` : ""}`}
       >
         <View
           style={[
@@ -1190,6 +1218,8 @@ export default function ChatsScreen() {
             setSelectedAdminUserId(item.userId);
           }
         }}
+        accessibilityRole="button"
+        accessibilityLabel={`Admin-Chat mit ${item.name}`}
       >
         <View style={[styles.avatar, { backgroundColor: COLORS.gold }]}>
           <Ionicons name="shield-checkmark" size={20} color={COLORS.white} />
@@ -1332,6 +1362,8 @@ export default function ChatsScreen() {
                           setSelectedAdminUserId(item.userId);
                         }
                       }}
+                      accessibilityRole="button"
+                      accessibilityLabel={`Admin-Chat: ${item.name}`}
                     >
                       <View style={[styles.avatar, { backgroundColor: COLORS.gold }]}>
                         <Ionicons name="shield-checkmark" size={20} color={COLORS.white} />

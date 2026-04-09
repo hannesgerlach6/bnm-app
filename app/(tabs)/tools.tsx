@@ -78,6 +78,8 @@ export default function ToolsTabScreen() {
               <BNMPressable
                 style={[styles.toolItem, { backgroundColor: themeColors.card, width: itemWidth }]}
                 onPress={() => router.push("/admin/session-types")}
+                accessibilityRole="link"
+                accessibilityLabel="Sitzungstypen verwalten"
               >
                 <View style={[styles.toolIconBg, { backgroundColor: "#E8F0FE" }]}>
                   <Ionicons name="list-outline" size={24} color={COLORS.gradientStart} />
@@ -90,6 +92,8 @@ export default function ToolsTabScreen() {
             <BNMPressable
               style={[styles.toolItem, { backgroundColor: themeColors.card, width: itemWidth }]}
               onPress={() => router.push("/admin/qa-management" as never)}
+              accessibilityRole="link"
+              accessibilityLabel="Fragen und Antworten verwalten"
             >
               <View style={[styles.toolIconBg, { backgroundColor: "#FFF8E6" }]}>
                 <Ionicons name="help-circle-outline" size={24} color={COLORS.gold} />
@@ -102,6 +106,8 @@ export default function ToolsTabScreen() {
               <BNMPressable
                 style={[styles.toolItem, { backgroundColor: themeColors.card, width: itemWidth }]}
                 onPress={() => router.push("/admin/hadithe-management" as never)}
+                accessibilityRole="link"
+                accessibilityLabel="Hadithe verwalten"
               >
                 <View style={[styles.toolIconBg, { backgroundColor: "#ECFDF5" }]}>
                   <Ionicons name="book-outline" size={24} color={COLORS.cta} />

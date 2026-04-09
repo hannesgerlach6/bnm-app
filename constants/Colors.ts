@@ -13,6 +13,25 @@ export const COLORS = {
   card: "#FFFFFF",
   border: "#e5e7eb",
   error: "#dc2626",
+  errorLight: "#ef4444",         // Helleres Rot (Badges, Borders)
+  errorDark: "#b91c1c",          // Dunkles Rot (Text auf hellem Bg)
+  errorBorder: "#f87171",        // Rot für Input-Borders, Error-States
+  errorBg: "#fef2f2",            // Error-Hintergrund
+  errorBorderLight: "#fecaca",   // Helle Error-Border
+  blue: "#3b82f6",               // Standard-Blau (Links, Badges)
+  blueLight: "#93c5fd",          // Helles Blau (Dark-Mode Text)
+  blueBorder: "#bfdbfe",         // Blau für Borders
+  warning: "#f59e0b",            // Amber/Warning
+  warningDark: "#b45309",        // Dunkles Amber (Text)
+  warningBorder: "#fde68a",      // Amber-Border
+  successDark: "#15803d",        // Dunkles Grün (Text auf hellem Bg)
+  successBg: "#dcfce7",          // Grüner Hintergrund
+  gray: "#666666",               // Mittleres Grau (disabled Buttons)
+  grayLight: "#cccccc",          // Helles Grau (Borders, disabled)
+  grayMuted: "#6B7280",          // Gedämpftes Grau (Subtexte, Labels)
+  grayBorder: "#D1D5DB",         // Helle Grau-Border (Sterne, Divider)
+  divider: "#E5E7EB",            // Divider / Trenner
+  goldText: "#92600a",           // Gold-Dunkel für Text auf Gold-Bg
   white: "#FFFFFF",
 } as const;
 

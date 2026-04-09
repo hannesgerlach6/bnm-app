@@ -517,7 +517,7 @@ const styles = StyleSheet.create({
   selectedIndicator: {
     marginTop: 8,
     borderTopWidth: 1,
-    borderTopColor: "#bfdbfe",
+    borderTopColor: COLORS.blueBorder,
     paddingTop: 8,
   },
   selectedIndicatorText: { fontSize: 12, fontWeight: "600" },

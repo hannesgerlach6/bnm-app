@@ -253,7 +253,7 @@ const styles = StyleSheet.create({
   card: {
     borderRadius: RADIUS.sm,
     borderWidth: 1,
-    borderColor: "#fde68a",
+    borderColor: COLORS.warningBorder,
     borderLeftWidth: 4,
     borderLeftColor: COLORS.gold,
     padding: 14,

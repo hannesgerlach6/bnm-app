@@ -316,7 +316,7 @@ const styles = StyleSheet.create({
     paddingVertical: 4,
     borderRadius: RADIUS.full,
   },
-  rankBadgeText: { color: "#92600a", fontSize: 13, fontWeight: "800" },
+  rankBadgeText: { color: COLORS.goldText, fontSize: 13, fontWeight: "800" },
   sectionLabel: {
     fontSize: 12,
     fontWeight: "600",
@@ -393,11 +393,11 @@ const styles = StyleSheet.create({
     width: 28,
     height: 28,
     borderRadius: RADIUS.md,
-    backgroundColor: "#dcfce7",
+    backgroundColor: COLORS.successBg,
     alignItems: "center",
     justifyContent: "center",
   },
-  completedBadgeText: { color: "#15803d", fontWeight: "800" },
+  completedBadgeText: { color: COLORS.successDark, fontWeight: "800" },
   emptyCard: {
     borderRadius: RADIUS.lg,
     borderWidth: 1,

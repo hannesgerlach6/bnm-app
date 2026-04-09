@@ -287,6 +287,8 @@ function AdminDashboard({ showSystemSettings = true }: { showSystemSettings?: bo
           <BNMPressable
             style={[styles.refreshButton, { backgroundColor: "transparent", borderColor: isDark ? themeColors.accent : themeColors.border }]}
             onPress={() => refreshData(true)}
+            accessibilityRole="button"
+            accessibilityLabel="Daten aktualisieren"
                      >
             <Ionicons name="reload-outline" size={16} color={isDark ? themeColors.accent : themeColors.textSecondary} />
             <Text style={[styles.refreshButtonText, { color: isDark ? themeColors.accent : themeColors.textSecondary }]}>{t("dashboard.refresh")}</Text>
@@ -310,6 +312,9 @@ function AdminDashboard({ showSystemSettings = true }: { showSystemSettings?: bo
                     : { backgroundColor: "transparent", borderColor: themeColors.border },
                 ]}
                 onPress={() => setActivePeriod(p)}
+                accessibilityRole="button"
+                accessibilityLabel={t(`dashboard.period${p.charAt(0).toUpperCase() + p.slice(1)}` as any)}
+                accessibilityState={{ selected: activePeriod === p }}
               >
                 <Text style={[
                   styles.periodBtnText,
@@ -367,7 +372,7 @@ function AdminDashboard({ showSystemSettings = true }: { showSystemSettings?: bo
                         {mentee.city} · {mentee.gender === "male" ? t("dashboard.brother") : t("dashboard.sister")}
                       </Text>
                     </View>
-                    <BNMPressable style={styles.assignButton} onPress={() => router.push({ pathname: "/assign", params: { menteeId: mentee.id } })}>
+                    <BNMPressable style={styles.assignButton} onPress={() => router.push({ pathname: "/assign", params: { menteeId: mentee.id } })} accessibilityRole="button" accessibilityLabel={`${mentee.name} zuweisen`}>
                       <Text style={styles.assignButtonText}>{t("dashboard.assign")}</Text>
                     </BNMPressable>
                   </View>
@@ -380,6 +385,8 @@ function AdminDashboard({ showSystemSettings = true }: { showSystemSettings?: bo
               <BNMPressable
                 style={[styles.pendingApprovalsButton, { backgroundColor: sem(SEMANTIC.amberBg, isDark), borderColor: sem(SEMANTIC.amberBorder, isDark) }]}
                 onPress={() => router.push("/admin/pending-approvals")}
+                accessibilityRole="link"
+                accessibilityLabel="Ausstehende Genehmigungen anzeigen"
               >
                 <View style={styles.applicationsButtonContent}>
                   <Text style={[styles.pendingApprovalsText, { color: sem(SEMANTIC.amberTextAlt, isDark) }]}>{t("dashboard.pendingApprovals")}</Text>
@@ -397,6 +404,8 @@ function AdminDashboard({ showSystemSettings = true }: { showSystemSettings?: bo
               <BNMPressable
                 style={[styles.pendingApprovalsButton, { backgroundColor: sem(SEMANTIC.blueBg, isDark), borderColor: sem(SEMANTIC.blueBorder, isDark) }]}
                 onPress={() => router.push("/(tabs)/applications")}
+                accessibilityRole="link"
+                accessibilityLabel="Offene Mentor-Bewerbungen anzeigen"
               >
                 <View style={styles.applicationsButtonContent}>
                   <Text style={[styles.pendingApprovalsText, { color: sem(SEMANTIC.blueText, isDark) }]}>{t("dashboard.pendingMentorApps")}</Text>
@@ -431,7 +440,7 @@ function AdminDashboard({ showSystemSettings = true }: { showSystemSettings?: bo
               </View>
             )}
             {mentorOfMonthVisible && topMentor && (
-              <BNMPressable style={styles.momAdminCard} onPress={() => { if (Platform.OS === "web") { setSelectedMentorId(topMentor.mentor.id); } else { router.push({ pathname: "/mentor/[id]", params: { id: topMentor.mentor.id } }); } }}>
+              <BNMPressable style={styles.momAdminCard} onPress={() => { if (Platform.OS === "web") { setSelectedMentorId(topMentor.mentor.id); } else { router.push({ pathname: "/mentor/[id]", params: { id: topMentor.mentor.id } }); } }} accessibilityRole="button" accessibilityLabel={`Mentor des Monats: ${topMentor.mentor.name}`}>
                 <View style={styles.momAdminHeader}>
                   <Text style={styles.momAdminStar}>★</Text>
                   <Text style={[styles.momAdminTitle, { color: themeColors.textSecondary }]}>
@@ -445,7 +454,7 @@ function AdminDashboard({ showSystemSettings = true }: { showSystemSettings?: bo
                   <View style={[styles.momAdminStat, { backgroundColor: themeColors.card }]}><Text style={styles.momAdminStatValue}>{topMentor.sessionCount}</Text><Text style={[styles.momAdminStatLabel, { color: themeColors.textSecondary }]}>{t("leaderboard.sessions")}</Text></View>
                 </View>
                 <Text style={styles.momAdminArrow}>{t("dashboard.viewProfile")} ›</Text>
-                <BNMPressable style={[styles.momAwardButton, { marginTop: 10 }]} onPress={(e) => { e.stopPropagation && e.stopPropagation(); router.push({ pathname: "/admin/mentor-award" as any, params: { mentorId: topMentor.mentor.id } }); }} activeOpacity={0.8}>
+                <BNMPressable style={[styles.momAwardButton, { marginTop: 10 }]} onPress={(e) => { e.stopPropagation && e.stopPropagation(); router.push({ pathname: "/admin/mentor-award" as any, params: { mentorId: topMentor.mentor.id } }); }} activeOpacity={0.8} accessibilityRole="link" accessibilityLabel="Auszeichnung erstellen">
                   <Text style={styles.momAwardButtonText}>{t("dashboard.createAward")} ›</Text>
                 </BNMPressable>
               </BNMPressable>
@@ -466,7 +475,7 @@ function AdminDashboard({ showSystemSettings = true }: { showSystemSettings?: bo
                   const isSent = hasSentReminder(w.mentorshipId);
                   const isLast = idx === allWarnings.length - 1;
                   return (
-                    <BNMPressable key={`${w.type}-${w.mentorshipId}-${idx}`} style={[styles.warningRow, !isLast && [styles.warningRowBorder, { borderBottomColor: isDark ? "#2a2a3a" : "#fed7aa" }]]} onPress={() => { if (w.mentorshipId) router.push({ pathname: "/mentorship/[id]", params: { id: w.mentorshipId } }); }}>
+                    <BNMPressable key={`${w.type}-${w.mentorshipId}-${idx}`} style={[styles.warningRow, !isLast && [styles.warningRowBorder, { borderBottomColor: isDark ? "#2a2a3a" : "#fed7aa" }]]} onPress={() => { if (w.mentorshipId) router.push({ pathname: "/mentorship/[id]", params: { id: w.mentorshipId } }); }} accessibilityRole="link" accessibilityLabel={`Warnung: ${w.label}`}>
                       <View style={[styles.warningDot, { backgroundColor: dotColor }]} />
                       <View style={{ flex: 1 }}>
                         <Text style={[styles.warningLabel, { color: isDark ? (dotColor === "#3b82f6" ? "#93c5fd" : dotColor === COLORS.error ? "#fca5a5" : "#fcd34d") : dotColor }]}>{typeLabel}</Text>
@@ -474,7 +483,7 @@ function AdminDashboard({ showSystemSettings = true }: { showSystemSettings?: bo
                       </View>
                       {w.daysSince !== undefined && <Text style={[styles.warningDays, { color: themeColors.textSecondary }]}>{t("earlyWarning.daysAgo").replace("{0}", String(w.daysSince))}</Text>}
                       {isInactive && (
-                        <BNMPressable style={[styles.reminderBtn, (isSending || isSent) ? { opacity: 0.5, backgroundColor: "#6B7280" } : {}]} onPress={(e) => { e.stopPropagation && e.stopPropagation(); if (!isSent) handleSendReminder(w.mentorshipId, w.mentorName, w.menteeName); }} disabled={isSending || isSent} activeOpacity={0.7}>
+                        <BNMPressable style={[styles.reminderBtn, (isSending || isSent) ? { opacity: 0.5, backgroundColor: "#6B7280" } : {}]} onPress={(e) => { e.stopPropagation && e.stopPropagation(); if (!isSent) handleSendReminder(w.mentorshipId, w.mentorName, w.menteeName); }} disabled={isSending || isSent} activeOpacity={0.7} accessibilityRole="button" accessibilityLabel="Erinnerung senden">
                           <Ionicons name={isSent ? "checkmark-outline" : "notifications-outline"} size={13} color={COLORS.white} />
                         </BNMPressable>
                       )}
@@ -491,7 +500,7 @@ function AdminDashboard({ showSystemSettings = true }: { showSystemSettings?: bo
               <View style={{ flexDirection: "row", alignItems: "center", justifyContent: "space-between", marginBottom: 2 }}>
                 <Text style={[styles.cardTitle, { color: themeColors.text }]}>{t("dashboard.recentActivity")}</Text>
                 {allSortedSessions.length > 5 && (
-                  <BNMPressable onPress={() => setShowAllActivities((v) => !v)} activeOpacity={0.7}>
+                  <BNMPressable onPress={() => setShowAllActivities((v) => !v)} activeOpacity={0.7} accessibilityRole="button" accessibilityLabel={showAllActivities ? "Weniger Aktivitaeten anzeigen" : "Alle Aktivitaeten anzeigen"}>
                     <Text style={{ color: themeColors.accent, fontSize: 13, fontWeight: "600" }}>
                       {showAllActivities ? t("dashboard.showLessActivities") : t("dashboard.showAllActivities").replace("{0}", String(allSortedSessions.length))}
                     </Text>
@@ -900,10 +909,10 @@ function MentorDashboard() {
               <Text style={[styles.hadithCardQuelle, { color: themeColors.textTertiary }]}>{t("motivation.source")}: {todayHadith.source}</Text>
             ) : null}
             <View style={styles.motivationActionsRow}>
-              <BNMPressable style={styles.motivationNextBtn} onPress={() => setHadithOffset((prev) => prev + 1)}>
+              <BNMPressable style={styles.motivationNextBtn} onPress={() => setHadithOffset((prev) => prev + 1)} accessibilityRole="button" accessibilityLabel="Naechster Hadith">
                 <Text style={styles.motivationNextText}>{t("motivation.next")}</Text>
               </BNMPressable>
-              <BNMPressable style={styles.motivationShareBtn} onPress={() => { const shareText = todayHadith.text_ar ? `${todayHadith.text_ar}\n\n${todayHadith.text_de}` : todayHadith.text_de; const shareSuffix = todayHadith.source ? `— ${t("motivation.source")}: ${todayHadith.source} | BNM` : t("share.suffix"); shareHadith(shareText, shareSuffix); }}>
+              <BNMPressable style={styles.motivationShareBtn} onPress={() => { const shareText = todayHadith.text_ar ? `${todayHadith.text_ar}\n\n${todayHadith.text_de}` : todayHadith.text_de; const shareSuffix = todayHadith.source ? `— ${t("motivation.source")}: ${todayHadith.source} | BNM` : t("share.suffix"); shareHadith(shareText, shareSuffix); }} accessibilityRole="button" accessibilityLabel="Hadith teilen">
                 <Ionicons name="share-outline" size={18} color={COLORS.gold} />
               </BNMPressable>
             </View>
@@ -954,6 +963,8 @@ function MentorDashboard() {
                       ]}
                       onPress={() => router.push({ pathname: "/mentorship/[id]", params: { id: item.mentorship.id } })}
                       activeOpacity={0.8}
+                      accessibilityRole="link"
+                      accessibilityLabel={`Betreuung von ${item.mentorship.mentee?.name ?? "Mentee"} anzeigen`}
                     >
                       <Ionicons
                         name={isUrgent ? "warning-outline" : "time-outline"}
@@ -1044,6 +1055,8 @@ function MentorDashboard() {
                         },
                       ]}
                       onPress={() => setShowAchievementTooltip(showAchievementTooltip === ach.key ? null : ach.key)}
+                      accessibilityRole="button"
+                      accessibilityLabel={`Auszeichnung: ${ach.label}`}
                                          >
                       <Text style={styles.achievementIcon}>{ach.icon}</Text>
                       <Text style={{ fontSize: 9, fontWeight: "600", color: isUnlocked ? (isDark ? COLORS.gold : "#92400e") : themeColors.textTertiary, marginTop: 4, textAlign: "center" }} numberOfLines={1}>{ach.label}</Text>
@@ -1173,6 +1186,8 @@ function MentorRatingsSection({
                   !isLast && [styles.feedbackRowBorder, { borderBottomColor: sem(SEMANTIC.goldBorder, isDark) }],
                 ]}
                 onPress={() => ms && router.push({ pathname: "/mentorship/[id]", params: { id: ms.id } })}
+                accessibilityRole="link"
+                accessibilityLabel={`Feedback von ${ms?.mentee?.name ?? "Mentee"} anzeigen`}
                              >
                 <View style={styles.feedbackStarsRow}>
                   <Text style={[styles.feedbackStars, { color: COLORS.gold }]}>{stars}</Text>
@@ -1191,6 +1206,8 @@ function MentorRatingsSection({
             <BNMPressable
               style={styles.showMoreBtn}
               onPress={() => setShowAll((v) => !v)}
+              accessibilityRole="button"
+              accessibilityLabel={showAll ? "Weniger Bewertungen anzeigen" : "Mehr Bewertungen anzeigen"}
                          >
               <Text style={[styles.showMoreText, { color: isDark ? COLORS.gold : COLORS.gradientStart }]}>
                 {showAll ? "Weniger anzeigen" : t("mentor.showMoreFeedback")}
@@ -1309,10 +1326,10 @@ function MenteeDashboard() {
               <Text style={[styles.hadithCardQuelle, { color: COLORS.gold, marginTop: 10 }]}>{t("motivation.source")}: {todayHadith.source}</Text>
             ) : null}
             <View style={[styles.motivationActionsRow, { marginTop: 16 }]}>
-              <BNMPressable style={[styles.motivationNextBtn, { paddingHorizontal: 20, paddingVertical: 10 }]} onPress={() => setHadithOffset((prev) => prev + 1)}>
+              <BNMPressable style={[styles.motivationNextBtn, { paddingHorizontal: 20, paddingVertical: 10 }]} onPress={() => setHadithOffset((prev) => prev + 1)} accessibilityRole="button" accessibilityLabel="Naechster Hadith">
                 <Text style={[styles.motivationNextText, { fontSize: 14 }]}>{t("motivation.next")}</Text>
               </BNMPressable>
-              <BNMPressable style={[styles.motivationShareBtn, { backgroundColor: isDark ? themeColors.elevated : "#e8eaf6", padding: 12, borderRadius: RADIUS.sm }]} onPress={() => { const shareText = todayHadith.text_ar ? `${todayHadith.text_ar}\n\n${todayHadith.text_de}` : todayHadith.text_de; const shareSuffix = todayHadith.source ? `— ${t("motivation.source")}: ${todayHadith.source} | BNM` : t("share.suffix"); shareHadith(shareText, shareSuffix); }}>
+              <BNMPressable style={[styles.motivationShareBtn, { backgroundColor: isDark ? themeColors.elevated : "#e8eaf6", padding: 12, borderRadius: RADIUS.sm }]} onPress={() => { const shareText = todayHadith.text_ar ? `${todayHadith.text_ar}\n\n${todayHadith.text_de}` : todayHadith.text_de; const shareSuffix = todayHadith.source ? `— ${t("motivation.source")}: ${todayHadith.source} | BNM` : t("share.suffix"); shareHadith(shareText, shareSuffix); }} accessibilityRole="button" accessibilityLabel="Hadith teilen">
                 <Ionicons name="share-outline" size={20} color={COLORS.gold} />
               </BNMPressable>
             </View>
@@ -1379,6 +1396,8 @@ function MenteeDashboard() {
               <BNMPressable
                 style={[styles.thankButton, { backgroundColor: sem(SEMANTIC.greenBg, isDark), borderColor: sem(SEMANTIC.greenBorder, isDark) }]}
                 onPress={() => setShowThanksModal(true)}
+                accessibilityRole="button"
+                accessibilityLabel="Danke sagen"
                              >
                 <Text style={styles.thankButtonText}>{t("gamification.thankButton")}</Text>
               </BNMPressable>
@@ -1404,10 +1423,10 @@ function MenteeDashboard() {
                   <Text style={[styles.modalBody, { color: themeColors.textSecondary }]}>{t("gamification.thankMessage")}</Text>
                   <TextInput style={[styles.thankInput, { color: themeColors.text, borderColor: sem(SEMANTIC.goldBorder, isDark), backgroundColor: isDark ? "#1A1A24" : themeColors.background }]} placeholder={t("gamification.thankMessagePlaceholder")} placeholderTextColor={themeColors.textTertiary} value={thanksMessage} onChangeText={setThanksMessage} multiline numberOfLines={3} />
                   <View style={styles.modalButtonRow}>
-                    <BNMPressable style={[styles.modalCancelBtn, { borderColor: sem(SEMANTIC.goldBorder, isDark) }]} onPress={() => { setShowThanksModal(false); setThanksMessage(""); }}>
+                    <BNMPressable style={[styles.modalCancelBtn, { borderColor: sem(SEMANTIC.goldBorder, isDark) }]} onPress={() => { setShowThanksModal(false); setThanksMessage(""); }} accessibilityRole="button" accessibilityLabel="Abbrechen">
                       <Text style={[styles.modalCancelText, { color: themeColors.textSecondary }]}>{t("gamification.thankCancel")}</Text>
                     </BNMPressable>
-                    <BNMPressable style={[styles.modalConfirmBtn, { opacity: sendingThanks ? 0.6 : 1 }]} onPress={handleSendThanks} disabled={sendingThanks}>
+                    <BNMPressable style={[styles.modalConfirmBtn, { opacity: sendingThanks ? 0.6 : 1 }]} onPress={handleSendThanks} disabled={sendingThanks} accessibilityRole="button" accessibilityLabel="Danke senden">
                       <Text style={styles.modalConfirmText}>{t("gamification.thankSend")}</Text>
                     </BNMPressable>
                   </View>

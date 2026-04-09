@@ -745,7 +745,7 @@ const styles = StyleSheet.create({
   },
   previewRowWarnings: {
     fontSize: 11,
-    color: "#b45309",
+    color: COLORS.warningDark,
     marginTop: 2,
   },
 

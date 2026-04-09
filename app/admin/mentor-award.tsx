@@ -554,7 +554,7 @@ const styles = StyleSheet.create({
   awardPeriod: {
     textAlign: "center",
     fontSize: 14,
-    color: "#6B7280",
+    color: COLORS.grayMuted,
     marginTop: 8,
     letterSpacing: 2.5,
     marginBottom: 20,
@@ -577,7 +577,7 @@ const styles = StyleSheet.create({
   awardStatItem: { alignItems: "center", flex: 1 },
   awardStatValue: { fontSize: 30, fontWeight: "800", color: COLORS.primary },
   awardStatLabel: { fontSize: 10, color: COLORS.tertiary, marginTop: 4, textAlign: "center", letterSpacing: 0.5, fontWeight: "600" as const },
-  awardStatDivider: { width: 1, height: 44, backgroundColor: "#E5E7EB" },
+  awardStatDivider: { width: 1, height: 44, backgroundColor: COLORS.divider },
   awardFooterWrapper: {
     alignItems: "center",
     paddingHorizontal: 24,
@@ -601,7 +601,7 @@ const styles = StyleSheet.create({
   awardFooterOrg: {
     textAlign: "center",
     fontSize: 10,
-    color: "#D1D5DB",
+    color: COLORS.grayBorder,
     letterSpacing: 0.8,
     fontWeight: "600" as const,
   },

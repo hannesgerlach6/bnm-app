@@ -226,12 +226,16 @@ function AdminMenteesView() {
             <BNMPressable
               style={[styles.modalBtn, { backgroundColor: themeColors.background, borderColor: themeColors.border }]}
               onPress={() => setConfirmModal1(false)}
+              accessibilityRole="button"
+              accessibilityLabel="Abbrechen"
             >
               <Text style={[styles.modalBtnText, { color: themeColors.text }]}>{t("common.cancel")}</Text>
             </BNMPressable>
             <BNMPressable
               style={[styles.modalBtn, styles.modalBtnDanger]}
               onPress={() => { setConfirmModal1(false); setConfirmModal2(true); setDeleteInput(""); }}
+              accessibilityRole="button"
+              accessibilityLabel="Bestaetigen"
             >
               <Text style={[styles.modalBtnText, { color: COLORS.white }]}>{t("common.confirm")}</Text>
             </BNMPressable>
@@ -261,6 +265,8 @@ function AdminMenteesView() {
             <BNMPressable
               style={[styles.modalBtn, { backgroundColor: themeColors.background, borderColor: themeColors.border }]}
               onPress={() => { setConfirmModal2(false); setDeleteInput(""); }}
+              accessibilityRole="button"
+              accessibilityLabel="Abbrechen"
             >
               <Text style={[styles.modalBtnText, { color: themeColors.text }]}>{t("common.cancel")}</Text>
             </BNMPressable>
@@ -269,6 +275,8 @@ function AdminMenteesView() {
               onPress={deleteInput.toUpperCase() === confirmWord.toUpperCase() ? handleBulkDelete : undefined}
               disabled={deleteInput.toUpperCase() !== confirmWord.toUpperCase() || isDeleting}
               hapticStyle="error"
+              accessibilityRole="button"
+              accessibilityLabel={isDeleting ? "Wird geloescht" : "Loeschen bestaetigen"}
             >
               <Text style={[styles.modalBtnText, { color: COLORS.white }]}>
                 {isDeleting ? t("admin.deleting") : t("admin.deleteConfirmInput")}
@@ -300,10 +308,12 @@ function AdminMenteesView() {
                   <BNMPressable
                     style={[styles.csvButton, { backgroundColor: themeColors.card, borderColor: themeColors.border }]}
                     onPress={() => router.push("/admin/csv-import")}
+                    accessibilityRole="link"
+                    accessibilityLabel="CSV importieren"
                   >
                     <Text style={[styles.csvButtonText, { color: themeColors.text }]}>{t("csvImport.title")}</Text>
                   </BNMPressable>
-                  <BNMPressable style={[styles.csvButton, { backgroundColor: themeColors.card, borderColor: themeColors.border }]} onPress={handleExportCsv}>
+                  <BNMPressable style={[styles.csvButton, { backgroundColor: themeColors.card, borderColor: themeColors.border }]} onPress={handleExportCsv} accessibilityRole="button" accessibilityLabel="CSV exportieren">
                     <Text style={[styles.csvButtonText, { color: themeColors.text }]}>{t("csv.export")}</Text>
                   </BNMPressable>
                 </>
@@ -314,6 +324,8 @@ function AdminMenteesView() {
                   : { backgroundColor: themeColors.card, borderColor: themeColors.border }
                 ]}
                 onPress={toggleSelectMode}
+                accessibilityRole="button"
+                accessibilityLabel={selectMode ? "Auswahl beenden" : "Mehrfachauswahl"}
               >
                 <Text style={[styles.csvButtonText, { color: selectMode ? themeColors.textSecondary : themeColors.text }]}>
                   {selectMode ? t("admin.selectModeExit") : t("admin.selectMode")}
@@ -334,11 +346,11 @@ function AdminMenteesView() {
           {/* Multi-Select: Alle / Keine */}
           {selectMode && (
             <View style={[styles.selectBar, { backgroundColor: themeColors.card, borderColor: themeColors.border }]}>
-              <BNMPressable onPress={() => selectAll(filteredMentees.map((m) => m.id))}>
+              <BNMPressable onPress={() => selectAll(filteredMentees.map((m) => m.id))} accessibilityRole="button" accessibilityLabel="Alle auswaehlen">
                 <Text style={[styles.selectBarBtn, { color: COLORS.gradientStart }]}>{t("admin.selectAll")}</Text>
               </BNMPressable>
               <Text style={[styles.selectBarSep, { color: themeColors.border }]}>|</Text>
-              <BNMPressable onPress={selectNone}>
+              <BNMPressable onPress={selectNone} accessibilityRole="button" accessibilityLabel="Keine auswaehlen">
                 <Text style={[styles.selectBarBtn, { color: themeColors.textSecondary }]}>{t("admin.selectNone")}</Text>
               </BNMPressable>
             </View>
@@ -357,6 +369,8 @@ function AdminMenteesView() {
                     : [styles.filterChipInactive, { backgroundColor: themeColors.card, borderColor: themeColors.border }],
                 ]}
                 onPress={() => { setAssignFilter("all"); setStatusFilter("all"); }}
+                accessibilityRole="button"
+                accessibilityLabel="Alle anzeigen"
               >
                 <Text style={assignFilter === "all" && statusFilter === "all" ? styles.filterChipTextActive : [styles.filterChipTextInactive, { color: themeColors.textSecondary }]}>
                   {t("mentees.all")}
@@ -372,6 +386,8 @@ function AdminMenteesView() {
                     : [styles.filterChipInactive, { backgroundColor: themeColors.card, borderColor: themeColors.border }],
                 ]}
                 onPress={() => { setAssignFilter("unassigned"); setStatusFilter("all"); }}
+                accessibilityRole="button"
+                accessibilityLabel="Ohne Mentor filtern"
               >
                 <Text style={assignFilter === "unassigned" ? styles.filterChipTextActive : [styles.filterChipTextInactive, { color: themeColors.textSecondary }]}>
                   {t("mentees.withoutMentor")}
@@ -387,6 +403,8 @@ function AdminMenteesView() {
                     : [styles.filterChipInactive, { backgroundColor: themeColors.card, borderColor: themeColors.border }],
                 ]}
                 onPress={() => { setStatusFilter("active"); setAssignFilter("all"); }}
+                accessibilityRole="button"
+                accessibilityLabel="Aktive filtern"
               >
                 <Text style={statusFilter === "active" && assignFilter !== "unassigned" ? styles.filterChipTextActive : [styles.filterChipTextInactive, { color: themeColors.textSecondary }]}>
                   {t("mentees.active")}
@@ -402,6 +420,8 @@ function AdminMenteesView() {
                     : [styles.filterChipInactive, { backgroundColor: themeColors.card, borderColor: themeColors.border }],
                 ]}
                 onPress={() => { setStatusFilter("completed"); setAssignFilter("all"); }}
+                accessibilityRole="button"
+                accessibilityLabel="Abgeschlossene filtern"
               >
                 <Text style={statusFilter === "completed" && assignFilter !== "unassigned" ? styles.filterChipTextActive : [styles.filterChipTextInactive, { color: themeColors.textSecondary }]}>
                   {t("mentees.completedStatus")}
@@ -417,6 +437,8 @@ function AdminMenteesView() {
                 const next = order[(order.indexOf(sortKey) + 1) % order.length];
                 setSortKey(next);
               }}
+              accessibilityRole="button"
+              accessibilityLabel="Sortierung aendern"
             >
               <Ionicons name="swap-vertical-outline" size={16} color={themeColors.textSecondary} />
               <Text style={[styles.filterIconBtnText, { color: themeColors.textSecondary }]}>
@@ -480,6 +502,8 @@ function AdminMenteesView() {
                 router.push({ pathname: "/mentee/[id]", params: { id: mentee.id } });
               }
             }}
+            accessibilityRole="button"
+            accessibilityLabel={`${mentee.name}, ${mentee.city}`}
           >
             <View style={styles.menteeCardHeader}>
               {selectMode && (
@@ -526,6 +550,8 @@ function AdminMenteesView() {
                   e.stopPropagation();
                   router.push({ pathname: "/assign", params: { menteeId: mentee.id } });
                 }}
+                accessibilityRole="button"
+                accessibilityLabel="Mentor zuweisen"
               >
                 <Text style={styles.assignButtonText}>{t("mentees.assignMentor")}</Text>
               </BNMPressable>
@@ -545,6 +571,8 @@ function AdminMenteesView() {
           style={styles.footerDeleteBtn}
           onPress={() => { setConfirmModal1(true); }}
           hapticStyle="error"
+          accessibilityRole="button"
+          accessibilityLabel={`${selectedCount} ausgewaehlte loeschen`}
         >
           <Text style={styles.footerDeleteBtnText}>
             {t("admin.deleteSelected").replace("{0}", String(selectedCount))}
@@ -612,6 +640,9 @@ function MentorMenteesView() {
               <BNMPressable
                 style={[styles.tabSwitcherBtn, activeTab === "active" && styles.tabSwitcherBtnActive]}
                 onPress={() => setActiveTab("active")}
+                accessibilityRole="button"
+                accessibilityLabel="Aktive Mentees"
+                accessibilityState={{ selected: activeTab === "active" }}
               >
                 <Text style={[styles.tabSwitcherText, activeTab === "active" ? styles.tabSwitcherTextActive : { color: themeColors.textSecondary }]}>
                   {t("mentees.active")}
@@ -625,6 +656,9 @@ function MentorMenteesView() {
               <BNMPressable
                 style={[styles.tabSwitcherBtn, activeTab === "completed" && styles.tabSwitcherBtnActive]}
                 onPress={() => setActiveTab("completed")}
+                accessibilityRole="button"
+                accessibilityLabel="Abgeschlossene Mentees"
+                accessibilityState={{ selected: activeTab === "completed" }}
               >
                 <Text style={[styles.tabSwitcherText, activeTab === "completed" ? styles.tabSwitcherTextActive : { color: themeColors.textSecondary }]}>
                   {t("mentees.completedStatus")}
@@ -642,6 +676,8 @@ function MentorMenteesView() {
               <BNMPressable
                 style={styles.selfAssignButton}
                 onPress={() => router.push("/assign")}
+                accessibilityRole="link"
+                accessibilityLabel="Mentee uebernehmen"
               >
                 <Text style={styles.selfAssignText}>{t("mentees.takeMentee")}</Text>
               </BNMPressable>
@@ -680,6 +716,8 @@ function MentorMenteesView() {
                     router.push({ pathname: "/mentorship/[id]", params: { id: mentorship.id } });
                   }
                 }}
+                accessibilityRole="button"
+                accessibilityLabel={`Mentee ${mentorship.mentee?.name ?? ""} anzeigen`}
               >
                 <View style={styles.menteeCardHeader}>
                   <View style={{ flex: 1 }}>
@@ -714,6 +752,8 @@ function MentorMenteesView() {
                   router.push({ pathname: "/mentorship/[id]", params: { id: mentorship.id } });
                 }
               }}
+              accessibilityRole="button"
+              accessibilityLabel={`Abgeschlossene Betreuung: ${mentorship.mentee?.name ?? ""}`}
             >
               <View style={styles.completedCardRow}>
                 <View style={{ flex: 1 }}>
@@ -770,6 +810,8 @@ function MentorMenteeCard({ mentorship }: { mentorship: Mentorship }) {
       onPress={() =>
         router.push({ pathname: "/mentorship/[id]", params: { id: mentorship.id } })
       }
+      accessibilityRole="link"
+      accessibilityLabel={`Betreuung von ${mentorship.mentee?.name ?? "Mentee"} anzeigen`}
     >
       {/* Mentee-Header */}
       <View style={styles.menteeCardHeader}>
@@ -1044,7 +1086,7 @@ const styles = StyleSheet.create({
     height: 22,
     borderRadius: 4,
     borderWidth: 2,
-    borderColor: "#ccc",
+    borderColor: COLORS.grayLight,
     marginRight: 10,
     alignItems: "center",
     justifyContent: "center",
@@ -1097,7 +1139,7 @@ const styles = StyleSheet.create({
   },
   modalBtnText: { fontSize: 14, fontWeight: "600" },
   modalBtnDanger: { backgroundColor: COLORS.error, borderColor: COLORS.error },
-  modalBtnDisabled: { backgroundColor: "#666", borderColor: "#666", opacity: 0.5 },
+  modalBtnDisabled: { backgroundColor: COLORS.gray, borderColor: COLORS.gray, opacity: 0.5 },
   deleteInput: {
     borderWidth: 1,
     borderRadius: RADIUS.sm,
