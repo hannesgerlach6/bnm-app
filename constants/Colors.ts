@@ -145,6 +145,30 @@ export const SHADOWS = {
     shadowRadius: 10,
     elevation: 5,
   },
+  // Dezenter Gold-Schimmer für Level-Cards, Hadith-Cards etc.
+  goldSubtle: {
+    shadowColor: "#EEA71B",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.05,
+    shadowRadius: 12,
+    elevation: 2,
+  },
+  // Kräftiger Gold-Schatten für Award-/Zertifikats-Cards
+  goldMedium: {
+    shadowColor: "#EEA71B",
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.18,
+    shadowRadius: 12,
+    elevation: 6,
+  },
+  // Weicher Glow für Focus/Error-States (BNMInput etc.)
+  glowSoft: (color: string) => ({
+    shadowColor: color,
+    shadowOffset: { width: 0, height: 0 },
+    shadowOpacity: 0.12,
+    shadowRadius: 6,
+    elevation: 3,
+  }),
   // Farbloser Glow für beliebige Farbe
   glow: (color: string) => ({
     shadowColor: color,
@@ -295,6 +319,10 @@ export const SEMANTIC = {
   goldBorder:  { light: "rgba(238,167,27,0.3)", dark: "#3A3520" },
   // Indigo (Stats)
   indigo:      "#6366f1",
+  // Dark-Mode Border (Chats, Cards)
+  darkBorder:  { light: "#E2E8F0", dark: "#2A2A35" },
+  // Selected/Hover Hintergrund (Chat-Items)
+  selectedBg:  { light: "#F0F4FF", dark: "#1E1E2C" },
 } as const;
 
 // Helper: Farbe basierend auf isDark auswählen

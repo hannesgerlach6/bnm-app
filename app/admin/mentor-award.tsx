@@ -22,7 +22,7 @@ import { useData } from "../../contexts/DataContext";
 import { useAuth } from "../../contexts/AuthContext";
 import { useLanguage } from "../../contexts/LanguageContext";
 import { useTheme, useThemeColors } from "../../contexts/ThemeContext";
-import { COLORS, RADIUS } from "../../constants/Colors";
+import { COLORS, RADIUS, SHADOWS } from "../../constants/Colors";
 import { supabase } from "../../lib/supabase";
 import { showError, showSuccess } from "../../lib/errorHandler";
 // PDF wird dynamisch importiert um ESM-Kompatibilitätsprobleme zu vermeiden
@@ -500,11 +500,7 @@ const styles = StyleSheet.create({
     marginBottom: 20,
     backgroundColor: "#FFFDF5",  // Award-Card off-white, kein COLORS-Mapping
     // Dezenter Schatten
-    shadowColor: COLORS.gold,
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.18,
-    shadowRadius: 12,
-    elevation: 6,
+    ...SHADOWS.goldMedium,
   },
   awardHeader: {
     backgroundColor: COLORS.primary,

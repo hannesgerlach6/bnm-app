@@ -23,7 +23,7 @@ import {
   StyleProp,
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
-import { COLORS, RADIUS, TYPOGRAPHY, SPACING } from "../constants/Colors";
+import { COLORS, RADIUS, TYPOGRAPHY, SPACING, SHADOWS } from "../constants/Colors";
 import { useThemeColors } from "../contexts/ThemeContext";
 import { BNMPressable } from "./BNMPressable";
 
@@ -210,11 +210,7 @@ const styles = StyleSheet.create({
       // @ts-ignore
       boxShadow: `0 0 0 3px rgba(10, 58, 90, 0.12)`,
     } : {
-      shadowColor: COLORS.gradientStart,
-      shadowOffset: { width: 0, height: 0 },
-      shadowOpacity: 0.12,
-      shadowRadius: 6,
-      elevation: 3,
+      ...SHADOWS.glowSoft(COLORS.gradientStart),
     }),
   },
   errorGlow: {
@@ -222,11 +218,7 @@ const styles = StyleSheet.create({
       // @ts-ignore
       boxShadow: `0 0 0 3px rgba(220, 38, 38, 0.12)`,
     } : {
-      shadowColor: COLORS.error,
-      shadowOffset: { width: 0, height: 0 },
-      shadowOpacity: 0.12,
-      shadowRadius: 6,
-      elevation: 3,
+      ...SHADOWS.glowSoft(COLORS.error),
     }),
   },
   leadingIcon: {

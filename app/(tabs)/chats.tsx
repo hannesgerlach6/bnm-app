@@ -19,7 +19,7 @@ import { useRouter, useLocalSearchParams } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
 import { useAuth } from "../../contexts/AuthContext";
 import { useData } from "../../contexts/DataContext";
-import { COLORS, RADIUS, TYPOGRAPHY, SHADOWS } from "../../constants/Colors";
+import { COLORS, RADIUS, TYPOGRAPHY, SHADOWS, SEMANTIC, sem } from "../../constants/Colors";
 import { Container } from "../../components/Container";
 import { BNMPressable } from "../../components/BNMPressable";
 import { useLanguage } from "../../contexts/LanguageContext";
@@ -864,7 +864,7 @@ export default function ChatsScreen() {
     return (
       <View style={[styles.twoColContainer, { backgroundColor: themeColors.background }]}>
         {/* Linke Spalte: Chat-Liste */}
-        <View style={[styles.leftPanel, { borderRightColor: isDark ? "#2A2A35" : themeColors.border }]}>
+        <View style={[styles.leftPanel, { borderRightColor: sem(SEMANTIC.darkBorder, isDark) }]}>
           <FlatList
             style={[styles.leftScroll, { backgroundColor: themeColors.background }]}
             data={activeChatData}
@@ -970,7 +970,7 @@ export default function ChatsScreen() {
                 {(!isAdmin || chatTab === "mentorship") && (
                   <>
                     {!isAdmin && adminChatList.length > 0 && (
-                      <View style={[styles.listCard, { backgroundColor: themeColors.card, borderColor: isDark ? "#2A2A35" : themeColors.border, marginBottom: 12 }]}>
+                      <View style={[styles.listCard, { backgroundColor: themeColors.card, borderColor: sem(SEMANTIC.darkBorder, isDark), marginBottom: 12 }]}>
                         {adminChatList.map((item, idx) => {
                           const isSelectedItem = selectedAdminUserId === item.userId;
                           return (
@@ -978,8 +978,8 @@ export default function ChatsScreen() {
                               key={item.userId}
                               style={[
                                 styles.chatRow,
-                                idx < adminChatList.length - 1 ? { borderBottomWidth: 1, borderBottomColor: isDark ? "#2A2A35" : themeColors.border } : {},
-                                isSelectedItem ? { backgroundColor: isDark ? "#1E1E2C" : "#F0F4FF" } : {},
+                                idx < adminChatList.length - 1 ? { borderBottomWidth: 1, borderBottomColor: sem(SEMANTIC.darkBorder, isDark) } : {},
+                                isSelectedItem ? { backgroundColor: sem(SEMANTIC.selectedBg, isDark) } : {},
                               ]}
                               onPress={() => {
                                 setSelectedAdminUserId(item.userId);
@@ -1014,7 +1014,7 @@ export default function ChatsScreen() {
                         })}
                       </View>
                     )}
-                    <View style={[styles.searchWrapper, { backgroundColor: themeColors.card, borderColor: isDark ? "#2A2A35" : themeColors.border }]}>
+                    <View style={[styles.searchWrapper, { backgroundColor: themeColors.card, borderColor: sem(SEMANTIC.darkBorder, isDark) }]}>
                       <Ionicons name="search-outline" size={16} color={themeColors.textTertiary} />
                       <TextInput
                         style={[styles.searchInput, { color: themeColors.text }, Platform.OS === "web" ? ({ outlineStyle: "none" } as any) : {}]}
@@ -1069,7 +1069,7 @@ export default function ChatsScreen() {
               const wrapperStyle = [
                 isFirst ? { borderTopLeftRadius: RADIUS.lg, borderTopRightRadius: RADIUS.lg, borderTopWidth: 1, borderLeftWidth: 1, borderRightWidth: 1 } : { borderLeftWidth: 1, borderRightWidth: 1 },
                 isLast ? { borderBottomLeftRadius: RADIUS.lg, borderBottomRightRadius: RADIUS.lg, borderBottomWidth: 1 } : {},
-                { backgroundColor: themeColors.card, borderColor: isDark ? "#2A2A35" : themeColors.border, marginHorizontal: 24, overflow: "hidden" as const },
+                { backgroundColor: themeColors.card, borderColor: sem(SEMANTIC.darkBorder, isDark), marginHorizontal: 24, overflow: "hidden" as const },
               ];
 
               if (isAdmin && chatTab === "admin") {
@@ -1143,8 +1143,8 @@ export default function ChatsScreen() {
       <BNMPressable
         style={[
           styles.chatRow,
-          index < filteredChatList.length - 1 ? { borderBottomWidth: 1, borderBottomColor: isDark ? "#2A2A35" : themeColors.border } : {},
-          isSelected ? { backgroundColor: isDark ? "#1E1E2C" : "#F0F4FF" } : {},
+          index < filteredChatList.length - 1 ? { borderBottomWidth: 1, borderBottomColor: sem(SEMANTIC.darkBorder, isDark) } : {},
+          isSelected ? { backgroundColor: sem(SEMANTIC.selectedBg, isDark) } : {},
         ]}
         onPress={() => {
           if (isWideWeb) {
@@ -1208,8 +1208,8 @@ export default function ChatsScreen() {
       <BNMPressable
         style={[
           styles.chatRow,
-          index < filteredAdminChatList.length - 1 ? { borderBottomWidth: 1, borderBottomColor: isDark ? "#2A2A35" : themeColors.border } : {},
-          isSelected ? { backgroundColor: isDark ? "#1E1E2C" : "#F0F4FF" } : {},
+          index < filteredAdminChatList.length - 1 ? { borderBottomWidth: 1, borderBottomColor: sem(SEMANTIC.darkBorder, isDark) } : {},
+          isSelected ? { backgroundColor: sem(SEMANTIC.selectedBg, isDark) } : {},
         ]}
         onPress={() => {
           if (isWideWeb) {
@@ -1343,7 +1343,7 @@ export default function ChatsScreen() {
           <>
             {/* Admin-DM Eintraege oben (nur fuer Mentor/Mentee) */}
             {!isAdmin && adminChatList.length > 0 && (
-              <View style={[styles.listCard, { backgroundColor: themeColors.card, borderColor: isDark ? "#2A2A35" : themeColors.border, marginBottom: 12 }]}>
+              <View style={[styles.listCard, { backgroundColor: themeColors.card, borderColor: sem(SEMANTIC.darkBorder, isDark), marginBottom: 12 }]}>
                 {adminChatList.map((item, idx) => {
                   const isSelected = isWideWeb && selectedAdminUserId === item.userId;
                   return (
@@ -1351,8 +1351,8 @@ export default function ChatsScreen() {
                       key={item.userId}
                       style={[
                         styles.chatRow,
-                        idx < adminChatList.length - 1 ? { borderBottomWidth: 1, borderBottomColor: isDark ? "#2A2A35" : themeColors.border } : {},
-                        isSelected ? { backgroundColor: isDark ? "#1E1E2C" : "#F0F4FF" } : {},
+                        idx < adminChatList.length - 1 ? { borderBottomWidth: 1, borderBottomColor: sem(SEMANTIC.darkBorder, isDark) } : {},
+                        isSelected ? { backgroundColor: sem(SEMANTIC.selectedBg, isDark) } : {},
                       ]}
                       onPress={() => {
                         if (isWideWeb) {
@@ -1393,7 +1393,7 @@ export default function ChatsScreen() {
             )}
 
             {/* Suchfeld */}
-            <View style={[styles.searchWrapper, { backgroundColor: themeColors.card, borderColor: isDark ? "#2A2A35" : themeColors.border }]}>
+            <View style={[styles.searchWrapper, { backgroundColor: themeColors.card, borderColor: sem(SEMANTIC.darkBorder, isDark) }]}>
               <Ionicons name="search-outline" size={16} color={themeColors.textTertiary} />
               <TextInput
                 style={[styles.searchInput, { color: themeColors.text }, Platform.OS === "web" ? ({ outlineStyle: "none" } as any) : {}]}
@@ -1471,7 +1471,7 @@ export default function ChatsScreen() {
           const wrapperStyle = [
             isFirst ? { borderTopLeftRadius: RADIUS.lg, borderTopRightRadius: RADIUS.lg, borderTopWidth: 1, borderLeftWidth: 1, borderRightWidth: 1 } : { borderLeftWidth: 1, borderRightWidth: 1 },
             isLast ? { borderBottomLeftRadius: RADIUS.lg, borderBottomRightRadius: RADIUS.lg, borderBottomWidth: 1 } : {},
-            { backgroundColor: themeColors.card, borderColor: isDark ? "#2A2A35" : themeColors.border, marginHorizontal: 24, overflow: "hidden" as const },
+            { backgroundColor: themeColors.card, borderColor: sem(SEMANTIC.darkBorder, isDark), marginHorizontal: 24, overflow: "hidden" as const },
           ];
 
           if (isAdmin && chatTab === "admin") {

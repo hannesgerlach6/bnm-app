@@ -1380,7 +1380,7 @@ function MenteeDashboard() {
                       paddingHorizontal: 10, paddingVertical: 6, borderRadius: RADIUS.sm,
                       backgroundColor: done ? (isDark ? COLORS.cta + "20" : "#dcfce7") : (isDark ? "#1A1A24" : "#f5f5f7"),
                       borderWidth: 1,
-                      borderColor: done ? (isDark ? COLORS.cta + "40" : "#86efac") : (isDark ? "#2A2A35" : themeColors.border),
+                      borderColor: done ? (isDark ? COLORS.cta + "40" : "#86efac") : sem(SEMANTIC.darkBorder, isDark),
                     }}>
                       <Text style={{ fontSize: 11, fontWeight: "600", color: done ? sem(SEMANTIC.greenText, isDark) : themeColors.textTertiary }}>
                         {done ? "✓ " : ""}{st.name}
@@ -2244,11 +2244,7 @@ const styles = StyleSheet.create({
     padding: 16,
     marginBottom: 12,
     width: "100%",
-    shadowColor: COLORS.gold,
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.06,
-    shadowRadius: 12,
-    elevation: 2,
+    ...SHADOWS.goldSubtle,
   },
   momAdminHeader: { flexDirection: "row", alignItems: "center", marginBottom: 4 },
   momAdminStar: { color: COLORS.gold, fontSize: 18, marginRight: 6 },
@@ -2729,11 +2725,7 @@ const styles = StyleSheet.create({
     borderRadius: RADIUS.lg,
     padding: 20,
     marginBottom: 8,
-    shadowColor: COLORS.gold,
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.04,
-    shadowRadius: 12,
-    elevation: 2,
+    ...SHADOWS.goldSubtle,
   },
   mentorHadithArabic: {
     fontSize: 16,
