@@ -49,19 +49,33 @@ export default function ChatScreen() {
   const [showTemplates, setShowTemplates] = useState(false);
   const [localTemplates, setLocalTemplates] = useState<typeof messageTemplates>([]);
 
-  // Templates IMMER direkt aus DB laden (Context-Timing ist auf Native unzuverlässig)
+  // Templates laden: Context zuerst, dann Fallback direkt aus DB mit Retry
   useEffect(() => {
-    supabase.from("message_templates").select("*").eq("is_active", true).order("sort_order", { ascending: true })
-      .then(({ data }) => {
-        if (data?.length) {
-          setLocalTemplates(data.map((r: any) => ({
-            id: r.id, title: r.title, category: r.category,
-            body: r.body, sort_order: r.sort_order, is_active: r.is_active,
-          })));
-        }
-      })
-      .catch(() => {});
-  }, []);
+    if (messageTemplates.length > 0) {
+      setLocalTemplates(messageTemplates);
+      return;
+    }
+    let cancelled = false;
+    async function loadTemplates() {
+      // Bis zu 3 Versuche mit Delay (Session ist auf Native beim Start oft noch nicht bereit)
+      for (let attempt = 0; attempt < 3; attempt++) {
+        if (cancelled) return;
+        if (attempt > 0) await new Promise((r) => setTimeout(r, 1500));
+        try {
+          const { data } = await supabase.from("message_templates").select("*").eq("is_active", true).order("sort_order", { ascending: true });
+          if (data?.length && !cancelled) {
+            setLocalTemplates(data.map((r: any) => ({
+              id: r.id, title: r.title, category: r.category,
+              body: r.body, sort_order: r.sort_order, is_active: r.is_active,
+            })));
+            return;
+          }
+        } catch {}
+      }
+    }
+    loadTemplates();
+    return () => { cancelled = true; };
+  }, [messageTemplates.length]);
 
   const templates = localTemplates.length > 0 ? localTemplates : messageTemplates;
   const flatListRef = useRef<FlatList>(null);
@@ -260,7 +274,7 @@ export default function ChatScreen() {
   return (
     <KeyboardAvoidingView
       style={[styles.flex1, { backgroundColor: themeColors.background }]}
-      behavior={Platform.OS === "ios" ? "padding" : undefined}
+      behavior={Platform.OS === "ios" ? "padding" : "height"}
       keyboardVerticalOffset={Platform.OS === "ios" ? 90 : 0}
     >
       {/* Chat-Header-Info */}

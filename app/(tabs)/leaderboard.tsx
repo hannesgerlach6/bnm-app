@@ -528,7 +528,7 @@ const styles = StyleSheet.create({
     paddingBottom: 0,
     marginTop: 12,
     marginBottom: 16,
-    overflow: "hidden",
+    ...(Platform.OS !== "android" ? { overflow: "hidden" as const } : {}),
   },
   podiumRow: {
     flexDirection: "row",

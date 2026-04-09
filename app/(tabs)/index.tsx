@@ -1814,7 +1814,7 @@ const styles = StyleSheet.create({
     borderRadius: RADIUS.lg,
     borderWidth: 1,
     flexDirection: "row",
-    overflow: "hidden",
+    ...(Platform.OS !== "android" ? { overflow: "hidden" as const } : {}),
     ...SHADOWS.sm,
     minHeight: 110,
   },
