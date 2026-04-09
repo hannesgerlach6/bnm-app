@@ -18,6 +18,7 @@ import { Ionicons } from "@expo/vector-icons";
 import { useLocalSearchParams } from "expo-router";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useAuth } from "../../contexts/AuthContext";
+import { supabase } from "../../lib/supabase";
 import { useData } from "../../contexts/DataContext";
 import { showError, showConfirm } from "../../lib/errorHandler";
 import { COLORS, RADIUS, TYPOGRAPHY, SHADOWS } from "../../constants/Colors";
@@ -44,7 +45,23 @@ export default function ChatScreen() {
   const { mentorshipId } = useLocalSearchParams<{ mentorshipId: string }>();
 
   const [inputText, setInputText] = useState("");
+  const [inputHeight, setInputHeight] = useState(44);
   const [showTemplates, setShowTemplates] = useState(false);
+  const [localTemplates, setLocalTemplates] = useState<typeof messageTemplates>([]);
+
+  // Fallback: Templates direkt laden falls Context noch leer (Timing-Issue auf Mobile)
+  useEffect(() => {
+    if (messageTemplates.length > 0) {
+      setLocalTemplates(messageTemplates);
+    } else {
+      supabase.from("message_templates").select("*").eq("is_active", true).order("sort_order", { ascending: true })
+        .then(({ data }) => {
+          if (data?.length) setLocalTemplates(data.map((r: any) => ({ id: r.id, title: r.title, category: r.category, body: r.body, sort_order: r.sort_order, is_active: r.is_active })));
+        });
+    }
+  }, [messageTemplates]);
+
+  const templates = localTemplates.length > 0 ? localTemplates : messageTemplates;
   const flatListRef = useRef<FlatList>(null);
   const [showScrollFab, setShowScrollFab] = useState(false);
   const fabOpacity = useRef(new Animated.Value(0)).current;
@@ -302,7 +319,7 @@ export default function ChatScreen() {
       {mentorship && (mentorship.status === "active" || mentorship.status === "completed") ? (
         <View style={[styles.inputContainer, { backgroundColor: themeColors.card, borderTopColor: themeColors.border, paddingBottom: Platform.OS !== "web" ? Math.max(insets.bottom, 16) + 12 : 10 }]}>
           {/* Vorlagen-Button */}
-          {messageTemplates.length > 0 && (user?.role === "mentor" || user?.role === "admin" || user?.role === "office") && (
+          {templates.length > 0 && (user?.role === "mentor" || user?.role === "admin" || user?.role === "office") && (
             <BNMPressable
               style={styles.templateButton}
               onPress={() => setShowTemplates(true)}
@@ -316,16 +333,14 @@ export default function ChatScreen() {
               styles.textInput,
               styles.textInputWithTemplate,
               { backgroundColor: themeColors.elevated, borderColor: themeColors.border, color: themeColors.text },
-              // Auf Web: Höhe wächst automatisch mit dem Inhalt (Vorlagen sind oft lang)
-              Platform.OS === "web" && inputText.length > 100 ? { minHeight: 80 } : {},
-              Platform.OS === "web" && inputText.length > 300 ? { minHeight: 140 } : {},
+              { height: Math.max(44, Math.min(inputHeight, Platform.OS === "web" ? 300 : 120)) },
             ]}
             value={inputText}
-            onChangeText={setInputText}
+            onChangeText={(text) => { setInputText(text); if (!text) setInputHeight(44); }}
             placeholder={t("chat.placeholder")}
             placeholderTextColor={themeColors.textTertiary}
             multiline
-            numberOfLines={Platform.OS === "web" ? 6 : undefined}
+            onContentSizeChange={(e) => setInputHeight(e.nativeEvent.contentSize.height + 20)}
             returnKeyType="default"
           />
           <BNMPressable
@@ -355,7 +370,7 @@ export default function ChatScreen() {
             <View style={[styles.modalHandle, { backgroundColor: themeColors.border }]} />
             <Text style={[styles.modalTitle, { color: themeColors.text }]}>{t("chat.templates")}</Text>
             <ScrollView style={styles.modalScroll} showsVerticalScrollIndicator={false}>
-              {messageTemplates.map((tmpl) => {
+              {templates.map((tmpl) => {
                 const menteeName = mentorship?.mentee?.name?.split(" ")[0] ?? "";
                 const menteeGender = mentorship?.mentee?.gender;
                 const anrede = menteeGender === "male" ? t("chat.templateBrother") : t("chat.templateSister");
