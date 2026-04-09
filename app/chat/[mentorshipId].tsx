@@ -187,6 +187,8 @@ export default function ChatScreen() {
             activeOpacity={0.8}
             onLongPress={() => handleLongPress(msg.id, isOwn)}
             delayLongPress={500}
+            accessibilityRole="button"
+            accessibilityLabel={`Nachricht von ${displayName}`}
           >
             <View
               style={[
@@ -287,6 +289,8 @@ export default function ChatScreen() {
             <BNMPressable
               onPress={() => flatListRef.current?.scrollToOffset({ offset: 0, animated: true })}
               style={[styles.scrollFabBtn, { backgroundColor: themeColors.card, ...SHADOWS.md }]}
+              accessibilityRole="button"
+              accessibilityLabel="Nach unten scrollen"
             >
               <Ionicons name="chevron-down" size={20} color={themeColors.text} />
             </BNMPressable>
@@ -323,6 +327,8 @@ export default function ChatScreen() {
             ]}
             onPress={handleSend}
             disabled={!inputText.trim()}
+            accessibilityRole="button"
+            accessibilityLabel="Nachricht senden"
           >
             <Ionicons name="send" size={18} color={COLORS.white} />
           </BNMPressable>
@@ -336,7 +342,7 @@ export default function ChatScreen() {
       )}
       {/* Vorlagen-Modal */}
       <Modal visible={showTemplates} transparent animationType="slide" onRequestClose={() => setShowTemplates(false)}>
-        <BNMPressable style={styles.modalOverlay} activeOpacity={1} onPress={() => setShowTemplates(false)}>
+        <BNMPressable style={styles.modalOverlay} activeOpacity={1} onPress={() => setShowTemplates(false)} accessibilityRole="button" accessibilityLabel="Vorlagen schliessen">
           <View style={[styles.modalSheet, { backgroundColor: themeColors.card }]} onStartShouldSetResponder={() => true}>
             <View style={[styles.modalHandle, { backgroundColor: themeColors.border }]} />
             <Text style={[styles.modalTitle, { color: themeColors.text }]}>{t("chat.templates")}</Text>
@@ -359,6 +365,8 @@ export default function ChatScreen() {
                       setInputText(text);
                       setShowTemplates(false);
                     }}
+                    accessibilityRole="button"
+                    accessibilityLabel={`Vorlage: ${tmpl.title}`}
                   >
                     <View style={styles.templateCardHeader}>
                       <Text style={[styles.templateCardTitle, { color: themeColors.text }]}>{tmpl.title}</Text>

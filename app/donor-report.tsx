@@ -199,7 +199,7 @@ export default function DonorReportScreen() {
       <ScrollView style={[styles.scrollView, { backgroundColor: themeColors.background }]}>
         {/* Header */}
         <View style={[styles.reportHeader, { paddingTop: insets.top + 28 }]}>
-          <BNMPressable style={styles.backButton} onPress={() => router.back()}>
+          <BNMPressable style={styles.backButton} onPress={() => router.back()} accessibilityRole="link" accessibilityLabel="Zurueck zu Berichten">
             <Text style={styles.backButtonText}>{t("donorReport.backToReports")}</Text>
           </BNMPressable>
           <View style={styles.logoBadge}>
@@ -220,6 +220,9 @@ export default function DonorReportScreen() {
                   key={m}
                   style={[styles.modeBtn, periodMode === m ? styles.modeBtnActive : [styles.modeBtnInactive, { backgroundColor: themeColors.background, borderColor: themeColors.border }]]}
                   onPress={() => setPeriodMode(m)}
+                  accessibilityRole="button"
+                  accessibilityLabel={m === "quarter" ? "Quartal" : "Jahr"}
+                  accessibilityState={{ selected: periodMode === m }}
                 >
                   <Text style={periodMode === m ? styles.modeBtnTextActive : [styles.modeBtnTextInactive, { color: themeColors.textSecondary }]}>
                     {m === "quarter" ? t("donorReport.quarter") : t("donorReport.year")}
@@ -233,6 +236,9 @@ export default function DonorReportScreen() {
                   key={y}
                   style={[styles.yearBtn, selectedYear === y ? styles.yearBtnActive : [styles.yearBtnInactive, { backgroundColor: themeColors.background, borderColor: themeColors.border }]]}
                   onPress={() => setSelectedYear(y)}
+                  accessibilityRole="button"
+                  accessibilityLabel={`Jahr ${y}`}
+                  accessibilityState={{ selected: selectedYear === y }}
                 >
                   <Text style={selectedYear === y ? styles.yearBtnTextActive : [styles.yearBtnTextInactive, { color: themeColors.textSecondary }]}>
                     {y}
@@ -247,6 +253,9 @@ export default function DonorReportScreen() {
                     key={q.short}
                     style={[styles.quarterBtn, selectedQuarter === idx ? styles.quarterBtnActive : [styles.quarterBtnInactive, { backgroundColor: themeColors.background, borderColor: themeColors.border }]]}
                     onPress={() => setSelectedQuarter(idx)}
+                    accessibilityRole="button"
+                    accessibilityLabel={q.short}
+                    accessibilityState={{ selected: selectedQuarter === idx }}
                   >
                     <Text style={selectedQuarter === idx ? styles.quarterBtnTextActive : [styles.quarterBtnTextInactive, { color: themeColors.textSecondary }]}>
                       {q.short}
@@ -466,12 +475,14 @@ export default function DonorReportScreen() {
                   (window as Window).print();
                 }
               }}
+              accessibilityRole="button"
+              accessibilityLabel="Drucken"
             >
               <Text style={styles.printButtonText}>🖨 {t("donorReport.print")}</Text>
             </BNMPressable>
           )}
 
-          <BNMPressable style={[styles.backBtn, { borderColor: themeColors.border }]} onPress={() => router.back()}>
+          <BNMPressable style={[styles.backBtn, { borderColor: themeColors.border }]} onPress={() => router.back()} accessibilityRole="link" accessibilityLabel="Zurueck zu Berichten">
             <Text style={[styles.backBtnText, { color: themeColors.textSecondary }]}>{t("donorReport.backToReports")}</Text>
           </BNMPressable>
         </View>

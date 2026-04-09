@@ -57,7 +57,7 @@ function StarRatingInput({
     <View>
       <View style={styles.starsRow}>
         {[1, 2, 3, 4, 5].map((star) => (
-          <BNMPressable key={star} onPress={() => onChange(star)} style={styles.starButton}>
+          <BNMPressable key={star} onPress={() => onChange(star)} style={styles.starButton} accessibilityRole="button" accessibilityLabel={`${star} Stern${star > 1 ? "e" : ""}`}>
             <Ionicons
               name={star <= value ? "star" : "star-outline"}
               size={32}
@@ -124,6 +124,9 @@ function ChipSelector({
                 },
               ]}
               onPress={() => handlePress(opt.key)}
+              accessibilityRole={multi ? "checkbox" : "radio"}
+              accessibilityLabel={opt.label}
+              accessibilityState={{ checked: multi ? (Array.isArray(selected) && selected.includes(opt.key)) : selected === opt.key }}
             >
               <Ionicons
                 name={isSelected ? (multi ? "checkbox" : "radio-button-on") : (multi ? "square-outline" : "radio-button-off")}
@@ -450,6 +453,8 @@ export default function FeedbackScreen() {
                 <BNMPressable
                   style={[styles.navButton, styles.navButtonBack, { borderColor: themeColors.border }]}
                   onPress={handleBack}
+                  accessibilityRole="button"
+                  accessibilityLabel="Zurueck"
                 >
                   <Ionicons name="chevron-back" size={18} color={themeColors.text} />
                   <Text style={[styles.navButtonText, { color: themeColors.text }]}>
@@ -464,6 +469,8 @@ export default function FeedbackScreen() {
                   onPress={handleSubmit}
                   disabled={isSaving}
                   hapticStyle="success"
+                  accessibilityRole="button"
+                  accessibilityLabel="Absenden"
                 >
                   {isSaving ? (
                     <ActivityIndicator size="small" color={COLORS.white} />
@@ -481,6 +488,8 @@ export default function FeedbackScreen() {
                   style={[styles.navButton, styles.navButtonNext]}
                   onPress={handleNext}
                   hapticStyle="light"
+                  accessibilityRole="button"
+                  accessibilityLabel="Weiter"
                 >
                   <Text style={[styles.navButtonText, { color: COLORS.white }]}>
                     {t("questionnaire.next")}
@@ -491,7 +500,7 @@ export default function FeedbackScreen() {
             </View>
 
             {/* Skip */}
-            <BNMPressable style={styles.skipButton} onPress={() => router.replace("/(tabs)")}>
+            <BNMPressable style={styles.skipButton} onPress={() => router.replace("/(tabs)")} accessibilityRole="link" accessibilityLabel="Ueberspringen">
               <Text style={[styles.skipText, { color: themeColors.textTertiary }]}>{t("feedback.skip")}</Text>
             </BNMPressable>
           </View>

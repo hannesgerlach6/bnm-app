@@ -153,7 +153,7 @@ export default function CertificateGeneratorScreen() {
 
           {/* Header */}
           <View style={styles.header}>
-            <BNMPressable onPress={() => router.back()} style={styles.backButton}>
+            <BNMPressable onPress={() => router.back()} style={styles.backButton} accessibilityRole="link" accessibilityLabel="Zurueck">
               <Ionicons name="arrow-back" size={22} color={themeColors.text} />
             </BNMPressable>
             <View style={{ flex: 1 }}>
@@ -168,6 +168,8 @@ export default function CertificateGeneratorScreen() {
             <BNMPressable
               style={[styles.pickerBtn, { backgroundColor: themeColors.background, borderColor: themeColors.border }]}
               onPress={() => setMentorPickerOpen(true)}
+              accessibilityRole="button"
+              accessibilityLabel="Mentor auswaehlen"
             >
               <Text style={[styles.pickerBtnText, { color: selectedMentor ? themeColors.text : themeColors.textTertiary }]}>
                 {selectedMentor?.name ?? t("certGen.noMentorSelected")}
@@ -211,6 +213,9 @@ export default function CertificateGeneratorScreen() {
                           : { backgroundColor: themeColors.background, borderColor: themeColors.border },
                       ]}
                       onPress={() => setSelectedMonth(m)}
+                      accessibilityRole="button"
+                      accessibilityLabel={`Monat ${m}`}
+                      accessibilityState={{ selected: selectedMonth === m }}
                     >
                       <Text style={[styles.monthBtnText, { color: selectedMonth === m ? "#0E0E14" : themeColors.textSecondary }]}>
                         {String(m).padStart(2, "0")}
@@ -232,6 +237,9 @@ export default function CertificateGeneratorScreen() {
                           : { backgroundColor: themeColors.background, borderColor: themeColors.border },
                       ]}
                       onPress={() => setSelectedYear(y)}
+                      accessibilityRole="button"
+                      accessibilityLabel={`Jahr ${y}`}
+                      accessibilityState={{ selected: selectedYear === y }}
                     >
                       <Text style={[styles.yearBtnText, { color: selectedYear === y ? "#0E0E14" : themeColors.textSecondary }]}>{y}</Text>
                     </BNMPressable>
@@ -293,6 +301,8 @@ export default function CertificateGeneratorScreen() {
                 style={[styles.dlBtn, styles.dlBtnPDF, isGeneratingPDF && { opacity: 0.5 }]}
                 onPress={handleDownloadPDF}
                 disabled={isGeneratingPDF || !selectedMentor}
+                accessibilityRole="button"
+                accessibilityLabel="PDF herunterladen"
               >
                 {isGeneratingPDF ? <ActivityIndicator size="small" color="#0E0E14" /> : <Ionicons name="document-outline" size={16} color="#0E0E14" />}
                 <Text style={styles.dlBtnPDFText}>PDF</Text>
@@ -301,6 +311,8 @@ export default function CertificateGeneratorScreen() {
                 style={[styles.dlBtn, styles.dlBtnPNG, isGeneratingPNG && { opacity: 0.5 }]}
                 onPress={handleDownloadPNG}
                 disabled={isGeneratingPNG || !selectedMentor}
+                accessibilityRole="button"
+                accessibilityLabel="PNG herunterladen"
               >
                 {isGeneratingPNG ? <ActivityIndicator size="small" color="#0E0E14" /> : <Ionicons name="image-outline" size={16} color="#0E0E14" />}
                 <Text style={styles.dlBtnPNGText}>PNG</Text>
@@ -327,6 +339,8 @@ export default function CertificateGeneratorScreen() {
               style={[styles.sendBtn, (isSendingEmail || !selectedMentor || !emailTo.trim()) && { opacity: 0.4 }]}
               onPress={handleSendEmail}
               disabled={isSendingEmail || !selectedMentor || !emailTo.trim()}
+              accessibilityRole="button"
+              accessibilityLabel="E-Mail senden"
             >
               {isSendingEmail
                 ? <ActivityIndicator size="small" color={COLORS.white} />
@@ -344,7 +358,7 @@ export default function CertificateGeneratorScreen() {
           <View style={[styles.modalSheet, { backgroundColor: themeColors.card }]}>
             <View style={styles.modalHeader}>
               <Text style={[styles.modalTitle, { color: themeColors.text }]}>{t("certGen.selectMentor")}</Text>
-              <BNMPressable onPress={() => setMentorPickerOpen(false)}>
+              <BNMPressable onPress={() => setMentorPickerOpen(false)} accessibilityRole="button" accessibilityLabel="Schliessen">
                 <Ionicons name="close" size={22} color={themeColors.textSecondary} />
               </BNMPressable>
             </View>
@@ -359,6 +373,8 @@ export default function CertificateGeneratorScreen() {
                     item.id === selectedMentorId && { backgroundColor: isDark ? "#2A2A18" : "#fffbeb" },
                   ]}
                   onPress={() => { setSelectedMentorId(item.id); setMentorPickerOpen(false); }}
+                  accessibilityRole="button"
+                  accessibilityLabel={`${item.name} auswaehlen`}
                 >
                   <Text style={[styles.mentorRowName, { color: themeColors.text }]}>{item.name}</Text>
                   {item.id === selectedMentorId && <Ionicons name="checkmark" size={18} color={COLORS.gold} />}

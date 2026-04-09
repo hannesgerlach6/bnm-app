@@ -447,6 +447,8 @@ export default function ReportsScreen() {
                 style={{ flex: 1, backgroundColor: dynamicPrimaryBg, borderRadius: RADIUS.sm, paddingVertical: 12, flexDirection: "row", alignItems: "center", justifyContent: "center", gap: 8 }}
                 onPress={handleDownloadPDF}
                 activeOpacity={0.8}
+                accessibilityRole="button"
+                accessibilityLabel="Bericht als PDF herunterladen"
               >
                 <Ionicons name="download-outline" size={16} color={dynamicPrimaryText} />
                 <Text style={{ color: dynamicPrimaryText, fontWeight: "600", fontSize: 14 }}>Bericht PDF</Text>
@@ -456,6 +458,8 @@ export default function ReportsScreen() {
                   style={{ flex: 1, backgroundColor: COLORS.gold, borderRadius: RADIUS.sm, paddingVertical: 12, flexDirection: "row", alignItems: "center", justifyContent: "center", gap: 8 }}
                   onPress={handleDownloadDonorPDF}
                   activeOpacity={0.8}
+                  accessibilityRole="button"
+                  accessibilityLabel="Spenderbericht als PDF herunterladen"
                 >
                   <Ionicons name="download-outline" size={16} color="#0E0E14" />
                   <Text style={{ color: "#0E0E14", fontWeight: "600", fontSize: 14 }}>Spenderbericht PDF</Text>
@@ -470,6 +474,9 @@ export default function ReportsScreen() {
               style={[styles.tabSwitcherBtn, reportTab === "monthly" && { backgroundColor: dynamicPrimaryBg }]}
               onPress={() => setReportTab("monthly")}
               activeOpacity={0.8}
+              accessibilityRole="button"
+              accessibilityLabel="Monatsbericht"
+              accessibilityState={{ selected: reportTab === "monthly" }}
             >
               <Text style={[styles.tabSwitcherText, { color: reportTab === "monthly" ? dynamicPrimaryText : themeColors.textSecondary }]}>
                 Monatsbericht
@@ -479,6 +486,9 @@ export default function ReportsScreen() {
               style={[styles.tabSwitcherBtn, reportTab === "donor" && { backgroundColor: COLORS.gold }]}
               onPress={() => setReportTab("donor")}
               activeOpacity={0.8}
+              accessibilityRole="button"
+              accessibilityLabel="Spenderbericht"
+              accessibilityState={{ selected: reportTab === "donor" }}
             >
               <Text style={[styles.tabSwitcherText, { color: reportTab === "donor" ? "#0E0E14" : themeColors.textSecondary }]}>
                 Spenderbericht
@@ -510,6 +520,9 @@ export default function ReportsScreen() {
                       : [styles.quickFilterBtnInactive, { backgroundColor: themeColors.background, borderColor: themeColors.border }],
                   ]}
                   onPress={() => applyQuickPeriod(opt.key)}
+                  accessibilityRole="button"
+                  accessibilityLabel={opt.label}
+                  accessibilityState={{ selected: quickPeriod === opt.key }}
                 >
                   <Text
                     style={
@@ -545,6 +558,9 @@ export default function ReportsScreen() {
                           : [styles.modeButtonInactive, { backgroundColor: themeColors.background, borderColor: themeColors.border }],
                       ]}
                       onPress={() => setPeriodMode(opt.key)}
+                      accessibilityRole="button"
+                      accessibilityLabel={opt.label}
+                      accessibilityState={{ selected: periodMode === opt.key }}
                     >
                       <Text
                         style={
@@ -571,6 +587,9 @@ export default function ReportsScreen() {
                           : [styles.yearButtonInactive, { backgroundColor: themeColors.background, borderColor: themeColors.border }],
                       ]}
                       onPress={() => setSelectedYear(year)}
+                      accessibilityRole="button"
+                      accessibilityLabel={`Jahr ${year}`}
+                      accessibilityState={{ selected: selectedYear === year }}
                     >
                       <Text
                         style={
@@ -596,6 +615,9 @@ export default function ReportsScreen() {
                           selectedMonth === idx ? styles.monthChipActive : [styles.monthChipInactive, { backgroundColor: themeColors.background, borderColor: themeColors.border }],
                         ]}
                         onPress={() => setSelectedMonth(idx)}
+                        accessibilityRole="button"
+                        accessibilityLabel={month}
+                        accessibilityState={{ selected: selectedMonth === idx }}
                       >
                         <Text
                           style={
@@ -620,6 +642,9 @@ export default function ReportsScreen() {
                           selectedQuarter === idx ? styles.monthChipActive : [styles.monthChipInactive, { backgroundColor: themeColors.background, borderColor: themeColors.border }],
                         ]}
                         onPress={() => setSelectedQuarter(idx)}
+                        accessibilityRole="button"
+                        accessibilityLabel={q.label}
+                        accessibilityState={{ selected: selectedQuarter === idx }}
                       >
                         <Text
                           style={

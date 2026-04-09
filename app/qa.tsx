@@ -81,7 +81,7 @@ export default function QAScreen() {
       >
         <View style={[styles.page, { paddingTop: insets.top + 12 }]}>
           {/* Header */}
-          <BNMPressable style={styles.backRow} onPress={() => router.back()}>
+          <BNMPressable style={styles.backRow} onPress={() => router.back()} accessibilityRole="link" accessibilityLabel="Zurueck">
             <Text style={[styles.backText, { color: themeColors.textSecondary }]}>
               {t("qa.back")}
             </Text>
@@ -122,6 +122,9 @@ export default function QAScreen() {
                   : { backgroundColor: themeColors.card, borderColor: themeColors.border, borderWidth: 1 },
               ]}
               onPress={() => setActiveCategory(null)}
+              accessibilityRole="radio"
+              accessibilityLabel="Alle Kategorien"
+              accessibilityState={{ checked: activeCategory === null }}
             >
               <Text
                 style={[
@@ -142,6 +145,9 @@ export default function QAScreen() {
                     : { backgroundColor: themeColors.card, borderColor: themeColors.border, borderWidth: 1 },
                 ]}
                 onPress={() => setActiveCategory(activeCategory === cat ? null : cat)}
+                accessibilityRole="radio"
+                accessibilityLabel={cat}
+                accessibilityState={{ checked: activeCategory === cat }}
               >
                 <Text
                   style={[
@@ -191,7 +197,9 @@ export default function QAScreen() {
                     <BNMPressable
                       style={styles.accordionHeader}
                       onPress={() => setExpandedId(isExpanded ? null : entry.id)}
-
+                      accessibilityRole="button"
+                      accessibilityLabel={entry.question}
+                      accessibilityState={{ expanded: isExpanded }}
                     >
                       <View style={styles.accordionHeaderLeft}>
                         <View
@@ -235,7 +243,8 @@ export default function QAScreen() {
                         <BNMPressable
                           style={[styles.shareBtn, { backgroundColor: themeColors.background }]}
                           onPress={() => shareAnswer(entry.question, entry.answer, t("share.suffix"))}
-    
+                          accessibilityRole="button"
+                          accessibilityLabel="Antwort teilen"
                         >
                           <Ionicons name="share-outline" size={15} color={themeColors.textSecondary} />
                           <Text style={[styles.shareBtnText, { color: themeColors.textSecondary }]}>

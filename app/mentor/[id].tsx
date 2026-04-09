@@ -85,7 +85,7 @@ export default function MentorDetailScreen() {
       <View style={[styles.root, { backgroundColor: themeColors.background }]}>
         {/* Header */}
         <View style={[styles.header, { backgroundColor: themeColors.card, borderBottomColor: themeColors.border, paddingTop: insets.top + 16 }]}>
-          <BNMPressable onPress={() => router.back()} style={styles.backButton}>
+          <BNMPressable onPress={() => router.back()} style={styles.backButton} accessibilityRole="link" accessibilityLabel="Zurueck">
             <Text style={[styles.backText, { color: themeColors.text }]}>{t("mentorDetail.back")}</Text>
           </BNMPressable>
           <Text style={[styles.headerTitle, { color: themeColors.text }]}>{t("mentorDetail.title")}</Text>
@@ -159,6 +159,8 @@ export default function MentorDetailScreen() {
                       onPress={() =>
                         router.push({ pathname: "/mentee/[id]", params: { id: mentorship.mentee_id } })
                       }
+                      accessibilityRole="link"
+                      accessibilityLabel={`Mentee ${mentorship.mentee?.name ?? ""} anzeigen`}
                     >
                       <View style={styles.menteeAvatar}>
                         <Text style={styles.menteeAvatarText}>
@@ -254,6 +256,8 @@ export default function MentorDetailScreen() {
               onPress={() =>
                 router.push({ pathname: "/admin/edit-user", params: { id: mentor.id } })
               }
+              accessibilityRole="link"
+              accessibilityLabel="Profil bearbeiten"
             >
               <Text style={styles.editProfileButtonText}>{t("editUser.editProfile")}</Text>
             </BNMPressable>

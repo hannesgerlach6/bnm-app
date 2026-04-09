@@ -576,7 +576,7 @@ export default function AdminDonorReportScreen() {
       <ScrollView style={[styles.scrollView, { backgroundColor: themeColors.background }]} showsVerticalScrollIndicator={false}>
         {/* Back-Button (nicht im Druck) */}
         <View style={{ paddingTop: insets.top + 24, paddingHorizontal: 24 }}>
-          <BNMPressable style={styles.backBtn} onPress={() => router.back()}>
+          <BNMPressable style={styles.backBtn} onPress={() => router.back()} accessibilityRole="link" accessibilityLabel="Zurueck zu Berichten">
             <Text style={styles.backBtnText}>{t("donorDashboard.backToReports")}</Text>
           </BNMPressable>
         </View>
@@ -618,6 +618,9 @@ export default function AdminDonorReportScreen() {
                       : [styles.quickFilterBtnInactive, { backgroundColor: themeColors.background, borderColor: themeColors.border }],
                   ]}
                   onPress={() => applyQuickPeriodDonor(opt.key)}
+                  accessibilityRole="button"
+                  accessibilityLabel={opt.label}
+                  accessibilityState={{ selected: quickPeriod === opt.key }}
                 >
                   <Text
                     style={
@@ -652,6 +655,9 @@ export default function AdminDonorReportScreen() {
                     periodMode === opt.key ? styles.modeBtnActive : [styles.modeBtnInactive, { backgroundColor: themeColors.background, borderColor: themeColors.border }],
                   ]}
                   onPress={() => setPeriodMode(opt.key)}
+                  accessibilityRole="button"
+                  accessibilityLabel={opt.label}
+                  accessibilityState={{ selected: periodMode === opt.key }}
                 >
                   <Text
                     style={
@@ -675,6 +681,9 @@ export default function AdminDonorReportScreen() {
                       selectedYear === y ? styles.yearBtnActive : [styles.yearBtnInactive, { backgroundColor: themeColors.background, borderColor: themeColors.border }],
                     ]}
                     onPress={() => setSelectedYear(y)}
+                    accessibilityRole="button"
+                    accessibilityLabel={`Jahr ${y}`}
+                    accessibilityState={{ selected: selectedYear === y }}
                   >
                     <Text
                       style={
@@ -699,6 +708,9 @@ export default function AdminDonorReportScreen() {
                       selectedQuarter === idx ? styles.chipActive : [styles.chipInactive, { backgroundColor: themeColors.background, borderColor: themeColors.border }],
                     ]}
                     onPress={() => setSelectedQuarter(idx)}
+                    accessibilityRole="button"
+                    accessibilityLabel={q.label}
+                    accessibilityState={{ selected: selectedQuarter === idx }}
                   >
                     <Text
                       style={
@@ -723,6 +735,9 @@ export default function AdminDonorReportScreen() {
                       selectedMonth === idx ? styles.chipActive : [styles.chipInactive, { backgroundColor: themeColors.background, borderColor: themeColors.border }],
                     ]}
                     onPress={() => setSelectedMonth(idx)}
+                    accessibilityRole="button"
+                    accessibilityLabel={m}
+                    accessibilityState={{ selected: selectedMonth === idx }}
                   >
                     <Text
                       style={
@@ -905,12 +920,12 @@ export default function AdminDonorReportScreen() {
 
           {/* ── Export-Buttons (nicht im Druck) ── */}
           {Platform.OS === "web" && (
-            <BNMPressable style={styles.exportBtnPrimary} onPress={handleOpenReport}>
+            <BNMPressable style={styles.exportBtnPrimary} onPress={handleOpenReport} accessibilityRole="button" accessibilityLabel="PDF drucken">
               <Text style={styles.exportBtnText}>{t("donorDashboard.printPdf")}</Text>
             </BNMPressable>
           )}
 
-          <BNMPressable style={[styles.backBtnBottom, { borderColor: themeColors.border }]} onPress={() => router.back()}>
+          <BNMPressable style={[styles.backBtnBottom, { borderColor: themeColors.border }]} onPress={() => router.back()} accessibilityRole="link" accessibilityLabel="Zurueck zu Berichten">
             <Text style={[styles.backBtnBottomText, { color: themeColors.textTertiary }]}>{t("donorDashboard.backToReports")}</Text>
           </BNMPressable>
         </View>

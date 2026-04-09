@@ -111,7 +111,7 @@ export default function PendingApprovalsScreen() {
         }
       >
         <View style={styles.page}>
-          <BNMPressable style={styles.backLink} onPress={() => router.back()}>
+          <BNMPressable style={styles.backLink} onPress={() => router.back()} accessibilityRole="link" accessibilityLabel="Zurueck">
             <Text style={[styles.backLinkText, { color: themeColors.link }]}>‹ {t("common.back")}</Text>
           </BNMPressable>
 
@@ -148,6 +148,8 @@ export default function PendingApprovalsScreen() {
                   <BNMPressable
                     style={styles.approveButton}
                     onPress={() => handleApprove(m.id)}
+                    accessibilityRole="button"
+                    accessibilityLabel="Genehmigen"
                   >
                     <Text style={styles.approveButtonText}>
                       ✓ {t("pendingApprovals.approve")}
@@ -156,6 +158,8 @@ export default function PendingApprovalsScreen() {
                   <BNMPressable
                     style={[styles.rejectButton, { borderColor: COLORS.error }]}
                     onPress={() => handleReject(m.id)}
+                    accessibilityRole="button"
+                    accessibilityLabel="Ablehnen"
                   >
                     <Text style={styles.rejectButtonText}>
                       ✕ {t("pendingApprovals.reject")}
@@ -205,6 +209,8 @@ export default function PendingApprovalsScreen() {
                   setRejectTargetId(null);
                   setRejectReason("");
                 }}
+                accessibilityRole="button"
+                accessibilityLabel="Abbrechen"
               >
                 <Text style={[styles.modalCancelText, { color: themeColors.textSecondary }]}>
                   {t("pendingApprovals.rejectCancel")}
@@ -213,6 +219,8 @@ export default function PendingApprovalsScreen() {
               <BNMPressable
                 style={[styles.modalConfirmBtn, { backgroundColor: COLORS.error }]}
                 onPress={confirmReject}
+                accessibilityRole="button"
+                accessibilityLabel="Ablehnung bestaetigen"
               >
                 <Text style={styles.modalConfirmText}>
                   {t("pendingApprovals.rejectConfirm")}

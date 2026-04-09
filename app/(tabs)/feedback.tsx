@@ -248,6 +248,9 @@ export default function FeedbackTabScreen() {
                             return next;
                           });
                         }}
+                        accessibilityRole="button"
+                        accessibilityLabel={expandedIds.has(fb.id) ? "Details ausblenden" : "Details anzeigen"}
+                        accessibilityState={{ expanded: expandedIds.has(fb.id) }}
                       >
                         <Ionicons
                           name={expandedIds.has(fb.id) ? "chevron-up" : "chevron-down"}

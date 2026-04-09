@@ -299,7 +299,7 @@ export default function CSVImportScreen() {
       <View style={[styles.page, { paddingTop: insets.top + 12 }]}>
         {/* Header */}
         <View style={styles.headerRow}>
-          <BNMPressable onPress={() => router.back()} style={styles.backBtn}>
+          <BNMPressable onPress={() => router.back()} style={styles.backBtn} accessibilityRole="link" accessibilityLabel="Zurueck">
             <Text style={[styles.backBtnText, { color: themeColors.text }]}>‹</Text>
           </BNMPressable>
           <Text style={[styles.pageTitle, { color: themeColors.text }]}>{t("csvImport.title")}</Text>
@@ -310,6 +310,9 @@ export default function CSVImportScreen() {
           <BNMPressable
             style={[styles.tab, activeTab === "mentees" && styles.tabActive]}
             onPress={() => handleTabChange("mentees")}
+            accessibilityRole="button"
+            accessibilityLabel="Mentees"
+            accessibilityState={{ selected: activeTab === "mentees" }}
           >
             <Text
               style={[styles.tabText, { color: themeColors.textSecondary }, activeTab === "mentees" && styles.tabTextActive]}
@@ -320,6 +323,9 @@ export default function CSVImportScreen() {
           <BNMPressable
             style={[styles.tab, activeTab === "mentors" && styles.tabActive]}
             onPress={() => handleTabChange("mentors")}
+            accessibilityRole="button"
+            accessibilityLabel="Mentoren"
+            accessibilityState={{ selected: activeTab === "mentors" }}
           >
             <Text
               style={[styles.tabText, { color: themeColors.textSecondary }, activeTab === "mentors" && styles.tabTextActive]}
@@ -338,6 +344,8 @@ export default function CSVImportScreen() {
                   style={styles.uploadButton}
                   onPress={handleFileUpload}
                   disabled={isImporting}
+                  accessibilityRole="button"
+                  accessibilityLabel="CSV hochladen"
                 >
                   <Text style={styles.uploadButtonText}>
                     ↑ {t("csvImport.upload")}
@@ -347,6 +355,8 @@ export default function CSVImportScreen() {
                   style={[styles.templateButton, { backgroundColor: themeColors.background, borderColor: themeColors.border }]}
                   onPress={handleDownloadTemplate}
                   disabled={isImporting}
+                  accessibilityRole="button"
+                  accessibilityLabel="Vorlage herunterladen"
                 >
                   <Text style={[styles.templateButtonText, { color: themeColors.textSecondary }]}>
                     ↓ {t("csvImport.downloadTemplate")}
@@ -504,6 +514,8 @@ export default function CSVImportScreen() {
                 style={styles.importButton}
                 onPress={handleImport}
                 disabled={isImporting}
+                accessibilityRole="button"
+                accessibilityLabel="Importieren"
               >
                 <Text style={styles.importButtonText}>
                   {t("csvImport.import")} ({validCount})

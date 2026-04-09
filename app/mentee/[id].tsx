@@ -55,7 +55,7 @@ export default function MenteeDetailScreen() {
       <Container fullWidth={Platform.OS === "web"}>
         <View style={[styles.root, { backgroundColor: themeColors.background }]}>
           <View style={[styles.header, { backgroundColor: themeColors.card, borderBottomColor: themeColors.border, paddingTop: insets.top + 16 }]}>
-            <BNMPressable onPress={() => router.back()} style={styles.backButton}>
+            <BNMPressable onPress={() => router.back()} style={styles.backButton} accessibilityRole="link" accessibilityLabel="Zurueck">
               <Text style={[styles.backText, { color: themeColors.text }]}>{t("menteeDetail.back")}</Text>
             </BNMPressable>
             <Text style={[styles.headerTitle, { color: themeColors.text }]}>{t("menteeDetail.headerTitle")}</Text>
@@ -152,6 +152,8 @@ export default function MenteeDetailScreen() {
                   <BNMPressable
                     style={[styles.mentorDetailButton, { backgroundColor: themeColors.background, borderColor: themeColors.border }]}
                     onPress={() => router.push({ pathname: "/mentor/[id]", params: { id: mentor.id } })}
+                    accessibilityRole="link"
+                    accessibilityLabel="Mentor-Profil anzeigen"
                   >
                     <Text style={[styles.mentorDetailText, { color: themeColors.text }]}>{t("menteeDetail.mentorProfile")}</Text>
                   </BNMPressable>
@@ -245,6 +247,8 @@ export default function MenteeDetailScreen() {
                 onPress={() =>
                   router.push({ pathname: "/admin/edit-user", params: { id: mentee.id } })
                 }
+                accessibilityRole="link"
+                accessibilityLabel="Profil bearbeiten"
               >
                 <Text style={styles.actionButtonText}>{t("editUser.editProfile")}</Text>
               </BNMPressable>
@@ -255,6 +259,8 @@ export default function MenteeDetailScreen() {
                 onPress={() =>
                   router.push({ pathname: "/assign", params: { menteeId: mentee.id } })
                 }
+                accessibilityRole="button"
+                accessibilityLabel="Mentor zuweisen"
               >
                 <Text style={styles.actionButtonText}>{t("menteeDetail.assignMentor")}</Text>
               </BNMPressable>
@@ -265,6 +271,8 @@ export default function MenteeDetailScreen() {
                 onPress={() =>
                   navigateToChat(router, mentorship.id)
                 }
+                accessibilityRole="button"
+                accessibilityLabel="Nachricht senden"
               >
                 <Text style={styles.actionButtonText}>{t("menteeDetail.sendMessage")}</Text>
               </BNMPressable>
@@ -275,6 +283,8 @@ export default function MenteeDetailScreen() {
                 onPress={() =>
                   router.push({ pathname: "/mentorship/[id]", params: { id: mentorship.id } })
                 }
+                accessibilityRole="link"
+                accessibilityLabel="Betreuung anzeigen"
               >
                 <Text style={[styles.actionButtonText, { color: themeColors.text }]}>
                   {t("menteeDetail.viewMentorship")}

@@ -183,7 +183,7 @@ function EditUserForm({ userId }: { userId: string }) {
       >
         {/* Header */}
         <View style={[styles.header, { backgroundColor: themeColors.card, borderBottomColor: themeColors.border }]}>
-          <BNMPressable onPress={() => router.back()} style={styles.backBtn}>
+          <BNMPressable onPress={() => router.back()} style={styles.backBtn} accessibilityRole="link" accessibilityLabel="Zurueck">
             <Text style={[styles.backBtnText, { color: themeColors.text }]}>{t("editUser.back")}</Text>
           </BNMPressable>
           <Text style={[styles.headerTitle, { color: themeColors.text }]}>{t("editUser.title")}</Text>
@@ -230,6 +230,8 @@ function EditUserForm({ userId }: { userId: string }) {
               <BNMPressable
                 key={g}
                 accessibilityRole="radio"
+                accessibilityLabel={g === "male" ? "Maennlich" : "Weiblich"}
+                accessibilityState={{ checked: gender === g }}
                 style={[
                   styles.pill,
                   gender === g
@@ -254,6 +256,8 @@ function EditUserForm({ userId }: { userId: string }) {
               <BNMPressable
                 key={key}
                 accessibilityRole="radio"
+                accessibilityLabel={t(labelKey)}
+                accessibilityState={{ checked: role === key }}
                 style={[
                   styles.pill,
                   role === key ? { backgroundColor: themeColors.primary, borderColor: themeColors.primary } : [styles.pillInactive, { backgroundColor: themeColors.card, borderColor: themeColors.border }],
@@ -273,6 +277,8 @@ function EditUserForm({ userId }: { userId: string }) {
             style={[styles.saveButton, { backgroundColor: themeColors.success }, isSaving ? { opacity: 0.6 } : {}]}
             onPress={handleSave}
             disabled={isSaving}
+            accessibilityRole="button"
+            accessibilityLabel="Speichern"
           >
             <Text style={[styles.saveButtonText, { color: COLORS.white }]}>
               {isSaving ? t("editUser.saving") : t("editUser.save")}
@@ -282,6 +288,8 @@ function EditUserForm({ userId }: { userId: string }) {
           {/* User sperren / entsperren */}
           <BNMPressable
             hapticStyle="warning"
+            accessibilityRole="button"
+            accessibilityLabel={isBlocked ? "Entsperren" : "Sperren"}
             style={[
               styles.blockButton,
               { backgroundColor: themeColors.errorLight, borderColor: themeColors.error + "40" },
@@ -301,6 +309,8 @@ function EditUserForm({ userId }: { userId: string }) {
             style={[styles.resetPwButton, { borderColor: themeColors.info + "40", backgroundColor: themeColors.infoLight }, isResetting ? { opacity: 0.6 } : {}]}
             onPress={handleResetPassword}
             disabled={isResetting}
+            accessibilityRole="button"
+            accessibilityLabel="Passwort zuruecksetzen"
           >
             <Text style={[styles.resetPwButtonText, { color: themeColors.info }]}>
               {isResetting ? t("editUser.resetting") : t("editUser.resetPassword")}
@@ -331,6 +341,9 @@ function EditUserForm({ userId }: { userId: string }) {
               style={{ flexDirection: "row", alignItems: "center", gap: 10, marginTop: 14 }}
               onPress={() => setForceChange((v) => !v)}
               disableHover
+              accessibilityRole="checkbox"
+              accessibilityLabel="Passwortaenderung erzwingen"
+              accessibilityState={{ checked: forceChange }}
             >
               <View style={{ width: 22, height: 22, borderRadius: 4, borderWidth: 2, borderColor: forceChange ? themeColors.primary : themeColors.border, backgroundColor: forceChange ? themeColors.primary : "transparent", alignItems: "center", justifyContent: "center" }}>
                 {forceChange && <Text style={{ color: COLORS.white, fontSize: 14, fontWeight: "700" }}>✓</Text>}
@@ -338,10 +351,10 @@ function EditUserForm({ userId }: { userId: string }) {
               <Text style={{ color: themeColors.text, fontSize: 13, flex: 1 }}>{t("editUser.forcePasswordChange")}</Text>
             </BNMPressable>
             <View style={{ flexDirection: "row", gap: 10, marginTop: 16 }}>
-              <BNMPressable style={[styles.modalClose, { flex: 1, backgroundColor: themeColors.background, borderWidth: 1, borderColor: themeColors.border }]} onPress={() => setShowResetModal(false)}>
+              <BNMPressable style={[styles.modalClose, { flex: 1, backgroundColor: themeColors.background, borderWidth: 1, borderColor: themeColors.border }]} onPress={() => setShowResetModal(false)} accessibilityRole="button" accessibilityLabel="Abbrechen">
                 <Text style={[styles.modalCloseText, { color: themeColors.textSecondary }]}>{t("common.cancel")}</Text>
               </BNMPressable>
-              <BNMPressable style={[styles.modalClose, { flex: 1, backgroundColor: themeColors.primary }]} onPress={confirmResetPassword}>
+              <BNMPressable style={[styles.modalClose, { flex: 1, backgroundColor: themeColors.primary }]} onPress={confirmResetPassword} accessibilityRole="button" accessibilityLabel="Passwort zuruecksetzen bestaetigen">
                 <Text style={[styles.modalCloseText, { color: COLORS.white }]}>{t("editUser.resetPasswordConfirm")}</Text>
               </BNMPressable>
             </View>
@@ -363,7 +376,7 @@ function EditUserForm({ userId }: { userId: string }) {
             <Text style={[styles.modalHint, { color: themeColors.textTertiary }]}>
               {t("editUser.resetPasswordEmailHint").replace("{0}", target.email)}
             </Text>
-            <BNMPressable style={[styles.modalClose, { backgroundColor: themeColors.primary }]} onPress={() => setResetTempPw(null)}>
+            <BNMPressable style={[styles.modalClose, { backgroundColor: themeColors.primary }]} onPress={() => setResetTempPw(null)} accessibilityRole="button" accessibilityLabel="OK">
               <Text style={[styles.modalCloseText, { color: COLORS.white }]}>{t("common.ok")}</Text>
             </BNMPressable>
           </View>

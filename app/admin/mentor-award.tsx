@@ -242,7 +242,7 @@ export default function MentorAwardScreen() {
 
           {/* Header */}
           <View style={styles.header}>
-            <BNMPressable onPress={() => router.back()} style={styles.backButton}>
+            <BNMPressable onPress={() => router.back()} style={styles.backButton} accessibilityRole="link" accessibilityLabel="Zurueck">
               <Ionicons name="arrow-back" size={22} color={themeColors.text} />
             </BNMPressable>
             <View style={{ flex: 1 }}>
@@ -269,6 +269,9 @@ export default function MentorAwardScreen() {
                           : { backgroundColor: themeColors.background, borderColor: themeColors.border },
                       ]}
                       onPress={() => { setSelectedMonth(m); setViewingPastAward(null); }}
+                      accessibilityRole="button"
+                      accessibilityLabel={`Monat ${m}`}
+                      accessibilityState={{ selected: selectedMonth === m }}
                     >
                       <Text style={[styles.monthBtnText, { color: selectedMonth === m ? "#0E0E14" : themeColors.textSecondary }]}>
                         {String(m).padStart(2, "0")}
@@ -291,6 +294,9 @@ export default function MentorAwardScreen() {
                           : { backgroundColor: themeColors.background, borderColor: themeColors.border },
                       ]}
                       onPress={() => { setSelectedYear(y); setViewingPastAward(null); }}
+                      accessibilityRole="button"
+                      accessibilityLabel={`Jahr ${y}`}
+                      accessibilityState={{ selected: selectedYear === y }}
                     >
                       <Text style={[styles.yearBtnText, { color: selectedYear === y ? "#0E0E14" : themeColors.textSecondary }]}>{y}</Text>
                     </BNMPressable>
@@ -374,6 +380,8 @@ export default function MentorAwardScreen() {
                 onPress={handleDownloadPDF}
                 disabled={!canCreateCertificate}
                 activeOpacity={0.8}
+                accessibilityRole="button"
+                accessibilityLabel="PDF herunterladen"
               >
                 <Ionicons name="download-outline" size={18} color="#0E0E14" />
                 <Text style={styles.actionBtnPrintText}>{t("mentorAward.download")}</Text>
@@ -384,6 +392,8 @@ export default function MentorAwardScreen() {
               onPress={handleSave}
               disabled={isSaving || !canCreateCertificate}
               activeOpacity={0.8}
+              accessibilityRole="button"
+              accessibilityLabel="Auszeichnung speichern"
             >
               {isSaving ? (
                 <ActivityIndicator size="small" color={COLORS.white} />
@@ -419,6 +429,8 @@ export default function MentorAwardScreen() {
                     viewingPastAward?.id === award.id && { backgroundColor: isDark ? "#2A2A18" : "#fffbeb" },
                   ]}
                   onPress={() => setViewingPastAward(viewingPastAward?.id === award.id ? null : award)}
+                  accessibilityRole="button"
+                  accessibilityLabel={`Auszeichnung: ${award.mentor_name}, ${getMonthName(award.month, "de")} ${award.year}`}
                 >
                   <View style={{ flex: 1 }}>
                     <Text style={[styles.pastRowName, { color: themeColors.text }]}>{award.mentor_name}</Text>

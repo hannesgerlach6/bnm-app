@@ -86,6 +86,8 @@ export default function MentorshipDetailScreen() {
         <BNMPressable
           style={[styles.primaryButton, { marginTop: 16 }]}
           onPress={() => router.back()}
+          accessibilityRole="link"
+          accessibilityLabel="Zurueck"
         >
           <Text style={styles.primaryButtonText}>{t("mentorship.back")}</Text>
         </BNMPressable>
@@ -328,6 +330,8 @@ export default function MentorshipDetailScreen() {
                           <BNMPressable
                             style={[styles.sessionDeleteButton, { backgroundColor: isDark ? "#3a1a1a" : "#fef2f2", borderColor: isDark ? "#7a2a2a" : "#fecaca" }]}
                             onPress={() => handleDeleteSession(session.id)}
+                            accessibilityRole="button"
+                            accessibilityLabel="Sitzung loeschen"
                           >
                             <Text style={[styles.sessionDeleteText, { color: isDark ? "#f87171" : "#dc2626" }]}>🗑 {t("sessionEdit.delete")}</Text>
                           </BNMPressable>
@@ -354,6 +358,8 @@ export default function MentorshipDetailScreen() {
             <BNMPressable
               style={[styles.allDoneButton, { backgroundColor: isDark ? "#2d6a4a" : "#15803d" }]}
               onPress={handleComplete}
+              accessibilityRole="button"
+              accessibilityLabel="Betreuung abschliessen"
             >
               <Text style={styles.allDoneButtonText}>
                 {t("mentorship.completeNow")}
@@ -372,6 +378,8 @@ export default function MentorshipDetailScreen() {
                 onPress={() =>
                   router.push({ pathname: "/document-session", params: { mentorshipId: mentorship.id } })
                 }
+                accessibilityRole="button"
+                accessibilityLabel="Sitzung dokumentieren"
               >
                 <Text style={styles.primaryButtonText}>{t("mentorship.documentSession")}</Text>
               </BNMPressable>
@@ -382,6 +390,8 @@ export default function MentorshipDetailScreen() {
               onPress={() =>
                 navigateToChat(router, mentorship.id)
               }
+              accessibilityRole="button"
+              accessibilityLabel="Chat oeffnen"
             >
               <Text style={styles.primaryButtonText}>{t("mentorship.openChat")}</Text>
             </BNMPressable>
@@ -396,6 +406,8 @@ export default function MentorshipDetailScreen() {
                   ]}
                   onPress={handleComplete}
                   disabled={isUpdatingStatus}
+                  accessibilityRole="button"
+                  accessibilityLabel="Betreuung abschliessen"
                 >
                   <Text style={[styles.completeButtonText, { color: sem(SEMANTIC.greenText, isDark) }]}>
                     {isUpdatingStatus ? "..." : t("mentorship.complete")}
@@ -405,6 +417,8 @@ export default function MentorshipDetailScreen() {
                   style={[styles.cancelButton, { backgroundColor: isDark ? "#3a1a1a" : "#fef2f2", borderColor: isDark ? "#7a2a2a" : "#fecaca" }, isUpdatingStatus ? { opacity: 0.5 } : {}]}
                   onPress={handleCancel}
                   disabled={isUpdatingStatus}
+                  accessibilityRole="button"
+                  accessibilityLabel="Betreuung abbrechen"
                 >
                   <Text style={[styles.cancelButtonText, { color: isDark ? "#f87171" : "#dc2626" }]}>
                     {isUpdatingStatus ? "..." : t("mentorship.cancel")}
@@ -421,6 +435,8 @@ export default function MentorshipDetailScreen() {
             onPress={() =>
               navigateToChat(router, mentorship.id)
             }
+            accessibilityRole="button"
+            accessibilityLabel="Chat oeffnen"
           >
             <Text style={styles.primaryButtonText}>{t("mentorship.openChat")}</Text>
           </BNMPressable>
@@ -452,6 +468,8 @@ export default function MentorshipDetailScreen() {
               style={[styles.notesSaveButton, isSavingNotes ? { opacity: 0.6 } : {}]}
               onPress={handleSaveNotes}
               disabled={isSavingNotes}
+              accessibilityRole="button"
+              accessibilityLabel="Notizen speichern"
             >
               <Text style={styles.notesSaveButtonText}>
                 {isSavingNotes ? t("notes.saving") : t("notes.save")}
@@ -490,6 +508,8 @@ export default function MentorshipDetailScreen() {
               style={[styles.modalCancelButton, { borderColor: themeColors.border }]}
               onPress={() => { setShowCancelModal(false); setCancelReason(""); }}
               disabled={isCancelling}
+              accessibilityRole="button"
+              accessibilityLabel="Abbrechen"
             >
               <Text style={[styles.modalCancelText, { color: themeColors.textSecondary }]}>{t("common.back")}</Text>
             </BNMPressable>
@@ -497,6 +517,8 @@ export default function MentorshipDetailScreen() {
               style={[styles.modalConfirmButton, isCancelling ? { opacity: 0.6 } : {}]}
               onPress={handleCancelConfirm}
               disabled={isCancelling}
+              accessibilityRole="button"
+              accessibilityLabel="Abbruch bestaetigen"
             >
               <Text style={styles.modalConfirmText}>
                 {isCancelling ? "..." : t("cancel.title")}

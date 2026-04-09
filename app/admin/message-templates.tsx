@@ -117,11 +117,11 @@ export default function MessageTemplatesScreen() {
       <View style={[styles.root, { backgroundColor: themeColors.background }]}>
         {/* Header */}
         <View style={[styles.header, { backgroundColor: themeColors.card, borderBottomColor: themeColors.border, paddingTop: insets.top + 16 }]}>
-          <BNMPressable onPress={() => router.back()} style={styles.backButton}>
+          <BNMPressable onPress={() => router.back()} style={styles.backButton} accessibilityRole="link" accessibilityLabel="Zurueck">
             <Text style={[styles.backText, { color: themeColors.text }]}>{"\u2039"} {t("common.back")}</Text>
           </BNMPressable>
           <Text style={[styles.headerTitle, { color: themeColors.text }]}>{t("templates.manage")}</Text>
-          <BNMPressable onPress={startNew} style={styles.addButton}>
+          <BNMPressable onPress={startNew} style={styles.addButton} accessibilityRole="button" accessibilityLabel="Neue Vorlage erstellen">
             <Ionicons name="add-circle" size={28} color={COLORS.gold} />
           </BNMPressable>
         </View>
@@ -154,6 +154,9 @@ export default function MessageTemplatesScreen() {
                         backgroundColor: category === cat ? COLORS.gold + "15" : themeColors.elevated },
                     ]}
                     onPress={() => setCategory(cat)}
+                    accessibilityRole="radio"
+                    accessibilityLabel={cat}
+                    accessibilityState={{ checked: category === cat }}
                   >
                     <Text style={[styles.catChipText, { color: category === cat ? COLORS.gold : themeColors.textSecondary }]}>
                       {cat}
@@ -178,10 +181,10 @@ export default function MessageTemplatesScreen() {
               />
 
               <View style={styles.formActions}>
-                <BNMPressable style={[styles.cancelBtn, { borderColor: themeColors.border }]} onPress={cancelEdit}>
+                <BNMPressable style={[styles.cancelBtn, { borderColor: themeColors.border }]} onPress={cancelEdit} accessibilityRole="button" accessibilityLabel="Abbrechen">
                   <Text style={[styles.cancelBtnText, { color: themeColors.text }]}>{t("common.cancel")}</Text>
                 </BNMPressable>
-                <BNMPressable style={styles.saveBtn} onPress={handleSave} disabled={isSaving}>
+                <BNMPressable style={styles.saveBtn} onPress={handleSave} disabled={isSaving} accessibilityRole="button" accessibilityLabel="Speichern">
                   <Text style={styles.saveBtnText}>{isSaving ? "..." : t("common.save")}</Text>
                 </BNMPressable>
               </View>
@@ -197,10 +200,10 @@ export default function MessageTemplatesScreen() {
                   <Text style={[styles.templateCategory, { color: themeColors.textTertiary }]}>{tmpl.category}</Text>
                 </View>
                 <View style={styles.templateActions}>
-                  <BNMPressable onPress={() => startEdit(tmpl)} style={styles.iconBtn}>
+                  <BNMPressable onPress={() => startEdit(tmpl)} style={styles.iconBtn} accessibilityRole="button" accessibilityLabel="Bearbeiten">
                     <Ionicons name="pencil" size={18} color={themeColors.textSecondary} />
                   </BNMPressable>
-                  <BNMPressable onPress={() => handleDelete(tmpl.id)} style={styles.iconBtn}>
+                  <BNMPressable onPress={() => handleDelete(tmpl.id)} style={styles.iconBtn} accessibilityRole="button" accessibilityLabel="Loeschen">
                     <Ionicons name="trash-outline" size={18} color={COLORS.error} />
                   </BNMPressable>
                 </View>

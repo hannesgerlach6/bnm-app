@@ -120,6 +120,8 @@ export default function ToolsTabScreen() {
             <BNMPressable
               style={[styles.toolItem, { backgroundColor: themeColors.card, width: itemWidth }]}
               onPress={() => router.push("/admin/message-templates" as never)}
+              accessibilityRole="link"
+              accessibilityLabel="Nachrichtenvorlagen verwalten"
             >
               <View style={[styles.toolIconBg, { backgroundColor: isDark ? "#2A2518" : "#FFF8E6" }]}>
                 <Ionicons name="document-text-outline" size={24} color={COLORS.gold} />
@@ -131,6 +133,8 @@ export default function ToolsTabScreen() {
             <BNMPressable
               style={[styles.toolItem, { backgroundColor: themeColors.card, width: itemWidth }]}
               onPress={() => router.push("/admin/certificate-generator" as never)}
+              accessibilityRole="link"
+              accessibilityLabel="Zertifikate erstellen"
             >
               <View style={[styles.toolIconBg, { backgroundColor: "#FFF8E6" }]}>
                 <Ionicons name="ribbon-outline" size={24} color={COLORS.gold} />
@@ -144,6 +148,8 @@ export default function ToolsTabScreen() {
                 style={[styles.toolItem, { backgroundColor: themeColors.card, width: itemWidth, opacity: isGeocoding ? 0.6 : 1 }]}
                 onPress={handleGeocodeAllUsers}
                 disabled={isGeocoding}
+                accessibilityRole="button"
+                accessibilityLabel="PLZ zu Koordinaten konvertieren"
               >
                 <View style={[styles.toolIconBg, { backgroundColor: "#E8F0FE" }]}>
                   {isGeocoding ? (

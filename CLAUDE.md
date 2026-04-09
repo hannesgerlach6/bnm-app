@@ -136,3 +136,26 @@ iman.ngo-Stil. Dunkelblau (#0A3A5A) + Gold (#EEA71B). `constants/Colors.ts`.
 
 ### 2026-04-09 — Performance
 - Mentoren-Liste (mentors.tsx): ScrollView + .map() → FlatList mit renderItem, ListHeaderComponent, ListEmptyComponent, keyExtractor
+
+### 2026-04-09 — Hardcoded Farben → COLORS Tokens (StyleSheet.create)
+**Neue COLORS-Tokens (constants/Colors.ts):**
+- errorLight, errorDark, errorBorder, errorBg, errorBorderLight
+- blue, blueLight, blueBorder
+- warning, warningDark, warningBorder
+- successDark, successBg
+- gray, grayLight, grayMuted, grayBorder, divider, goldText
+
+**Ersetzungen in StyleSheet.create() (13 Dateien):**
+- reports.tsx: #f59e0b → COLORS.warning
+- csv-import.tsx: #b45309 → COLORS.warningDark
+- MentorDetailPanel.tsx: #dcfce7 → COLORS.successBg, #15803d → COLORS.successDark, #92600a → COLORS.goldText
+- mentor/[id].tsx: #dcfce7 → COLORS.successBg, #15803d → COLORS.successDark, #92600a → COLORS.goldText
+- forgot-password.tsx: #f87171 → COLORS.errorBorder, #fef2f2 → COLORS.errorBg, #fecaca → COLORS.errorBorderLight
+- mentor-award.tsx: #6B7280 → COLORS.grayMuted, #E5E7EB → COLORS.divider, #D1D5DB → COLORS.grayBorder
+- certificate-generator.tsx: #6B7280 → COLORS.grayMuted, #E5E7EB → COLORS.divider, #D1D5DB → COLORS.grayBorder
+- mentors.tsx: #ccc → COLORS.grayLight, #666 → COLORS.gray
+- mentees.tsx: #ccc → COLORS.grayLight, #666 → COLORS.gray
+- assign.tsx: #bfdbfe → COLORS.blueBorder
+- session-types.tsx: #fef2f2 → COLORS.errorBg
+- pending-approvals.tsx: #fde68a → COLORS.warningBorder
+- Confetti.tsx: #3B82F6 → COLORS.blue, #F59E0B → COLORS.warning

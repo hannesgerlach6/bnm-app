@@ -52,7 +52,7 @@ export default function HaditheScreen() {
     <ScrollView style={[styles.scrollView, { backgroundColor: themeColors.background }]}>
       <View style={[styles.page, { paddingTop: insets.top + 12 }]}>
         {/* Header */}
-        <BNMPressable style={styles.backRow} onPress={() => router.back()}>
+        <BNMPressable style={styles.backRow} onPress={() => router.back()} accessibilityRole="link" accessibilityLabel="Zurueck">
           <Text style={[styles.backArrow, { color: themeColors.text }]}>‹</Text>
           <Text style={[styles.backText, { color: themeColors.text }]}>{t("hadithe.back")}</Text>
         </BNMPressable>
@@ -92,6 +92,8 @@ export default function HaditheScreen() {
             <BNMPressable
               style={styles.shareButton}
               onPress={() => handleShare(todayHadith.text_de, todayHadith.source ?? "")}
+              accessibilityRole="button"
+              accessibilityLabel="Hadith teilen"
             >
               <Text style={styles.shareButtonText}>{t("hadithe.share")}</Text>
             </BNMPressable>
@@ -112,6 +114,8 @@ export default function HaditheScreen() {
                   <BNMPressable
                     style={[styles.hadithShareButton, { backgroundColor: themeColors.background, borderColor: themeColors.border }]}
                     onPress={() => handleShare(hadith.text_de, hadith.source ?? "")}
+                    accessibilityRole="button"
+                    accessibilityLabel="Hadith teilen"
                   >
                     <Text style={[styles.hadithShareText, { color: themeColors.textSecondary }]}>{t("hadithe.share")}</Text>
                   </BNMPressable>
