@@ -983,7 +983,7 @@ function MentorDashboard() {
 
             {/* ── Row: Gamification + Achievements ──────────────────── */}
             <DashboardRow>
-            <View style={[styles.levelCard, styles.dashCol, { backgroundColor: themeColors.card, borderColor: sem(SEMANTIC.goldBorder, isDark) }]}>
+            <View style={[styles.levelCard, styles.dashCol, { backgroundColor: themeColors.card, borderColor: sem(SEMANTIC.goldBorder, isDark), marginBottom: 0 }]}>
               {/* Level-Badge + XP-Zähler */}
               <View style={styles.levelHeaderRow}>
                 <View style={styles.levelBadgeRow}>
@@ -1454,7 +1454,7 @@ function DashboardRow({ children }: { children: React.ReactNode }) {
   const { width } = useWindowDimensions();
   const isDesktop = Platform.OS === "web" && width > 900;
   return (
-    <View style={{ flexDirection: isDesktop ? "row" : "column", gap: 16, marginBottom: 16 }}>
+    <View style={{ flexDirection: isDesktop ? "row" : "column", gap: 16, marginBottom: 16, alignItems: isDesktop ? "stretch" : undefined }}>
       {children}
     </View>
   );

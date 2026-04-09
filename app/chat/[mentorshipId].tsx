@@ -450,8 +450,9 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
     paddingVertical: 10,
     fontSize: 14,
-    maxHeight: 120,
-    minHeight: 44,
+    maxHeight: Platform.OS === "web" ? 300 : 120,
+    minHeight: Platform.OS === "web" ? 60 : 44,
+    ...(Platform.OS === "web" ? { resize: "vertical" } as any : {}),
   },
   sendButton: {
     width: 44,
