@@ -34,7 +34,7 @@ Alle SQL-Änderungen dokumentieren. Selbstständig handeln.
   10. `supabase/fix-profiles-rls.sql` — Admin/Office-Profile für alle sichtbar (Chat-Name-Fix)
   11. `supabase/fix-messages-update.sql` — messages UPDATE Policy (markChatAsRead + Badge-Fix)
   12. `supabase/fix-missing-rls.sql` — sessions/notifications/mentorships/profiles Policies
-  13. `supabase/fix-self-delete.sql` — Self-Delete für Mentor/Mentee (Soft-Delete, Reports bleiben)
+  13. `supabase/fix-self-delete.sql` — Self-Deactivate für Mentor/Mentee (Deaktivierung statt Löschung, Daten bleiben erhalten)
   14. `supabase/feedback-questionnaire.sql` — JSONB answers-Spalte für Feedback-Fragebogen
   15. `supabase/message-templates.sql` — Nachrichtenvorlagen-Tabelle + Seed-Daten
   16. Dashboard: Auth → Email → "Confirm email" OFF
@@ -74,6 +74,25 @@ iman.ngo-Stil. Dunkelblau (#0A3A5A) + Gold (#EEA71B). `constants/Colors.ts`.
     - email_queue INSERT nur für authentifizierte User
 
 ## FORTSCHRITTS-LOG
+
+### 2026-04-10 — PLZ-Bug-Fix + Account-Deaktivierung statt Löschung
+**PLZ-Bug im Web-Registrierungsformular:**
+- Stadt-Feld hatte `label="z.B. Berlin"` statt `label="Wohnort / Stadt *"` → User tippte PLZ ins Stadt-Feld
+- BNMInput: `placeholder` Prop wird jetzt sichtbar wenn Label oben schwebt (placeholderTextColor war "transparent")
+- PLZ-Feld breiter gemacht (minWidth: 130, maxWidth: 160 statt width: 120)
+- PLZ-Fehlermeldung gekürzt ("PLZ ungültig (4–5 Ziffern)" statt langer Satz)
+- Row-Layout: `alignItems: "flex-start"` für bessere Fehler-Darstellung
+
+**Account-Löschung → Deaktivierung:**
+- SQL: `delete_own_account()` → `deactivate_own_account()` (alte Funktion wird gedroppt)
+- Keine Daten mehr gelöscht! Mentorships werden auf 'cancelled' gesetzt statt gelöscht
+- Name bekommt Suffix "[deaktiviert]" statt Anonymisierung auf "[Gelöscht]"
+- E-Mail, Telefon, Stadt bleiben erhalten (nur Avatar wird entfernt)
+- Auth-User wird weiterhin gesperrt (banned_until = 9999)
+- Admin kann Account jederzeit über "User entsperren" wieder aktivieren
+- UI: Button "Konto deaktivieren" statt "Konto löschen"
+- Bestätigungsdialog erklärt: Daten bleiben erhalten, Admin kann reaktivieren
+- Translations in 4 Sprachen (DE, EN, AR, TR) aktualisiert
 
 ### 2026-04-08 — Vollständiges Security- & Code-Audit + Fixes
 **Security (7 Fixes):**
@@ -240,3 +259,30 @@ iman.ngo-Stil. Dunkelblau (#0A3A5A) + Gold (#EEA71B). `constants/Colors.ts`.
 - Äußere View: `statCard` mit `SHADOWS.sm` (beide Plattformen identisch, kein Platform-Check mehr)
 - Innere View: `statCardClip` mit `overflow: "hidden"`, `borderWidth`, `flexDirection: "row"`
 - Platform.OS === "android" Check komplett entfernt
+
+### 2026-04-10 — Professionelle PDF-Reports (Monatsbericht + Spenderbericht)
+**Komplettes Redesign von `lib/pdfGenerator.tsx`:**
+
+**Neue Chart-Helper-Funktionen:**
+- `drawKpiCardPro()` — KPI-Karte mit farbigem Akzentstreifen oben (statt einfacher Farbpunkt)
+- `drawHorizontalBars()` — Horizontale Balkendiagramme (Session-Verteilung)
+- `drawVerticalBarChart()` — Vertikale Balkendiagramme mit Grid-Linien + Labels
+- `drawDonutChart()` — Kreisdiagramm mit innerem Loch + Legende + Prozentanzeige
+- `drawProgressBar()` — Fortschrittsbalken mit Label + Prozentwert
+- `drawCompletionGauge()` — Abschlussquote mit Farbzonen-Gauge (Rot/Gold/Gruen)
+- `drawImpactCard()` — Grosse Impact-Karte mit Icon-Kreis + Akzentstreifen
+
+**Monatsbericht: 2 → 3 Seiten:**
+- S1: KPI-Dashboard (8 Cards) + Betreuungs-Status Donut + Session-Verteilung Balken + Mentor des Monats
+- S2: Sessions nach Typ (vertikale Balken) + Top-5-Mentoren Fortschrittsbalken + Completion-Rate Gauge
+- S3: Ranking-Tabelle (15 Mentoren, Medaillen fuer Top 3) + Zusammenfassung
+
+**Spenderbericht: 1 → 2 Seiten:**
+- S1: KPI-Dashboard (8 Cards) + Session-Verteilung (vertikale Balken) + Betreuungs-Donut
+- S2: 4 Impact-Cards + Session-Details (horizontale Balken) + Nachbetreuungs-Rate + Zusammenfassung
+
+**Design:**
+- Professioneller Header mit BNM-Branding + Gold-Akzentlinie
+- Navy-Hintergrund (#0A3A5A) + Gold (#EEA71B) + Gruen (#0D9C6E)
+- Alle Charts manuell mit pdf-lib Primitiven gebaut (keine externe Chart-Library)
+- Interfaces bleiben 100% abwaertskompatibel (keine Aenderungen an reports.tsx / donor-report.tsx)
