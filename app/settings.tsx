@@ -39,24 +39,25 @@ export default function SettingsScreen() {
   const { isDark } = useTheme();
 
   const isAdminOrOffice = user?.role === "admin" || user?.role === "office";
-  const canDeactivateAccount = user?.role === "mentor" || user?.role === "mentee";
-  const [deactivating, setDeactivating] = useState(false);
+  const canDeleteAccount = user?.role === "mentor" || user?.role === "mentee";
+  const [deleting, setDeleting] = useState(false);
 
-  async function handleDeactivateAccount() {
-    const ok = await showConfirm(t("settings.deactivateTitle"), t("settings.deactivateConfirm"));
+  async function handleDeleteAccount() {
+    const ok = await showConfirm(t("settings.deleteTitle"), t("settings.deleteConfirm"));
     if (!ok) return;
 
-    setDeactivating(true);
+    setDeleting(true);
     try {
+      // Intern: Soft-Delete (Deaktivierung), UI: "Konto löschen"
       const { data, error } = await supabase.rpc("deactivate_own_account");
       if (error) throw error;
       if (data === false) throw new Error("Nicht berechtigt");
-      showSuccess(t("settings.accountDeactivated"), logout);
+      showSuccess(t("settings.accountDeleted"), logout);
     } catch (e: any) {
-      console.error("deactivateAccount error:", e?.message || e);
-      showError(t("settings.deactivateError"));
+      console.error("deleteAccount error:", e?.message || e);
+      showError(t("settings.deleteError"));
     } finally {
-      setDeactivating(false);
+      setDeleting(false);
     }
   }
 
@@ -183,21 +184,21 @@ export default function SettingsScreen() {
             <Text style={[styles.privacyText, { color: themeColors.textSecondary }]}>{t("settings.privacyText2")}</Text>
           </View>
 
-          {/* Sektion: Konto deaktivieren (nur Mentor/Mentee) */}
-          {canDeactivateAccount && (
+          {/* Sektion: Konto löschen (nur Mentor/Mentee) — intern Soft-Delete */}
+          {canDeleteAccount && (
             <>
               <Text style={[styles.sectionLabel, { color: COLORS.error, marginTop: 20 }]}>{t("settings.dangerZone")}</Text>
               <BNMPressable
                 style={[styles.deleteButton, { borderColor: COLORS.error }]}
-                onPress={handleDeactivateAccount}
-                disabled={deactivating}
+                onPress={handleDeleteAccount}
+                disabled={deleting}
                 accessibilityRole="button"
-                accessibilityLabel="Konto deaktivieren"
+                accessibilityLabel={t("settings.deleteAccount")}
               >
-                {deactivating ? (
+                {deleting ? (
                   <ActivityIndicator size="small" color={COLORS.error} />
                 ) : (
-                  <Text style={styles.deleteButtonText}>{t("settings.deactivateAccount")}</Text>
+                  <Text style={styles.deleteButtonText}>{t("settings.deleteAccount")}</Text>
                 )}
               </BNMPressable>
             </>

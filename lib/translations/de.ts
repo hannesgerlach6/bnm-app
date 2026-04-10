@@ -196,10 +196,7 @@ const de = {
   "settings.privacyText2": "Du hast das Recht auf Auskunft, Berichtigung und Löschung deiner gespeicherten Daten. Wende dich bei Fragen an datenschutz@iman.ngo.",
   "settings.deleteAccount": "Konto löschen",
   "settings.deleteTitle": "Konto löschen",
-  "settings.deleteConfirm": "Bist du sicher? Diese Aktion kann nicht rückgängig gemacht werden. Alle deine Daten werden permanent gelöscht.",
-  "settings.deactivateAccount": "Konto deaktivieren",
-  "settings.deactivateTitle": "Konto deaktivieren",
-  "settings.deactivateConfirm": "Möchtest du dein Konto wirklich deaktivieren? Du kannst dich danach nicht mehr einloggen. Deine Daten bleiben erhalten und ein Admin kann dein Konto bei Bedarf wieder aktivieren.",
+  "settings.deleteConfirm": "Dein Konto wird gelöscht und du kannst dich nicht mehr einloggen. Deine Daten werden gemäß unserer Datenschutzrichtlinie und gesetzlicher Aufbewahrungsfristen verarbeitet.",
   "settings.rtlHint": "RTL-Layout wird in einer zukünftigen Version unterstützt",
   "settings.footer": "BNM – Betreuung neuer Muslime · Version 1.0.0",
 
@@ -1507,12 +1504,10 @@ const de = {
   // Applications – account created
   "applications.accountCreated": "Account erstellt. Zugangsdaten wurden per E-Mail an den Mentee gesendet.",
 
-  // Settings – account deleted/deactivated
-  "settings.accountDeleted": "Dein Konto wurde erfolgreich gelöscht.",
-  "settings.accountDeactivated": "Dein Konto wurde deaktiviert. Du wirst jetzt abgemeldet.",
+  // Settings – account deletion
+  "settings.accountDeleted": "Dein Konto wurde erfolgreich gelöscht. Du wirst jetzt abgemeldet.",
   "settings.dangerZone": "GEFAHRENZONE",
   "settings.deleteError": "Fehler beim Löschen des Kontos. Bitte versuche es später erneut.",
-  "settings.deactivateError": "Fehler beim Deaktivieren des Kontos. Bitte versuche es später erneut.",
 
   // Chat – send error
   "chat.sendError": "Nachricht konnte nicht gesendet werden.",

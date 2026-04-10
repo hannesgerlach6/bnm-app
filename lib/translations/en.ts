@@ -198,10 +198,7 @@ const en: Record<TranslationKeys, string> = {
   "settings.privacyText2": "You have the right to access, correct, and delete your stored data. For questions, contact datenschutz@iman.ngo.",
   "settings.deleteAccount": "Delete Account",
   "settings.deleteTitle": "Delete Account",
-  "settings.deleteConfirm": "Are you sure? This action cannot be undone. All your data will be permanently deleted.",
-  "settings.deactivateAccount": "Deactivate Account",
-  "settings.deactivateTitle": "Deactivate Account",
-  "settings.deactivateConfirm": "Do you really want to deactivate your account? You will no longer be able to log in. Your data will be preserved and an admin can reactivate your account if needed.",
+  "settings.deleteConfirm": "Your account will be deleted and you will no longer be able to log in. Your data will be processed in accordance with our privacy policy and legal retention requirements.",
   "settings.rtlHint": "RTL layout will be supported in a future version",
   "settings.footer": "BNM – Guidance for New Muslims · Version 1.0.0",
 
@@ -1501,12 +1498,10 @@ const en: Record<TranslationKeys, string> = {
   // Applications – account created
   "applications.accountCreated": "Account created. Login credentials have been sent to the mentee by email.",
 
-  // Settings – account deleted/deactivated
-  "settings.accountDeleted": "Your account has been successfully deleted.",
-  "settings.accountDeactivated": "Your account has been deactivated. You will now be logged out.",
+  // Settings – account deletion
+  "settings.accountDeleted": "Your account has been successfully deleted. You will now be logged out.",
   "settings.dangerZone": "DANGER ZONE",
   "settings.deleteError": "Failed to delete account. Please try again later.",
-  "settings.deactivateError": "Failed to deactivate account. Please try again later.",
 
   // Chat – send error
   "chat.sendError": "Could not send message.",

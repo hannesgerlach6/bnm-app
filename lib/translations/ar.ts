@@ -198,10 +198,7 @@ const ar: Record<TranslationKeys, string> = {
   "settings.privacyText2": "يحق لك الاطلاع على بياناتك المخزنة وتصحيحها وحذفها. للاستفسار تواصل مع datenschutz@iman.ngo.",
   "settings.deleteAccount": "حذف الحساب",
   "settings.deleteTitle": "حذف الحساب",
-  "settings.deleteConfirm": "هل أنت متأكد؟ لا يمكن التراجع عن هذا الإجراء. ستُحذف جميع بياناتك بشكل دائم.",
-  "settings.deactivateAccount": "تعطيل الحساب",
-  "settings.deactivateTitle": "تعطيل الحساب",
-  "settings.deactivateConfirm": "هل تريد حقًا تعطيل حسابك؟ لن تتمكن من تسجيل الدخول بعد ذلك. ستبقى بياناتك محفوظة ويمكن للمشرف إعادة تفعيل حسابك عند الحاجة.",
+  "settings.deleteConfirm": "سيتم حذف حسابك ولن تتمكن من تسجيل الدخول بعد ذلك. ستتم معالجة بياناتك وفقًا لسياسة الخصوصية والمتطلبات القانونية.",
   "settings.rtlHint": "سيتم دعم تخطيط RTL في إصدار مستقبلي",
   "settings.footer": "BNM – رعاية المسلمين الجدد · الإصدار 1.0.0",
 
@@ -1555,12 +1552,10 @@ const ar: Record<TranslationKeys, string> = {
   // Applications – account created
   "applications.accountCreated": "تم إنشاء الحساب. تم إرسال بيانات تسجيل الدخول إلى المتعلّم عبر البريد الإلكتروني.",
 
-  // Settings – account deleted/deactivated
-  "settings.accountDeleted": "تم حذف حسابك بنجاح.",
-  "settings.accountDeactivated": "تم تعطيل حسابك. سيتم تسجيل خروجك الآن.",
+  // Settings – account deletion
+  "settings.accountDeleted": "تم حذف حسابك بنجاح. سيتم تسجيل خروجك الآن.",
   "settings.dangerZone": "منطقة الخطر",
   "settings.deleteError": "فشل حذف الحساب. يُرجى المحاولة لاحقًا.",
-  "settings.deactivateError": "فشل تعطيل الحساب. يُرجى المحاولة لاحقًا.",
 
   // Chat – send error
   "chat.sendError": "تعذّر إرسال الرسالة.",
