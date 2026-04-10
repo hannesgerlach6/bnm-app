@@ -131,21 +131,40 @@ function drawPageBg(page: any, rgb: any, W: number, H: number) {
   page.drawRectangle({ x: 0, y: 0, width: W, height: H, color: rgb(...C.bg) });
 }
 
-// --- HELLER Header (kein dunkles Band mehr) ----------------------------
+// --- Logo laden --------------------------------------------------------
+
+async function loadLogoPng(doc: any, pdfLib: any): Promise<any | null> {
+  try {
+    // Logo als base64 fetch (funktioniert auf Web mit Expo assets)
+    const resp = await fetch(require("../assets/images/bnm-logo.png"));
+    const buf = await resp.arrayBuffer();
+    return await doc.embedPng(new Uint8Array(buf));
+  } catch {
+    // Fallback: kein Logo, Text stattdessen
+    return null;
+  }
+}
+
+// --- HELLER Header mit Logo -------------------------------------------
 
 function drawPageHeader(
   page: any, rgb: any, bold: any, font: any,
-  W: number, H: number, title: string, periodLabel: string, today: string
+  W: number, H: number, title: string, periodLabel: string, today: string,
+  logoImage?: any
 ) {
   // Weisser Header-Bereich
   page.drawRectangle({ x: 0, y: H - 55, width: W, height: 55, color: rgb(...C.card) });
   // Gold-Akzentlinie unten
   page.drawRectangle({ x: 0, y: H - 57, width: W, height: 2, color: rgb(...C.gold) });
-  // Feine Border
+  // Feine Border oben
   page.drawLine({ start: { x: 0, y: H - 55 }, end: { x: W, y: H - 55 }, thickness: 0.5, color: rgb(...C.border) });
-  // BNM links — gold auf weiss
-  page.drawText("BNM", { x: 40, y: H - 30, size: 18, font: bold, color: rgb(...C.gold) });
-  page.drawText("Betreuung neuer Muslime", { x: 40, y: H - 42, size: 7, font, color: rgb(...C.textMuted) });
+  // Logo oder Fallback-Text links
+  if (logoImage) {
+    page.drawImage(logoImage, { x: 30, y: H - 52, width: 42, height: 42 });
+  } else {
+    page.drawText("BNM", { x: 40, y: H - 30, size: 18, font: bold, color: rgb(...C.gold) });
+    page.drawText("Betreuung neuer Muslime", { x: 40, y: H - 42, size: 7, font, color: rgb(...C.textMuted) });
+  }
   // Titel zentriert — navy
   const titleW = bold.widthOfTextAtSize(title, 14);
   page.drawText(title, { x: W / 2 - titleW / 2, y: H - 33, size: 14, font: bold, color: rgb(...C.navy) });
@@ -285,20 +304,21 @@ function drawDonutChart(
   // Inner circle
   page.drawCircle({ x: cx, y: cy, size: innerR, color: rgb(...C.bg) });
   const ts = String(total);
-  const tw = bold.widthOfTextAtSize(ts, 16);
-  page.drawText(ts, { x: cx - tw / 2, y: cy - 3, size: 16, font: bold, color: rgb(...C.navy) });
+  const fontSize = innerR > 18 ? 14 : 11;
+  const tw = bold.widthOfTextAtSize(ts, fontSize);
+  page.drawText(ts, { x: cx - tw / 2, y: cy - 2, size: fontSize, font: bold, color: rgb(...C.navy) });
   const gs = "Gesamt";
-  const gw = font.widthOfTextAtSize(gs, 6);
-  page.drawText(gs, { x: cx - gw / 2, y: cy - 13, size: 6, font, color: rgb(...C.textMuted) });
+  const gw = font.widthOfTextAtSize(gs, 5);
+  page.drawText(gs, { x: cx - gw / 2, y: cy - 11, size: 5, font, color: rgb(...C.textMuted) });
 
-  // Legend to the right — compact spacing to avoid overflow
+  // Legend to the right — single line per item (label + value + pct)
   segments.forEach((seg, i) => {
-    const ly = cy + outerR - 5 - i * 15;
-    const lx = cx + outerR + 14;
-    page.drawCircle({ x: lx, y: ly + 3, size: 4, color: rgb(...seg.color) });
-    page.drawText(`${seg.label}: ${seg.value}`, { x: lx + 8, y: ly, size: 7.5, font, color: rgb(...C.textDark) });
+    const ly = cy + outerR - 5 - i * 14;
+    const lx = cx + outerR + 12;
+    page.drawCircle({ x: lx, y: ly + 2, size: 3, color: rgb(...seg.color) });
     const pct = Math.round((seg.value / total) * 100);
-    page.drawText(`${pct}%`, { x: lx + 8, y: ly - 10, size: 6.5, font: bold, color: rgb(...seg.color) });
+    page.drawText(`${seg.label}: ${seg.value}`, { x: lx + 7, y: ly, size: 7, font, color: rgb(...C.textDark) });
+    page.drawText(`${pct}%`, { x: lx + 7, y: ly - 9, size: 6, font: bold, color: rgb(...seg.color) });
   });
 }
 
@@ -406,11 +426,12 @@ export async function downloadMonthlyReportPDF(data: ReportData): Promise<boolea
     const W = 595; const H = 842;
     const today = new Date().toLocaleDateString("de-DE", { day: "2-digit", month: "long", year: "numeric" });
     const TP = 3;
+    const logo = await loadLogoPng(doc, { PDFDocument, StandardFonts, rgb });
 
     // === SEITE 1: Dashboard ===
     const p1 = doc.addPage([W, H]);
     drawPageBg(p1, rgb, W, H);
-    drawPageHeader(p1, rgb, bold, font, W, H, "Monatsbericht", data.periodLabel, today);
+    drawPageHeader(p1, rgb, bold, font, W, H, "Monatsbericht", data.periodLabel, today, logo);
 
     let y = H - 80;
     drawSectionHeader(p1, rgb, bold, font, "Kennzahlen", 40, y, "K", C.blue);
@@ -441,27 +462,29 @@ export async function downloadMonthlyReportPDF(data: ReportData): Promise<boolea
     drawSectionHeader(p1, rgb, bold, font, "Betreuungs-Status", 40, secY, "B", C.green);
 
     const totalB = data.kpis.activeBetreuungen + data.kpis.abgeschlossen + data.kpis.neueBetreuungen;
-    // Donut: smaller radius, more below section header
+    // Donut: compact — radius 30, center at secY-55
+    // Donut bottom = secY-55-30 = secY-85
+    // Legend bottom = secY-55+30-5 - 2*15 - 10 = secY-55+25-40 = secY-70 (ok)
     drawDonutChart(p1, rgb, bold, font, [
       { label: "Aktiv", value: data.kpis.activeBetreuungen, color: C.green },
       { label: "Abgeschl.", value: data.kpis.abgeschlossen, color: C.gold },
       { label: "Neu", value: data.kpis.neueBetreuungen, color: C.blue },
-    ], 110, secY - 62, 35, 18);
+    ], 105, secY - 55, 30, 16);
 
     // SESSION-VERTEILUNG (rechte Haelfte: x=310..555)
     const sessX = 310;
     drawSectionHeader(p1, rgb, bold, font, "Session-Verteilung", sessX, secY, "S", C.gold);
 
-    // gap=18 so all 4 bars fit without clipping
+    // gap=16 compact, all 4 bars fit. Bottom = secY-24-3*16 = secY-72
     drawHorizontalBars(p1, rgb, bold, font, [
       { label: "Wudu", value: data.kpis.wuduSessions, color: C.blue },
       { label: "Salah", value: data.kpis.salahSessions, color: C.green },
       { label: "Koran", value: data.kpis.koranSessions, color: C.gold },
       { label: "Nachbetr.", value: data.kpis.nachbetreuung, color: C.purple },
-    ], sessX, secY - 24, W - 40 - sessX, 10, 18);
+    ], sessX, secY - 24, W - 40 - sessX, 10, 16);
 
-    // MENTOR DES MONATS — well below donut/bars (donut bottom ~ secY-97, bars bottom ~ secY-24-3*18=secY-78)
-    const momY = secY - 115;
+    // MENTOR DES MONATS — starts at secY-100 (donut bottom=secY-85, 15px gap)
+    const momY = secY - 100;
     if (data.mentorOfMonth) {
       p1.drawRectangle({ x: 40, y: momY, width: W - 80, height: 52, color: rgb(...C.card), borderColor: rgb(...C.gold), borderWidth: 2 });
       p1.drawRectangle({ x: 42, y: momY + 4, width: 4, height: 44, color: rgb(...C.gold) });
@@ -478,7 +501,7 @@ export async function downloadMonthlyReportPDF(data: ReportData): Promise<boolea
     // === SEITE 2: Charts + Top-Mentoren + Gauge ===
     const p2 = doc.addPage([W, H]);
     drawPageBg(p2, rgb, W, H);
-    drawPageHeader(p2, rgb, bold, font, W, H, "Monatsbericht", data.periodLabel, today);
+    drawPageHeader(p2, rgb, bold, font, W, H, "Monatsbericht", data.periodLabel, today, logo);
 
     let y2 = H - 80;
     drawSectionHeader(p2, rgb, bold, font, "Sessions nach Typ", 40, y2, "S", C.gold);
@@ -532,7 +555,7 @@ export async function downloadMonthlyReportPDF(data: ReportData): Promise<boolea
     // === SEITE 3: Rangliste + Zusammenfassung ===
     const p3 = doc.addPage([W, H]);
     drawPageBg(p3, rgb, W, H);
-    drawPageHeader(p3, rgb, bold, font, W, H, "Monatsbericht", data.periodLabel, today);
+    drawPageHeader(p3, rgb, bold, font, W, H, "Monatsbericht", data.periodLabel, today, logo);
 
     let y3 = H - 80;
     drawSectionHeader(p3, rgb, bold, font, "Rangliste", 40, y3, "R", C.gold);
@@ -744,11 +767,12 @@ export async function downloadDonorReportPDF(data: DonorReportData): Promise<boo
     const W = 595; const H = 842;
     const today = new Date().toLocaleDateString("de-DE", { day: "2-digit", month: "long", year: "numeric" });
     const TP = 2;
+    const logo = await loadLogoPng(doc, { PDFDocument, StandardFonts, rgb });
 
     // === SEITE 1: KPI + Charts ===
     const p1 = doc.addPage([W, H]);
     drawPageBg(p1, rgb, W, H);
-    drawPageHeader(p1, rgb, bold, font, W, H, "Spenderbericht", data.periodLabel, today);
+    drawPageHeader(p1, rgb, bold, font, W, H, "Spenderbericht", data.periodLabel, today, logo);
 
     let y = H - 80;
     drawSectionHeader(p1, rgb, bold, font, "Kennzahlen", 40, y, "K", C.blue);
@@ -806,7 +830,7 @@ export async function downloadDonorReportPDF(data: DonorReportData): Promise<boo
     // === SEITE 2: Impact + Summary ===
     const p2 = doc.addPage([W, H]);
     drawPageBg(p2, rgb, W, H);
-    drawPageHeader(p2, rgb, bold, font, W, H, "Spenderbericht", data.periodLabel, today);
+    drawPageHeader(p2, rgb, bold, font, W, H, "Spenderbericht", data.periodLabel, today, logo);
 
     let y2 = H - 80;
     drawSectionHeader(p2, rgb, bold, font, "Wirkung & Impact", 40, y2, "W", C.green);
