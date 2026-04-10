@@ -260,29 +260,35 @@ iman.ngo-Stil. Dunkelblau (#0A3A5A) + Gold (#EEA71B). `constants/Colors.ts`.
 - Innere View: `statCardClip` mit `overflow: "hidden"`, `borderWidth`, `flexDirection: "row"`
 - Platform.OS === "android" Check komplett entfernt
 
-### 2026-04-10 — Professionelle PDF-Reports (Monatsbericht + Spenderbericht)
-**Komplettes Redesign von `lib/pdfGenerator.tsx`:**
+### 2026-04-10 — Professionelle PDF-Reports v2 (Komplettes Redesign)
+**Vollstaendiger Rewrite von `lib/pdfGenerator.tsx` — von 0.2/10 auf professionelles Niveau:**
 
-**Neue Chart-Helper-Funktionen:**
-- `drawKpiCardPro()` — KPI-Karte mit farbigem Akzentstreifen oben (statt einfacher Farbpunkt)
-- `drawHorizontalBars()` — Horizontale Balkendiagramme (Session-Verteilung)
-- `drawVerticalBarChart()` — Vertikale Balkendiagramme mit Grid-Linien + Labels
-- `drawDonutChart()` — Kreisdiagramm mit innerem Loch + Legende + Prozentanzeige
-- `drawProgressBar()` — Fortschrittsbalken mit Label + Prozentwert
-- `drawCompletionGauge()` — Abschlussquote mit Farbzonen-Gauge (Rot/Gold/Gruen)
-- `drawImpactCard()` — Grosse Impact-Karte mit Icon-Kreis + Akzentstreifen
+**Neue Architektur:**
+- `drawCoverPage()` — Professionelles Titelblatt mit Navy-Banner (270px), innerem Rahmen, BNM-Logo, Gold-Akzenten
+- `drawProDonutChart()` — Echte Donut-Segmente via SVG-Pfade (statt gestapelter Kreise), mit Luecken zwischen Segmenten + Fallback
+- `drawProKpiCard()` + `drawHeroKpiCard()` — KPI-Karten mit Schatten-Effekt, Akzentstreifen, Icon-Kreisen
+- `drawMetricRow()` — Abgeleitete Kennzahlen (Sessions/Mentee, Sessions/Mentor, Nachbetreuungs-Rate)
+- `drawCardShadow()` — Simulierte Schatten fuer Card-Tiefe
+- `drawCoverFooter()` — Spezieller Cover-Footer
+- Erweiterte Farbpalette: 28 Farben (navyLight, navyDark, goldLight, goldMuted, teal, coverText, coverSub, shadow, etc.)
 
-**Monatsbericht: 2 → 3 Seiten:**
-- S1: KPI-Dashboard (8 Cards) + Betreuungs-Status Donut + Session-Verteilung Balken + Mentor des Monats
-- S2: Sessions nach Typ (vertikale Balken) + Top-5-Mentoren Fortschrittsbalken + Completion-Rate Gauge
-- S3: Ranking-Tabelle (15 Mentoren, Medaillen fuer Top 3) + Zusammenfassung
+**Monatsbericht: 3 → 4 Seiten:**
+- S1: Titelblatt mit Navy-Banner + 4 Hero-KPIs (Betreuungen, Sessions, Mentoren, Abschlussquote) + Executive Summary
+- S2: KPI-Dashboard (8 Cards mit Schatten) + Betreuungs-Donut (echte Segmente) + Session-Bars + Mentor des Monats + Analyse-Metriken
+- S3: Sessions-Balkendiagramm (mit Gitternetz + Y-Achsen-Labels) + Top-5-Mentoren (Fortschrittsbalken) + Abschlussquote-Gauge
+- S4: Professionelle Rangliste-Tabelle (20px Kopfzeile, Medaillen, Zebra-Streifen) + Zusammenfassung
 
-**Spenderbericht: 1 → 2 Seiten:**
-- S1: KPI-Dashboard (8 Cards) + Session-Verteilung (vertikale Balken) + Betreuungs-Donut
-- S2: 4 Impact-Cards + Session-Details (horizontale Balken) + Nachbetreuungs-Rate + Zusammenfassung
+**Spenderbericht: 2 → 3 Seiten:**
+- S1: Titelblatt "Wirkungsbericht fuer Foerderer" + 4 Hero-KPIs + Executive Summary
+- S2: 8 KPI-Cards + Session-Verteilung (vertikale Balken mit Schatten) + Betreuungs-Donut (echte Segmente)
+- S3: 4 Impact-Karten (2x2, mit Icon-Kreisen + Akzentstreifen) + Session-Details + Zusammenfassung
 
-**Design:**
-- Professioneller Header mit BNM-Branding + Gold-Akzentlinie
-- Navy-Hintergrund (#0A3A5A) + Gold (#EEA71B) + Gruen (#0D9C6E)
-- Alle Charts manuell mit pdf-lib Primitiven gebaut (keine externe Chart-Library)
+**Design-Verbesserungen:**
+- Cover-Seiten: Navy-Banner (33% der Seite) mit innerem Rahmen, zentriertem Logo, Gold-Typografie
+- Echte Donut-Charts: SVG-Pfad-Polygone approximieren Kreisboegen (6° pro Segment), Luecken zwischen Segmenten
+- Card-Schatten: Offset-Rechtecke simulieren Tiefeneffekt
+- Erweiterte Typografie: Hero 28pt, KPI 20pt, Section 12pt, Body 9pt, Caption 7pt
+- Berechnete Metriken: Sessions/Mentee, Sessions/Mentor, Nachbetreuungsrate, Abschlussquote
+- Professionelle Tabelle: Navy-Kopfzeile, Zebra-Streifen, Medaillen-Kreise, abschliessende Navy-Linie
+- Footer: "Vertraulich" + iman.ngo Branding + Seitenzahlen
 - Interfaces bleiben 100% abwaertskompatibel (keine Aenderungen an reports.tsx / donor-report.tsx)
