@@ -39,7 +39,8 @@ Alle SQL-Änderungen dokumentieren. Selbstständig handeln.
   15. `supabase/message-templates.sql` — Nachrichtenvorlagen-Tabelle + Seed-Daten
   16. `supabase/resources.sql` — Ressourcen-Tabelle (Links fuer Mentor-Dashboard)
   17. `supabase/events.sql` — Event-Participations-Tabelle (Teilnahme-Polling fuer Event-Ressourcen)
-  18. Dashboard: Auth → Email → "Confirm email" OFF
+  18. `supabase/resource-completions.sql` — Ressourcen-Abhaken (Mentoren können Trainings als erledigt markieren)
+  19. Dashboard: Auth → Email → "Confirm email" OFF
   13. Test-User manuell anlegen + Profile-INSERT
   14. `lib/supabase.ts`: URL + Anon Key ändern (2 Zeilen)
 

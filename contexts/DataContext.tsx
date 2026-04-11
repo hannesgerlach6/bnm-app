@@ -25,6 +25,7 @@ import type {
   Resource,
   EventParticipation,
   EventParticipationStatus,
+  ResourceCompletion,
 } from "../types";
 import { XP_VALUES } from "../lib/gamification";
 
@@ -95,6 +96,7 @@ export interface DataContextValue {
   messageTemplates: MessageTemplate[];
   resources: Resource[];
   eventParticipations: EventParticipation[];
+  resourceCompletions: ResourceCompletion[];
 
   // Internal: Gamification callbacks ref (used by GamificationContext)
   _gamificationRef: MutableRefObject<GamificationCallbacks | null>;
@@ -190,6 +192,11 @@ export interface DataContextValue {
   toggleEventParticipation: (resourceId: string, status: EventParticipationStatus) => Promise<void>;
   getEventParticipationsByResourceId: (resourceId: string) => EventParticipation[];
   getMyEventParticipation: (resourceId: string) => EventParticipation | undefined;
+
+  // Resource Completion actions
+  toggleResourceCompletion: (resourceId: string) => Promise<void>;
+  isResourceCompleted: (resourceId: string) => boolean;
+  getResourceCompletionCount: (resourceId: string) => number;
 
   // Computed helpers
   getMentorshipsByMentorId: (mentorId: string) => Mentorship[];
@@ -376,6 +383,7 @@ export function DataProvider({ children }: { children: ReactNode }) {
   const [messageTemplates, setMessageTemplates] = useState<MessageTemplate[]>([]);
   const [resources, setResources] = useState<Resource[]>([]);
   const [eventParticipations, setEventParticipations] = useState<EventParticipation[]>([]);
+  const [resourceCompletions, setResourceCompletions] = useState<ResourceCompletion[]>([]);
   const [mentorOfMonthVisible, setMentorOfMonthVisible] = useState<boolean>(true);
   const [hadithe, setHadithe] = useState<Hadith[]>([]);
   const [qaEntries, setQAEntries] = useState<QAEntry[]>([]);
@@ -579,6 +587,7 @@ export function DataProvider({ children }: { children: ReactNode }) {
         messageTemplatesRes,
         resourcesRes,
         eventParticipationsRes,
+        resourceCompletionsRes,
         adminMsgsRes,
       ] = await Promise.all([
         safe(supabase.from("profiles").select("*")),
@@ -595,6 +604,7 @@ export function DataProvider({ children }: { children: ReactNode }) {
         safe(supabase.from("message_templates").select("*").eq("is_active", true).order("sort_order", { ascending: true })),
         safe(supabase.from("resources").select("*").order("sort_order", { ascending: true })),
         safe(supabase.from("event_participations").select("*")),
+        safe(supabase.from("resource_completions").select("*")),
         safe(isAdminOrOffice
           ? supabase.from("admin_messages").select("*").order("created_at", { ascending: true })
           : supabase.from("admin_messages").select("*").eq("user_id", authUser!.id).order("created_at", { ascending: true })),
@@ -832,6 +842,17 @@ export function DataProvider({ children }: { children: ReactNode }) {
           user_id: row.user_id,
           status: row.status ?? "interested",
           created_at: row.created_at,
+        })));
+      }
+
+      // Resource Completions
+      if (resourceCompletionsRes.error) console.warn("[DataContext] resource_completions error:", resourceCompletionsRes.error.message);
+      if (resourceCompletionsRes.data) {
+        setResourceCompletions(resourceCompletionsRes.data.map((row: any) => ({
+          id: row.id,
+          resource_id: row.resource_id,
+          user_id: row.user_id,
+          completed_at: row.completed_at,
         })));
       }
 
@@ -2825,20 +2846,23 @@ export function DataProvider({ children }: { children: ReactNode }) {
   // ─── Resource CRUD ──────────────────────────────────────────────────────────
 
   const addResource = useCallback(async (resource: Omit<Resource, "id" | "created_at">) => {
-    const { data, error } = await supabase.from("resources").insert(resource).select().single();
+    // Insert ohne .select().single() — vermeidet RLS-Probleme bei der Rückgabe
+    const { error } = await supabase.from("resources").insert(resource);
     if (error) throw new Error(error.message);
-    if (data) {
-      setResources((prev) => [...prev, {
-        id: data.id,
-        title: data.title ?? "",
-        url: data.url ?? "",
-        description: data.description ?? "",
-        icon: data.icon ?? "link-outline",
-        category: data.category ?? "general",
-        sort_order: data.sort_order ?? 0,
-        is_active: data.is_active ?? true,
-        created_at: data.created_at,
-      }]);
+    // Neue Ressource direkt aus DB laden (sichere SELECT-Policy)
+    const { data: allRes } = await supabase.from("resources").select("*").order("sort_order", { ascending: true });
+    if (allRes) {
+      setResources(allRes.map((row: any) => ({
+        id: row.id,
+        title: row.title ?? "",
+        url: row.url ?? "",
+        description: row.description ?? "",
+        icon: row.icon ?? "link-outline",
+        category: row.category ?? "general",
+        sort_order: row.sort_order ?? 0,
+        is_active: row.is_active ?? true,
+        created_at: row.created_at,
+      })));
     }
   }, []);
 
@@ -2905,6 +2929,50 @@ export function DataProvider({ children }: { children: ReactNode }) {
       return eventParticipations.find((ep) => ep.resource_id === resourceId && ep.user_id === authUser.id);
     },
     [authUser, eventParticipations]
+  );
+
+  // ─── Resource Completion Actions ───────────────────────────────────────────────
+
+  const toggleResourceCompletion = useCallback(async (resourceId: string) => {
+    if (!authUser) return;
+    const existing = resourceCompletions.find(
+      (rc) => rc.resource_id === resourceId && rc.user_id === authUser.id
+    );
+    if (existing) {
+      // Bereits abgehakt → entfernen
+      const { error } = await supabase.from("resource_completions").delete().eq("id", existing.id);
+      if (error) throw new Error(error.message);
+      setResourceCompletions((prev) => prev.filter((rc) => rc.id !== existing.id));
+    } else {
+      // Noch nicht abgehakt → hinzufügen
+      const { data, error } = await supabase
+        .from("resource_completions")
+        .insert({ resource_id: resourceId, user_id: authUser.id })
+        .select()
+        .single();
+      if (error) throw new Error(error.message);
+      if (data) {
+        setResourceCompletions((prev) => [...prev, {
+          id: data.id,
+          resource_id: data.resource_id,
+          user_id: data.user_id,
+          completed_at: data.completed_at,
+        }]);
+      }
+    }
+  }, [authUser, resourceCompletions]);
+
+  const isResourceCompleted = useCallback(
+    (resourceId: string) => {
+      if (!authUser) return false;
+      return resourceCompletions.some((rc) => rc.resource_id === resourceId && rc.user_id === authUser.id);
+    },
+    [authUser, resourceCompletions]
+  );
+
+  const getResourceCompletionCount = useCallback(
+    (resourceId: string) => resourceCompletions.filter((rc) => rc.resource_id === resourceId).length,
+    [resourceCompletions]
   );
 
   // ─── refreshData ──────────────────────────────────────────────────────────────
@@ -3096,6 +3164,10 @@ export function DataProvider({ children }: { children: ReactNode }) {
     toggleEventParticipation,
     getEventParticipationsByResourceId,
     getMyEventParticipation,
+    resourceCompletions,
+    toggleResourceCompletion,
+    isResourceCompleted,
+    getResourceCompletionCount,
     loadQAEntries,
     addQAEntry,
     updateQAEntry,
@@ -3162,6 +3234,7 @@ export function DataProvider({ children }: { children: ReactNode }) {
     messageTemplates, resources, eventParticipations, adminMessages, mentorOfMonthVisible, isLoading, _updateUserXP,
     addResource, updateResource, deleteResource,
     toggleEventParticipation, getEventParticipationsByResourceId, getMyEventParticipation,
+    resourceCompletions, toggleResourceCompletion, isResourceCompleted, getResourceCompletionCount,
     addHadith, updateHadith, deleteHadith, reorderHadithe, bulkInsertHadithe,
     loadQAEntries, addQAEntry, updateQAEntry, deleteQAEntry,
     getSetting, toggleMentorOfMonth, addUser, assignMentorship,

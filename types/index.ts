@@ -134,6 +134,13 @@ export interface EventParticipation {
   created_at: string;
 }
 
+export interface ResourceCompletion {
+  id: string;
+  resource_id: string;
+  user_id: string;
+  completed_at: string;
+}
+
 export type ApplicationStatus = "pending" | "approved" | "rejected";
 
 export interface MentorApplication {

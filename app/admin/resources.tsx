@@ -30,7 +30,7 @@ export default function ResourcesScreen() {
   const { t } = useLanguage();
   const themeColors = useThemeColors();
   const { isDark } = useTheme();
-  const { resources, addResource, updateResource, deleteResource, getEventParticipationsByResourceId, users } = useData();
+  const { resources, addResource, updateResource, deleteResource, getEventParticipationsByResourceId, getResourceCompletionCount, users } = useData();
 
   const [showAddForm, setShowAddForm] = useState(false);
   const [newTitle, setNewTitle] = useState("");
@@ -131,16 +131,17 @@ export default function ResourcesScreen() {
       showError("Titel und URL sind Pflichtfelder");
       return;
     }
+    if (isSaving) return;
     setIsSaving(true);
     try {
-      const maxOrder = Math.max(...resources.map((r) => r.sort_order), 0);
+      const maxOrder = resources.length > 0 ? Math.max(...resources.map((r) => r.sort_order)) + 1 : 1;
       await addResource({
         title: newTitle.trim(),
         url: newUrl.trim(),
         description: newDescription.trim(),
         icon: newIcon.trim() || "link-outline",
         category: newCategory,
-        sort_order: maxOrder + 1,
+        sort_order: maxOrder,
         is_active: true,
       });
       setNewTitle("");
@@ -151,10 +152,9 @@ export default function ResourcesScreen() {
       setShowAddForm(false);
       showSuccess("Ressource hinzugefuegt");
     } catch (err) {
-      showError("Fehler beim Erstellen: " + (err instanceof Error ? err.message : String(err)));
-    } finally {
-      setIsSaving(false);
+      showError("Fehler: " + (err instanceof Error ? err.message : String(err)));
     }
+    setIsSaving(false);
   }
 
   const ICON_OPTIONS = [
@@ -309,6 +309,16 @@ export default function ResourcesScreen() {
                             </View>
                           )}
                         </View>
+                        {/* Completion-Statistik */}
+                        {res.category !== "event" && (() => {
+                          const completionCount = getResourceCompletionCount(res.id);
+                          const mentorCount = users.filter((u) => u.role === "mentor" && u.is_active !== false).length;
+                          return completionCount > 0 ? (
+                            <Text style={{ fontSize: 11, color: COLORS.cta, fontWeight: "600", marginTop: 4 }}>
+                              ✓ {completionCount}/{mentorCount} Mentoren abgehakt
+                            </Text>
+                          ) : null;
+                        })()}
                         {res.category === "event" && (() => {
                           const participations = getEventParticipationsByResourceId(res.id);
                           const confirmed = participations.filter((ep) => ep.status === "confirmed");

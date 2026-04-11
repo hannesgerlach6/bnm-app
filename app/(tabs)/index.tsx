@@ -882,7 +882,7 @@ function MentorDashboard() {
   const { t } = useLanguage();
   const themeColors = useThemeColors();
   const { isDark } = useTheme();
-  const { getMentorshipsByMentorId, sessions, users, hadithe, feedback, refreshData, sessionTypes, isLoading, resources, eventParticipations, toggleEventParticipation, getEventParticipationsByResourceId, getMyEventParticipation } = useData();
+  const { getMentorshipsByMentorId, sessions, users, hadithe, feedback, refreshData, sessionTypes, isLoading, resources, eventParticipations, toggleEventParticipation, getEventParticipationsByResourceId, getMyEventParticipation, isResourceCompleted, toggleResourceCompletion } = useData();
   const { xpLog, userAchievements, thanks, streak } = useGamification();
   const [refreshing, setRefreshing] = useState(false);
   const [hadithOffset, setHadithOffset] = useState(0);
@@ -1311,21 +1311,56 @@ function MentorDashboard() {
                     : 0;
                   const isConfirmed = myParticipation?.status === "confirmed";
 
+                  const completed = isResourceCompleted(res.id);
+
                   return (
                     <BNMPressable
                       key={res.id}
-                      style={[styles.resourceCard, { backgroundColor: themeColors.card, borderColor: sem(SEMANTIC.goldBorder, isDark) }]}
+                      style={[
+                        styles.resourceCard,
+                        { backgroundColor: themeColors.card, borderColor: completed ? COLORS.cta + "60" : sem(SEMANTIC.goldBorder, isDark) },
+                        completed && { opacity: 0.75 },
+                      ]}
                       onPress={() => !isEvent ? Linking.openURL(res.url) : undefined}
                       accessibilityRole={isEvent ? "button" : "link"}
                       accessibilityLabel={res.title}
                     >
-                      <View style={[styles.resourceIconBg, { backgroundColor: COLORS.gold + "15" }]}>
-                        <Ionicons name={res.icon as any} size={22} color={COLORS.gold} />
+                      <View style={[styles.resourceIconBg, { backgroundColor: completed ? COLORS.cta + "15" : COLORS.gold + "15" }]}>
+                        <Ionicons name={completed ? "checkmark-circle" : (res.icon as any)} size={22} color={completed ? COLORS.cta : COLORS.gold} />
                       </View>
                       <Text style={[styles.resourceTitle, { color: themeColors.text }]} numberOfLines={2}>{res.title}</Text>
                       {res.description ? (
                         <Text style={[styles.resourceDesc, { color: themeColors.textTertiary }]} numberOfLines={2}>{res.description}</Text>
                       ) : null}
+
+                      {/* Abhaken-Button (nicht für Events) */}
+                      {!isEvent && (
+                        <BNMPressable
+                          style={{
+                            marginTop: 8,
+                            paddingVertical: 6,
+                            paddingHorizontal: 12,
+                            borderRadius: RADIUS.sm,
+                            backgroundColor: completed ? COLORS.cta + "15" : themeColors.background,
+                            borderWidth: 1,
+                            borderColor: completed ? COLORS.cta + "40" : themeColors.border,
+                            alignItems: "center",
+                            flexDirection: "row",
+                            justifyContent: "center",
+                            gap: 6,
+                          }}
+                          onPress={() => toggleResourceCompletion(res.id)}
+                          accessibilityRole="checkbox"
+                          accessibilityState={{ checked: completed }}
+                          accessibilityLabel={completed ? "Als nicht erledigt markieren" : "Als erledigt markieren"}
+                        >
+                          <Ionicons name={completed ? "checkmark-circle" : "ellipse-outline"} size={16} color={completed ? COLORS.cta : themeColors.textTertiary} />
+                          <Text style={{ fontSize: 12, fontWeight: "600", color: completed ? COLORS.cta : themeColors.textSecondary }}>
+                            {completed ? "Erledigt" : "Abhaken"}
+                          </Text>
+                        </BNMPressable>
+                      )}
+
                       {isEvent && (
                         <View style={{ marginTop: 8 }}>
                           <Text style={{ fontSize: 11, color: themeColors.textTertiary, marginBottom: 6 }}>
