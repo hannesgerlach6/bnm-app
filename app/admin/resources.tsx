@@ -150,8 +150,8 @@ export default function ResourcesScreen() {
       setNewCategory("general");
       setShowAddForm(false);
       showSuccess("Ressource hinzugefuegt");
-    } catch {
-      showError("Fehler beim Erstellen");
+    } catch (err) {
+      showError("Fehler beim Erstellen: " + (err instanceof Error ? err.message : String(err)));
     } finally {
       setIsSaving(false);
     }

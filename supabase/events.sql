@@ -14,7 +14,8 @@ ALTER TABLE event_participations ENABLE ROW LEVEL SECURITY;
 
 CREATE POLICY "Users can manage own participations"
   ON event_participations FOR ALL
-  USING (user_id = auth.uid());
+  USING (user_id = auth.uid())
+  WITH CHECK (user_id = auth.uid());
 
 CREATE POLICY "Admin can view all participations"
   ON event_participations FOR SELECT
