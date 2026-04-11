@@ -91,11 +91,24 @@ export function AdminMobileDrawer({ open, onClose }: Props) {
         { key: "/profile", label: t("tabs.profile"), icon: "person-circle-outline" as const, iconActive: "person-circle" as const, href: "/(tabs)/profile" },
       ];
 
-  const adminToolPaths = ["/admin/session-types", "/admin/qa-management", "/admin/hadithe-management", "/admin/message-templates", "/admin/certificate-generator", "/admin/csv-import", "/admin/mentor-award", "/admin/statistics"];
+  const adminToolPaths = ["/admin/session-types", "/admin/qa-management", "/admin/hadithe-management", "/admin/message-templates", "/admin/certificate-generator", "/admin/csv-import", "/admin/mentor-award", "/admin/statistics", "/admin/resources"];
+  // Sub-Routes die zu bestimmten Tabs gehören
+  const menteeSubPaths = ["/mentee/", "/mentorship/", "/assign", "/document-session"];
+  const mentorSubPaths = ["/mentor/"];
   function isActive(key: string) {
     if (key === "/") return pathname === "/" || pathname === "/index";
     // Tools-Tab soll auch bei Admin-Unterseiten aktiv bleiben
     if (key === "/tools") return pathname.includes("/tools") || adminToolPaths.some((p) => pathname.includes(p));
+    // Mentees-Tab: auch bei Mentee-Detail, Mentorship, Assign, Document-Session, edit-user
+    if (key === "/mentees") return pathname.includes("/mentees") || menteeSubPaths.some((p) => pathname.includes(p)) || pathname.includes("/admin/edit-user");
+    // Mentoren-Tab: auch bei Mentor-Detail
+    if (key === "/mentors") return pathname.includes("/mentors") || (mentorSubPaths.some((p) => pathname.match(new RegExp("^" + p))) && !pathname.includes("/admin/mentor"));
+    // Feedback-Tab: auch bei /feedback Detailseite
+    if (key === "/feedback") return pathname.includes("/feedback");
+    // Chats-Tab: auch bei /chat/[id]
+    if (key === "/chats") return pathname.includes("/chats") || pathname.includes("/chat/");
+    // Profil-Tab: auch bei /edit-profile, /change-password
+    if (key === "/profile") return pathname.includes("/profile") || pathname.includes("/edit-profile") || pathname.includes("/change-password");
     return pathname === key || pathname.startsWith(key + "/");
   }
 

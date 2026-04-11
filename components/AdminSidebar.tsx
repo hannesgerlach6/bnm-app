@@ -188,17 +188,33 @@ export function AdminSidebar() {
     pathname.includes("/admin/certificate-generator") ||
     pathname.includes("/admin/csv-import") ||
     pathname.includes("/admin/mentor-award") ||
-    pathname.includes("/admin/statistics");
+    pathname.includes("/admin/statistics") ||
+    pathname.includes("/admin/resources");
 
   const role = user?.role;
   const isMentor = role === "mentor";
   const isMentee = role === "mentee";
 
+  // Sub-Routes die zu Mentees gehören: /mentee/[id], /mentorship/[id], /assign, /document-session
+  const isMenteeSubRoute =
+    pathname.match(/^\/mentee\//) ||
+    pathname.includes("/mentorship/") ||
+    pathname.includes("/assign") ||
+    pathname.includes("/document-session");
+
+  // Sub-Routes die zu Mentoren gehören: /mentor/[id], /admin/edit-user
+  const isMentorSubRoute =
+    (pathname.match(/^\/mentor\//) && !pathname.includes("/admin/mentor"));
+
+  // /admin/edit-user kann von Mentees oder Mentoren kommen — wir nutzen den letzten bekannten Kontext
+  // Fallback: wenn pathname /admin/edit-user ist, schaue ob davor mentees oder mentors aktiv war
+  const isEditUser = pathname.includes("/admin/edit-user");
+
   const activeSegment = pathname.includes("/reports") || pathname.includes("donor-report")
     ? "reports"
-    : pathname.includes("/mentees")
+    : pathname.includes("/mentees") || isMenteeSubRoute
     ? "mentees"
-    : (pathname.includes("/mentors") || pathname.includes("/mentor/")) && !pathname.includes("/admin/mentor")
+    : pathname.includes("/mentors") || isMentorSubRoute
     ? (isMentor ? "leaderboard" : "mentors")
     : pathname.includes("/applications") || pathname.includes("/admin/pending")
     ? "applications"
@@ -212,8 +228,10 @@ export function AdminSidebar() {
     ? "leaderboard"
     : pathname.includes("/faq") || pathname.includes("/qa")
     ? "faq"
-    : pathname.includes("/profile")
+    : pathname.includes("/profile") || pathname.includes("/edit-profile") || pathname.includes("/change-password")
     ? "profile"
+    : isEditUser
+    ? "mentees"
     : "index";
 
   // Rollenabhängige Menüpunkte

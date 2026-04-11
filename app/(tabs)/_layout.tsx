@@ -7,7 +7,7 @@ import {
   useWindowDimensions,
 } from "react-native";
 import { BNMPressable } from "../../components/BNMPressable";
-import { Tabs, useRouter } from "expo-router";
+import { Tabs, useRouter, usePathname } from "expo-router";
 import type { BottomTabBarProps } from "@react-navigation/bottom-tabs";
 import { SymbolView } from "expo-symbols";
 import { Ionicons } from "@expo/vector-icons";
@@ -167,6 +167,33 @@ function GlassTabBar({ state, descriptors, navigation }: BottomTabBarProps) {
   const themeColors = useThemeColors();
   const { isDark } = useTheme();
   const insets = useSafeAreaInsets();
+  const pathname = usePathname();
+
+  // Sub-Route → Tab-Index Mapping (damit Highlight bei Sub-Screens korrekt bleibt)
+  const overrideIndex = (() => {
+    const menteeSubPaths = ["/mentee/", "/mentorship/", "/assign", "/document-session", "/admin/edit-user"];
+    const mentorSubPaths = ["/mentor/"];
+    const toolPaths = ["/admin/session-types", "/admin/qa-management", "/admin/hadithe-management", "/admin/message-templates", "/admin/certificate-generator", "/admin/csv-import", "/admin/mentor-award", "/admin/statistics", "/admin/resources"];
+    const chatPaths = ["/chat/"];
+
+    if (menteeSubPaths.some((p) => pathname.includes(p))) {
+      return state.routes.findIndex((r) => r.name === "mentees");
+    }
+    if (mentorSubPaths.some((p) => pathname.match(new RegExp("^" + p)))) {
+      return state.routes.findIndex((r) => r.name === "mentors");
+    }
+    if (toolPaths.some((p) => pathname.includes(p))) {
+      return state.routes.findIndex((r) => r.name === "tools");
+    }
+    if (chatPaths.some((p) => pathname.includes(p))) {
+      return state.routes.findIndex((r) => r.name === "chats");
+    }
+    if (pathname.includes("/edit-profile") || pathname.includes("/change-password")) {
+      return state.routes.findIndex((r) => r.name === "profile");
+    }
+    return -1; // kein Override
+  })();
+  const effectiveIndex = overrideIndex >= 0 ? overrideIndex : state.index;
 
   const containerStyle = [
     glassStyles.container,
@@ -185,7 +212,7 @@ function GlassTabBar({ state, descriptors, navigation }: BottomTabBarProps) {
     <Wrapper {...wrapperProps} style={containerStyle}>
       {state.routes.map((route, index) => {
         const { options } = descriptors[route.key];
-        const isFocused = state.index === index;
+        const isFocused = effectiveIndex === index;
 
         // Hidden tabs: Expo Router setzt tabBarButton → null für href: null
         if (options.tabBarButton) {
