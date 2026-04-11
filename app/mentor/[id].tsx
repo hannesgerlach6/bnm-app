@@ -254,7 +254,7 @@ export default function MentorDetailScreen() {
             <BNMPressable
               style={styles.editProfileButton}
               onPress={() =>
-                router.push({ pathname: "/admin/edit-user", params: { id: mentor.id } })
+                router.push({ pathname: "/admin/edit-user", params: { id: mentor.id, from: "mentors" } })
               }
               accessibilityRole="link"
               accessibilityLabel="Profil bearbeiten"

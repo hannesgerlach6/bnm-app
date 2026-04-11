@@ -245,7 +245,7 @@ export default function MenteeDetailScreen() {
               <BNMPressable
                 style={[styles.actionButton, { backgroundColor: COLORS.gradientStart }]}
                 onPress={() =>
-                  router.push({ pathname: "/admin/edit-user", params: { id: mentee.id } })
+                  router.push({ pathname: "/admin/edit-user", params: { id: mentee.id, from: "mentees" } })
                 }
                 accessibilityRole="link"
                 accessibilityLabel="Profil bearbeiten"

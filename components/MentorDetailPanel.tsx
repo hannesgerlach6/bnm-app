@@ -294,7 +294,7 @@ export function MentorDetailPanel({ id }: MentorDetailPanelProps) {
         <BNMPressable
           style={styles.editProfileButton}
           onPress={() =>
-            router.push({ pathname: "/admin/edit-user", params: { id: mentor.id } })
+            router.push({ pathname: "/admin/edit-user", params: { id: mentor.id, from: "mentors" } })
           }
         >
           <Text style={styles.editProfileButtonText}>{t("editUser.editProfile")}</Text>

@@ -232,7 +232,7 @@ export function MenteeDetailPanel({ id }: MenteeDetailPanelProps) {
           <BNMPressable
             style={[styles.actionButton, { backgroundColor: COLORS.gradientStart }]}
             onPress={() =>
-              router.push({ pathname: "/admin/edit-user", params: { id: mentee.id } })
+              router.push({ pathname: "/admin/edit-user", params: { id: mentee.id, from: "mentees" } })
             }
           >
             <Text style={styles.actionButtonText}>{t("editUser.editProfile")}</Text>

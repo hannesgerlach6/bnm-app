@@ -171,7 +171,13 @@ function GlassTabBar({ state, descriptors, navigation }: BottomTabBarProps) {
 
   // Sub-Route → Tab-Index Mapping (damit Highlight bei Sub-Screens korrekt bleibt)
   const overrideIndex = (() => {
-    const menteeSubPaths = ["/mentee/", "/mentorship/", "/assign", "/document-session", "/admin/edit-user"];
+    // edit-user: from-Parameter bestimmt ob Mentees oder Mentoren
+    if (pathname.includes("/admin/edit-user")) {
+      const editFrom = typeof window !== "undefined" ? new URLSearchParams(window.location.search).get("from") : null;
+      const target = editFrom === "mentors" ? "mentors" : "mentees";
+      return state.routes.findIndex((r) => r.name === target);
+    }
+    const menteeSubPaths = ["/mentee/", "/mentorship/", "/assign", "/document-session"];
     const mentorSubPaths = ["/mentor/"];
     const toolPaths = ["/admin/session-types", "/admin/qa-management", "/admin/hadithe-management", "/admin/message-templates", "/admin/certificate-generator", "/admin/csv-import", "/admin/mentor-award", "/admin/statistics", "/admin/resources"];
     const chatPaths = ["/chat/"];

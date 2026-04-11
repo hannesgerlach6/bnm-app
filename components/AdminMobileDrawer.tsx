@@ -100,7 +100,14 @@ export function AdminMobileDrawer({ open, onClose }: Props) {
     // Tools-Tab soll auch bei Admin-Unterseiten aktiv bleiben
     if (key === "/tools") return pathname.includes("/tools") || adminToolPaths.some((p) => pathname.includes(p));
     // Mentees-Tab: auch bei Mentee-Detail, Mentorship, Assign, Document-Session, edit-user
-    if (key === "/mentees") return pathname.includes("/mentees") || menteeSubPaths.some((p) => pathname.includes(p)) || pathname.includes("/admin/edit-user");
+    // edit-user: from-Parameter bestimmt ob Mentees oder Mentoren
+    if (pathname.includes("/admin/edit-user")) {
+      const editFrom = typeof window !== "undefined" ? new URLSearchParams(window.location.search).get("from") : null;
+      if (key === "/mentees") return editFrom !== "mentors";
+      if (key === "/mentors") return editFrom === "mentors";
+      return false;
+    }
+    if (key === "/mentees") return pathname.includes("/mentees") || menteeSubPaths.some((p) => pathname.includes(p));
     // Mentoren-Tab: auch bei Mentor-Detail
     if (key === "/mentors") return pathname.includes("/mentors") || (mentorSubPaths.some((p) => pathname.match(new RegExp("^" + p))) && !pathname.includes("/admin/mentor"));
     // Feedback-Tab: auch bei /feedback Detailseite

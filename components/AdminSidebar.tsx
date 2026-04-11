@@ -209,9 +209,15 @@ export function AdminSidebar() {
   // /admin/edit-user kann von Mentees oder Mentoren kommen — wir nutzen den letzten bekannten Kontext
   // Fallback: wenn pathname /admin/edit-user ist, schaue ob davor mentees oder mentors aktiv war
   const isEditUser = pathname.includes("/admin/edit-user");
+  // from-Parameter aus URL extrahieren (z.B. ?from=mentors)
+  const editUserFrom = isEditUser && typeof window !== "undefined"
+    ? new URLSearchParams(window.location.search).get("from")
+    : null;
 
   const activeSegment = pathname.includes("/reports") || pathname.includes("donor-report")
     ? "reports"
+    : isEditUser
+    ? (editUserFrom === "mentors" ? "mentors" : "mentees")
     : pathname.includes("/mentees") || isMenteeSubRoute
     ? "mentees"
     : pathname.includes("/mentors") || isMentorSubRoute
@@ -230,8 +236,6 @@ export function AdminSidebar() {
     ? "faq"
     : pathname.includes("/profile") || pathname.includes("/edit-profile") || pathname.includes("/change-password")
     ? "profile"
-    : isEditUser
-    ? "mentees"
     : "index";
 
   // Rollenabhängige Menüpunkte
