@@ -14,7 +14,7 @@
     },
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "ngo.iman.bnm",
+      "bundleIdentifier": "com.bnm.app",
       "buildNumber": "1",
       "infoPlist": {
         "NSCameraUsageDescription": "BNM benötigt Zugriff auf die Kamera für dein Profilbild.",
@@ -28,7 +28,7 @@
         "foregroundImage": "./assets/images/adaptive-icon.png",
         "backgroundColor": "#F9FAFB"
       },
-      "package": "ngo.iman.bnm",
+      "package": "com.bnm.app",
       "permissions": [
         "CAMERA",
         "READ_EXTERNAL_STORAGE",
