@@ -367,6 +367,73 @@ export async function initiateGoogleAuth(userId?: string): Promise<{
 
 // ─── 3. Google Calendar API ────────────────────────────────────────────────────
 
+export interface GoogleCalendarEvent {
+  id: string;
+  title: string;
+  start: string;     // ISO datetime oder YYYY-MM-DD (ganztägig)
+  end: string;
+  description?: string;
+  location?: string;
+  htmlLink?: string;
+  isAllDay: boolean;
+}
+
+/**
+ * Lädt alle Events aus dem primären Google Calendar des Users.
+ * Standardmäßig: aktueller Monat ±1 Monat.
+ */
+export async function fetchGoogleCalendarEvents(
+  accessToken: string,
+  timeMin?: string,
+  timeMax?: string
+): Promise<GoogleCalendarEvent[]> {
+  if (!accessToken) return [];
+
+  const now = new Date();
+  const min = timeMin ?? new Date(now.getFullYear(), now.getMonth() - 1, 1).toISOString();
+  const max = timeMax ?? new Date(now.getFullYear(), now.getMonth() + 2, 1).toISOString();
+
+  try {
+    const params = new URLSearchParams({
+      timeMin:      min,
+      timeMax:      max,
+      singleEvents: "true",
+      orderBy:      "startTime",
+      maxResults:   "250",
+    });
+
+    const res = await fetch(
+      `${GOOGLE_CALENDAR_API}/calendars/primary/events?${params.toString()}`,
+      { headers: { Authorization: `Bearer ${accessToken}` } }
+    );
+
+    if (!res.ok) {
+      if (res.status !== 401) {
+        console.error("[calendarService] fetchGoogleCalendarEvents:", res.status);
+      }
+      return [];
+    }
+
+    const data = await res.json();
+    return (data.items ?? []).map((item: any): GoogleCalendarEvent => {
+      const isAllDay = !!item.start?.date && !item.start?.dateTime;
+      return {
+        id:          item.id,
+        title:       item.summary || "(kein Titel)",
+        start:       item.start?.dateTime ?? item.start?.date ?? "",
+        end:         item.end?.dateTime   ?? item.end?.date   ?? "",
+        description: item.description,
+        location:    item.location,
+        htmlLink:    item.htmlLink,
+        isAllDay,
+      };
+    });
+  } catch (err) {
+    console.error("[calendarService] fetchGoogleCalendarEvents Fehler:", err);
+    return [];
+  }
+}
+
 /**
  * Synchronisiert ein Event zum Google Calendar des Users.
  * Gibt die Google Event ID zurück.

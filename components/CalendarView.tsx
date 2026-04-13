@@ -9,7 +9,7 @@ import { COLORS, RADIUS } from "../constants/Colors";
 
 export interface CalendarViewEvent {
   date: string; // YYYY-MM-DD
-  type: "event" | "session" | "milestone";
+  type: "event" | "session" | "milestone" | "google";
   title: string;
 }
 
@@ -72,9 +72,10 @@ function toDateStr(year: number, month: number, day: number): string {
 // ─── Dot colors ─────────────────────────────────────────────────────────────
 
 const DOT_COLORS: Record<string, string> = {
-  event: COLORS.gold,
-  session: COLORS.gradientStart,
+  event:     COLORS.gold,
+  session:   COLORS.gradientStart,
   milestone: COLORS.cta,
+  google:    "#4285F4",
 };
 
 // ─── Component ──────────────────────────────────────────────────────────────

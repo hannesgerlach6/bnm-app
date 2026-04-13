@@ -24,6 +24,8 @@ import {
   clearGoogleTokens,
   syncEventToGoogle,
   generateGoogleCalendarUrl,
+  fetchGoogleCalendarEvents,
+  type GoogleCalendarEvent,
 } from "../../lib/calendarService";
 import type { CalendarEvent, EventAttendee } from "../../types";
 
@@ -163,6 +165,66 @@ function EventCard({
   );
 }
 
+// ─── Google Event Card ───────────────────────────────────────────────────────
+
+function GoogleEventCard({ event }: { event: GoogleCalendarEvent }) {
+  const themeColors = useThemeColors();
+
+  const timeStr = event.isAllDay
+    ? "Ganztägig"
+    : event.start
+    ? `${formatTime(event.start)}${event.end ? ` - ${formatTime(event.end)}` : ""}`
+    : "";
+
+  const openInGoogle = () => {
+    if (!event.htmlLink) return;
+    if (Platform.OS === "web") window.open(event.htmlLink, "_blank");
+    else Linking.openURL(event.htmlLink);
+  };
+
+  return (
+    <View style={[styles.eventCard, { backgroundColor: themeColors.card, borderColor: "#4285F480" }]}>
+      <View style={styles.eventCardHeader}>
+        <View style={{ flex: 1 }}>
+          <Text style={[styles.eventTitle, { color: themeColors.text }]}>{event.title}</Text>
+          {timeStr ? (
+            <View style={styles.eventMetaRow}>
+              <Ionicons name="time-outline" size={14} color={themeColors.textTertiary} />
+              <Text style={[styles.eventTime, { color: themeColors.textSecondary }]}>{timeStr}</Text>
+            </View>
+          ) : null}
+          {event.location ? (
+            <View style={styles.eventMetaRow}>
+              <Ionicons name="location-outline" size={14} color={themeColors.textTertiary} />
+              <Text style={[styles.eventLocation, { color: themeColors.textSecondary }]}>{event.location}</Text>
+            </View>
+          ) : null}
+        </View>
+        <View style={[styles.typeBadge, { backgroundColor: "#4285F420" }]}>
+          <Text style={[styles.typeBadgeText, { color: "#4285F4" }]}>Google</Text>
+        </View>
+      </View>
+      {event.description ? (
+        <Text style={[styles.eventDescription, { color: themeColors.textSecondary }]} numberOfLines={2}>
+          {event.description}
+        </Text>
+      ) : null}
+      {event.htmlLink ? (
+        <BNMPressable
+          style={[styles.googleCalBtn, { borderColor: "#4285F440" }]}
+          onPress={openInGoogle}
+          accessibilityLabel="In Google Calendar öffnen"
+        >
+          <Ionicons name="open-outline" size={13} color="#4285F4" />
+          <Text style={[styles.googleCalBtnText, { color: "#4285F4" }]}>
+            In Google Calendar öffnen
+          </Text>
+        </BNMPressable>
+      ) : null}
+    </View>
+  );
+}
+
 // ─── Main Screen ────────────────────────────────────────────────────────────
 
 export default function CalendarTabScreen() {
@@ -183,6 +245,7 @@ export default function CalendarTabScreen() {
 
   const [googleConnected, setGoogleConnected] = useState(false);
   const [googleLoading,   setGoogleLoading]   = useState(false);
+  const [googleCalItems,  setGoogleCalItems]   = useState<GoogleCalendarEvent[]>([]);
 
   const userId = user?.id;
 
@@ -190,6 +253,16 @@ export default function CalendarTabScreen() {
   useEffect(() => {
     getValidAccessToken(userId).then((token) => setGoogleConnected(!!token));
   }, [userId]);
+
+  // Google-Kalender-Einträge laden wenn verbunden
+  useEffect(() => {
+    if (!googleConnected) { setGoogleCalItems([]); return; }
+    getValidAccessToken(userId).then(async (token) => {
+      if (!token) return;
+      const items = await fetchGoogleCalendarEvents(token);
+      setGoogleCalItems(items);
+    });
+  }, [googleConnected, userId]);
 
   const handleGoogleConnect = useCallback(async () => {
     setGoogleLoading(true);
@@ -233,6 +306,7 @@ export default function CalendarTabScreen() {
   const calendarViewEvents = useMemo(() => {
     const result: CalendarViewEvent[] = [];
 
+    // BNM-Events
     calendarEvents.forEach((e) => {
       if (!e.is_active) return;
       if (user) {
@@ -248,8 +322,14 @@ export default function CalendarTabScreen() {
       });
     });
 
+    // Google-Kalender-Einträge
+    googleCalItems.forEach((e) => {
+      const date = e.start.slice(0, 10);
+      if (date) result.push({ date, type: "google", title: e.title });
+    });
+
     return result;
-  }, [calendarEvents, user]);
+  }, [calendarEvents, googleCalItems, user]);
 
   // Events for selected day
   const dayEvents = useMemo(() => {
@@ -268,6 +348,12 @@ export default function CalendarTabScreen() {
     });
   }, [calendarEvents, selectedDate, user]);
 
+  // Google-Events für den ausgewählten Tag
+  const dayGoogleItems = useMemo(() => {
+    if (!selectedDate) return [];
+    return googleCalItems.filter((e) => e.start.slice(0, 10) === selectedDate);
+  }, [googleCalItems, selectedDate]);
+
   const handleRespond = async (eventId: string, status: "accepted" | "declined") => {
     try {
       await respondToEvent(eventId, status);
@@ -276,7 +362,7 @@ export default function CalendarTabScreen() {
     }
   };
 
-  const hasItems = dayEvents.length > 0;
+  const hasItems = dayEvents.length > 0 || dayGoogleItems.length > 0;
 
   // Format selected date for display
   const selectedDateDisplay = selectedDate
@@ -345,8 +431,14 @@ export default function CalendarTabScreen() {
           <View style={styles.legendRow}>
             <View style={styles.legendItem}>
               <View style={[styles.legendDot, { backgroundColor: COLORS.gold }]} />
-              <Text style={[styles.legendText, { color: themeColors.textTertiary }]}>Event</Text>
+              <Text style={[styles.legendText, { color: themeColors.textTertiary }]}>BNM Event</Text>
             </View>
+            {googleConnected && (
+              <View style={styles.legendItem}>
+                <View style={[styles.legendDot, { backgroundColor: "#4285F4" }]} />
+                <Text style={[styles.legendText, { color: themeColors.textTertiary }]}>Google</Text>
+              </View>
+            )}
           </View>
 
           {/* Day Detail */}
@@ -363,7 +455,7 @@ export default function CalendarTabScreen() {
                 />
               )}
 
-              {/* Event Cards */}
+              {/* BNM Event Cards */}
               {dayEvents.map((event) => (
                 <EventCard
                   key={event.id}
@@ -373,6 +465,11 @@ export default function CalendarTabScreen() {
                   onRespond={handleRespond}
                   onAddToGoogle={handleAddToGoogle}
                 />
+              ))}
+
+              {/* Google Kalender Karten */}
+              {dayGoogleItems.map((gEvent) => (
+                <GoogleEventCard key={gEvent.id} event={gEvent} />
               ))}
 
             </View>
