@@ -102,6 +102,8 @@ export interface MessageTemplate {
   is_active: boolean;
 }
 
+export type ResourceVisibility = "all" | "mentors" | "mentees" | "male" | "female";
+
 export interface Resource {
   id: string;
   title: string;
@@ -111,6 +113,8 @@ export interface Resource {
   category: string;
   sort_order: number;
   is_active: boolean;
+  visible_to: ResourceVisibility;
+  visible_until: string | null;
   created_at: string;
 }
 

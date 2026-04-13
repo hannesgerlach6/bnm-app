@@ -38,6 +38,8 @@ export default function ResourcesScreen() {
   const [newDescription, setNewDescription] = useState("");
   const [newIcon, setNewIcon] = useState("link-outline");
   const [newCategory, setNewCategory] = useState("general");
+  const [newVisibleTo, setNewVisibleTo] = useState<string>("all");
+  const [newVisibleUntil, setNewVisibleUntil] = useState("");
 
   // Edit state
   const [editingId, setEditingId] = useState<string | null>(null);
@@ -46,6 +48,8 @@ export default function ResourcesScreen() {
   const [editDescription, setEditDescription] = useState("");
   const [editIcon, setEditIcon] = useState("");
   const [editCategory, setEditCategory] = useState("");
+  const [editVisibleTo, setEditVisibleTo] = useState<string>("all");
+  const [editVisibleUntil, setEditVisibleUntil] = useState("");
   const [isSaving, setIsSaving] = useState(false);
   const isSavingRef = React.useRef(false);
 
@@ -102,6 +106,8 @@ export default function ResourcesScreen() {
     setEditDescription(res.description);
     setEditIcon(res.icon);
     setEditCategory(res.category);
+    setEditVisibleTo(res.visible_to ?? "all");
+    setEditVisibleUntil(res.visible_until ? res.visible_until.slice(0, 10) : "");
   }
 
   async function handleSaveEdit() {
@@ -117,6 +123,8 @@ export default function ResourcesScreen() {
         description: editDescription.trim(),
         icon: editIcon.trim() || "link-outline",
         category: editCategory,
+        visible_to: editVisibleTo as any,
+        visible_until: editVisibleUntil ? new Date(editVisibleUntil).toISOString() : null,
       });
       setEditingId(null);
       showSuccess("Gespeichert");
@@ -145,12 +153,16 @@ export default function ResourcesScreen() {
         category: newCategory,
         sort_order: maxOrder,
         is_active: true,
+        visible_to: newVisibleTo as any,
+        visible_until: newVisibleUntil ? new Date(newVisibleUntil).toISOString() : null,
       });
       setNewTitle("");
       setNewUrl("");
       setNewDescription("");
       setNewIcon("link-outline");
       setNewCategory("general");
+      setNewVisibleTo("all");
+      setNewVisibleUntil("");
       setShowAddForm(false);
       showSuccess("Ressource hinzugefuegt");
     } catch (err) {
@@ -274,6 +286,39 @@ export default function ResourcesScreen() {
                             </BNMPressable>
                           ))}
                         </View>
+                        {/* Sichtbarkeit */}
+                        <Text style={{ fontSize: 12, fontWeight: "500", color: themeColors.textSecondary, marginTop: 6, marginBottom: 4 }}>Sichtbar fuer</Text>
+                        <View style={styles.chipRow}>
+                          {([
+                            { key: "all", label: "Alle" },
+                            { key: "mentors", label: "Mentoren" },
+                            { key: "mentees", label: "Mentees" },
+                            { key: "male", label: "Brueder" },
+                            { key: "female", label: "Schwestern" },
+                          ] as const).map((opt) => (
+                            <BNMPressable
+                              key={opt.key}
+                              style={[styles.catChip, {
+                                borderColor: editVisibleTo === opt.key ? COLORS.gradientStart : themeColors.border,
+                                backgroundColor: editVisibleTo === opt.key ? COLORS.gradientStart + "15" : themeColors.background,
+                              }]}
+                              onPress={() => setEditVisibleTo(opt.key)}
+                              accessibilityRole="radio"
+                              accessibilityLabel={opt.label}
+                            >
+                              <Text style={[styles.catChipText, { color: editVisibleTo === opt.key ? COLORS.gradientStart : themeColors.textSecondary }]}>
+                                {opt.label}
+                              </Text>
+                            </BNMPressable>
+                          ))}
+                        </View>
+                        <TextInput
+                          style={[styles.textInput, { backgroundColor: themeColors.background, borderColor: themeColors.border, color: themeColors.text, marginTop: 4 }]}
+                          value={editVisibleUntil}
+                          onChangeText={setEditVisibleUntil}
+                          placeholder="Sichtbar bis: JJJJ-MM-TT (leer = unbegrenzt)"
+                          placeholderTextColor={themeColors.textTertiary}
+                        />
                         <View style={{ flexDirection: "row", gap: 8, marginTop: 6 }}>
                           <BNMPressable
                             style={[styles.arrowButton, { backgroundColor: themeColors.background, flex: 1 }]}
@@ -310,6 +355,20 @@ export default function ResourcesScreen() {
                           {!res.is_active && (
                             <View style={[styles.categoryBadge, { backgroundColor: COLORS.errorBg }]}>
                               <Text style={[styles.categoryBadgeText, { color: COLORS.error }]}>inaktiv</Text>
+                            </View>
+                          )}
+                          {res.visible_to !== "all" && (
+                            <View style={[styles.categoryBadge, { backgroundColor: COLORS.gradientStart + "15" }]}>
+                              <Text style={[styles.categoryBadgeText, { color: COLORS.gradientStart }]}>
+                                {res.visible_to === "mentors" ? "Nur Mentoren" : res.visible_to === "mentees" ? "Nur Mentees" : res.visible_to === "male" ? "Nur Brueder" : "Nur Schwestern"}
+                              </Text>
+                            </View>
+                          )}
+                          {res.visible_until && (
+                            <View style={[styles.categoryBadge, { backgroundColor: COLORS.gold + "15" }]}>
+                              <Text style={[styles.categoryBadgeText, { color: COLORS.goldText }]}>
+                                bis {new Date(res.visible_until).toLocaleDateString("de-DE")}
+                              </Text>
                             </View>
                           )}
                         </View>
@@ -478,6 +537,43 @@ export default function ResourcesScreen() {
                   ))}
                 </View>
 
+                {/* Sichtbarkeit */}
+                <Text style={[styles.formLabel, { color: themeColors.textSecondary }]}>Sichtbar fuer</Text>
+                <View style={styles.chipRow}>
+                  {([
+                    { key: "all", label: "Alle" },
+                    { key: "mentors", label: "Nur Mentoren" },
+                    { key: "mentees", label: "Nur Mentees" },
+                    { key: "male", label: "Nur Brueder" },
+                    { key: "female", label: "Nur Schwestern" },
+                  ] as const).map((opt) => (
+                    <BNMPressable
+                      key={opt.key}
+                      style={[styles.catChip, {
+                        borderColor: newVisibleTo === opt.key ? COLORS.gradientStart : themeColors.border,
+                        backgroundColor: newVisibleTo === opt.key ? COLORS.gradientStart + "15" : themeColors.background,
+                      }]}
+                      onPress={() => setNewVisibleTo(opt.key)}
+                      accessibilityRole="radio"
+                      accessibilityLabel={opt.label}
+                    >
+                      <Text style={[styles.catChipText, { color: newVisibleTo === opt.key ? COLORS.gradientStart : themeColors.textSecondary }]}>
+                        {opt.label}
+                      </Text>
+                    </BNMPressable>
+                  ))}
+                </View>
+
+                {/* Sichtbar bis */}
+                <Text style={[styles.formLabel, { color: themeColors.textSecondary }]}>Sichtbar bis (optional)</Text>
+                <TextInput
+                  style={[styles.textInput, { backgroundColor: themeColors.background, borderColor: themeColors.border, color: themeColors.text }]}
+                  value={newVisibleUntil}
+                  onChangeText={setNewVisibleUntil}
+                  placeholder="JJJJ-MM-TT (leer = unbegrenzt)"
+                  placeholderTextColor={themeColors.textTertiary}
+                />
+
                 <View style={styles.formButtonRow}>
                   <BNMPressable
                     style={[styles.cancelFormButton, { backgroundColor: themeColors.background, borderColor: themeColors.border }]}
@@ -488,6 +584,8 @@ export default function ResourcesScreen() {
                       setNewDescription("");
                       setNewIcon("link-outline");
                       setNewCategory("general");
+                      setNewVisibleTo("all");
+                      setNewVisibleUntil("");
                     }}
                     accessibilityRole="button"
                     accessibilityLabel="Abbrechen"

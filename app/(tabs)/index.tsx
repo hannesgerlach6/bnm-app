@@ -1294,14 +1294,27 @@ function MentorDashboard() {
         </DashboardRow>
 
         {/* ── Ressourcen ── */}
-        {resources.filter((r) => r.is_active).length > 0 && (
+        {(() => {
+          const now = new Date();
+          const visibleResources = resources.filter((r) => {
+            if (!r.is_active) return false;
+            // Zeitsteuerung
+            if (r.visible_until && new Date(r.visible_until) < now) return false;
+            // Zielgruppe
+            if (r.visible_to === "all") return true;
+            if (r.visible_to === "mentors") return user?.role === "mentor";
+            if (r.visible_to === "mentees") return user?.role === "mentee";
+            if (r.visible_to === "male") return user?.gender === "male";
+            if (r.visible_to === "female") return user?.gender === "female";
+            return true;
+          });
+          return visibleResources.length > 0 ? (
           <View style={{ marginTop: 8 }}>
             <Text style={[styles.mentorSectionTitle, { color: themeColors.textSecondary, marginBottom: 10 }]}>
               Ressourcen
             </Text>
             <View style={{ flexDirection: "row", flexWrap: "wrap", gap: 10 }}>
-              {resources
-                .filter((r) => r.is_active)
+              {visibleResources
                 .sort((a, b) => a.sort_order - b.sort_order)
                 .map((res) => {
                   const isEvent = res.category === "event";
@@ -1389,7 +1402,8 @@ function MentorDashboard() {
                 })}
             </View>
           </View>
-        )}
+          ) : null;
+        })()}
 
       </View>
     </ScrollView>

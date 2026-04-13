@@ -829,6 +829,8 @@ export function DataProvider({ children }: { children: ReactNode }) {
           category: row.category ?? "general",
           sort_order: row.sort_order ?? 0,
           is_active: row.is_active ?? true,
+          visible_to: row.visible_to ?? "all",
+          visible_until: row.visible_until ?? null,
           created_at: row.created_at,
         })));
       }
@@ -2859,6 +2861,8 @@ export function DataProvider({ children }: { children: ReactNode }) {
         category: data.category ?? "general",
         sort_order: data.sort_order ?? 0,
         is_active: data.is_active ?? true,
+        visible_to: data.visible_to ?? "all",
+        visible_until: data.visible_until ?? null,
         created_at: data.created_at,
       };
       setResources((prev) => {
@@ -2872,7 +2876,8 @@ export function DataProvider({ children }: { children: ReactNode }) {
         setResources(allRes.map((row: any) => ({
           id: row.id, title: row.title ?? "", url: row.url ?? "", description: row.description ?? "",
           icon: row.icon ?? "link-outline", category: row.category ?? "general",
-          sort_order: row.sort_order ?? 0, is_active: row.is_active ?? true, created_at: row.created_at,
+          sort_order: row.sort_order ?? 0, is_active: row.is_active ?? true,
+          visible_to: row.visible_to ?? "all", visible_until: row.visible_until ?? null, created_at: row.created_at,
         })));
       }
     }
