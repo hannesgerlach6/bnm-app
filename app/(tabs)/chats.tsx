@@ -85,7 +85,6 @@ function ChatPanel({ mentorshipId }: { mentorshipId: string }) {
     }
   }, [showScrollFab]);
 
-  const mentorship = getMentorshipById(mentorshipId);
   const messages = getMessagesByMentorshipId(mentorshipId);
   const reversedMessages = useMemo(() => [...messages].reverse(), [messages]);
 
