@@ -1,24 +1,19 @@
 import { Platform, Alert, Linking } from "react-native";
 import * as WebBrowser from "expo-web-browser";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import { supabase } from "./supabase";
 import type { CalendarEvent } from "../types";
 
 // ============================================================
 // Calendar Service — iCal Export + Google Calendar OAuth Sync
 // ============================================================
-// Web:    Popup-basierter OAuth Flow
-// Native: expo-web-browser + Deep Link (bnmapp://oauth)
-//
-// GOOGLE CLOUD CONSOLE (einmalig):
-//   1. Authorized Redirect URIs hinzufügen:
-//      - https://bnm.iman.ngo/auth/google/callback  (Web)
-//      - bnmapp://oauth                              (Mobile)
+// Tokens werden in profiles.google_calendar_token (Supabase) gespeichert
+// → bleibt über Browser/Gerätewechsel hinweg verbunden.
+// Fallback: AsyncStorage / localStorage
 // ============================================================
 
 // ─── Konfiguration ─────────────────────────────────────────────────────────────
 
-// Credentials aus Umgebungsvariablen (.env.local für lokal, Vercel Dashboard für Produktion)
-// Expo Public Vars werden zur Build-Zeit ins Bundle eingebettet.
 const GOOGLE_CLIENT_ID     = process.env.EXPO_PUBLIC_GOOGLE_CLIENT_ID     ?? "";
 const GOOGLE_CLIENT_SECRET = process.env.EXPO_PUBLIC_GOOGLE_CLIENT_SECRET ?? "";
 
@@ -28,9 +23,15 @@ const SCOPES = "https://www.googleapis.com/auth/calendar.events";
 const STORAGE_KEY_ACCESS  = "google_access_token";
 const STORAGE_KEY_REFRESH = "google_refresh_token";
 
-// ─── Token-Persistenz ──────────────────────────────────────────────────────────
+// ─── Token-Persistenz (DB + lokaler Fallback) ──────────────────────────────────
 
-export async function saveGoogleTokens(accessToken: string, refreshToken: string): Promise<void> {
+/** Tokens in Supabase profiles + lokal speichern */
+export async function saveGoogleTokens(
+  accessToken: string,
+  refreshToken: string,
+  userId?: string
+): Promise<void> {
+  // Lokal speichern (Fallback + schneller Zugriff)
   try {
     if (Platform.OS === "web") {
       localStorage.setItem(STORAGE_KEY_ACCESS, accessToken);
@@ -39,10 +40,46 @@ export async function saveGoogleTokens(accessToken: string, refreshToken: string
       await AsyncStorage.setItem(STORAGE_KEY_ACCESS, accessToken);
       await AsyncStorage.setItem(STORAGE_KEY_REFRESH, refreshToken);
     }
-  } catch { /* Speicherfehler sind nicht kritisch */ }
+  } catch { /* ignorieren */ }
+
+  // In Supabase DB speichern (persistent über Geräte/Browser)
+  if (userId) {
+    await supabase
+      .from("profiles")
+      .update({ google_calendar_token: { access_token: accessToken, refresh_token: refreshToken } })
+      .eq("id", userId);
+  }
 }
 
-export async function loadGoogleTokens(): Promise<{ accessToken: string | null; refreshToken: string | null }> {
+/** Tokens laden — DB hat Vorrang, lokaler Fallback wenn nicht eingeloggt */
+export async function loadGoogleTokens(
+  userId?: string
+): Promise<{ accessToken: string | null; refreshToken: string | null }> {
+  // Aus Supabase DB laden (persistent)
+  if (userId) {
+    const { data } = await supabase
+      .from("profiles")
+      .select("google_calendar_token")
+      .eq("id", userId)
+      .single();
+
+    const token = data?.google_calendar_token as { access_token?: string; refresh_token?: string } | null;
+    if (token?.access_token) {
+      // Auch lokal cachen
+      try {
+        if (Platform.OS === "web") {
+          localStorage.setItem(STORAGE_KEY_ACCESS,  token.access_token);
+          localStorage.setItem(STORAGE_KEY_REFRESH, token.refresh_token ?? "");
+        } else {
+          await AsyncStorage.setItem(STORAGE_KEY_ACCESS,  token.access_token);
+          await AsyncStorage.setItem(STORAGE_KEY_REFRESH, token.refresh_token ?? "");
+        }
+      } catch { /* ignorieren */ }
+      return { accessToken: token.access_token, refreshToken: token.refresh_token ?? null };
+    }
+  }
+
+  // Lokaler Fallback
   try {
     if (Platform.OS === "web") {
       return {
@@ -60,7 +97,8 @@ export async function loadGoogleTokens(): Promise<{ accessToken: string | null; 
   }
 }
 
-export async function clearGoogleTokens(): Promise<void> {
+export async function clearGoogleTokens(userId?: string): Promise<void> {
+  // Lokal löschen
   try {
     if (Platform.OS === "web") {
       localStorage.removeItem(STORAGE_KEY_ACCESS);
@@ -70,6 +108,14 @@ export async function clearGoogleTokens(): Promise<void> {
       await AsyncStorage.removeItem(STORAGE_KEY_REFRESH);
     }
   } catch { /* ignorieren */ }
+
+  // In DB löschen
+  if (userId) {
+    await supabase
+      .from("profiles")
+      .update({ google_calendar_token: null })
+      .eq("id", userId);
+  }
 }
 
 // ─── Hilfsfunktionen ───────────────────────────────────────────────────────────
@@ -234,9 +280,9 @@ function buildAuthUrl(redirectUri: string): string {
 /**
  * Startet den Google OAuth Flow — Web + Native.
  * Gibt Tokens zurück oder null wenn abgebrochen/fehlgeschlagen.
- * Tokens werden automatisch gespeichert.
+ * Tokens werden automatisch in DB + lokal gespeichert.
  */
-export async function initiateGoogleAuth(): Promise<{
+export async function initiateGoogleAuth(userId?: string): Promise<{
   accessToken: string;
   refreshToken: string;
 } | null> {
@@ -258,7 +304,7 @@ export async function initiateGoogleAuth(): Promise<{
           if (e.data?.type === "google-auth-callback" && e.data?.code) {
             window.removeEventListener("message", handleMessage);
             const tokens = await exchangeCodeForTokens(e.data.code, redirectUri);
-            if (tokens) await saveGoogleTokens(tokens.accessToken, tokens.refreshToken);
+            if (tokens) await saveGoogleTokens(tokens.accessToken, tokens.refreshToken, userId);
             resolve(tokens);
           }
         };
@@ -310,7 +356,7 @@ export async function initiateGoogleAuth(): Promise<{
       }
 
       const tokens = await exchangeCodeForTokens(code, redirectUri);
-      if (tokens) await saveGoogleTokens(tokens.accessToken, tokens.refreshToken);
+      if (tokens) await saveGoogleTokens(tokens.accessToken, tokens.refreshToken, userId);
       return tokens;
     }
   } catch (err) {
@@ -419,7 +465,7 @@ export async function refreshGoogleToken(refreshToken: string): Promise<string |
 
     const data = await res.json();
     if (data.access_token) {
-      await saveGoogleTokens(data.access_token, refreshToken);
+      await saveGoogleTokens(data.access_token, refreshToken, undefined);
     }
     return data.access_token ?? null;
   } catch (err) {
@@ -430,10 +476,10 @@ export async function refreshGoogleToken(refreshToken: string): Promise<string |
 
 /**
  * Gibt ein gültiges Access Token zurück — erneuert automatisch falls abgelaufen.
- * Gibt null zurück wenn keine Tokens gespeichert oder Refresh fehlschlägt.
+ * userId optional für DB-Abfrage statt nur lokalem Storage.
  */
-export async function getValidAccessToken(): Promise<string | null> {
-  const { accessToken, refreshToken } = await loadGoogleTokens();
+export async function getValidAccessToken(userId?: string): Promise<string | null> {
+  const { accessToken, refreshToken } = await loadGoogleTokens(userId);
   if (!accessToken) return null;
 
   // Prüfen ob Token noch gültig (einfacher Test via Tokeninfo)

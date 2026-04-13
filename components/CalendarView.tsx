@@ -1,5 +1,5 @@
 import React, { useState, useMemo, useCallback } from "react";
-import { View, Text, StyleSheet } from "react-native";
+import { View, Text, StyleSheet, Platform } from "react-native";
 import { BNMPressable } from "./BNMPressable";
 import { Ionicons } from "@expo/vector-icons";
 import { useThemeColors } from "../contexts/ThemeContext";
@@ -239,7 +239,9 @@ const styles = StyleSheet.create({
   },
   dayCell: {
     width: "14.2857%",
-    aspectRatio: 1,
+    ...(Platform.OS === "web"
+      ? { height: 44 }
+      : { aspectRatio: 1 }),
     alignItems: "center",
     justifyContent: "center",
     borderRadius: RADIUS.xs,

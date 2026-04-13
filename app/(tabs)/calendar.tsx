@@ -163,39 +163,6 @@ function EventCard({
   );
 }
 
-// ─── Session Card ───────────────────────────────────────────────────────────
-
-function SessionCard({
-  session,
-  users,
-}: {
-  session: any;
-  users: any[];
-}) {
-  const themeColors = useThemeColors();
-  const mentor = users.find((u) => u.id === session.mentor_id);
-  const mentee = users.find((u) => u.id === session.mentee_id);
-  const sessionTypeName = session.session_type_name || "Sitzung";
-
-  return (
-    <View style={[styles.sessionCard, { backgroundColor: themeColors.card, borderColor: themeColors.border }]}>
-      <View style={styles.sessionCardHeader}>
-        <View style={{ flex: 1 }}>
-          <Text style={[styles.sessionTitle, { color: themeColors.text }]}>{sessionTypeName}</Text>
-          <Text style={[styles.sessionMeta, { color: themeColors.textSecondary }]}>
-            {mentor?.name || "?"} & {mentee?.name || "?"}
-          </Text>
-        </View>
-        <View style={[styles.typeBadge, { backgroundColor: COLORS.gradientStart + "20" }]}>
-          <Text style={[styles.typeBadgeText, { color: COLORS.gradientStart }]}>
-            {session.is_online ? "Online" : "Vor Ort"}
-          </Text>
-        </View>
-      </View>
-    </View>
-  );
-}
-
 // ─── Main Screen ────────────────────────────────────────────────────────────
 
 export default function CalendarTabScreen() {
@@ -206,12 +173,7 @@ export default function CalendarTabScreen() {
   const {
     calendarEvents,
     eventAttendees,
-    sessions,
-    mentorships,
-    users,
-    sessionTypes,
     respondToEvent,
-    getEventsByDate,
   } = useData();
 
   const [selectedDate, setSelectedDate] = useState<string | null>(() => {
@@ -222,49 +184,42 @@ export default function CalendarTabScreen() {
   const [googleConnected, setGoogleConnected] = useState(false);
   const [googleLoading,   setGoogleLoading]   = useState(false);
 
-  // Prüfen ob Google Tokens vorhanden
+  const userId = user?.id;
+
+  // Tokens aus DB laden beim Start
   useEffect(() => {
-    getValidAccessToken().then((token) => setGoogleConnected(!!token));
-  }, []);
+    getValidAccessToken(userId).then((token) => setGoogleConnected(!!token));
+  }, [userId]);
 
   const handleGoogleConnect = useCallback(async () => {
     setGoogleLoading(true);
     try {
-      const tokens = await initiateGoogleAuth();
+      const tokens = await initiateGoogleAuth(userId);
       setGoogleConnected(!!tokens);
     } finally {
       setGoogleLoading(false);
     }
-  }, []);
+  }, [userId]);
 
   const handleGoogleDisconnect = useCallback(async () => {
-    await clearGoogleTokens();
+    await clearGoogleTokens(userId);
     setGoogleConnected(false);
-  }, []);
+  }, [userId]);
 
   const handleAddToGoogle = useCallback(async (event: CalendarEvent) => {
     if (!googleConnected) {
-      // Nicht verbunden → URL im Browser öffnen
       const url = generateGoogleCalendarUrl(event);
-      if (Platform.OS === "web") {
-        window.open(url, "_blank");
-      } else {
-        Linking.openURL(url);
-      }
+      if (Platform.OS === "web") window.open(url, "_blank");
+      else Linking.openURL(url);
       return;
     }
 
-    // Verbunden → direkt synchronisieren
     setGoogleLoading(true);
     try {
-      const token = await getValidAccessToken();
-      if (!token) {
-        setGoogleConnected(false);
-        return;
-      }
+      const token = await getValidAccessToken(userId);
+      if (!token) { setGoogleConnected(false); return; }
       const googleId = await syncEventToGoogle(event, token);
       if (!googleId) {
-        // Fallback: URL öffnen
         const url = generateGoogleCalendarUrl(event);
         if (Platform.OS === "web") window.open(url, "_blank");
         else Linking.openURL(url);
@@ -272,16 +227,14 @@ export default function CalendarTabScreen() {
     } finally {
       setGoogleLoading(false);
     }
-  }, [googleConnected]);
+  }, [googleConnected, userId]);
 
-  // Build calendar view events from all data sources
+  // Build calendar view events
   const calendarViewEvents = useMemo(() => {
     const result: CalendarViewEvent[] = [];
 
-    // Calendar events
     calendarEvents.forEach((e) => {
       if (!e.is_active) return;
-      // Filter by visible_to
       if (user) {
         if (e.visible_to === "mentors" && user.role === "mentee") return;
         if (e.visible_to === "mentees" && user.role !== "mentee") return;
@@ -295,41 +248,8 @@ export default function CalendarTabScreen() {
       });
     });
 
-    // Sessions (via mentorships filtern)
-    const myMentorshipIds = new Set(
-      mentorships
-        .filter((m) =>
-          user?.role === "mentor" ? m.mentor_id === user.id
-          : user?.role === "mentee" ? m.mentee_id === user.id
-          : true
-        )
-        .map((m) => m.id)
-    );
-    sessions.forEach((s) => {
-      if (!s.date) return;
-      if (!myMentorshipIds.has(s.mentorship_id)) return;
-      result.push({
-        date: s.date.slice(0, 10),
-        type: "session",
-        title: "Sitzung",
-      });
-    });
-
-    // Mentorship milestones
-    mentorships.forEach((m) => {
-      if (m.assigned_at) {
-        result.push({ date: m.assigned_at.slice(0, 10), type: "milestone", title: "Zuweisung" });
-      }
-      if (m.completed_at) {
-        result.push({ date: m.completed_at.slice(0, 10), type: "milestone", title: "Abgeschlossen" });
-      }
-      if (m.cancelled_at) {
-        result.push({ date: m.cancelled_at.slice(0, 10), type: "milestone", title: "Abgebrochen" });
-      }
-    });
-
     return result;
-  }, [calendarEvents, sessions, mentorships, user]);
+  }, [calendarEvents, user]);
 
   // Events for selected day
   const dayEvents = useMemo(() => {
@@ -348,34 +268,6 @@ export default function CalendarTabScreen() {
     });
   }, [calendarEvents, selectedDate, user]);
 
-  // Sessions for selected day
-  const daySessions = useMemo(() => {
-    if (!selectedDate) return [];
-    const myMentorshipIds = new Set(
-      mentorships
-        .filter((m) =>
-          user?.role === "mentor" ? m.mentor_id === user.id
-          : user?.role === "mentee" ? m.mentee_id === user.id
-          : true
-        )
-        .map((m) => m.id)
-    );
-    return sessions.filter((s) => {
-      if (!s.date) return false;
-      if (s.date.slice(0, 10) !== selectedDate) return false;
-      if (!myMentorshipIds.has(s.mentorship_id)) return false;
-      return true;
-    }).map((s) => {
-      const st = sessionTypes.find((t) => t.id === s.session_type_id);
-      const m = mentorships.find((m) => m.id === s.mentorship_id);
-      const partner = m
-        ? user?.role === "mentor" ? users.find((u) => u.id === m.mentee_id)
-        : users.find((u) => u.id === m.mentor_id)
-        : null;
-      return { ...s, session_type_name: st?.name || "Sitzung", partner_name: partner?.name || "" };
-    });
-  }, [sessions, selectedDate, user, sessionTypes, mentorships, users]);
-
   const handleRespond = async (eventId: string, status: "accepted" | "declined") => {
     try {
       await respondToEvent(eventId, status);
@@ -384,7 +276,7 @@ export default function CalendarTabScreen() {
     }
   };
 
-  const hasItems = dayEvents.length > 0 || daySessions.length > 0;
+  const hasItems = dayEvents.length > 0;
 
   // Format selected date for display
   const selectedDateDisplay = selectedDate
@@ -455,14 +347,6 @@ export default function CalendarTabScreen() {
               <View style={[styles.legendDot, { backgroundColor: COLORS.gold }]} />
               <Text style={[styles.legendText, { color: themeColors.textTertiary }]}>Event</Text>
             </View>
-            <View style={styles.legendItem}>
-              <View style={[styles.legendDot, { backgroundColor: COLORS.gradientStart }]} />
-              <Text style={[styles.legendText, { color: themeColors.textTertiary }]}>Sitzung</Text>
-            </View>
-            <View style={styles.legendItem}>
-              <View style={[styles.legendDot, { backgroundColor: COLORS.cta }]} />
-              <Text style={[styles.legendText, { color: themeColors.textTertiary }]}>Meilenstein</Text>
-            </View>
           </View>
 
           {/* Day Detail */}
@@ -491,14 +375,6 @@ export default function CalendarTabScreen() {
                 />
               ))}
 
-              {/* Session Cards */}
-              {daySessions.map((session) => (
-                <SessionCard
-                  key={session.id}
-                  session={session}
-                  users={users}
-                />
-              ))}
             </View>
           )}
         </View>
@@ -678,25 +554,4 @@ const styles = StyleSheet.create({
     fontWeight: "600",
   },
 
-  // Session Card
-  sessionCard: {
-    borderRadius: RADIUS.lg,
-    padding: 16,
-    marginBottom: 12,
-    borderWidth: 1,
-    ...SHADOWS.sm,
-  },
-  sessionCardHeader: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "flex-start",
-  },
-  sessionTitle: {
-    fontSize: 15,
-    fontWeight: "700",
-    marginBottom: 2,
-  },
-  sessionMeta: {
-    fontSize: 13,
-  },
 });
