@@ -8,7 +8,7 @@
 --      (nur für Option B mit Edge Function + Push + E-Mail)
 --
 -- DEPLOY der Edge Function (einmalig, in Terminal):
---   supabase functions deploy send-reminders --project-ref jbuvnmjlvebzknbmzryb
+--   supabase functions deploy send-reminders --project-ref cufuikcxliwbmyhwlmga
 --
 -- DANN: SQL unten ausführen (im Supabase SQL-Editor)
 -- ============================================================
@@ -59,7 +59,7 @@ $$);
 
 -- SELECT cron.schedule('bnm-reminders-full', '0 9 * * *', $$
 --   SELECT net.http_post(
---     url     := 'https://jbuvnmjlvebzknbmzryb.supabase.co/functions/v1/send-reminders',
+--     url     := 'https://cufuikcxliwbmyhwlmga.supabase.co/functions/v1/send-reminders',
 --     headers := jsonb_build_object(
 --       'Content-Type',  'application/json',
 --       'Authorization', 'Bearer ' || current_setting('app.service_role_key', true)

@@ -1,10 +1,12 @@
-import React, { useState, useMemo } from "react";
+import React, { useState, useMemo, useEffect, useCallback } from "react";
 import {
   View,
   Text,
   ScrollView,
   StyleSheet,
   Platform,
+  Linking,
+  ActivityIndicator,
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { useAuth } from "../../contexts/AuthContext";
@@ -16,6 +18,13 @@ import { Container } from "../../components/Container";
 import { CalendarView, CalendarViewEvent } from "../../components/CalendarView";
 import { EmptyState } from "../../components/EmptyState";
 import { BNMPressable } from "../../components/BNMPressable";
+import {
+  getValidAccessToken,
+  initiateGoogleAuth,
+  clearGoogleTokens,
+  syncEventToGoogle,
+  generateGoogleCalendarUrl,
+} from "../../lib/calendarService";
 import type { CalendarEvent, EventAttendee } from "../../types";
 
 // ─── Helpers ────────────────────────────────────────────────────────────────
@@ -40,11 +49,13 @@ function EventCard({
   attendees,
   userId,
   onRespond,
+  onAddToGoogle,
 }: {
   event: CalendarEvent;
   attendees: EventAttendee[];
   userId: string;
   onRespond: (eventId: string, status: "accepted" | "declined") => void;
+  onAddToGoogle: (event: CalendarEvent) => void;
 }) {
   const themeColors = useThemeColors();
   const { isDark } = useTheme();
@@ -136,6 +147,18 @@ function EventCard({
           </View>
         )}
       </View>
+
+      {/* Google Calendar Button */}
+      <BNMPressable
+        style={[styles.googleCalBtn, { borderColor: themeColors.border }]}
+        onPress={() => onAddToGoogle(event)}
+        accessibilityLabel="Zu Google Calendar hinzufügen"
+      >
+        <Ionicons name="logo-google" size={13} color={themeColors.textSecondary} />
+        <Text style={[styles.googleCalBtnText, { color: themeColors.textSecondary }]}>
+          Google Kalender
+        </Text>
+      </BNMPressable>
     </View>
   );
 }
@@ -195,6 +218,61 @@ export default function CalendarTabScreen() {
     const now = new Date();
     return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}-${String(now.getDate()).padStart(2, "0")}`;
   });
+
+  const [googleConnected, setGoogleConnected] = useState(false);
+  const [googleLoading,   setGoogleLoading]   = useState(false);
+
+  // Prüfen ob Google Tokens vorhanden
+  useEffect(() => {
+    getValidAccessToken().then((token) => setGoogleConnected(!!token));
+  }, []);
+
+  const handleGoogleConnect = useCallback(async () => {
+    setGoogleLoading(true);
+    try {
+      const tokens = await initiateGoogleAuth();
+      setGoogleConnected(!!tokens);
+    } finally {
+      setGoogleLoading(false);
+    }
+  }, []);
+
+  const handleGoogleDisconnect = useCallback(async () => {
+    await clearGoogleTokens();
+    setGoogleConnected(false);
+  }, []);
+
+  const handleAddToGoogle = useCallback(async (event: CalendarEvent) => {
+    if (!googleConnected) {
+      // Nicht verbunden → URL im Browser öffnen
+      const url = generateGoogleCalendarUrl(event);
+      if (Platform.OS === "web") {
+        window.open(url, "_blank");
+      } else {
+        Linking.openURL(url);
+      }
+      return;
+    }
+
+    // Verbunden → direkt synchronisieren
+    setGoogleLoading(true);
+    try {
+      const token = await getValidAccessToken();
+      if (!token) {
+        setGoogleConnected(false);
+        return;
+      }
+      const googleId = await syncEventToGoogle(event, token);
+      if (!googleId) {
+        // Fallback: URL öffnen
+        const url = generateGoogleCalendarUrl(event);
+        if (Platform.OS === "web") window.open(url, "_blank");
+        else Linking.openURL(url);
+      }
+    } finally {
+      setGoogleLoading(false);
+    }
+  }, [googleConnected]);
 
   // Build calendar view events from all data sources
   const calendarViewEvents = useMemo(() => {
@@ -324,6 +402,46 @@ export default function CalendarTabScreen() {
         <View style={styles.page}>
           <Text style={[styles.pageTitle, { color: themeColors.text }]}>{t("tabs.calendar")}</Text>
 
+          {/* Google Calendar Connect Card */}
+          <View style={[styles.googleConnectCard, {
+            backgroundColor: themeColors.card,
+            borderColor: googleConnected ? COLORS.cta + "60" : themeColors.border,
+          }]}>
+            <View style={styles.googleConnectLeft}>
+              <Ionicons
+                name="logo-google"
+                size={18}
+                color={googleConnected ? COLORS.cta : themeColors.textSecondary}
+              />
+              <View>
+                <Text style={[styles.googleConnectTitle, { color: themeColors.text }]}>
+                  Google Kalender
+                </Text>
+                <Text style={[styles.googleConnectSub, { color: themeColors.textTertiary }]}>
+                  {googleConnected ? "Verbunden — Events werden synchronisiert" : "Verbinden für automatische Sync"}
+                </Text>
+              </View>
+            </View>
+            {googleLoading ? (
+              <ActivityIndicator size="small" color={COLORS.gold} />
+            ) : (
+              <BNMPressable
+                style={[
+                  styles.googleConnectBtn,
+                  { backgroundColor: googleConnected ? COLORS.error + "15" : COLORS.gold + "15",
+                    borderColor:     googleConnected ? COLORS.error + "40" : COLORS.gold + "40" },
+                ]}
+                onPress={googleConnected ? handleGoogleDisconnect : handleGoogleConnect}
+              >
+                <Text style={[styles.googleConnectBtnText, {
+                  color: googleConnected ? COLORS.error : COLORS.goldDeep,
+                }]}>
+                  {googleConnected ? "Trennen" : "Verbinden"}
+                </Text>
+              </BNMPressable>
+            )}
+          </View>
+
           {/* Calendar Grid */}
           <CalendarView
             events={calendarViewEvents}
@@ -369,6 +487,7 @@ export default function CalendarTabScreen() {
                   attendees={eventAttendees}
                   userId={user?.id || ""}
                   onRespond={handleRespond}
+                  onAddToGoogle={handleAddToGoogle}
                 />
               ))}
 
@@ -399,6 +518,59 @@ const styles = StyleSheet.create({
     letterSpacing: -0.3,
     textAlign: "center",
     marginBottom: 16,
+  },
+
+  // Google Connect Card
+  googleConnectCard: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    padding: 14,
+    borderRadius: RADIUS.md,
+    borderWidth: 1,
+    marginBottom: 16,
+    ...SHADOWS.sm,
+  },
+  googleConnectLeft: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 10,
+    flex: 1,
+  },
+  googleConnectTitle: {
+    fontSize: 13,
+    fontWeight: "600",
+    marginBottom: 2,
+  },
+  googleConnectSub: {
+    fontSize: 11,
+  },
+  googleConnectBtn: {
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    borderRadius: RADIUS.sm,
+    borderWidth: 1,
+  },
+  googleConnectBtnText: {
+    fontSize: 12,
+    fontWeight: "600",
+  },
+
+  // Google Cal Button (EventCard)
+  googleCalBtn: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 5,
+    marginTop: 10,
+    paddingVertical: 6,
+    paddingHorizontal: 10,
+    borderRadius: RADIUS.xs,
+    borderWidth: 1,
+    alignSelf: "flex-start",
+  },
+  googleCalBtnText: {
+    fontSize: 11,
+    fontWeight: "500",
   },
 
   // Legend

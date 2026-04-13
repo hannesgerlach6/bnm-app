@@ -8,10 +8,10 @@
 //   3. E-Mail direkt via Resend API
 //
 // Deploy:
-//   supabase functions deploy send-reminders --project-ref jbuvnmjlvebzknbmzryb
+//   supabase functions deploy send-reminders --project-ref cufuikcxliwbmyhwlmga
 //
 // Manuell testen:
-//   curl -X POST https://jbuvnmjlvebzknbmzryb.supabase.co/functions/v1/send-reminders \
+//   curl -X POST https://cufuikcxliwbmyhwlmga.supabase.co/functions/v1/send-reminders \
 //     -H "Authorization: Bearer <SERVICE_ROLE_KEY>"
 
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
