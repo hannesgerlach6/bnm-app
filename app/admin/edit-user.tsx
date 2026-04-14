@@ -19,6 +19,7 @@ import { Container } from "../../components/Container";
 import { BNMPressable } from "../../components/BNMPressable";
 import { BNMInput } from "../../components/BNMInput";
 import { useThemeColors } from "../../contexts/ThemeContext";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { supabase } from "../../lib/supabase";
 import { sendCredentialsEmail } from "../../lib/emailService";
 import type { UserRole, Gender } from "../../types";
@@ -70,6 +71,7 @@ function EditUserForm({ userId }: { userId: string }) {
   const { getUserById, updateUser, setUserActive, deleteUser } = useData();
   const { t } = useLanguage();
   const themeColors = useThemeColors();
+  const insets = useSafeAreaInsets();
 
   const target = getUserById(userId)!;
 
@@ -207,7 +209,7 @@ function EditUserForm({ userId }: { userId: string }) {
         behavior="padding"
       >
         {/* Header */}
-        <View style={[styles.header, { backgroundColor: themeColors.card, borderBottomColor: themeColors.border }]}>
+        <View style={[styles.header, { backgroundColor: themeColors.card, borderBottomColor: themeColors.border, paddingTop: insets.top + 12 }]}>
           <BNMPressable onPress={() => router.back()} style={styles.backBtn} accessibilityRole="link" accessibilityLabel="Zurück">
             <Text style={[styles.backBtnText, { color: themeColors.text }]}>{t("editUser.back")}</Text>
           </BNMPressable>
@@ -520,7 +522,6 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     paddingHorizontal: 16,
-    paddingTop: 56,
     paddingBottom: 16,
     borderBottomWidth: 1,
   },

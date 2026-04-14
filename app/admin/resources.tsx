@@ -20,6 +20,7 @@ import { useLanguage } from "../../contexts/LanguageContext";
 import { useTheme, useThemeColors } from "../../contexts/ThemeContext";
 import { COLORS, RADIUS, SEMANTIC, sem } from "../../constants/Colors";
 import { EmptyState } from "../../components/EmptyState";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 import type { Resource } from "../../types";
 
 const RESOURCE_CATEGORIES = ["general", "lernmaterial", "organisation", "kontakt", "event"];
@@ -30,6 +31,7 @@ export default function ResourcesScreen() {
   const { t } = useLanguage();
   const themeColors = useThemeColors();
   const { isDark } = useTheme();
+  const insets = useSafeAreaInsets();
   const { resources, addResource, updateResource, deleteResource, getEventParticipationsByResourceId, getResourceCompletionCount, users, sessionTypes } = useData();
 
   const [showAddForm, setShowAddForm] = useState(false);
@@ -192,7 +194,7 @@ export default function ResourcesScreen() {
         behavior={Platform.OS === "ios" ? "padding" : "height"}
       >
         <ScrollView style={[styles.scrollView, { backgroundColor: themeColors.background }]}>
-          <View style={styles.page}>
+          <View style={[styles.page, { paddingTop: insets.top + 12 }]}>
             <Text style={[styles.pageTitle, { color: themeColors.text }]}>Ressourcen verwalten</Text>
             <Text style={[styles.pageSubtitle, { color: themeColors.textSecondary }]}>
               {sortedResources.length} Ressource{sortedResources.length !== 1 ? "n" : ""} - Links für das Mentor-Dashboard

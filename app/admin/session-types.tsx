@@ -19,6 +19,7 @@ import { COLORS, RADIUS, SEMANTIC, sem } from "../../constants/Colors";
 import { useLanguage } from "../../contexts/LanguageContext";
 import { useTheme, useThemeColors } from "../../contexts/ThemeContext";
 import { EmptyState } from "../../components/EmptyState";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 export default function SessionTypesScreen() {
   const router = useRouter();
@@ -26,6 +27,7 @@ export default function SessionTypesScreen() {
   const { t } = useLanguage();
   const themeColors = useThemeColors();
   const { isDark } = useTheme();
+  const insets = useSafeAreaInsets();
   const { sessionTypes, addSessionType, updateSessionTypeOrder, updateSessionType, deleteSessionType } = useData();
 
   const [showAddForm, setShowAddForm] = useState(false);
@@ -120,7 +122,7 @@ export default function SessionTypesScreen() {
       behavior={Platform.OS === "ios" ? "padding" : "height"}
     >
     <ScrollView style={[styles.scrollView, { backgroundColor: themeColors.background }]}>
-      <View style={styles.page}>
+      <View style={[styles.page, { paddingTop: insets.top + 12 }]}>
         <Text style={[styles.pageTitle, { color: themeColors.text }]}>{t("sessionTypes.title")}</Text>
         <Text style={[styles.pageSubtitle, { color: themeColors.textSecondary }]}>
           {t("sessionTypes.subtitle").replace("{0}", String(sortedTypes.length))}

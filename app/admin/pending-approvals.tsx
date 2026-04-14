@@ -20,12 +20,14 @@ import { Container } from "../../components/Container";
 import { useLanguage } from "../../contexts/LanguageContext";
 import { useThemeColors } from "../../contexts/ThemeContext";
 import { EmptyState } from "../../components/EmptyState";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 export default function PendingApprovalsScreen() {
   const router = useRouter();
   const { user } = useAuth();
   const { t } = useLanguage();
   const themeColors = useThemeColors();
+  const insets = useSafeAreaInsets();
   const { mentorships, users, approveMentorship, rejectMentorship, refreshData } = useData();
   const [refreshing, setRefreshing] = useState(false);
   const [rejectModalVisible, setRejectModalVisible] = useState(false);
@@ -110,7 +112,7 @@ export default function PendingApprovalsScreen() {
           />
         }
       >
-        <View style={styles.page}>
+        <View style={[styles.page, { paddingTop: insets.top + 12 }]}>
           <BNMPressable style={styles.backLink} onPress={() => router.back()} accessibilityRole="link" accessibilityLabel="Zurück">
             <Text style={[styles.backLinkText, { color: themeColors.link }]}>‹ {t("common.back")}</Text>
           </BNMPressable>

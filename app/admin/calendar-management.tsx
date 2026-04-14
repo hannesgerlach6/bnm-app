@@ -18,6 +18,7 @@ import { useLanguage } from "../../contexts/LanguageContext";
 import { useTheme, useThemeColors } from "../../contexts/ThemeContext";
 import { COLORS, RADIUS, SHADOWS, SEMANTIC, sem } from "../../constants/Colors";
 import { EmptyState } from "../../components/EmptyState";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 import type { CalendarEvent, CalendarEventType, ResourceVisibility, EventAttendee } from "../../types";
 
 const EVENT_TYPES: CalendarEventType[] = ["webinar", "retreat", "kurs", "meeting", "custom"];
@@ -108,6 +109,7 @@ export default function CalendarManagementScreen() {
   const { t } = useLanguage();
   const themeColors = useThemeColors();
   const { isDark } = useTheme();
+  const insets = useSafeAreaInsets();
   const {
     calendarEvents,
     eventAttendees,
@@ -281,7 +283,7 @@ export default function CalendarManagementScreen() {
       <ScrollView style={[styles.scrollView, { backgroundColor: themeColors.background }]}>
         <View style={styles.page}>
           {/* Header */}
-          <View style={styles.headerRow}>
+          <View style={[styles.headerRow, { paddingTop: insets.top + 12 }]}>
             <BNMPressable onPress={() => router.back()} style={styles.backBtn}>
               <Ionicons name="arrow-back" size={22} color={themeColors.text} />
             </BNMPressable>
