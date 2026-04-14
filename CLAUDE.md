@@ -97,6 +97,25 @@ iman.ngo-Stil. Dunkelblau (#0A3A5A) + Gold (#EEA71B). `constants/Colors.ts`.
 
 ## FORTSCHRITTS-LOG
 
+### 2026-04-14 — Betreuungs-Dauer fuer Admin (Wochen-Anzeige + Ueberfaellig-Warnung)
+**Mentee-Liste (mentees.tsx):**
+- `getMentorshipDuration()` Helper: Berechnet Wochen/Tage seit assigned_at
+- Farbcodierter Chip bei aktiven Betreuungen: gruen (<=8 Wo), gold (8-12 Wo), rot (>12 Wo)
+- Anzeige "Betreuung: seit X Wochen" im AdminMenteesView renderItem
+
+**Mentorship-Detail ([id].tsx):**
+- Dauer-Zeile nach Status-Badge (nur Admin/Office sichtbar)
+- Aktiv: "Dauer: X Wochen (seit dd.MM.yyyy)"
+- Abgeschlossen: "Dauer: X Wochen (abgeschlossen am dd.MM.yyyy)"
+- Gleiche Farbcodierung wie Mentee-Liste
+- Ionicons Import ergaenzt fuer time-outline Icon
+
+**Admin-Dashboard (index.tsx):**
+- Neuer `overdueMentorships` useMemo: Filtert aktive Betreuungen >12 Wochen
+- Rote Warn-Box "Ueberfaellige Betreuungen" mit Count-Badge
+- Liste: Mentor → Mentee mit Wochen-Anzeige, klickbar zur Mentorship-Detail
+- Erscheint VOR den bestehenden Betreuungs-Warnungen
+
 ### 2026-04-13 — E-Mail-Vorlagen aus DB (Admin-verwaltbar)
 **Integration Admin-Templates in emailService:**
 - Neue Spalte `template_key` in `message_templates` (systeminterner Schluessel)
