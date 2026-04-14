@@ -43,7 +43,8 @@ Alle SQL-Änderungen dokumentieren. Selbstständig handeln.
   18. `supabase/resource-completions.sql` — Ressourcen-Abhaken (Mentoren können Trainings als erledigt markieren)
   19. `supabase/calendar.sql` — Kalender-Events + Teilnehmer + Google Calendar Token
   20. `supabase/email-templates.sql` — template_key Spalte + Default E-Mail-Vorlagen (Admin kann E-Mail-Texte aendern)
-  21. Dashboard: Auth → Email → "Confirm email" OFF
+  21. `supabase/admin-notes.sql` — Admin-Notizen Spalte fuer Profile
+  22. Dashboard: Auth → Email → "Confirm email" OFF
   13. Test-User manuell anlegen + Profile-INSERT
   14. `lib/supabase.ts`: URL + Anon Key ändern (2 Zeilen)
 
@@ -96,6 +97,20 @@ iman.ngo-Stil. Dunkelblau (#0A3A5A) + Gold (#EEA71B). `constants/Colors.ts`.
 ---
 
 ## FORTSCHRITTS-LOG
+
+### 2026-04-14 — Mentor-Statistiken + Admin-Notizen
+**Feature N4: Mentor Self-Statistiken (index.tsx - MentorDashboard):**
+- Neue "Meine Statistiken"-Sektion mit 3x2 Stat-Grid (nach Gamification, vor Termine)
+- 6 Kennzahlen: Abgeschlossene/Aktive Betreuungen, Sessions, Durchschnittsbewertung, Ranking, Gesamt-Mentoren
+- Nutzt bestehende mentorStats + avgRating (kein neuer DB-Call)
+
+**Feature N5: Admin-Notizen bei Mentees/Mentoren:**
+- Neue Spalte `admin_notes TEXT` in profiles (`supabase/admin-notes.sql`)
+- `types/index.ts`: `admin_notes?: string` im User Interface
+- `contexts/DataContext.tsx`: mapProfile mappt admin_notes, updateUser erlaubt admin_notes
+- `app/admin/edit-user.tsx`: Multiline-Textarea "Admin-Notizen" (nur fuer Admin sichtbar), wird mit Profil gespeichert
+- `components/MenteeDetailPanel.tsx`: Admin-Notizen-Sektion mit "Notizen bearbeiten"-Link
+- `components/MentorDetailPanel.tsx`: Admin-Notizen-Sektion mit "Notizen bearbeiten"-Link
 
 ### 2026-04-14 — Betreuungs-Dauer fuer Admin (Wochen-Anzeige + Ueberfaellig-Warnung)
 **Mentee-Liste (mentees.tsx):**
