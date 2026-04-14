@@ -284,7 +284,7 @@ function EditUserForm({ userId }: { userId: string }) {
                   {
                     color: themeColors.text,
                     borderColor: themeColors.border,
-                    backgroundColor: themeColors.elevated,
+                    backgroundColor: themeColors.background,
                     minHeight: 100,
                     textAlignVertical: "top",
                     marginBottom: 8,
@@ -393,7 +393,7 @@ function EditUserForm({ userId }: { userId: string }) {
               {t("editUser.resetPasswordChoose")}
             </Text>
             <TextInput
-              style={[styles.pwInput, { color: themeColors.text, borderColor: themeColors.border, backgroundColor: themeColors.elevated }]}
+              style={[styles.pwInput, { color: themeColors.text, borderColor: themeColors.border, backgroundColor: themeColors.background }]}
               value={customPassword}
               onChangeText={setCustomPassword}
               placeholder="Neues Passwort"
@@ -479,7 +479,7 @@ function EditUserForm({ userId }: { userId: string }) {
               {target.name}
             </Text>
             <TextInput
-              style={[styles.pwInput, { color: themeColors.text, borderColor: hardDeleteInput === target.name ? COLORS.error : themeColors.border, backgroundColor: themeColors.elevated }]}
+              style={[styles.pwInput, { color: themeColors.text, borderColor: hardDeleteInput === target.name ? COLORS.error : themeColors.border, backgroundColor: themeColors.background }]}
               value={hardDeleteInput}
               onChangeText={setHardDeleteInput}
               placeholder="Name eingeben"
