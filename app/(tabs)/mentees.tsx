@@ -40,6 +40,17 @@ export default function MenteesScreen() {
   return <Container fullWidth={Platform.OS === "web"}><MenteeProgressView /></Container>;
 }
 
+function getMentorshipDuration(assignedAt: string): { weeks: number; days: number; label: string; color: string } {
+  const start = new Date(assignedAt);
+  const now = new Date();
+  const diffMs = now.getTime() - start.getTime();
+  const days = Math.floor(diffMs / (1000 * 60 * 60 * 24));
+  const weeks = Math.floor(days / 7);
+  const label = weeks >= 1 ? `${weeks} Wochen` : `${days} Tage`;
+  const color = weeks <= 8 ? COLORS.cta : weeks <= 12 ? COLORS.gold : COLORS.error;
+  return { weeks, days, label, color };
+}
+
 type AssignmentFilter = "all" | "assigned" | "unassigned";
 type StatusFilter = "all" | "active" | "completed" | "cancelled" | "archived";
 type GenderFilter = "all" | "male" | "female";
@@ -606,6 +617,14 @@ function AdminMenteesView() {
             {!selectMode && mentorship ? (
               <>
                 <Text style={[styles.mentorLabel, { color: themeColors.textTertiary }]}>{t("mentees.mentor")}: {mentorship.mentor?.name}</Text>
+                {mentorship.status === "active" && (() => {
+                  const dur = getMentorshipDuration(mentorship.assigned_at);
+                  return (
+                    <View style={[styles.durationChip, { backgroundColor: dur.color + "18" }]}>
+                      <Text style={[styles.durationChipText, { color: dur.color }]}>Betreuung: seit {dur.label}</Text>
+                    </View>
+                  );
+                })()}
                 {mentorship.status === "cancelled" && (
                   <Text style={[styles.mentorLabel, { color: sem(SEMANTIC.redTextDark, isDark), marginTop: 2 }]}>
                     {mentorship.cancelled_at
@@ -1320,6 +1339,8 @@ const styles = StyleSheet.create({
   statusBadge: { paddingHorizontal: 10, paddingVertical: 4, borderRadius: RADIUS.sm },
   statusText: { fontSize: 12, fontWeight: "500" },
   mentorLabel: { fontSize: 12, marginBottom: 8 },
+  durationChip: { alignSelf: "flex-start", paddingHorizontal: 8, paddingVertical: 3, borderRadius: RADIUS.xs, marginBottom: 6 },
+  durationChipText: { fontSize: 11, fontWeight: "600" },
   progressRow: { flexDirection: "row", alignItems: "center", gap: 8 },
   progressTrack: { flex: 1, height: 6, borderRadius: 3, overflow: "hidden" },
   progressFill: { height: "100%", backgroundColor: COLORS.cta, borderRadius: 3 },

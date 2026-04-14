@@ -309,6 +309,19 @@ function AdminDashboard({ showSystemSettings = true }: { showSystemSettings?: bo
     return warnings.sort((a, b) => (b.daysSince ?? 0) - (a.daysSince ?? 0));
   }, [feedback, mentorships, sessions]);
 
+  // Überfällige Betreuungen (>12 Wochen aktiv)
+  const overdueMentorships = useMemo(() => {
+    const twelveWeeksMs = 12 * 7 * 24 * 60 * 60 * 1000;
+    const now = Date.now();
+    return mentorships
+      .filter((m) => m.status === "active" && (now - new Date(m.assigned_at).getTime()) > twelveWeeksMs)
+      .map((m) => {
+        const weeks = Math.floor((now - new Date(m.assigned_at).getTime()) / (7 * 24 * 60 * 60 * 1000));
+        return { mentorship: m, weeks };
+      })
+      .sort((a, b) => b.weeks - a.weeks);
+  }, [mentorships]);
+
   async function handleSendReminder(mentorshipId: string, mentorName: string, menteeName: string) {
     const mentorship = mentorships.find((m) => m.id === mentorshipId);
     const mentorId = mentorship?.mentor_id;
@@ -568,6 +581,29 @@ function AdminDashboard({ showSystemSettings = true }: { showSystemSettings?: bo
                   <Text style={styles.momAwardButtonText}>{t("dashboard.createAward")} ›</Text>
                 </BNMPressable>
               </BNMPressable>
+            )}
+
+            {/* ── Überfällige Betreuungen (>12 Wochen) ── */}
+            {overdueMentorships.length > 0 && (
+              <View style={[styles.warningBox, { backgroundColor: isDark ? "#2a1a1a" : COLORS.errorBg, borderColor: isDark ? "#4a2a2a" : COLORS.errorBorderLight, borderLeftColor: COLORS.error }]}>
+                <View style={styles.warningHeader}>
+                  <Text style={[styles.warningTitle, { color: isDark ? "#fca5a5" : COLORS.error }]}>Überfällige Betreuungen</Text>
+                  <View style={[styles.warningBadge, { backgroundColor: COLORS.error }]}><Text style={[styles.warningBadgeText, { color: COLORS.white }]}>{overdueMentorships.length}</Text></View>
+                </View>
+                {overdueMentorships.map((item, idx) => {
+                  const isLast = idx === overdueMentorships.length - 1;
+                  return (
+                    <BNMPressable key={item.mentorship.id} style={[styles.warningRow, !isLast && [styles.warningRowBorder, { borderBottomColor: isDark ? "#4a2a2a" : COLORS.errorBorderLight }]]} onPress={() => router.push({ pathname: "/mentorship/[id]", params: { id: item.mentorship.id } })} accessibilityRole="link" accessibilityLabel={`Überfällig: ${item.mentorship.mentor?.name} → ${item.mentorship.mentee?.name}`}>
+                      <View style={[styles.warningDot, { backgroundColor: COLORS.error }]} />
+                      <View style={{ flex: 1 }}>
+                        <Text style={[styles.warningName, { color: themeColors.text }]}>{item.mentorship.mentor?.name ?? "?"} → {item.mentorship.mentee?.name ?? "?"}</Text>
+                      </View>
+                      <Text style={[styles.warningDays, { color: COLORS.error }]}>{item.weeks} Wo.</Text>
+                      <Text style={[styles.warningArrow, { color: themeColors.textSecondary }]}>›</Text>
+                    </BNMPressable>
+                  );
+                })}
+              </View>
             )}
 
             {/* ── Betreuungs-Warnungen (volle Breite) ── */}
@@ -1309,6 +1345,42 @@ function MentorDashboard() {
         />
         </View>
         </DashboardRow>
+
+        {/* ── Meine Statistiken ── */}
+        {mentorStats && (
+          <View style={{ marginTop: 8, marginBottom: 16 }}>
+            <Text style={[styles.mentorSectionTitle, { color: themeColors.textSecondary, marginBottom: 10 }]}>
+              Meine Statistiken
+            </Text>
+            <View style={{ flexDirection: "row", flexWrap: "wrap", gap: 10 }}>
+              {[
+                { label: "Abgeschlossene\nBetreuungen", value: String(mentorStats.completed), color: COLORS.cta },
+                { label: "Aktive\nBetreuungen", value: String(mentorStats.active), color: COLORS.gradientStart },
+                { label: "Dokumentierte\nSessions", value: String(mentorStats.totalSessions), color: COLORS.gold },
+                { label: "Durchschnittliche\nBewertung", value: avgRating !== null ? `${avgRating.toFixed(1)} ★` : "–", color: "#FFCA28" },
+                { label: "Ranking-\nPosition", value: `#${mentorStats.rank}`, color: COLORS.link ?? COLORS.gradientStart },
+                { label: "Gesamt-\nMentoren", value: String(mentorStats.totalMentors), color: themeColors.textSecondary },
+              ].map((item, idx) => (
+                <View
+                  key={idx}
+                  style={{
+                    flex: 1,
+                    minWidth: "30%",
+                    backgroundColor: themeColors.card,
+                    borderWidth: 1,
+                    borderColor: themeColors.border,
+                    borderRadius: RADIUS.sm,
+                    padding: 12,
+                    alignItems: "center",
+                  }}
+                >
+                  <Text style={{ fontSize: 22, fontWeight: "bold", color: item.color }}>{item.value}</Text>
+                  <Text style={{ fontSize: 10, color: themeColors.textTertiary, marginTop: 4, textAlign: "center" }}>{item.label}</Text>
+                </View>
+              ))}
+            </View>
+          </View>
+        )}
 
         {/* ── Nächste Termine ── */}
         {upcomingEvents.length > 0 && (

@@ -9,6 +9,7 @@ import {
   Platform,
 } from "react-native";
 import { BNMPressable } from "../../components/BNMPressable";
+import { Ionicons } from "@expo/vector-icons";
 import { showError, showSuccess, showConfirm } from "../../lib/errorHandler";
 import { navigateToChat } from "../../lib/chatNavigation";
 import { useRouter, useLocalSearchParams } from "expo-router";
@@ -178,6 +179,19 @@ export default function MentorshipDetailScreen() {
       ? t("mentees.pendingApproval")
       : t("mentorship.cancelled");
 
+  // Duration calculation for admin/office
+  const isAdminOrOffice = user?.role === "admin" || user?.role === "office";
+  const mentorshipDuration = (() => {
+    const start = new Date(mentorship.assigned_at);
+    const now = new Date();
+    const diffMs = now.getTime() - start.getTime();
+    const days = Math.floor(diffMs / (1000 * 60 * 60 * 24));
+    const weeks = Math.floor(days / 7);
+    const label = weeks >= 1 ? `${weeks} Wochen` : `${days} Tage`;
+    const color = weeks <= 8 ? COLORS.cta : weeks <= 12 ? COLORS.gold : COLORS.error;
+    return { weeks, days, label, color };
+  })();
+
   const sortedSessionTypes = [...sessionTypes].sort((a, b) => a.sort_order - b.sort_order);
 
   return (
@@ -192,6 +206,19 @@ export default function MentorshipDetailScreen() {
             {t("mentorship.since").replace("{0}", new Date(mentorship.assigned_at).toLocaleDateString("de-DE"))}
           </Text>
         </View>
+
+        {/* Dauer-Anzeige (nur Admin/Office) */}
+        {isAdminOrOffice && (mentorship.status === "active" || mentorship.status === "completed") && (
+          <View style={[styles.durationRow, { backgroundColor: mentorshipDuration.color + "18" }]}>
+            <Ionicons name="time-outline" size={15} color={mentorshipDuration.color} />
+            <Text style={[styles.durationText, { color: mentorshipDuration.color }]}>
+              {mentorship.status === "completed"
+                ? `Dauer: ${mentorshipDuration.label} (abgeschlossen am ${mentorship.completed_at ? new Date(mentorship.completed_at).toLocaleDateString("de-DE", { day: "2-digit", month: "2-digit", year: "numeric" }) : "?"})`
+                : `Dauer: ${mentorshipDuration.label} (seit ${new Date(mentorship.assigned_at).toLocaleDateString("de-DE", { day: "2-digit", month: "2-digit", year: "numeric" })})`
+              }
+            </Text>
+          </View>
+        )}
 
         {/* Abbruch-Info-Box */}
         {mentorship.status === "cancelled" && (
@@ -603,6 +630,8 @@ const styles = StyleSheet.create({
   boldTitle: { fontWeight: "800" },
   page: { padding: 24 },
   statusRow: { flexDirection: "row", justifyContent: "space-between", alignItems: "center", marginBottom: 16 },
+  durationRow: { flexDirection: "row", alignItems: "center", gap: 6, paddingHorizontal: 10, paddingVertical: 6, borderRadius: RADIUS.xs, marginBottom: 12 },
+  durationText: { fontSize: 12, fontWeight: "600" },
   statusBadge: { paddingHorizontal: 12, paddingVertical: 4, borderRadius: RADIUS.full },
   statusText: { fontSize: 14, fontWeight: "600" },
   dateSince: { fontSize: 12 },
