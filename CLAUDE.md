@@ -98,6 +98,17 @@ iman.ngo-Stil. Dunkelblau (#0A3A5A) + Gold (#EEA71B). `constants/Colors.ts`.
 
 ## FORTSCHRITTS-LOG
 
+### 2026-04-15 — Stale-Closure-Bugs bei Bewerbungs-/Mentorship-Genehmigung
+**Kern-Problem:** `approveApplication`, `approveMentorship`, `rejectMentorship` lasen Daten aus veralteten useCallback-Closures. Beim ersten Klick auf "Annehmen" passierte nichts (kein Account, keine E-Mail), erst nach Seiten-Refresh funktionierte es.
+**Root Cause:** `useCallback` Dependencies enthielten `applications`/`mentorships` Arrays — diese Closures waren beim ersten Klick oft leer oder veraltet.
+**Fixes:**
+- `approveApplication`: Bewerbungsdaten jetzt direkt aus DB (`mentor_applications` SELECT) statt aus Closure
+- `approveMentorship`: Mentorship + Mentor/Mentee-Profile aus DB laden statt aus `mentorships.find()`
+- `rejectMentorship`: Mentorship-Daten aus DB laden, `mentorships` aus Deps entfernt
+- `rejectApplication`: `applications` aus Dependency-Array entfernt (war nie benutzt)
+- `applications.tsx`: Ref-Pattern fuer stabile Handler in FlatList `renderItem` (verhindert stale closures)
+- `applications.tsx`: `extraData` + `removeClippedSubviews=false` fuer zuverlaessiges Re-Rendering
+
 ### 2026-04-15 — Race Condition Fix + PLZ + Passwort-Reset
 **Race Condition bei Navigation (8 Stellen gefixt):**
 - `showSuccess(msg, () => router.back())` Pattern entfernt — verursachte Haenger
