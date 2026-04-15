@@ -44,7 +44,8 @@ Alle SQL-Änderungen dokumentieren. Selbstständig handeln.
   19. `supabase/calendar.sql` — Kalender-Events + Teilnehmer + Google Calendar Token
   20. `supabase/email-templates.sql` — template_key Spalte + Default E-Mail-Vorlagen (Admin kann E-Mail-Texte aendern)
   21. `supabase/admin-notes.sql` — Admin-Notizen Spalte fuer Profile
-  22. Dashboard: Auth → Email → "Confirm email" OFF
+  22. `supabase/delete-applications.sql` — DELETE-Policy fuer mentor_applications (Admin/Office)
+  23. Dashboard: Auth → Email → "Confirm email" OFF
   13. Test-User manuell anlegen + Profile-INSERT
   14. `lib/supabase.ts`: URL + Anon Key ändern (2 Zeilen)
 
@@ -97,6 +98,13 @@ iman.ngo-Stil. Dunkelblau (#0A3A5A) + Gold (#EEA71B). `constants/Colors.ts`.
 ---
 
 ## FORTSCHRITTS-LOG
+
+### 2026-04-15 — Bewerbungen loeschen (Admin)
+- Neue SQL-Migration: `supabase/delete-applications.sql` (DELETE-Policy fuer admin/office)
+- `DataContext.tsx`: `deleteApplication()` Funktion + Interface
+- `applications.tsx`: Loeschen-Button (trash-outline Icon) in ApplicationCard fuer alle Status
+- Nur fuer Admin sichtbar, mit Bestaetigungsdialog (showConfirm)
+- Ref-Pattern fuer stabilen Handler in FlatList
 
 ### 2026-04-15 — Umfassendes Audit: 9 weitere Stale-Closure-Bugs + Doku-URLs
 **Systematische Pruefung aller useCallback-Funktionen im Projekt:**

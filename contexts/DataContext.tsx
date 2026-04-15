@@ -160,6 +160,7 @@ export interface DataContextValue {
   // Application actions
   approveApplication: (applicationId: string) => Promise<void>;
   rejectApplication: (applicationId: string, rejectionReason?: string) => Promise<void>;
+  deleteApplication: (applicationId: string) => Promise<void>;
   submitApplication: (data: Omit<MentorApplication, "id" | "status" | "submitted_at">) => Promise<void>;
 
   // User actions
@@ -2567,6 +2568,23 @@ export function DataProvider({ children }: { children: ReactNode }) {
     [authUser]
   );
 
+  const deleteApplication = useCallback(
+    async (applicationId: string) => {
+      await supabase.auth.getSession();
+      const { error } = await supabase
+        .from("mentor_applications")
+        .delete()
+        .eq("id", applicationId);
+
+      if (error) {
+        throw new Error(`Bewerbung konnte nicht gelöscht werden: ${error.message}`);
+      }
+
+      setApplications((prev) => prev.filter((a) => a.id !== applicationId));
+    },
+    []
+  );
+
   const submitApplication = useCallback(
     async (data: Omit<MentorApplication, "id" | "status" | "submitted_at">) => {
       const { data: inserted, error } = await supabase
@@ -3631,7 +3649,7 @@ export function DataProvider({ children }: { children: ReactNode }) {
     sendMessage, deleteMessage, markAsRead, markAllAsRead, getUnreadCount,
     sendAdminDirectMessage, sendAdminMessage, replyToAdmin,
     getAdminMessagesByUserId, getAdminChatPartners,
-    approveApplication, rejectApplication, submitApplication,
+    approveApplication, rejectApplication, deleteApplication, submitApplication,
     updateUser, setUserActive, deleteUser, bulkDeleteUsers,
     updateMentorshipNotes, confirmStepAsMentee, unconfirmStepAsMentee,
     getMentorshipsByMentorId, getMentorshipByMenteeId, getMentorshipById,

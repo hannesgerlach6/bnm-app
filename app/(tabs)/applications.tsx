@@ -21,6 +21,7 @@ import { usePageTitle } from "../../hooks/usePageTitle";
 import { useTheme, useThemeColors } from "../../contexts/ThemeContext";
 import { StatusBadge } from "../../components/StatusBadge";
 import { EmptyState } from "../../components/EmptyState";
+import { Ionicons } from "@expo/vector-icons";
 
 // Öffentliche Anmeldungen sind in mentor_applications mit diesem Motivation-Marker gespeichert
 const PUBLIC_REGISTRATION_MARKER = "Anmeldung als neuer Muslim (öffentliches Formular)";
@@ -53,7 +54,7 @@ export default function ApplicationsTabScreen() {
   const { user } = useAuth();
   const { t } = useLanguage();
   const themeColors = useThemeColors();
-  const { applications, approveApplication, rejectApplication, refreshData } = useData();
+  const { applications, approveApplication, rejectApplication, deleteApplication, refreshData } = useData();
   const [mentorFilter, setMentorFilter] = useState<"pending" | "approved" | "rejected">("pending");
   const [search, setSearch] = useState("");
 
@@ -118,6 +119,22 @@ export default function ApplicationsTabScreen() {
       showError(`Genehmigung fehlgeschlagen: ${msg}`);
     } finally {
       isApprovingRef.current = false;
+    }
+  }
+
+  async function handleDeleteApplication(app: MentorApplication) {
+    const confirmed = await showConfirm(
+      "Bewerbung löschen",
+      `Bewerbung von ${app.name} (${app.email}) unwiderruflich löschen?`
+    );
+    if (!confirmed) return;
+    try {
+      await deleteApplication(app.id);
+      showSuccess("Bewerbung gelöscht");
+      await refreshData();
+    } catch (err) {
+      const msg = err instanceof Error ? err.message : "Unbekannter Fehler";
+      showError(`Löschen fehlgeschlagen: ${msg}`);
     }
   }
 
@@ -192,6 +209,8 @@ export default function ApplicationsTabScreen() {
   handleApproveMentorRef.current = handleApproveMentor;
   const openRejectModalRef = useRef(openRejectModal);
   openRejectModalRef.current = openRejectModal;
+  const handleDeleteApplicationRef = useRef(handleDeleteApplication);
+  handleDeleteApplicationRef.current = handleDeleteApplication;
 
   const renderApplication = useCallback(({ item: app }: { item: MentorApplication }) => (
     <View style={styles.flatListItem}>
@@ -200,6 +219,7 @@ export default function ApplicationsTabScreen() {
         type="mentor"
         onApprove={() => handleApproveMentorRef.current(app)}
         onReject={() => openRejectModalRef.current(app)}
+        onDelete={() => handleDeleteApplicationRef.current(app)}
       />
     </View>
   ), []);
@@ -446,11 +466,13 @@ function ApplicationCard({
   type,
   onApprove,
   onReject,
+  onDelete,
 }: {
   application: MentorApplication;
   type: "mentor" | "mentee";
   onApprove: () => void;
   onReject: () => void;
+  onDelete?: () => void;
 }) {
   const { t } = useLanguage();
   const { user: currentUser } = useAuth();
@@ -641,6 +663,19 @@ function ApplicationCard({
               </View>
             </>
           )}
+
+          {/* Löschen-Button (Admin, alle Status) */}
+          {canApprove && onDelete && (
+            <BNMPressable
+              style={[styles.deleteRow, { borderTopColor: themeColors.border }]}
+              onPress={onDelete}
+              accessibilityRole="button"
+              accessibilityLabel={`${application.name} Bewerbung löschen`}
+            >
+              <Ionicons name="trash-outline" size={15} color={COLORS.error} />
+              <Text style={styles.deleteText}>Bewerbung löschen</Text>
+            </BNMPressable>
+          )}
         </>
       )}
     </View>
@@ -813,6 +848,19 @@ const styles = StyleSheet.create({
 
   actionRow: { flexDirection: "row", gap: 10, marginTop: 4 },
   inviteRow: { flexDirection: "row", gap: 10, marginTop: 6 },
+  deleteRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 6,
+    marginTop: 10,
+    paddingTop: 10,
+    borderTopWidth: 1,
+  },
+  deleteText: {
+    fontSize: 13,
+    color: COLORS.error,
+    fontWeight: "500",
+  },
   inviteButton: {
     flex: 1,
     borderWidth: 1,
