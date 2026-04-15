@@ -2413,8 +2413,30 @@ export function DataProvider({ children }: { children: ReactNode }) {
           .maybeSingle();
 
         if (existingProfile) {
-          // Account existiert bereits → nur Status aktualisieren, kein E-Mail
-          showSuccess("Bewerbung genehmigt. Account war bereits vorhanden.");
+          // Account existiert bereits → Rolle auf Mentor setzen falls noch Mentee
+          await supabase
+            .from("profiles")
+            .update({
+              role: "mentor",
+              gender: app.gender,
+              city: app.city,
+              plz: app.plz ?? null,
+              age: app.age,
+              phone: app.phone ?? null,
+              contact_preference: app.contact_preference ?? null,
+            })
+            .eq("id", existingProfile.id);
+
+          // Lokalen State aktualisieren
+          setUsers((prev) =>
+            prev.map((u) =>
+              u.id === existingProfile.id
+                ? { ...u, role: "mentor" as const, gender: app.gender, city: app.city }
+                : u
+            )
+          );
+
+          showSuccess("Bewerbung genehmigt. Account war bereits vorhanden — Rolle auf Mentor gesetzt.");
         } else {
           // Admin-Session sichern BEVOR signUp aufgerufen wird
           // signUp loggt automatisch den neuen User ein → Admin-Session geht verloren
