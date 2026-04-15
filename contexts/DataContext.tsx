@@ -2397,11 +2397,13 @@ export function DataProvider({ children }: { children: ReactNode }) {
             }
           }
 
-          // Zugangsdaten per E-Mail senden (fire-and-forget — blockiert nicht die UI)
-          sendCredentialsEmail(app.email, app.name, tempPassword).catch(() =>
-            console.warn("[approveApplication] E-Mail-Versand fehlgeschlagen")
-          );
-          showSuccess("Account erstellt. Zugangsdaten werden per E-Mail gesendet.");
+          // Zugangsdaten per E-Mail senden
+          const emailSent = await sendCredentialsEmail(app.email, app.name, tempPassword);
+          if (emailSent) {
+            showSuccess("Account erstellt. Zugangsdaten per E-Mail gesendet.");
+          } else {
+            showSuccess(`Account erstellt. E-Mail an ${app.email} konnte NICHT gesendet werden — Passwort: ${tempPassword}`);
+          }
 
           // Notification an neuen Mentor (fire-and-forget)
           if (signUpData?.user) {
@@ -2585,9 +2587,16 @@ export function DataProvider({ children }: { children: ReactNode }) {
         .map((m) => m.id);
 
       // Serverseitige Funktion: löscht Auth-User + Profil + CASCADE-Daten
-      const { data, error } = await supabase.rpc("delete_user_completely", {
+      // 15s Timeout damit der Button nie ewig hängt
+      const rpcPromise = supabase.rpc("delete_user_completely", {
         target_user_id: userId,
       });
+      const { data, error } = await Promise.race([
+        rpcPromise,
+        new Promise<{ data: null; error: { message: string } }>((resolve) =>
+          setTimeout(() => resolve({ data: null, error: { message: "Zeitüberschreitung (15s). Bitte Seite neu laden und erneut versuchen." } }), 15_000)
+        ),
+      ]);
 
       if (error) {
         showError(`Löschen fehlgeschlagen: ${error.message}`);
