@@ -103,7 +103,10 @@ export default function ApplicationsTabScreen() {
   }, [mentorApps]);
 
   async function handleApproveMentor(app: MentorApplication) {
-    if (isApprovingRef.current) return;
+    if (isApprovingRef.current) {
+      showError("Genehmigung läuft bereits, bitte warten...");
+      return;
+    }
     const ok = await showConfirm(t("applications.approveTitle"), t("applications.confirmApprove").replace("{0}", app.name));
     if (!ok) return;
     isApprovingRef.current = true;

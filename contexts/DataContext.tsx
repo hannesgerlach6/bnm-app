@@ -2016,49 +2016,67 @@ export function DataProvider({ children }: { children: ReactNode }) {
         )
       );
 
-      // Admin-Notification bei Abbruch
-      const admins = users.filter((u) => u.role === "admin" || u.role === "office");
-      const mentorship = mentorships.find((m) => m.id === mentorshipId);
-      for (const admin of admins) {
-        await createNotification(
-          admin.id,
-          "assignment",
-          "Betreuung abgebrochen",
-          `${mentorship?.mentor?.name ?? "Mentor"} hat die Betreuung von ${mentorship?.mentee?.name ?? "Mentee"} abgebrochen. Grund: ${reason}`,
-          mentorshipId
-        );
-      }
+      // Mentorship + Profile direkt aus DB laden (nicht aus stale Closure!)
+      const { data: msRow } = await supabase
+        .from("mentorships")
+        .select("mentor_id, mentee_id")
+        .eq("id", mentorshipId)
+        .single();
 
-      // E-Mail an Admin
-      if (mentorship) {
+      if (msRow) {
+        const { data: mentorProfile } = await supabase
+          .from("profiles")
+          .select("id, name, email")
+          .eq("id", msRow.mentor_id)
+          .single();
+        const { data: menteeProfile } = await supabase
+          .from("profiles")
+          .select("id, name, email")
+          .eq("id", msRow.mentee_id)
+          .single();
+
+        // Admin-Notification bei Abbruch
+        const { data: adminRows } = await supabase
+          .from("profiles")
+          .select("id")
+          .in("role", ["admin", "office"]);
+
+        for (const admin of adminRows ?? []) {
+          await createNotification(
+            admin.id,
+            "assignment",
+            "Betreuung abgebrochen",
+            `${mentorProfile?.name ?? "Mentor"} hat die Betreuung von ${menteeProfile?.name ?? "Mentee"} abgebrochen. Grund: ${reason}`,
+            mentorshipId
+          );
+        }
+
+        // E-Mail an Admin
         sendMentorshipStatusChangeNotification(
           "",
-          mentorship.mentor?.name ?? "Unbekannt",
-          mentorship.mentee?.name ?? "Unbekannt",
+          mentorProfile?.name ?? "Unbekannt",
+          menteeProfile?.name ?? "Unbekannt",
           "cancelled"
         ).catch(() => {});
 
         // Mentee benachrichtigen: Feedback-Anfrage + Cancellation-E-Mail
-        const mentee = users.find((u) => u.id === mentorship.mentee_id);
-        const mentor = users.find((u) => u.id === mentorship.mentor_id);
-
-        if (mentee?.email) {
+        if (menteeProfile?.email) {
           sendFeedbackRequestEmail(
-            mentee.email,
-            mentee.name ?? "Mentee",
-            mentor?.name ?? "Mentor",
+            menteeProfile.email,
+            menteeProfile.name ?? "Mentee",
+            mentorProfile?.name ?? "Mentor",
             mentorshipId
           ).catch(() => {});
 
           sendMentorshipCancelledToMenteeEmail(
-            mentee.email,
-            mentee.name ?? "Mentee",
-            mentor?.name ?? "Mentor"
+            menteeProfile.email,
+            menteeProfile.name ?? "Mentee",
+            mentorProfile?.name ?? "Mentor"
           ).catch(() => {});
         }
 
         createNotification(
-          mentorship.mentee_id,
+          msRow.mentee_id,
           "feedback",
           "Feedback gewünscht",
           "Bitte gib uns Feedback zu deiner Betreuung.",
@@ -2066,7 +2084,7 @@ export function DataProvider({ children }: { children: ReactNode }) {
         ).catch(() => {});
       }
     },
-    [users, mentorships, createNotification]
+    [createNotification]
   );
 
   // ─── SessionType Actions ──────────────────────────────────────────────────────
@@ -2169,38 +2187,47 @@ export function DataProvider({ children }: { children: ReactNode }) {
       };
       setFeedback((prev) => [...prev, newFeedback]);
 
-      // In-App Notification an Mentor: Feedback erhalten (persistente DB-Notification)
-      const mentorship = mentorships.find(
-        (m) => m.id === feedbackData.mentorship_id
-      );
-      if (mentorship) {
-        const submitter = users.find((u) => u.id === feedbackData.submitted_by);
+      // Mentorship + Submitter direkt aus DB laden (nicht aus stale Closure!)
+      const { data: msRow } = await supabase
+        .from("mentorships")
+        .select("mentor_id")
+        .eq("id", feedbackData.mentorship_id)
+        .single();
+
+      if (msRow) {
+        const { data: submitterProfile } = await supabase
+          .from("profiles")
+          .select("name")
+          .eq("id", feedbackData.submitted_by)
+          .single();
+        const submitterName = submitterProfile?.name ?? "Dein Mentee";
+
         await createNotification(
-          mentorship.mentor_id,
+          msRow.mentor_id,
           "feedback",
           "Feedback erhalten",
-          `${submitter?.name ?? "Dein Mentee"} hat Feedback hinterlassen (${feedbackData.rating}/5 Sterne).`,
+          `${submitterName} hat Feedback hinterlassen (${feedbackData.rating}/5 Sterne).`,
           feedbackData.mentorship_id
         );
         // Lokale Push Notification: zusätzlich auf dem Gerät des Mentors (wenn App offen)
-        if (authUser?.id === mentorship.mentor_id) {
+        if (authUser?.id === msRow.mentor_id) {
           sendLocalNotification(
             "Neues Feedback erhalten",
-            `${submitter?.name ?? "Dein Mentee"} hat Feedback hinterlassen (${feedbackData.rating}/5 Sterne).`,
+            `${submitterName} hat Feedback hinterlassen (${feedbackData.rating}/5 Sterne).`,
             "feedback"
           ).catch(() => {});
         }
 
         // XP für gutes Feedback (fire-and-forget, delegiert an GamificationContext)
         if (feedbackData.rating === 5) {
-          gamificationRef.current?.awardXP(mentorship.mentor_id, XP_VALUES.FEEDBACK_5STAR, "feedback_5star", feedbackData.mentorship_id);
+          gamificationRef.current?.awardXP(msRow.mentor_id, XP_VALUES.FEEDBACK_5STAR, "feedback_5star", feedbackData.mentorship_id);
         } else if (feedbackData.rating >= 4) {
-          gamificationRef.current?.awardXP(mentorship.mentor_id, XP_VALUES.FEEDBACK_4STAR, "feedback_4star", feedbackData.mentorship_id);
+          gamificationRef.current?.awardXP(msRow.mentor_id, XP_VALUES.FEEDBACK_4STAR, "feedback_4star", feedbackData.mentorship_id);
         }
-        gamificationRef.current?.checkAndUnlockAchievements(mentorship.mentor_id);
+        gamificationRef.current?.checkAndUnlockAchievements(msRow.mentor_id);
       }
     },
-    [mentorships, users, authUser, createNotification]
+    [authUser, createNotification]
   );
 
   const getFeedbacks = useCallback(() => {
@@ -2727,9 +2754,15 @@ export function DataProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const confirmStepAsMentee = useCallback(async (mentorshipId: string, sessionTypeId: string) => {
-    const mentorship = mentorships.find((m) => m.id === mentorshipId);
-    if (!mentorship) return;
-    const current = mentorship.mentee_confirmed_steps ?? [];
+    // Mentorship direkt aus DB laden (nicht aus stale Closure!)
+    const { data: msRow } = await supabase
+      .from("mentorships")
+      .select("mentor_id, mentee_id, mentee_confirmed_steps")
+      .eq("id", mentorshipId)
+      .single();
+    if (!msRow) return;
+
+    const current: string[] = (msRow.mentee_confirmed_steps as string[]) ?? [];
     if (current.includes(sessionTypeId)) return;
     const updated = [...current, sessionTypeId];
 
@@ -2749,22 +2782,33 @@ export function DataProvider({ children }: { children: ReactNode }) {
     );
 
     // Notification an Mentor: Mentee hat Schritt bestätigt
+    const { data: menteeProfile } = await supabase
+      .from("profiles")
+      .select("name")
+      .eq("id", msRow.mentee_id)
+      .single();
     const sessionType = sessionTypes.find((st) => st.id === sessionTypeId);
-    const menteeName = mentorship.mentee?.name ?? authUser?.id ?? "Dein Mentee";
+    const menteeName = menteeProfile?.name ?? "Dein Mentee";
     const stepName = sessionType?.name ?? "Schritt";
     await createNotification(
-      mentorship.mentor_id,
+      msRow.mentor_id,
       "progress",
       "Mentee hat Schritt bestätigt",
       `${menteeName} hat Schritt "${stepName}" bestätigt.`,
       mentorshipId
     );
-  }, [mentorships, sessionTypes, authUser, createNotification]);
+  }, [sessionTypes, createNotification]);
 
   const unconfirmStepAsMentee = useCallback(async (mentorshipId: string, sessionTypeId: string) => {
-    const mentorship = mentorships.find((m) => m.id === mentorshipId);
-    if (!mentorship) return;
-    const current = mentorship.mentee_confirmed_steps ?? [];
+    // Mentorship direkt aus DB laden (nicht aus stale Closure!)
+    const { data: msRow } = await supabase
+      .from("mentorships")
+      .select("mentee_confirmed_steps")
+      .eq("id", mentorshipId)
+      .single();
+    if (!msRow) return;
+
+    const current: string[] = (msRow.mentee_confirmed_steps as string[]) ?? [];
     const updated = current.filter((id) => id !== sessionTypeId);
 
     const { error } = await supabase
@@ -2781,7 +2825,7 @@ export function DataProvider({ children }: { children: ReactNode }) {
         m.id === mentorshipId ? { ...m, mentee_confirmed_steps: updated } : m
       )
     );
-  }, [mentorships]);
+  }, []);
 
   // ─── Admin-Direktnachricht (als Notification) ────────────────────────────────
 
@@ -2810,15 +2854,15 @@ export function DataProvider({ children }: { children: ReactNode }) {
       );
       return;
     }
-    const sender = users.find((u) => u.id === authUser.id);
+    // authUser direkt als Sender nutzen (nicht aus stale users-Closure suchen)
     const newMsg: AdminMessage = {
       id: data.id, admin_id: data.admin_id, user_id: data.user_id,
       sender_id: data.sender_id, content: data.content,
       read_at: data.read_at ?? undefined, created_at: data.created_at,
-      sender,
+      sender: authUser,
     };
     setAdminMessages((prev) => [...prev, newMsg]);
-  }, [authUser, users, createNotification]);
+  }, [authUser, createNotification]);
 
   // ─── Admin-DM Funktionen ───────────────────────────────────────────────────────
 
@@ -2835,15 +2879,15 @@ export function DataProvider({ children }: { children: ReactNode }) {
       .select()
       .maybeSingle();
     if (error || !data) throw new Error(error?.message ?? "Fehler beim Senden");
-    const sender = users.find((u) => u.id === authUser.id);
+    // authUser direkt als Sender nutzen (nicht aus stale users-Closure suchen)
     const newMsg: AdminMessage = {
       id: data.id, admin_id: data.admin_id, user_id: data.user_id,
       sender_id: data.sender_id, content: data.content,
       read_at: data.read_at ?? undefined, created_at: data.created_at,
-      sender,
+      sender: authUser,
     };
     setAdminMessages((prev) => [...prev, newMsg]);
-  }, [authUser, users]);
+  }, [authUser]);
 
   const replyToAdmin = useCallback(async (adminId: string, content: string) => {
     if (!authUser) return;
@@ -2858,15 +2902,15 @@ export function DataProvider({ children }: { children: ReactNode }) {
       .select()
       .maybeSingle();
     if (error || !data) throw new Error(error?.message ?? "Fehler beim Senden");
-    const sender = users.find((u) => u.id === authUser.id);
+    // authUser direkt als Sender nutzen (nicht aus stale users-Closure suchen)
     const newMsg: AdminMessage = {
       id: data.id, admin_id: data.admin_id, user_id: data.user_id,
       sender_id: data.sender_id, content: data.content,
       read_at: data.read_at ?? undefined, created_at: data.created_at,
-      sender,
+      sender: authUser,
     };
     setAdminMessages((prev) => [...prev, newMsg]);
-  }, [authUser, users]);
+  }, [authUser]);
 
   const getAdminMessagesByUserId = useCallback((userId: string) => {
     return adminMessages.filter((m) => m.user_id === userId);
@@ -3121,9 +3165,14 @@ export function DataProvider({ children }: { children: ReactNode }) {
   const toggleEventParticipation = useCallback(async (resourceId: string, status: EventParticipationStatus) => {
     await supabase.auth.getSession();
     if (!authUser) return;
-    const existing = eventParticipations.find(
-      (ep) => ep.resource_id === resourceId && ep.user_id === authUser.id
-    );
+
+    // Aktuellen Status direkt aus DB laden (nicht aus stale Closure!)
+    const { data: existing } = await supabase
+      .from("event_participations")
+      .select("id, status")
+      .eq("resource_id", resourceId)
+      .eq("user_id", authUser.id)
+      .maybeSingle();
 
     if (existing) {
       if (existing.status === status) {
@@ -3155,7 +3204,7 @@ export function DataProvider({ children }: { children: ReactNode }) {
         }]);
       }
     }
-  }, [authUser, eventParticipations]);
+  }, [authUser]);
 
   const getEventParticipationsByResourceId = useCallback(
     (resourceId: string) => eventParticipations.filter((ep) => ep.resource_id === resourceId),
@@ -3175,9 +3224,15 @@ export function DataProvider({ children }: { children: ReactNode }) {
   const toggleResourceCompletion = useCallback(async (resourceId: string) => {
     await supabase.auth.getSession();
     if (!authUser) return;
-    const existing = resourceCompletions.find(
-      (rc) => rc.resource_id === resourceId && rc.user_id === authUser.id
-    );
+
+    // Aktuellen Status direkt aus DB laden (nicht aus stale Closure!)
+    const { data: existing } = await supabase
+      .from("resource_completions")
+      .select("id")
+      .eq("resource_id", resourceId)
+      .eq("user_id", authUser.id)
+      .maybeSingle();
+
     if (existing) {
       // Bereits abgehakt → entfernen
       const { error } = await supabase.from("resource_completions").delete().eq("id", existing.id);
@@ -3200,7 +3255,7 @@ export function DataProvider({ children }: { children: ReactNode }) {
         }]);
       }
     }
-  }, [authUser, resourceCompletions]);
+  }, [authUser]);
 
   const isResourceCompleted = useCallback(
     (resourceId: string) => {

@@ -20,7 +20,7 @@ Alle SQL-Änderungen dokumentieren. Selbstständig handeln.
 
 ## SUPABASE
 
-- **URL:** `https://jbuvnmjlvebzknbmzryb.supabase.co`
+- **URL:** `https://cufuikcxliwbmyhwlmga.supabase.co`
 - **Config:** `lib/supabase.ts`
 - **SQL-Dateien für Umzug (Reihenfolge):**
   1. `supabase/migration.sql` — Tabellen, RLS, Seed-Daten
@@ -90,7 +90,7 @@ iman.ngo-Stil. Dunkelblau (#0A3A5A) + Gold (#EEA71B). `constants/Colors.ts`.
 | `reset-password` | Gebaut, NICHT deployed | Password-Reset Flow |
 | `send-reminders` | **NEU, NICHT deployed** | Tägliche Mentor-Erinnerungen (Notifications + Push + E-Mail) |
 
-**Deploy-Befehl:** `supabase functions deploy <name> --project-ref jbuvnmjlvebzknbmzryb`
+**Deploy-Befehl:** `supabase functions deploy <name> --project-ref cufuikcxliwbmyhwlmga`
 
 **Für Erinnerungssystem:** Nach Deploy → `supabase/edge-functions.sql` im SQL-Editor ausführen (pg_cron + pg_net Extensions vorher aktivieren)
 

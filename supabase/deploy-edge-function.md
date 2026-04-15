@@ -6,17 +6,17 @@
 
 ## Secrets setzen
 ```bash
-supabase secrets set RESEND_API_KEY=re_NEUER_KEY_HIER --project-ref jbuvnmjlvebzknbmzryb
+supabase secrets set RESEND_API_KEY=re_NEUER_KEY_HIER --project-ref cufuikcxliwbmyhwlmga
 ```
 
 ## Deployen
 ```bash
-supabase functions deploy send-emails --project-ref jbuvnmjlvebzknbmzryb
+supabase functions deploy send-emails --project-ref cufuikcxliwbmyhwlmga
 ```
 
 ## Testen
 ```bash
-curl -X POST https://jbuvnmjlvebzknbmzryb.supabase.co/functions/v1/send-emails \
+curl -X POST https://cufuikcxliwbmyhwlmga.supabase.co/functions/v1/send-emails \
   -H "Authorization: Bearer SUPABASE_ANON_KEY"
 ```
 
@@ -27,7 +27,7 @@ curl -X POST https://jbuvnmjlvebzknbmzryb.supabase.co/functions/v1/send-emails \
 ```sql
 SELECT cron.schedule('send-emails', '*/5 * * * *', $$
   SELECT net.http_post(
-    'https://jbuvnmjlvebzknbmzryb.supabase.co/functions/v1/send-emails',
+    'https://cufuikcxliwbmyhwlmga.supabase.co/functions/v1/send-emails',
     '{}',
     '{"Authorization": "Bearer SUPABASE_ANON_KEY"}'
   );
