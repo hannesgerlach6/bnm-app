@@ -2413,11 +2413,13 @@ export function DataProvider({ children }: { children: ReactNode }) {
           .maybeSingle();
 
         if (existingProfile) {
-          // Account existiert bereits → Rolle auf Mentor setzen falls noch Mentee
+          // Account existiert bereits (Mentor hat bei Registrierung Passwort gesetzt)
+          // → Rolle auf Mentor setzen + Account aktivieren
           await supabase
             .from("profiles")
             .update({
               role: "mentor",
+              is_active: true,
               gender: app.gender,
               city: app.city,
               plz: app.plz ?? null,
@@ -2428,15 +2430,19 @@ export function DataProvider({ children }: { children: ReactNode }) {
             .eq("id", existingProfile.id);
 
           // Lokalen State aktualisieren
-          setUsers((prev) =>
-            prev.map((u) =>
-              u.id === existingProfile.id
-                ? { ...u, role: "mentor" as const, gender: app.gender, city: app.city }
-                : u
-            )
-          );
-
-          showSuccess("Bewerbung genehmigt. Account war bereits vorhanden — Rolle auf Mentor gesetzt.");
+          const { data: freshProfile } = await supabase
+            .from("profiles")
+            .select("*")
+            .eq("id", existingProfile.id)
+            .single();
+          if (freshProfile) {
+            setUsers((prev) => {
+              if (prev.some((u) => u.id === freshProfile.id)) {
+                return prev.map((u) => u.id === freshProfile.id ? mapProfile(freshProfile) : u);
+              }
+              return [...prev, mapProfile(freshProfile)];
+            });
+          }
         } else {
           // Admin-Session sichern BEVOR signUp aufgerufen wird
           // signUp loggt automatisch den neuen User ein → Admin-Session geht verloren

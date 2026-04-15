@@ -99,6 +99,19 @@ iman.ngo-Stil. Dunkelblau (#0A3A5A) + Gold (#EEA71B). `constants/Colors.ts`.
 
 ## FORTSCHRITTS-LOG
 
+### 2026-04-15 — Mentor setzt Passwort bei Registrierung
+**Neuer Flow:**
+1. Mentor registriert sich mit eigenem Passwort (register-mentor.tsx)
+2. Auth-Account wird sofort erstellt (via supabaseAnon), Profil auf `is_active=false`
+3. Mentor kann sich NICHT einloggen (AuthContext prueft is_active)
+4. Admin genehmigt Bewerbung → Profil wird auf `role=mentor, is_active=true` gesetzt
+5. Mentor kann sich jetzt einloggen — kein temporaeres Passwort, keine Credentials-E-Mail noetig
+
+**Aenderungen:**
+- `register-mentor.tsx`: Passwort + Passwort-bestaetigen Felder, signUp via supabaseAnon, is_active=false
+- `DataContext.tsx approveApplication`: existingProfile-Pfad setzt is_active=true + laedt frisches Profil
+- Alter signUp-Pfad (fuer Bewerbungen ohne Account) bleibt als Fallback erhalten
+
 ### 2026-04-15 — Bewerbungen loeschen (Admin)
 - Neue SQL-Migration: `supabase/delete-applications.sql` (DELETE-Policy fuer admin/office)
 - `DataContext.tsx`: `deleteApplication()` Funktion + Interface

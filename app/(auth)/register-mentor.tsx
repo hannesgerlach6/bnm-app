@@ -15,6 +15,7 @@ import type { Gender, ContactPreference } from "../../types";
 import { COLORS, RADIUS } from "../../constants/Colors";
 import { useTheme, useThemeColors } from "../../contexts/ThemeContext";
 import { supabase } from "../../lib/supabase";
+import { supabaseAnon } from "../../lib/supabaseAnon";
 import { sendNewMentorApplicationNotification } from "../../lib/emailService";
 import { useLanguage } from "../../contexts/LanguageContext";
 
@@ -53,6 +54,8 @@ interface MentorFormData {
   inOrganization: InOrganization;
   organizationName: string;
   contact_preference: ContactPreference | "";
+  password: string;
+  passwordConfirm: string;
   additionalMessage: string;
 }
 
@@ -97,6 +100,8 @@ export default function RegisterMentorScreen() {
     inOrganization: "",
     organizationName: "",
     contact_preference: "",
+    password: "",
+    passwordConfirm: "",
     additionalMessage: "",
   });
 
@@ -134,6 +139,10 @@ export default function RegisterMentorScreen() {
     if (!form.hasMentoredBefore) newErrors.hasMentoredBefore = req;
     if (!form.inOrganization) newErrors.inOrganization = req;
     if (!form.contact_preference) newErrors.contact_preference = req;
+    if (!form.password) newErrors.password = req;
+    else if (form.password.length < 6) newErrors.password = "Mindestens 6 Zeichen";
+    if (!form.passwordConfirm) newErrors.passwordConfirm = req;
+    else if (form.password !== form.passwordConfirm) newErrors.passwordConfirm = "Passwörter stimmen nicht überein";
 
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
@@ -168,6 +177,55 @@ export default function RegisterMentorScreen() {
         birthdate: form.birthdate.trim(),
       });
 
+      // 1) Auth-Account erstellen via supabaseAnon (eigene Session, beeinflusst nicht die Haupt-App)
+      const { data: signUpData, error: signUpError } = await supabaseAnon.auth.signUp({
+        email: emailLower,
+        password: form.password,
+        options: {
+          data: {
+            name: fullName,
+            role: "mentor",
+            gender: form.gender,
+            city: form.city.trim(),
+            age,
+          },
+        },
+      });
+
+      if (signUpError) {
+        if (signUpError.message.includes("already registered") || signUpError.message.includes("User already registered")) {
+          setErrors((prev) => ({ ...prev, email: "Diese E-Mail ist bereits registriert" }));
+        } else {
+          showError(signUpError.message);
+        }
+        setIsSubmitting(false);
+        return;
+      }
+
+      // 2) Profil deaktivieren bis Admin genehmigt
+      const newUserId = signUpData?.user?.id;
+      if (newUserId) {
+        // Warten bis handle_new_user() Trigger das Profil erstellt hat
+        await new Promise((r) => setTimeout(r, 1500));
+        // supabaseAnon hat die Session des neuen Users im Speicher → kann eigenes Profil updaten
+        await supabaseAnon
+          .from("profiles")
+          .update({
+            is_active: false,
+            gender: form.gender,
+            city: form.city.trim(),
+            plz: form.plz.trim(),
+            age,
+            phone: form.phone.trim(),
+            contact_preference: form.contact_preference,
+          })
+          .eq("id", newUserId);
+
+        // Cleanup: supabaseAnon-Session entfernen
+        await supabaseAnon.auth.signOut();
+      }
+
+      // 3) Bewerbung in mentor_applications speichern
       const { error } = await supabase.from("mentor_applications").insert({
         name: fullName,
         email: emailLower,
@@ -306,6 +364,26 @@ export default function RegisterMentorScreen() {
             autoCapitalize="none"
             error={errors.email}
             accessibilityLabel={t("registerMentor.email")}
+          />
+
+          <BNMInput
+            label="Passwort *"
+            icon="lock-closed-outline"
+            value={form.password}
+            onChangeText={(v) => update("password", v)}
+            secureTextEntry
+            error={errors.password}
+            accessibilityLabel="Passwort"
+          />
+
+          <BNMInput
+            label="Passwort bestätigen *"
+            icon="lock-closed-outline"
+            value={form.passwordConfirm}
+            onChangeText={(v) => update("passwordConfirm", v)}
+            secureTextEntry
+            error={errors.passwordConfirm}
+            accessibilityLabel="Passwort bestätigen"
           />
 
           <FieldLabel label={t("registerMentor.gender")} error={errors.gender} themeColors={themeColors} />
