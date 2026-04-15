@@ -1664,9 +1664,26 @@ export function DataProvider({ children }: { children: ReactNode }) {
         )
       );
 
-      // Automatische Sessions nachholen (Registrierung + Zuweisung)
-      const mentorship = mentorships.find((m) => m.id === mentorshipId);
-      if (mentorship) {
+      // Mentorship-Daten direkt aus DB laden (nicht aus stale Closure!)
+      const { data: msRow } = await supabase
+        .from("mentorships")
+        .select("*")
+        .eq("id", mentorshipId)
+        .single();
+
+      if (msRow) {
+        // Mentor/Mentee-Profile laden
+        const { data: mentorProfile } = await supabase
+          .from("profiles")
+          .select("id, name, email, city")
+          .eq("id", msRow.mentor_id)
+          .single();
+        const { data: menteeProfile } = await supabase
+          .from("profiles")
+          .select("id, name, email, city")
+          .eq("id", msRow.mentee_id)
+          .single();
+
         const registrierungType = sessionTypes.find((st) => st.sort_order === 1);
         const zuweisungType = sessionTypes.find((st) => st.sort_order === 2);
         const now = new Date().toISOString().split("T")[0];
@@ -1678,7 +1695,7 @@ export function DataProvider({ children }: { children: ReactNode }) {
             date: now,
             is_online: false,
             details: "Registrierung abgeschlossen",
-            documented_by: mentorship.assigned_by,
+            documented_by: msRow.assigned_by,
             attempt_number: 1,
           });
         }
@@ -1688,8 +1705,8 @@ export function DataProvider({ children }: { children: ReactNode }) {
             session_type_id: zuweisungType.id,
             date: now,
             is_online: false,
-            details: `Zuweisung zu ${mentorship.mentor?.name ?? "Mentor"}`,
-            documented_by: mentorship.assigned_by,
+            details: `Zuweisung zu ${mentorProfile?.name ?? "Mentor"}`,
+            documented_by: msRow.assigned_by,
             attempt_number: 1,
           });
         }
@@ -1716,42 +1733,57 @@ export function DataProvider({ children }: { children: ReactNode }) {
         }
 
         // E-Mail an Mentor senden
-        if (mentorship.mentor?.email) {
+        if (mentorProfile?.email) {
           await sendMenteeAssignedNotification(
-            mentorship.mentor.name,
-            mentorship.mentor.email,
-            mentorship.mentee?.name ?? "Mentee",
-            mentorship.mentee?.city ?? ""
+            mentorProfile.name,
+            mentorProfile.email,
+            menteeProfile?.name ?? "Mentee",
+            menteeProfile?.city ?? ""
           );
         }
 
         // In-App Notification an Mentor: Neuer Mentee nach Approval zugewiesen
         await createNotification(
-          mentorship.mentor_id,
+          msRow.mentor_id,
           "assignment",
           "Neuer Mentee zugewiesen",
-          `${mentorship.mentee?.name ?? "Ein Mentee"} wurde dir als Mentee zugewiesen.`,
+          `${menteeProfile?.name ?? "Ein Mentee"} wurde dir als Mentee zugewiesen.`,
           mentorshipId
         );
 
         // In-App Notification an Mentee: Betreuung genehmigt
         await createNotification(
-          mentorship.mentee_id,
+          msRow.mentee_id,
           "assignment",
           "Dir wurde ein Mentor zugewiesen!",
-          `${mentorship.mentor?.name ?? "Ein Mentor"} ist ab sofort dein Mentor.`,
+          `${mentorProfile?.name ?? "Ein Mentor"} ist ab sofort dein Mentor.`,
           mentorshipId
         );
       }
     },
-    [mentorships, sessionTypes, createNotification]
+    [sessionTypes, createNotification]
   );
 
   const rejectMentorship = useCallback(
     async (mentorshipId: string, reason: string) => {
       await supabase.auth.getSession();
-      // Mentorship-Daten vor dem Löschen sichern (für Notification)
-      const mentorship = mentorships.find((m) => m.id === mentorshipId);
+
+      // Mentorship-Daten direkt aus DB laden (nicht aus stale Closure!)
+      const { data: msRow } = await supabase
+        .from("mentorships")
+        .select("mentor_id, mentee_id")
+        .eq("id", mentorshipId)
+        .single();
+      // Mentee-Name für Notification
+      let menteeName = "Mentee";
+      if (msRow) {
+        const { data: menteeProfile } = await supabase
+          .from("profiles")
+          .select("name")
+          .eq("id", msRow.mentee_id)
+          .single();
+        menteeName = menteeProfile?.name ?? "Mentee";
+      }
 
       const { error } = await supabase
         .from("mentorships")
@@ -1765,10 +1797,9 @@ export function DataProvider({ children }: { children: ReactNode }) {
       setMentorships((prev) => prev.filter((m) => m.id !== mentorshipId));
 
       // Notification an den Mentor senden
-      if (mentorship) {
-        const menteeName = mentorship.mentee?.name ?? "Mentee";
+      if (msRow) {
         await createNotification(
-          mentorship.mentor_id,
+          msRow.mentor_id,
           "assignment",
           "Zuweisung abgelehnt",
           `Deine Zuweisung zu ${menteeName} wurde abgelehnt. Grund: ${reason}`,
@@ -1776,7 +1807,7 @@ export function DataProvider({ children }: { children: ReactNode }) {
         );
       }
     },
-    [mentorships, createNotification]
+    [createNotification]
   );
 
   const getPendingApprovalsCount = useCallback(() => {
@@ -2313,11 +2344,33 @@ export function DataProvider({ children }: { children: ReactNode }) {
 
   const approveApplication = useCallback(
     async (applicationId: string) => {
-      const app = applications.find((a) => a.id === applicationId);
-      if (!app) throw new Error("Bewerbung nicht gefunden");
-
       // Session sicherstellen (verhindert Hänger wenn Token abgelaufen)
       await supabase.auth.getSession();
+
+      // Bewerbungsdaten direkt aus DB laden (nicht aus stale Closure!)
+      const { data: appRow, error: fetchError } = await supabase
+        .from("mentor_applications")
+        .select("*")
+        .eq("id", applicationId)
+        .single();
+
+      if (fetchError || !appRow) throw new Error("Bewerbung nicht gefunden");
+
+      const app: MentorApplication = {
+        id: appRow.id,
+        name: appRow.name,
+        email: appRow.email,
+        city: appRow.city,
+        plz: appRow.plz ?? undefined,
+        gender: appRow.gender as MentorApplication["gender"],
+        age: appRow.age,
+        experience: appRow.experience,
+        motivation: appRow.motivation,
+        contact_preference: (appRow.contact_preference as MentorApplication["contact_preference"]) ?? undefined,
+        phone: appRow.phone ?? undefined,
+        status: appRow.status as ApplicationStatus,
+        submitted_at: appRow.submitted_at,
+      };
 
       // Erst User via Supabase Auth signUp anlegen (nur bei Mentor-Bewerbungen)
       // Bei Mentee-Anmeldungen übernimmt handleAcceptMenteeRegistration in applications.tsx den signUp
@@ -2458,7 +2511,7 @@ export function DataProvider({ children }: { children: ReactNode }) {
         )
       );
     },
-    [applications, authUser, createNotification]
+    [authUser, createNotification]
   );
 
   const rejectApplication = useCallback(
@@ -2484,7 +2537,7 @@ export function DataProvider({ children }: { children: ReactNode }) {
         )
       );
     },
-    [applications, authUser]
+    [authUser]
   );
 
   const submitApplication = useCallback(

@@ -184,17 +184,22 @@ export default function ApplicationsTabScreen() {
     { key: "r5", label: t("applications.rejectReason5") },
   ];
 
+  // Refs für stabile Handler-Referenzen (vermeidet stale closures in FlatList)
+  const handleApproveMentorRef = useRef(handleApproveMentor);
+  handleApproveMentorRef.current = handleApproveMentor;
+  const openRejectModalRef = useRef(openRejectModal);
+  openRejectModalRef.current = openRejectModal;
+
   const renderApplication = useCallback(({ item: app }: { item: MentorApplication }) => (
     <View style={styles.flatListItem}>
       <ApplicationCard
         application={app}
         type="mentor"
-        onApprove={() => handleApproveMentor(app)}
-        onReject={() => openRejectModal(app)}
+        onApprove={() => handleApproveMentorRef.current(app)}
+        onReject={() => openRejectModalRef.current(app)}
       />
     </View>
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  ), [approveApplication, refreshData]);
+  ), []);
 
   const listHeader = useCallback(() => (
     <View style={styles.page}>
@@ -313,11 +318,12 @@ export default function ApplicationsTabScreen() {
         data={filteredMentorApps}
         renderItem={renderApplication}
         keyExtractor={keyExtractor}
+        extraData={filteredMentorApps}
         ListHeaderComponent={listHeader}
         ListEmptyComponent={listEmpty}
         contentContainerStyle={styles.flatListContent}
         style={[styles.scrollView, { backgroundColor: themeColors.background }]}
-        removeClippedSubviews={true}
+        removeClippedSubviews={false}
         windowSize={10}
       />
 
