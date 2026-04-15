@@ -64,15 +64,21 @@ export default function EditProfileScreen() {
     if (!uri) return;
     setIsUploadingAvatar(true);
     setAvatarPreview(uri);
-    const publicUrl = await uploadAvatar(safeUser.id, uri);
-    if (publicUrl) {
-      await updateUser(safeUser.id, { avatar_url: publicUrl });
-      setAvatarPreview(publicUrl);
-    } else {
+    try {
+      const publicUrl = await uploadAvatar(safeUser.id, uri);
+      if (publicUrl) {
+        await updateUser(safeUser.id, { avatar_url: publicUrl });
+        setAvatarPreview(publicUrl);
+      } else {
+        showError(t("editProfile.errorUpload"));
+        setAvatarPreview(safeUser.avatar_url);
+      }
+    } catch {
       showError(t("editProfile.errorUpload"));
       setAvatarPreview(safeUser.avatar_url);
+    } finally {
+      setIsUploadingAvatar(false);
     }
-    setIsUploadingAvatar(false);
   }
 
   async function handleAvatarPickNative() {
@@ -90,15 +96,21 @@ export default function EditProfileScreen() {
     if (result.canceled || !result.assets?.[0]?.uri) return;
     setIsUploadingAvatar(true);
     setAvatarPreview(result.assets[0].uri);
-    const publicUrl = await uploadAvatar(safeUser.id, result.assets[0].uri);
-    if (publicUrl) {
-      await updateUser(safeUser.id, { avatar_url: publicUrl });
-      setAvatarPreview(publicUrl);
-    } else {
+    try {
+      const publicUrl = await uploadAvatar(safeUser.id, result.assets[0].uri);
+      if (publicUrl) {
+        await updateUser(safeUser.id, { avatar_url: publicUrl });
+        setAvatarPreview(publicUrl);
+      } else {
+        showError(t("editProfile.errorUpload"));
+        setAvatarPreview(safeUser.avatar_url);
+      }
+    } catch {
       showError(t("editProfile.errorUpload"));
       setAvatarPreview(safeUser.avatar_url);
+    } finally {
+      setIsUploadingAvatar(false);
     }
-    setIsUploadingAvatar(false);
   }
 
   function handleAvatarPress() {

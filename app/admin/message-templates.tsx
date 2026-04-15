@@ -141,13 +141,17 @@ export default function MessageTemplatesScreen() {
   async function handleDelete(id: string) {
     const ok = await showConfirm(t("templates.deleteTitle"), t("templates.deleteConfirm"));
     if (!ok) return;
-    const { error } = await supabase.from("message_templates").delete().eq("id", id);
-    if (error) {
+    try {
+      const { error } = await supabase.from("message_templates").delete().eq("id", id);
+      if (error) {
+        showError(t("common.error"));
+        return;
+      }
+      showSuccess(t("templates.deleted"));
+      await refreshData();
+    } catch {
       showError(t("common.error"));
-      return;
     }
-    showSuccess(t("templates.deleted"));
-    await refreshData();
   }
 
   return (

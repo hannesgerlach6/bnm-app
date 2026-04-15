@@ -1484,6 +1484,7 @@ export function DataProvider({ children }: { children: ReactNode }) {
   const createNotification = useCallback(
     async (userId: string, type: Notification["type"], title: string, body: string, relatedId?: string) => {
       try {
+        await supabase.auth.getSession();
         const insertPromise = supabase
           .from("notifications")
           .insert({ user_id: userId, type, title, body, related_id: relatedId ?? null })
@@ -1646,6 +1647,7 @@ export function DataProvider({ children }: { children: ReactNode }) {
 
   const approveMentorship = useCallback(
     async (mentorshipId: string) => {
+      await supabase.auth.getSession();
       const { error } = await supabase
         .from("mentorships")
         .update({ status: "active" })
@@ -1747,6 +1749,7 @@ export function DataProvider({ children }: { children: ReactNode }) {
 
   const rejectMentorship = useCallback(
     async (mentorshipId: string, reason: string) => {
+      await supabase.auth.getSession();
       // Mentorship-Daten vor dem Löschen sichern (für Notification)
       const mentorship = mentorships.find((m) => m.id === mentorshipId);
 
@@ -1782,6 +1785,7 @@ export function DataProvider({ children }: { children: ReactNode }) {
 
   const updateMentorshipStatus = useCallback(
     async (mentorshipId: string, status: MentorshipStatus) => {
+      await supabase.auth.getSession();
       const updateData: Record<string, unknown> = { status };
       if (status === "completed") {
         updateData.completed_at = new Date().toISOString();
@@ -1860,6 +1864,7 @@ export function DataProvider({ children }: { children: ReactNode }) {
 
   const addSession = useCallback(
     async (sessionData: Omit<Session, "id" | "session_type">) => {
+      await supabase.auth.getSession();
       const { data, error } = await supabase
         .from("sessions")
         .insert({
@@ -1946,6 +1951,7 @@ export function DataProvider({ children }: { children: ReactNode }) {
   );
 
   const deleteSession = useCallback(async (sessionId: string) => {
+    await supabase.auth.getSession();
     const { error } = await supabase
       .from("sessions")
       .delete()
@@ -1960,6 +1966,7 @@ export function DataProvider({ children }: { children: ReactNode }) {
 
   const cancelMentorship = useCallback(
     async (mentorshipId: string, reason: string) => {
+      await supabase.auth.getSession();
       const now = new Date().toISOString();
       const { error } = await supabase
         .from("mentorships")
@@ -2035,6 +2042,7 @@ export function DataProvider({ children }: { children: ReactNode }) {
 
   const addSessionType = useCallback(
     async (sessionTypeData: Omit<SessionType, "id">) => {
+      await supabase.auth.getSession();
       const { data, error } = await supabase
         .from("session_types")
         .insert({
@@ -2085,6 +2093,7 @@ export function DataProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const deleteSessionType = useCallback(async (id: string) => {
+    await supabase.auth.getSession();
     const { error } = await supabase
       .from("session_types")
       .delete()
@@ -2101,6 +2110,7 @@ export function DataProvider({ children }: { children: ReactNode }) {
 
   const addFeedback = useCallback(
     async (feedbackData: Omit<Feedback, "id" | "created_at">) => {
+      await supabase.auth.getSession();
       const { data, error } = await supabase
         .from("feedback")
         .insert({
@@ -2445,6 +2455,7 @@ export function DataProvider({ children }: { children: ReactNode }) {
 
   const rejectApplication = useCallback(
     async (applicationId: string, rejectionReason?: string) => {
+      await supabase.auth.getSession();
       const { error } = await supabase
         .from("mentor_applications")
         .update({
@@ -2549,6 +2560,7 @@ export function DataProvider({ children }: { children: ReactNode }) {
       userId: string,
       data: Partial<Pick<User, "name" | "email" | "city" | "plz" | "age" | "phone" | "contact_preference" | "avatar_url" | "role" | "gender" | "lat" | "lng" | "admin_notes">>
     ) => {
+      await supabase.auth.getSession();
       const { error } = await supabase
         .from("profiles")
         .update(data)
@@ -2567,6 +2579,7 @@ export function DataProvider({ children }: { children: ReactNode }) {
   );
 
   const setUserActive = useCallback(async (userId: string, isActive: boolean) => {
+    await supabase.auth.getSession();
     // Setzt profiles.is_active UND auth.users.banned_until via SECURITY DEFINER RPC
     const { error } = await supabase.rpc("admin_set_user_banned", {
       target_user_id: userId,
@@ -2637,6 +2650,7 @@ export function DataProvider({ children }: { children: ReactNode }) {
   );
 
   const updateMentorshipNotes = useCallback(async (mentorshipId: string, notes: string) => {
+    await supabase.auth.getSession();
     const { error } = await supabase
       .from("mentorships")
       .update({ notes })
@@ -2712,6 +2726,7 @@ export function DataProvider({ children }: { children: ReactNode }) {
 
   const sendAdminDirectMessage = useCallback(async (recipientId: string, message: string) => {
     if (!authUser) return;
+    await supabase.auth.getSession();
     // Admin-DM als echte Nachricht in admin_messages speichern
     const { data, error } = await supabase
       .from("admin_messages")
@@ -2804,6 +2819,7 @@ export function DataProvider({ children }: { children: ReactNode }) {
   // ─── Hadith Actions ───────────────────────────────────────────────────────────
 
   const addHadith = useCallback(async (text_ar: string, text_de: string, source: string) => {
+    await supabase.auth.getSession();
     const maxOrder = hadithe.length > 0
       ? Math.max(...hadithe.map((h) => h.sort_order ?? 0))
       : 0;
@@ -2841,6 +2857,7 @@ export function DataProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const deleteHadith = useCallback(async (id: string) => {
+    await supabase.auth.getSession();
     const { error } = await supabase.from("hadithe").delete().eq("id", id);
 
     if (error) {
@@ -2851,6 +2868,7 @@ export function DataProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const reorderHadithe = useCallback(async (id: string, direction: "up" | "down") => {
+    await supabase.auth.getSession();
     const sorted = [...hadithe].sort((a, b) => (a.sort_order ?? 0) - (b.sort_order ?? 0));
     const idx = sorted.findIndex((h) => h.id === id);
     if (idx === -1) return;
@@ -2986,6 +3004,7 @@ export function DataProvider({ children }: { children: ReactNode }) {
   // ─── Resource CRUD ──────────────────────────────────────────────────────────
 
   const addResource = useCallback(async (resource: Omit<Resource, "id" | "created_at">) => {
+    await supabase.auth.getSession();
     const { data, error } = await supabase.from("resources").insert(resource).select().maybeSingle();
     if (error) throw new Error(error.message);
     if (data) {
@@ -3023,12 +3042,14 @@ export function DataProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const updateResource = useCallback(async (id: string, data: Partial<Omit<Resource, "id" | "created_at">>) => {
+    await supabase.auth.getSession();
     const { error } = await supabase.from("resources").update(data).eq("id", id);
     if (error) throw new Error(error.message);
     setResources((prev) => prev.map((r) => r.id === id ? { ...r, ...data } : r));
   }, []);
 
   const deleteResource = useCallback(async (id: string) => {
+    await supabase.auth.getSession();
     const { error } = await supabase.from("resources").delete().eq("id", id);
     if (error) throw new Error(error.message);
     setResources((prev) => prev.filter((r) => r.id !== id));
@@ -3037,6 +3058,7 @@ export function DataProvider({ children }: { children: ReactNode }) {
   // ─── Event Participation ─────────────────────────────────────────────────────
 
   const toggleEventParticipation = useCallback(async (resourceId: string, status: EventParticipationStatus) => {
+    await supabase.auth.getSession();
     if (!authUser) return;
     const existing = eventParticipations.find(
       (ep) => ep.resource_id === resourceId && ep.user_id === authUser.id
@@ -3090,6 +3112,7 @@ export function DataProvider({ children }: { children: ReactNode }) {
   // ─── Resource Completion Actions ───────────────────────────────────────────────
 
   const toggleResourceCompletion = useCallback(async (resourceId: string) => {
+    await supabase.auth.getSession();
     if (!authUser) return;
     const existing = resourceCompletions.find(
       (rc) => rc.resource_id === resourceId && rc.user_id === authUser.id
@@ -3134,6 +3157,7 @@ export function DataProvider({ children }: { children: ReactNode }) {
   // ─── Calendar Event Actions ────────────────────────────────────────────────────
 
   const addCalendarEvent = useCallback(async (event: Omit<CalendarEvent, "id" | "created_at">) => {
+    await supabase.auth.getSession();
     const { data, error } = await supabase.from("calendar_events").insert(event).select().maybeSingle();
     if (error) throw new Error(error.message);
     if (data) {
@@ -3149,12 +3173,14 @@ export function DataProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const updateCalendarEvent = useCallback(async (id: string, data: Partial<Omit<CalendarEvent, "id" | "created_at">>) => {
+    await supabase.auth.getSession();
     const { error } = await supabase.from("calendar_events").update(data).eq("id", id);
     if (error) throw new Error(error.message);
     setCalendarEvents((prev) => prev.map((e) => e.id === id ? { ...e, ...data } as CalendarEvent : e));
   }, []);
 
   const deleteCalendarEvent = useCallback(async (id: string) => {
+    await supabase.auth.getSession();
     const { error } = await supabase.from("calendar_events").delete().eq("id", id);
     if (error) throw new Error(error.message);
     setCalendarEvents((prev) => prev.filter((e) => e.id !== id));
@@ -3162,6 +3188,7 @@ export function DataProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const respondToEvent = useCallback(async (eventId: string, status: EventAttendeeStatus) => {
+    await supabase.auth.getSession();
     if (!authUser) return;
     const existing = eventAttendees.find((a) => a.event_id === eventId && a.user_id === authUser.id);
     if (existing) {
@@ -3185,6 +3212,7 @@ export function DataProvider({ children }: { children: ReactNode }) {
   }, [authUser, eventAttendees]);
 
   const inviteToEvent = useCallback(async (eventId: string, userIds: string[]) => {
+    await supabase.auth.getSession();
     const existing = eventAttendees.filter((a) => a.event_id === eventId).map((a) => a.user_id);
     const newIds = userIds.filter((id) => !existing.includes(id));
     if (newIds.length === 0) return;
