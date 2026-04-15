@@ -1,6 +1,6 @@
 // OpenStreetMap Nominatim API — kostenlos, kein API-Key nötig
 // Limitierung: Max 1 Request/Sekunde (respektieren!)
-export async function geocodePLZ(plz: string, country?: string): Promise<{ lat: number; lng: number } | null> {
+export async function geocodePLZ(plz: string, country?: string): Promise<{ lat: number; lng: number; city?: string } | null> {
   if (!plz) return null;
   try {
     const countryCode =
@@ -18,7 +18,25 @@ export async function geocodePLZ(plz: string, country?: string): Promise<{ lat: 
     if (!res.ok) return null;
     const data = await res.json();
     if (!Array.isArray(data) || data.length === 0) return null;
-    return { lat: parseFloat(data[0].lat), lng: parseFloat(data[0].lng) };
+
+    // Stadt aus display_name extrahieren
+    // Typisches Format: "10115, Mitte, Berlin, Deutschland" oder "1010, Wien, Österreich"
+    let city: string | undefined;
+    const displayName = data[0].display_name;
+    if (displayName) {
+      const parts = displayName.split(",").map((p: string) => p.trim());
+      // Letztes Element ist das Land, erstes oft die PLZ oder der Stadtteil
+      // Stadt ist typischerweise das vorletzte oder das zweite Element
+      if (parts.length >= 3) {
+        // Bei "PLZ, Stadtteil, Stadt, Land" → Stadt ist parts[parts.length - 2]
+        // Bei "PLZ, Stadt, Land" → Stadt ist parts[1]
+        city = parts[parts.length - 2];
+      } else if (parts.length === 2) {
+        city = parts[0];
+      }
+    }
+
+    return { lat: parseFloat(data[0].lat), lng: parseFloat(data[0].lng), city };
   } catch {
     return null;
   }

@@ -1488,7 +1488,7 @@ export function DataProvider({ children }: { children: ReactNode }) {
           .from("notifications")
           .insert({ user_id: userId, type, title, body, related_id: relatedId ?? null })
           .select()
-          .single();
+          .maybeSingle();
         // 8s Timeout: Notification darf NIEMALS die UI blockieren
         const { data, error } = await Promise.race([
           insertPromise,
@@ -1522,7 +1522,7 @@ export function DataProvider({ children }: { children: ReactNode }) {
           status,
         })
         .select()
-        .single();
+        .maybeSingle();
 
       if (error || !data) {
         throw new Error(error?.message ?? "Zuweisung fehlgeschlagen");
@@ -1873,7 +1873,7 @@ export function DataProvider({ children }: { children: ReactNode }) {
           duration_minutes: sessionData.duration_minutes ?? null,
         })
         .select()
-        .single();
+        .maybeSingle();
 
       if (error || !data) {
         throw new Error(error?.message ?? "Session konnte nicht gespeichert werden");
@@ -2045,7 +2045,7 @@ export function DataProvider({ children }: { children: ReactNode }) {
           allows_multiple: sessionTypeData.allows_multiple ?? false,
         })
         .select()
-        .single();
+        .maybeSingle();
 
       if (error || !data) {
         throw new Error(error?.message ?? "Session-Typ konnte nicht erstellt werden");
@@ -2111,7 +2111,7 @@ export function DataProvider({ children }: { children: ReactNode }) {
           answers: feedbackData.answers ?? null,
         })
         .select()
-        .single();
+        .maybeSingle();
 
       if (error || !data) {
         throw new Error(error?.message ?? "Feedback konnte nicht gespeichert werden");
@@ -2217,7 +2217,7 @@ export function DataProvider({ children }: { children: ReactNode }) {
           content,
         })
         .select()
-        .single();
+        .maybeSingle();
 
       if (error || !data) {
         throw new Error(error?.message ?? "Nachricht konnte nicht gesendet werden");
@@ -2466,7 +2466,7 @@ export function DataProvider({ children }: { children: ReactNode }) {
           status: "pending",
         })
         .select()
-        .single();
+        .maybeSingle();
 
       if (error || !inserted) {
         return;
@@ -2700,7 +2700,7 @@ export function DataProvider({ children }: { children: ReactNode }) {
         content: message,
       })
       .select()
-      .single();
+      .maybeSingle();
     if (error || !data) {
       // Fallback: Notification erstellen falls admin_messages Tabelle noch nicht existiert
       const senderName = authUser?.name ?? "Admin";
@@ -2735,7 +2735,7 @@ export function DataProvider({ children }: { children: ReactNode }) {
         content,
       })
       .select()
-      .single();
+      .maybeSingle();
     if (error || !data) throw new Error(error?.message ?? "Fehler beim Senden");
     const sender = users.find((u) => u.id === authUser.id);
     const newMsg: AdminMessage = {
@@ -2758,7 +2758,7 @@ export function DataProvider({ children }: { children: ReactNode }) {
         content,
       })
       .select()
-      .single();
+      .maybeSingle();
     if (error || !data) throw new Error(error?.message ?? "Fehler beim Senden");
     const sender = users.find((u) => u.id === authUser.id);
     const newMsg: AdminMessage = {
@@ -2789,7 +2789,7 @@ export function DataProvider({ children }: { children: ReactNode }) {
       .from("hadithe")
       .insert({ text_ar: text_ar || null, text_de, source: source || null, sort_order: maxOrder + 1 })
       .select()
-      .single();
+      .maybeSingle();
 
     if (error || !data) {
       throw new Error(error?.message ?? "Hadith konnte nicht gespeichert werden");
@@ -2913,7 +2913,7 @@ export function DataProvider({ children }: { children: ReactNode }) {
           created_by: entry.created_by ?? null,
         })
         .select()
-        .single();
+        .maybeSingle();
 
       if (error || !data) {
         throw new Error(error?.message ?? "Q&A-Eintrag konnte nicht gespeichert werden");
@@ -3038,7 +3038,7 @@ export function DataProvider({ children }: { children: ReactNode }) {
         .from("event_participations")
         .insert({ resource_id: resourceId, user_id: authUser.id, status })
         .select()
-        .single();
+        .maybeSingle();
       if (error) throw new Error(error.message);
       if (data) {
         setEventParticipations((prev) => [...prev, {
@@ -3083,7 +3083,7 @@ export function DataProvider({ children }: { children: ReactNode }) {
         .from("resource_completions")
         .insert({ resource_id: resourceId, user_id: authUser.id })
         .select()
-        .single();
+        .maybeSingle();
       if (error) throw new Error(error.message);
       if (data) {
         setResourceCompletions((prev) => [...prev, {

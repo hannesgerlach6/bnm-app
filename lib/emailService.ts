@@ -7,7 +7,23 @@ import { supabase, SUPABASE_URL, SUPABASE_ANON_KEY } from "./supabase";
 // ============================================================
 
 // Admin-E-Mail für Benachrichtigungen (Feedback, neue Anmeldungen, etc.)
+// Fallback-Wert — wird zur Laufzeit aus app_settings (key: "admin_email") gelesen.
+// Admin kann die Adresse in den App-Einstellungen ändern, ohne Code-Änderung.
 const ADMIN_EMAIL = "hasan.sevenler@partner.ki";
+
+/** Liest die Admin-E-Mail aus app_settings; fällt auf ADMIN_EMAIL zurück. */
+async function getAdminEmail(): Promise<string> {
+  try {
+    const { data } = await supabase
+      .from("app_settings")
+      .select("value")
+      .eq("key", "admin_email")
+      .maybeSingle();
+    return data?.value || ADMIN_EMAIL;
+  } catch {
+    return ADMIN_EMAIL;
+  }
+}
 
 // Resend-Versand über Supabase Edge Function (kein API-Key im Client).
 async function sendViaResend(
@@ -197,7 +213,7 @@ export async function sendNewFeedbackNotification(
 <p>Bitte im Admin-Dashboard einsehen.</p>
 <hr><p style="color:#98A2B3;font-size:12px">BNM – Betreuung neuer Muslime</p>
   `.trim();
-  return sendEmail(ADMIN_EMAIL, subject, body);
+  return sendEmail(await getAdminEmail(), subject, body);
 }
 
 export async function sendNewMenteeRegistrationNotification(
@@ -218,7 +234,7 @@ export async function sendNewMenteeRegistrationNotification(
 <p>Bitte im Admin-Dashboard unter "Anmeldungen" prüfen.</p>
 <hr><p style="color:#98A2B3;font-size:12px">BNM – Betreuung neuer Muslime</p>
   `.trim();
-  return sendEmail(ADMIN_EMAIL, subject, body);
+  return sendEmail(await getAdminEmail(), subject, body);
 }
 
 export async function sendNewMentorApplicationNotification(
@@ -239,7 +255,7 @@ export async function sendNewMentorApplicationNotification(
 <p>Bitte im Admin-Dashboard unter "Bewerbungen" prüfen.</p>
 <hr><p style="color:#98A2B3;font-size:12px">BNM – Betreuung neuer Muslime</p>
   `.trim();
-  return sendEmail(ADMIN_EMAIL, subject, body);
+  return sendEmail(await getAdminEmail(), subject, body);
 }
 
 export async function sendMenteeAssignedNotification(
@@ -277,7 +293,7 @@ export async function sendMentorshipStatusChangeNotification(
   menteeName: string,
   newStatus: "completed" | "cancelled"
 ) {
-  // Immer an ADMIN_EMAIL senden (Parameter wird ignoriert — war oft leer)
+  // Immer an Admin-E-Mail senden (Parameter wird ignoriert — war oft leer)
   const statusLabel =
     newStatus === "completed" ? "abgeschlossen" : "abgebrochen";
   const subject = sanitizeSubject(`[BNM] Betreuung ${statusLabel}: ${menteeName} & ${mentorName}`);
@@ -291,7 +307,7 @@ export async function sendMentorshipStatusChangeNotification(
 <p>Details im Admin-Dashboard einsehen.</p>
 <hr><p style="color:#98A2B3;font-size:12px">BNM – Betreuung neuer Muslime</p>
   `.trim();
-  return sendEmail(ADMIN_EMAIL, subject, body);
+  return sendEmail(await getAdminEmail(), subject, body);
 }
 
 export async function sendApplicationRejectionEmail(

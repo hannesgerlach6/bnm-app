@@ -205,6 +205,10 @@ export default function RegisterPublicScreen() {
       const newUserId = signUpData?.user?.id;
       if (newUserId) {
         const coords = await geocodePLZ(plz.trim(), country || undefined);
+        // Stadt auto-ausfüllen falls leer und Geocoding eine Stadt zurückgibt
+        if (coords?.city && !city.trim()) {
+          setCity(coords.city);
+        }
         await supabase
           .from("profiles")
           .update({

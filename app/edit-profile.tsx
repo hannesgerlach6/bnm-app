@@ -133,6 +133,10 @@ export default function EditProfileScreen() {
     try {
       const plzChanged = plz.trim() !== (safeUser.plz ?? "");
       const coords = plzChanged ? await geocodePLZ(plz.trim()) : null;
+      // Stadt auto-ausfüllen falls leer und Geocoding eine Stadt zurückgibt
+      if (coords?.city && !city.trim()) {
+        setCity(coords.city);
+      }
       await updateUser(safeUser.id, {
         name: name.trim(),
         city: city.trim(),
