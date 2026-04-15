@@ -310,8 +310,8 @@ export function AdminSidebar() {
       {/* Logo + Collapse Toggle */}
       <View style={[styles.logoArea, { borderBottomColor: themeColors.border }]}>
         {!collapsed && (
-          <View style={{ marginBottom: 12 }}>
-            <BNMLogo size={48} showSubtitle={false} />
+          <View style={{ marginBottom: 6 }}>
+            <BNMLogo size={42} showSubtitle={false} />
           </View>
         )}
         <BNMPressable
@@ -397,15 +397,15 @@ const styles = StyleSheet.create({
     ...(Platform.OS === "web" ? { transition: "width 0.2s ease, min-width 0.2s ease" } : {}),
   },
   logoArea: {
-    paddingHorizontal: SPACING.md,
-    paddingTop: SPACING.sm,
-    paddingBottom: SPACING.md,
+    paddingHorizontal: SPACING.sm,
+    paddingTop: SPACING.xs,
+    paddingBottom: SPACING.sm,
     borderBottomWidth: 1,
     alignItems: "center",
   },
   collapseBtn: {
-    width: 44,
-    height: 44,
+    width: 36,
+    height: 36,
     borderRadius: RADIUS.sm,
     alignItems: "center",
     justifyContent: "center",
@@ -413,8 +413,8 @@ const styles = StyleSheet.create({
   },
   sectionLabelWrap: {
     paddingHorizontal: SPACING.xl,
-    paddingTop: SPACING.md,
-    paddingBottom: SPACING.xs,
+    paddingTop: SPACING.sm,
+    paddingBottom: 2,
   },
   sectionLabel: {
     fontSize: 10,
@@ -423,21 +423,21 @@ const styles = StyleSheet.create({
   },
   nav: {
     flex: 1,
-    paddingTop: SPACING.sm,
+    paddingTop: 4,
   },
   navContent: {
     paddingHorizontal: SPACING.sm,
-    paddingBottom: SPACING.md,
+    paddingBottom: SPACING.sm,
   },
   item: {
     flexDirection: "row",
     alignItems: "center",
-    paddingVertical: 10,
+    paddingVertical: 7,
     paddingHorizontal: SPACING.sm,
     paddingLeft: 6,
     borderRadius: RADIUS.md,
-    marginBottom: 2,
-    gap: SPACING.sm,
+    marginBottom: 1,
+    gap: SPACING.xs,
     flexShrink: 0,
     // @ts-ignore
     ...(Platform.OS === "web" ? { position: "relative" } : {}),
@@ -455,8 +455,8 @@ const styles = StyleSheet.create({
     flexShrink: 0,
   },
   iconCircle: {
-    width: 34,
-    height: 34,
+    width: 30,
+    height: 30,
     borderRadius: RADIUS.sm,
     alignItems: "center",
     justifyContent: "center",
@@ -530,19 +530,19 @@ const styles = StyleSheet.create({
   },
   bottomArea: {
     paddingHorizontal: SPACING.sm,
-    paddingVertical: SPACING.md,
+    paddingVertical: SPACING.sm,
     borderTopWidth: 1,
-    gap: 2,
+    gap: 1,
     flexShrink: 0,
   },
   logoutButton: {
     flexDirection: "row",
     alignItems: "center",
-    paddingVertical: 10,
+    paddingVertical: 7,
     paddingHorizontal: SPACING.sm,
-    paddingLeft: 6 + 3 + SPACING.sm,
+    paddingLeft: 6 + 3 + SPACING.xs,
     borderRadius: RADIUS.md,
-    gap: SPACING.sm,
+    gap: SPACING.xs,
     marginTop: 2,
     width: "100%",
     flexShrink: 0,
@@ -554,8 +554,8 @@ const styles = StyleSheet.create({
     marginHorizontal: 4,
   },
   logoutIconCircle: {
-    width: 34,
-    height: 34,
+    width: 30,
+    height: 30,
     borderRadius: RADIUS.sm,
     backgroundColor: "rgba(239,83,80,0.10)",
     alignItems: "center",
