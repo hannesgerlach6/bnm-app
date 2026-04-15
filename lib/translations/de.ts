@@ -1022,6 +1022,7 @@ const de = {
   "resetPassword.successText": "Dein Passwort wurde erfolgreich geändert. Du wirst zum Login weitergeleitet.",
   "resetPassword.errorFailed": "Passwort konnte nicht geändert werden. Bitte versuche es erneut.",
   "resetPassword.backToLogin": "Zurück zum Login",
+  "resetPassword.requestNewLink": "Neuen Link anfordern",
   "resetPassword.errorExpired": "Link abgelaufen",
   "resetPassword.errorExpiredText": "Dieser Link ist nicht mehr gültig. Bitte fordere einen neuen Link an.",
 

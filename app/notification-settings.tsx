@@ -127,7 +127,8 @@ export default function NotificationSettingsScreen() {
 
   const handleSave = useCallback(async () => {
     await saveNotificationSettings(settings);
-    showSuccess(t("notifSettings.saved"), () => router.back());
+    showSuccess(t("notifSettings.saved"));
+    router.back();
   }, [settings, t]);
 
   if (!loaded || !user) return null;

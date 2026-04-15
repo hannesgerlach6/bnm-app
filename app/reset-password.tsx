@@ -91,21 +91,23 @@ export default function ResetPasswordScreen() {
     }
 
     setIsSubmitting(true);
+    let success = false;
     try {
       const { error } = await supabase.auth.updateUser({ password: newPassword });
       if (error) {
         showError(t("resetPassword.errorFailed"));
         return;
       }
-
-      setIsDone(true);
-      showSuccess(t("resetPassword.successTitle"), () => {
-        router.replace("/(auth)/login");
-      });
+      success = true;
     } catch {
       showError(t("resetPassword.errorFailed"));
     } finally {
       setIsSubmitting(false);
+    }
+    if (success) {
+      setIsDone(true);
+      showSuccess(t("resetPassword.successTitle"));
+      router.replace("/(auth)/login");
     }
   }
 
@@ -124,8 +126,11 @@ export default function ResetPasswordScreen() {
           <View style={[styles.successBox, { backgroundColor: sem(SEMANTIC.redBg, isDark) }]}>
             <Text style={[styles.successTitle, { color: sem(SEMANTIC.redText, isDark) }]}>{t("resetPassword.errorExpired")}</Text>
             <Text style={[styles.successText, { color: sem(SEMANTIC.redText, isDark) }]}>{t("resetPassword.errorExpiredText")}</Text>
-            <BNMPressable style={[styles.submitBtn, { backgroundColor: themeColors.primary, marginTop: 16 }]} onPress={() => router.replace("/(auth)/login")}>
-              <Text style={styles.submitText}>{t("resetPassword.backToLogin")}</Text>
+            <BNMPressable style={[styles.submitBtn, { backgroundColor: COLORS.gradientStart, marginTop: 16 }]} onPress={() => router.replace("/(auth)/forgot-password")}>
+              <Text style={styles.submitText}>{t("resetPassword.requestNewLink")}</Text>
+            </BNMPressable>
+            <BNMPressable style={[styles.submitBtn, { backgroundColor: "transparent", borderWidth: 1, borderColor: themeColors.border, marginTop: 8 }]} onPress={() => router.replace("/(auth)/login")}>
+              <Text style={[styles.submitText, { color: themeColors.textSecondary }]}>{t("resetPassword.backToLogin")}</Text>
             </BNMPressable>
           </View>
         ) : isDone ? (

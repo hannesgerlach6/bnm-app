@@ -115,6 +115,7 @@ function EditUserForm({ userId }: { userId: string }) {
   async function handleSave() {
     if (!validate()) return;
     setIsSaving(true);
+    let success = false;
     try {
       await updateUser(userId, {
         name: name.trim(),
@@ -124,11 +125,15 @@ function EditUserForm({ userId }: { userId: string }) {
         gender,
         ...(isAdmin ? { admin_notes: adminNotes } : {}),
       });
-      showSuccess(t("editUser.successMsg"), () => router.back());
+      success = true;
     } catch {
       showError(t("common.error"));
     } finally {
       setIsSaving(false);
+    }
+    if (success) {
+      showSuccess(t("editUser.successMsg"));
+      router.back();
     }
   }
 
@@ -155,16 +160,19 @@ function EditUserForm({ userId }: { userId: string }) {
   async function handleHardDelete() {
     setShowHardDelete2(false);
     setIsHardDeleting(true);
+    let success = false;
     try {
-      const ok = await deleteUser(userId);
-      if (ok) {
-        showSuccess("Benutzer endgültig gelöscht.", () => router.back());
-      }
+      success = await deleteUser(userId);
     } catch {
       showError(t("common.error"));
     } finally {
       setIsHardDeleting(false);
       setHardDeleteInput("");
+    }
+    // Navigation NACH finally, damit Loading-State sauber zurückgesetzt wird
+    if (success) {
+      showSuccess("Benutzer endgültig gelöscht.");
+      router.back();
     }
   }
 

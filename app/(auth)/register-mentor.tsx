@@ -341,14 +341,15 @@ export default function RegisterMentorScreen() {
 
           <View style={styles.rowInputs}>
             <BNMInput
-              label="PLZ"
+              label="PLZ *"
               icon="location-outline"
+              placeholder="z.B. 10115"
               value={form.plz}
               onChangeText={(v) => update("plz", v)}
               keyboardType="number-pad"
               maxLength={5}
               error={errors.plz}
-              containerStyle={{ width: 120, flex: 0 }}
+              containerStyle={{ minWidth: 130, maxWidth: 160, flex: 0 }}
               accessibilityLabel="PLZ"
             />
             <BNMInput

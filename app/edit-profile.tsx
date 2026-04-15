@@ -130,6 +130,7 @@ export default function EditProfileScreen() {
     setFieldErrors({});
 
     setIsSaving(true);
+    let success = false;
     try {
       const plzChanged = plz.trim() !== (safeUser.plz ?? "");
       const coords = plzChanged ? await geocodePLZ(plz.trim()) : null;
@@ -148,11 +149,15 @@ export default function EditProfileScreen() {
       });
       // AuthContext + DataContext aktualisieren
       await Promise.all([refreshUser(), refreshData()]);
-      showSuccess(t("editProfile.successMsg"), () => router.back());
+      success = true;
     } catch {
       showError(t("common.error"));
     } finally {
       setIsSaving(false);
+    }
+    if (success) {
+      showSuccess(t("editProfile.successMsg"));
+      router.back();
     }
   }
 

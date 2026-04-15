@@ -306,6 +306,7 @@ export default function DocumentSessionScreen() {
     }
 
     setIsSaving(true);
+    let successMsg = "";
 
     let finalDetails = details.trim() || undefined;
     if (isBnmBoxStep && bnmBoxDelivery) {
@@ -341,12 +342,16 @@ export default function DocumentSessionScreen() {
       setDurationMinutes("");
 
       const typeName = activeSessionType?.name ?? "Session";
-      showSuccess(t("docSession.successMsg").replace("{0}", typeName), () => router.back());
+      successMsg = t("docSession.successMsg").replace("{0}", typeName);
     } catch (err) {
       const msg = err instanceof Error ? err.message : t("assign.errorUnknown");
       showError(t("docSession.errorSave").replace("{0}", msg));
     } finally {
       setIsSaving(false);
+    }
+    if (successMsg) {
+      showSuccess(successMsg);
+      router.back();
     }
   }
 
@@ -883,12 +888,17 @@ export default function DocumentSessionScreen() {
                         onPress={async () => {
                           const ok = await showConfirm(t("sessionEdit.delete"), t("sessionEdit.confirmDelete"));
                           if (!ok) return;
+                          let deleted = false;
                           try {
                             await deleteSession(editingSessionId);
-                            showSuccess(t("sessionEdit.deleted"), () => router.back());
+                            deleted = true;
                           } catch (err) {
                             const msg = err instanceof Error ? err.message : t("assign.errorUnknown");
                             showError(t("docSession.errorDelete").replace("{0}", msg));
+                          }
+                          if (deleted) {
+                            showSuccess(t("sessionEdit.deleted"));
+                            router.back();
                           }
                         }}
                       >

@@ -120,14 +120,19 @@ export default function MentorshipDetailScreen() {
     const ok = await showConfirm(t("mentorship.completeTitle"), t("mentorship.completeText"));
     if (!ok) return;
     setIsUpdatingStatus(true);
+    let success = false;
     try {
       await updateMentorshipStatus(mentorshipId, "completed");
       // Notification wird bereits in DataContext.updateMentorshipStatus() erstellt
-      showSuccess(t("mentorship.completeSuccess"), () => router.back());
+      success = true;
     } catch {
       showError(t("mentorship.completeError"));
     } finally {
       setIsUpdatingStatus(false);
+    }
+    if (success) {
+      showSuccess(t("mentorship.completeSuccess"));
+      router.back();
     }
   }
 
@@ -142,16 +147,20 @@ export default function MentorshipDetailScreen() {
       return;
     }
     setIsCancelling(true);
+    let success = false;
     try {
       await cancelMentorship(mentorshipId, cancelReason.trim());
       // Notifications werden bereits in DataContext.cancelMentorship() erstellt
       setShowCancelModal(false);
-      // Mentor geht zurück — nur der Mentee bekommt die Feedback-Anfrage per Notification
-      showSuccess(t("cancel.cancelled"), () => router.back());
+      success = true;
     } catch {
       showError(t("mentorship.cancelError"));
     } finally {
       setIsCancelling(false);
+    }
+    if (success) {
+      showSuccess(t("cancel.cancelled"));
+      router.back();
     }
   }
 

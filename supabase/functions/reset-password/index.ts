@@ -61,12 +61,10 @@ serve(async (req) => {
     });
   }
 
-  // Token aus dem action_link extrahieren (nicht hashed_token — der funktioniert nicht mit verifyOtp).
-  // action_link Format: https://xxx.supabase.co/auth/v1/verify?token=XXXX&type=recovery&redirect_to=...
-  const actionLink = data.properties.action_link;
-  const tokenMatch = actionLink.match(/[?&]token=([^&]+)/);
-  const token = tokenMatch ? tokenMatch[1] : "";
-  const resetLink = `${appUrl}/reset-password?token=${encodeURIComponent(token)}&email=${encodeURIComponent(email.trim().toLowerCase())}`;
+  // action_link direkt verwenden: Supabase verifiziert den Token serverseitig,
+  // setzt die Session und redirected zu /reset-password#access_token=...
+  // Das ist zuverlässiger als Token manuell zu extrahieren und verifyOtp() zu nutzen.
+  const resetLink = data.properties.action_link;
   const htmlBody = `
 <div style="font-family:Arial,sans-serif;max-width:600px;margin:0 auto">
   <div style="background:#0A3A5A;padding:24px;text-align:center">

@@ -1018,6 +1018,7 @@ const ar: Record<TranslationKeys, string> = {
   "resetPassword.successText": "تم تغيير كلمة مرورك بنجاح. سيتم توجيهك لتسجيل الدخول.",
   "resetPassword.errorFailed": "تعذّر تغيير كلمة المرور. يرجى المحاولة مرة أخرى.",
   "resetPassword.backToLogin": "العودة إلى تسجيل الدخول",
+  "resetPassword.requestNewLink": "طلب رابط جديد",
   "resetPassword.errorExpired": "انتهت صلاحية الرابط",
   "resetPassword.errorExpiredText": "هذا الرابط لم يعد صالحاً. يرجى طلب رابط جديد.",
 
