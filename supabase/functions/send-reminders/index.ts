@@ -14,7 +14,7 @@
 //   curl -X POST https://cufuikcxliwbmyhwlmga.supabase.co/functions/v1/send-reminders \
 //     -H "Authorization: Bearer <SERVICE_ROLE_KEY>"
 
-import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+import { createClient } from "https://esm.sh/@supabase/supabase-js@2.39.0";
 
 const EXPO_PUSH_URL = "https://exp.host/--/api/v2/push/send";
 const REMINDER_THRESHOLD_DAYS = 3;  // Erinnerung wenn keine Session seit X Tagen

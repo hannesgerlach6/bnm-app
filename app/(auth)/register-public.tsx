@@ -612,7 +612,7 @@ export default function RegisterPublicScreen() {
                     style={{ color: "#3b82f6", textDecorationLine: "underline" }}
                     onPress={(e) => {
                       e.stopPropagation?.();
-                      Linking.openURL("https://neuemuslime.com/anti-extremismus");
+                      Linking.openURL("https://iman.ngo/alle/iman-anti-extremismus-erklaerung/");
                     }}
                   >
                     {t("register.confirmPrivacyLink3")}
