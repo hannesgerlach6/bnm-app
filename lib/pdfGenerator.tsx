@@ -203,7 +203,7 @@ function drawSection(page: any, rgb: any, bold: any, text: string, x: number, y:
 function drawFooter(page: any, rgb: any, bold: any, font: any, W: number, cur: number, total: number) {
   page.drawLine({ start: { x: M, y: 38 }, end: { x: W - M, y: 38 }, thickness: 0.5, color: rgb(...C.gray200) });
   page.drawText("Vertraulich — BNM", { x: M, y: 24, size: 6.5, font, color: rgb(...C.gray400) });
-  const mid = "iman.ngo";
+  const mid = "neuemuslime.com";
   page.drawText(mid, { x: W / 2 - font.widthOfTextAtSize(mid, 7) / 2, y: 24, size: 7, font, color: rgb(...C.gray400) });
   const rt = `${cur} / ${total}`;
   page.drawText(rt, { x: W - M - font.widthOfTextAtSize(rt, 7), y: 24, size: 7, font, color: rgb(...C.gray400) });
@@ -264,7 +264,7 @@ function drawCoverPage(
   const orgText = "BNM — Betreuung neuer Muslime";
   const orgW = font.widthOfTextAtSize(orgText, 8);
   page.drawText(orgText, { x: W / 2 - orgW / 2, y: 46, size: 8, font, color: rgb(...C.gray400) });
-  const imanText = "iman.ngo";
+  const imanText = "neuemuslime.com";
   const imanW = font.widthOfTextAtSize(imanText, 8);
   page.drawText(imanText, { x: W / 2 - imanW / 2, y: 34, size: 8, font, color: rgb(...C.gold) });
 
@@ -799,7 +799,7 @@ export async function generateMentorAwardPDFBytes(data: AwardData): Promise<Uint
     });
 
     aPage.drawRectangle({ x: acx - 30, y: AH - 470, width: 60, height: 3, color: rgb(...C.goldBright) });
-    aPage.drawText("BNM - Betreuung neuer Muslime - iman.ngo", { x: acx - aFont.widthOfTextAtSize("BNM - Betreuung neuer Muslime - iman.ngo", 8) / 2, y: AH - 500, size: 8, font: aFont, color: rgb(...C.gray400) });
+    aPage.drawText("BNM - Betreuung neuer Muslime - neuemuslime.com", { x: acx - aFont.widthOfTextAtSize("BNM - Betreuung neuer Muslime - neuemuslime.com", 8) / 2, y: AH - 500, size: 8, font: aFont, color: rgb(...C.gray400) });
 
     return await aDoc.save();
   } catch { return null; }

@@ -13,7 +13,7 @@ export async function geocodePLZ(plz: string, country?: string): Promise<{ lat: 
         : "de,at,ch";
     const url = `https://nominatim.openstreetmap.org/search?postalcode=${encodeURIComponent(plz)}&countrycodes=${countryCode}&format=json&limit=1`;
     const res = await fetch(url, {
-      headers: { "User-Agent": "BNM-App/1.0 (iman.ngo)" },
+      headers: { "User-Agent": "BNM-App/1.0 (neuemuslime.com)" },
     });
     if (!res.ok) return null;
     const data = await res.json();

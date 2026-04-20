@@ -306,7 +306,7 @@ function buildCertificateHTML(data: CertificateData): string {
       <div class="signature-block">
         <div class="signature-line"></div>
         <p class="signature-label">BNM-Programmleitung</p>
-        <p class="signature-label">iman.ngo · iERA</p>
+        <p class="signature-label">neuemuslime.com · iERA</p>
       </div>
       <div class="date-block">
         <span class="date-label">Ausgestellt am</span>

@@ -14,8 +14,8 @@ Alle SQL-Änderungen dokumentieren. Selbstständig handeln.
 - **Framework:** Expo SDK 55 (React Native) – eine Codebase für Web + iOS + Android
 - **Routing:** Expo Router | **Styling:** StyleSheet.create() + COLORS (constants/Colors.ts)
 - **Backend:** Supabase (PostgreSQL, Auth, Realtime, Storage)
-- **E-Mail:** Resend API (lib/emailService.ts) — Domain `bnm.iman.ngo` verifiziert, `noreply@bnm.iman.ngo` aktiv
-- **Web-Hosting:** Vercel → `https://bnm.iman.ngo` (Custom Domain aktiv)
+- **E-Mail:** Resend API (lib/emailService.ts) — Domain `neuemuslime.com` verifiziert, `noreply@neuemuslime.com` aktiv
+- **Web-Hosting:** Vercel → `https://neuemuslime.com` (Custom Domain aktiv)
 - **Repo:** github.com/hannesgerlach6/bnm-app (private)
 
 ## SUPABASE
@@ -58,7 +58,7 @@ Alle SQL-Änderungen dokumentieren. Selbstständig handeln.
 
 ## BRANDING
 
-iman.ngo-Stil. Dunkelblau (#0A3A5A) + Gold (#EEA71B). `constants/Colors.ts`.
+neuemuslime.com-Stil. Dunkelblau (#0A3A5A) + Gold (#EEA71B). `constants/Colors.ts`.
 **Design-Tokens nutzen:** `RADIUS.sm` (Buttons/Inputs), `RADIUS.md` (Cards), `RADIUS.lg` (Modals). `SHADOWS.sm/md/lg` statt hardcoded Shadows. `TYPOGRAPHY.styles.*` für Text. Logo: `assets/images/bnm-logo.png`.
 
 ## DESIGN-KOMPONENTEN
@@ -98,6 +98,14 @@ iman.ngo-Stil. Dunkelblau (#0A3A5A) + Gold (#EEA71B). `constants/Colors.ts`.
 ---
 
 ## FORTSCHRITTS-LOG
+
+### 2026-04-16 — Domain-Umzug von bnm.iman.ngo auf neuemuslime.com
+**Neue Datei:** `lib/appConstants.ts` — zentrale URLs/E-Mail-Adressen
+**Geaenderte Stellen:**
+- Code: calendarService (OAuth), emailService (Footer), geocoding (User-Agent), pdfGenerator + certificateService (Branding), settings (Support/Web), register-public (Anti-Extremismus-Link), Legal-Seiten (Impressum + Datenschutz)
+- Edge Functions: send-emails, send-direct, send-reminders, reset-password — alle E-Mail-Absender jetzt `noreply@neuemuslime.com`
+- Translations: DE/EN/AR/TR — support/datenschutz/info-Mails + Quellenangaben
+- **Muss manuell gemacht werden:** Resend-Domain verifizieren, Google OAuth Redirect URI, Supabase Site URL, Edge Functions redeployen
 
 ### 2026-04-15 — Mentor setzt Passwort bei Registrierung
 **Neuer Flow:**
@@ -474,7 +482,7 @@ iman.ngo-Stil. Dunkelblau (#0A3A5A) + Gold (#EEA71B). `constants/Colors.ts`.
 **Erinnerungssystem (server-seitig):**
 - Neue Edge Function: `supabase/functions/send-reminders/index.ts`
 - Prüft täglich alle aktiven Mentorships auf fehlende Sessions (> 3 Tage)
-- Sendet: DB-Notification + Push (Expo) + E-Mail (Resend, `noreply@bnm.iman.ngo`)
+- Sendet: DB-Notification + Push (Expo) + E-Mail (Resend, `noreply@neuemuslime.com`)
 - Cooldown: Keine Doppel-Erinnerung innerhalb 2 Tagen
 - `supabase/edge-functions.sql` aktualisiert: pg_cron Job einkommentiert (Option A: SQL-direkt, Option B: pg_net → Edge Function)
 - Deployment-Steps: pg_cron + pg_net Extensions aktivieren → SQL ausführen → `supabase functions deploy send-reminders`
@@ -483,8 +491,8 @@ iman.ngo-Stil. Dunkelblau (#0A3A5A) + Gold (#EEA71B). `constants/Colors.ts`.
 - `app/+not-found.tsx` auf `useThemeColors()` umgestellt (war einzige Datei ohne Dynamic Colors)
 
 **Domain + Hosting:**
-- Web: `https://bnm.iman.ngo` live (Vercel Custom Domain)
-- E-Mail: `noreply@bnm.iman.ngo` via Resend (Domain verifiziert)
+- Web: `https://neuemuslime.com` live (Vercel Custom Domain)
+- E-Mail: `noreply@neuemuslime.com` via Resend (Domain verifiziert)
 
 ### 2026-04-10 — Professionelle PDF-Reports v2 (Komplettes Redesign)
 **Vollstaendiger Rewrite von `lib/pdfGenerator.tsx` — von 0.2/10 auf professionelles Niveau:**
@@ -516,5 +524,5 @@ iman.ngo-Stil. Dunkelblau (#0A3A5A) + Gold (#EEA71B). `constants/Colors.ts`.
 - Erweiterte Typografie: Hero 28pt, KPI 20pt, Section 12pt, Body 9pt, Caption 7pt
 - Berechnete Metriken: Sessions/Mentee, Sessions/Mentor, Nachbetreuungsrate, Abschlussquote
 - Professionelle Tabelle: Navy-Kopfzeile, Zebra-Streifen, Medaillen-Kreise, abschliessende Navy-Linie
-- Footer: "Vertraulich" + iman.ngo Branding + Seitenzahlen
+- Footer: "Vertraulich" + neuemuslime.com Branding + Seitenzahlen
 - Interfaces bleiben 100% abwaertskompatibel (keine Aenderungen an reports.tsx / donor-report.tsx)

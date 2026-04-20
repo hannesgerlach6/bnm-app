@@ -31,7 +31,7 @@ BNM (Betreuung neuer Muslime) ist eine Mentoring-Plattform, die neue Muslime mit
 - Reporting und Statistiken
 - E-Mail-Benachrichtigungen
 
-BNM wird betrieben von iman.ngo und unterstützt Gemeinden dabei, neue Muslime professionell und herzlich zu betreuen.
+BNM wird betrieben von neuemuslime.com und unterstützt Gemeinden dabei, neue Muslime professionell und herzlich zu betreuen.
 
 **Datenschutz:** Deine Daten werden sicher in Europa gespeichert. Wir geben keine persönlichen Daten an Dritte weiter.
 
@@ -74,7 +74,7 @@ BNM (Betreuung neuer Muslime / New Muslim Care) is a mentoring platform that con
 - Reporting and statistics
 - Email notifications
 
-BNM is operated by iman.ngo and supports communities in providing professional and warm care for new Muslims.
+BNM is operated by neuemuslime.com and supports communities in providing professional and warm care for new Muslims.
 
 **Privacy:** Your data is securely stored in Europe. We do not share personal data with third parties.
 

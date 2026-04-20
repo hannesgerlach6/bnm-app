@@ -47,7 +47,7 @@
 - [ ] Datenschutzerklärung erstellen/hosten (URL benötigt!)
   - Pflicht für beide Stores
   - Muss erklären: welche Daten, warum, wo gespeichert
-  - Vorschlag: Auf iman.ngo hosten (z.B. iman.ngo/bnm/datenschutz)
+  - Vorschlag: Auf neuemuslime.com hosten (z.B. neuemuslime.com/bnm/datenschutz)
 - [ ] URL in App Store Connect & Google Play Console eintragen
 
 #### 5. Screenshots

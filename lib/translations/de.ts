@@ -193,7 +193,7 @@ const de = {
   "settings.website": "Website",
   "settings.privacy": "DATENSCHUTZ",
   "settings.privacyText1": "BNM verarbeitet deine Daten ausschließlich zur Verwaltung des Mentoring-Programms. Deine Daten werden nicht an Dritte weitergegeben und nach Beendigung der Betreuung entsprechend der gesetzlichen Aufbewahrungsfristen gelöscht.",
-  "settings.privacyText2": "Du hast das Recht auf Auskunft, Berichtigung und Löschung deiner gespeicherten Daten. Wende dich bei Fragen an datenschutz@iman.ngo.",
+  "settings.privacyText2": "Du hast das Recht auf Auskunft, Berichtigung und Löschung deiner gespeicherten Daten. Wende dich bei Fragen an datenschutz@neuemuslime.com.",
   "settings.deleteAccount": "Konto löschen",
   "settings.deleteTitle": "Konto löschen",
   "settings.deleteConfirm": "Dein Konto wird gelöscht und du kannst dich nicht mehr einloggen. Deine Daten werden gemäß unserer Datenschutzrichtlinie und gesetzlicher Aufbewahrungsfristen verarbeitet.",
@@ -1187,7 +1187,7 @@ const de = {
   "footer.privacyTitle": "Datenschutz",
   "footer.privacyText": "Deine Daten werden ausschließlich zur Verwaltung des BNM-Mentoring-Programms verwendet und nicht an Dritte weitergegeben.",
   "footer.imprintTitle": "Impressum",
-  "footer.imprintText": "BNM – Betreuung neuer Muslime\nDieses Programm wird ehrenamtlich betrieben.\nFür Anfragen: info@iman.ngo",
+  "footer.imprintText": "BNM – Betreuung neuer Muslime\nDieses Programm wird ehrenamtlich betrieben.\nFür Anfragen: info@neuemuslime.com",
 
   // Admin: Profil bearbeiten
   "editUser.title": "Profil bearbeiten",
@@ -1693,7 +1693,7 @@ const de = {
   // Share (Hadith / Q&A)
   "share.hadith": "Hadith teilen",
   "share.answer": "Antwort teilen",
-  "share.suffix": "— Betreuung neuer Muslime (BNM) | Quelle: iman.ngo",
+  "share.suffix": "— Betreuung neuer Muslime (BNM) | Quelle: neuemuslime.com",
 
   // Notification Settings
   "notifSettings.title": "Benachrichtigungen",

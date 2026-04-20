@@ -51,7 +51,7 @@ export default function DatenschutzScreen() {
               Verein IMAN{"\n"}
               Simmeringer Hauptstraße 24{"\n"}
               1110 Wien, Österreich{"\n"}
-              E-Mail: office@iman.ngo{"\n"}
+              E-Mail: office@neuemuslime.com{"\n"}
               Telefon: +43 664 99644265
             </P>
           </Section>
@@ -130,7 +130,7 @@ export default function DatenschutzScreen() {
               • Widerruf der Einwilligung: Jederzeit möglich, ohne dass die Rechtmäßigkeit der vorherigen Verarbeitung berührt wird
             </P>
             <P style={{ marginTop: 8 }}>
-              Kontakt: datenschutz@iman.ngo
+              Kontakt: datenschutz@neuemuslime.com
             </P>
           </Section>
 

@@ -62,11 +62,11 @@ export default function SettingsScreen() {
   }
 
   function handleSupportMail() {
-    Linking.openURL("mailto:support@iman.ngo");
+    Linking.openURL("mailto:support@neuemuslime.com");
   }
 
   function handleWebsite() {
-    Linking.openURL("https://iman.ngo");
+    Linking.openURL("https://neuemuslime.com");
   }
 
   function handleLanguageSelect(lang: Language) {
@@ -160,7 +160,7 @@ export default function SettingsScreen() {
             >
               <Text style={[styles.infoLabel, { color: themeColors.textSecondary }]}>{t("settings.support")}</Text>
               <Text style={[styles.infoValue, { color: themeColors.link }]}>
-                support@iman.ngo
+                support@neuemuslime.com
               </Text>
             </BNMPressable>
             <BNMPressable
@@ -171,7 +171,7 @@ export default function SettingsScreen() {
             >
               <Text style={[styles.infoLabel, { color: themeColors.textSecondary }]}>{t("settings.website")}</Text>
               <Text style={[styles.infoValue, { color: themeColors.link }]}>
-                iman.ngo ↗
+                neuemuslime.com ↗
               </Text>
             </BNMPressable>
           </View>

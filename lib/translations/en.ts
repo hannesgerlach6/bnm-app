@@ -195,7 +195,7 @@ const en: Record<TranslationKeys, string> = {
   "settings.website": "Website",
   "settings.privacy": "PRIVACY",
   "settings.privacyText1": "BNM processes your data exclusively for managing the mentoring program. Your data is not shared with third parties and will be deleted after mentorship ends in accordance with legal retention requirements.",
-  "settings.privacyText2": "You have the right to access, correct, and delete your stored data. For questions, contact datenschutz@iman.ngo.",
+  "settings.privacyText2": "You have the right to access, correct, and delete your stored data. For questions, contact datenschutz@neuemuslime.com.",
   "settings.deleteAccount": "Delete Account",
   "settings.deleteTitle": "Delete Account",
   "settings.deleteConfirm": "Your account will be deleted and you will no longer be able to log in. Your data will be processed in accordance with our privacy policy and legal retention requirements.",
@@ -1181,7 +1181,7 @@ const en: Record<TranslationKeys, string> = {
   "footer.privacyTitle": "Privacy Policy",
   "footer.privacyText": "Your data is used exclusively for managing the BNM mentoring program and is not shared with third parties.",
   "footer.imprintTitle": "Imprint",
-  "footer.imprintText": "BNM – Mentoring for New Muslims\nThis program is run by volunteers.\nContact: info@iman.ngo",
+  "footer.imprintText": "BNM – Mentoring for New Muslims\nThis program is run by volunteers.\nContact: info@neuemuslime.com",
 
   // Admin: Edit Profile
   "editUser.title": "Edit Profile",
@@ -1687,7 +1687,7 @@ const en: Record<TranslationKeys, string> = {
   // Share (Hadith / Q&A)
   "share.hadith": "Share hadith",
   "share.answer": "Share answer",
-  "share.suffix": "— Care for New Muslims (BNM) | Source: iman.ngo",
+  "share.suffix": "— Care for New Muslims (BNM) | Source: neuemuslime.com",
 
   // Notification Settings
   "notifSettings.title": "Notifications",

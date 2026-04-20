@@ -2,7 +2,7 @@
 
 <span style="color:#444444;">''App Store Release — Vollständige Anleitung''</span>
 
-<span style="color:#777777;">Stand: 10. April 2026 | Projekt: BNM | Organisation: iman.ngo</span>
+<span style="color:#777777;">Stand: 10. April 2026 | Projekt: BNM | Organisation: neuemuslime.com</span>
 
 '''Status — Was bereits erledigt ist'''* ✅ Expo SDK 54 Projekt mit EAS konfiguriert (Project ID: 189bfd5b-ec7f-447f-a625-99c0dcbec17b)
 * ✅ Bundle ID im Code gesetzt: ngo.iman.bnm (iOS + Android)
@@ -26,7 +26,7 @@
 Voraussetzung für alles Weitere. Ohne Apple Developer Account ($99/Jahr) kann kein Build erstellt und nichts hochgeladen werden.
 
 '''Schritte:'''* Apple Developer Program beitreten: https://developer.apple.com/programs/enroll/
-* Organisation: iman.ngo (oder Individuell)
+* Organisation: neuemuslime.com (oder Individuell)
 * Dauer: 1–2 Werktage bis Freischaltung
 * Nach Freischaltung: Team ID notieren (unter developer.apple.com/account → Membership)
 
@@ -174,7 +174,7 @@ BNM (Betreuung neuer Muslime) ist eine Mentoring-Plattform, die neue Muslime mit
 
 
 
-BNM wird betrieben von iman.ngo und unterstützt Gemeinden dabei, neue Muslime professionell und herzlich zu betreuen.
+BNM wird betrieben von neuemuslime.com und unterstützt Gemeinden dabei, neue Muslime professionell und herzlich zu betreuen.
 
 '''Keywords (max 100 Zeichen, kommagetrennt):'''
 
@@ -187,7 +187,7 @@ Islam,Mentoring,Muslime,Konvertiten,Betreuung,Gemeinde,Lernen,Begleitung,Mentor,
 
 Die Datenschutzseite existiert zwar in der App (app/legal/datenschutz.tsx), aber Apple braucht eine Web-URL.
 
-'''Optionen:'''* '''Auf iman.ngo hosten '''(z.B. https://iman.ngo/bnm/datenschutz) — bevorzugt
+'''Optionen:'''* '''Auf neuemuslime.com hosten '''(z.B. https://neuemuslime.com/bnm/datenschutz) — bevorzugt
 * '''GitHub Pages: '''Im Repo unter docs/datenschutz.html
 * Einfache HTML-Seite auf beliebigem Webspace
 
@@ -195,8 +195,8 @@ Die Datenschutzseite existiert zwar in der App (app/legal/datenschutz.tsx), aber
 
 
 
-'''Zusätzlich benötigt:'''* '''Support-URL '''(z.B. E-Mail-Adresse oder Kontaktseite auf iman.ngo)
-* '''Marketing-URL '''(optional, z.B. https://iman.ngo/bnm)
+'''Zusätzlich benötigt:'''* '''Support-URL '''(z.B. E-Mail-Adresse oder Kontaktseite auf neuemuslime.com)
+* '''Marketing-URL '''(optional, z.B. https://neuemuslime.com/bnm)
 
 
 
@@ -208,7 +208,7 @@ Die Datenschutzseite existiert zwar in der App (app/legal/datenschutz.tsx), aber
 
 <span style="color:#cc0000;">'''Apple Review braucht einen Test-Account um die App zu prüfen. Ohne gültige Zugangsdaten wird Apple die App ablehnen!'''</span>
 
-'''Anmeldeinformationen:'''* '''Benutzername: '''(Test-Mentee-Account anlegen, z.B. review@iman.ngo)
+'''Anmeldeinformationen:'''* '''Benutzername: '''(Test-Mentee-Account anlegen, z.B. review@neuemuslime.com)
 * '''Passwort: '''(Passwort für diesen Account)
 
 
@@ -219,7 +219,7 @@ Die Datenschutzseite existiert zwar in der App (app/legal/datenschutz.tsx), aber
 
 '''Anmerkungen für das Review-Team:'''
 
-''BNM is a mentoring app for Muslim communities operated by iman.ngo. It connects new Muslims (mentees) with experienced mentors for structured guidance. To test the app: 1) Log in with the provided test credentials. 2) View the mentee dashboard with progress tracking and XP. 3) Open the chat to see mentor communication. 4) Check the learning plan and sessions. The app uses camera and photo library for profile picture upload only. The app requires an internet connection for all features. Account deletion is available under Settings for mentors and mentees.''
+''BNM is a mentoring app for Muslim communities operated by neuemuslime.com. It connects new Muslims (mentees) with experienced mentors for structured guidance. To test the app: 1) Log in with the provided test credentials. 2) View the mentee dashboard with progress tracking and XP. 3) Open the chat to see mentor communication. 4) Check the learning plan and sessions. The app uses camera and photo library for profile picture upload only. The app requires an internet connection for all features. Account deletion is available under Settings for mentors and mentees.''
 
 '''8. App-Icon prüfen'''* Das App-Icon wird automatisch aus dem Build gezogen (assets/images/bnm-logo.png)
 * Prüfe in App Store Connect ob es korrekt angezeigt wird und nicht schwarz/leer ist
@@ -242,7 +242,7 @@ Die Datenschutzseite existiert zwar in der App (app/legal/datenschutz.tsx), aber
 
 
 
-'''Gesetz über digitale Dienste (EU DSA):'''* Geschäftsadresse von iman.ngo angeben
+'''Gesetz über digitale Dienste (EU DSA):'''* Geschäftsadresse von neuemuslime.com angeben
 
 
 
@@ -352,7 +352,7 @@ Für Google Play wird zusätzlich benötigt:* Google Play Developer Account (25$
 |-
 | style="border:0.1pt solid #cccccc;padding-top:0.141cm;padding-bottom:0.141cm;padding-left:0.212cm;padding-right:0.212cm;" | <span style="color:#000000;">🔴 HOCH</span>
 | style="border:0.1pt solid #cccccc;padding-top:0.141cm;padding-bottom:0.141cm;padding-left:0.212cm;padding-right:0.212cm;" | <span style="color:#000000;">Apple Developer Account einrichten</span>
-| style="border:0.1pt solid #cccccc;padding-top:0.141cm;padding-bottom:0.141cm;padding-left:0.212cm;padding-right:0.212cm;" | <span style="color:#000000;">Hannes / iman.ngo</span>
+| style="border:0.1pt solid #cccccc;padding-top:0.141cm;padding-bottom:0.141cm;padding-left:0.212cm;padding-right:0.212cm;" | <span style="color:#000000;">Hannes / neuemuslime.com</span>
 |-
 | style="border:0.1pt solid #cccccc;padding-top:0.141cm;padding-bottom:0.141cm;padding-left:0.212cm;padding-right:0.212cm;" | <span style="color:#000000;">🔴 HOCH</span>
 | style="border:0.1pt solid #cccccc;padding-top:0.141cm;padding-bottom:0.141cm;padding-left:0.212cm;padding-right:0.212cm;" | <span style="color:#000000;">App in App Store Connect anlegen</span>
@@ -360,7 +360,7 @@ Für Google Play wird zusätzlich benötigt:* Google Play Developer Account (25$
 |-
 | style="border:0.1pt solid #cccccc;padding-top:0.141cm;padding-bottom:0.141cm;padding-left:0.212cm;padding-right:0.212cm;" | <span style="color:#000000;">🔴 HOCH</span>
 | style="border:0.1pt solid #cccccc;padding-top:0.141cm;padding-bottom:0.141cm;padding-left:0.212cm;padding-right:0.212cm;" | <span style="color:#000000;">Privacy Policy URL bereitstellen</span>
-| style="border:0.1pt solid #cccccc;padding-top:0.141cm;padding-bottom:0.141cm;padding-left:0.212cm;padding-right:0.212cm;" | <span style="color:#000000;">Hannes / iman.ngo</span>
+| style="border:0.1pt solid #cccccc;padding-top:0.141cm;padding-bottom:0.141cm;padding-left:0.212cm;padding-right:0.212cm;" | <span style="color:#000000;">Hannes / neuemuslime.com</span>
 |-
 | style="border:0.1pt solid #cccccc;padding-top:0.141cm;padding-bottom:0.141cm;padding-left:0.212cm;padding-right:0.212cm;" | <span style="color:#000000;">🔴 HOCH</span>
 | style="border:0.1pt solid #cccccc;padding-top:0.141cm;padding-bottom:0.141cm;padding-left:0.212cm;padding-right:0.212cm;" | <span style="color:#000000;">Test-Account für Apple Review erstellen</span>

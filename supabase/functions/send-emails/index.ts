@@ -45,7 +45,7 @@ serve(async (_req) => {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          from: "BNM <noreply@bnm.iman.ngo>",
+          from: "BNM <noreply@neuemuslime.com>",
           to: [recipient],
           subject: email.subject,
           html: email.html_body,

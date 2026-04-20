@@ -2,6 +2,7 @@ import { Platform, Alert, Linking } from "react-native";
 import * as WebBrowser from "expo-web-browser";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { supabase } from "./supabase";
+import { GOOGLE_OAUTH_REDIRECT } from "./appConstants";
 import type { CalendarEvent } from "../types";
 
 // ============================================================
@@ -324,8 +325,8 @@ export async function initiateGoogleAuth(userId?: string): Promise<{
       // Redirect URI: gleiche Web-URL — kein Custom Scheme nötig.
       // expo-web-browser fängt die URL ab sobald Google dorthin redirectet.
       // Muss in Google Cloud Console als "Authorized redirect URI" eingetragen sein:
-      //   https://bnm.iman.ngo/auth/google/callback  ← bereits eingetragen
-      const redirectUri = "https://bnm.iman.ngo/auth/google/callback";
+      //   https://neuemuslime.com/auth/google/callback  ← in Google Cloud Console eintragen
+      const redirectUri = GOOGLE_OAUTH_REDIRECT;
       const authUrl     = buildAuthUrl(redirectUri);
 
       const result = await WebBrowser.openAuthSessionAsync(authUrl, redirectUri);

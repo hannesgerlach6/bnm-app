@@ -45,7 +45,7 @@ serve(async (req) => {
   }
 
   // Reset-Link über Supabase Admin API generieren
-  const appUrl = "https://bnm.iman.ngo";
+  const appUrl = "https://neuemuslime.com";
   const supabase = createClient(supabaseUrl, serviceRoleKey);
   const { data, error } = await supabase.auth.admin.generateLink({
     type: "recovery",
@@ -86,7 +86,7 @@ serve(async (req) => {
     </p>
   </div>
   <div style="padding:16px;background:#F9FAFB;text-align:center">
-    <p style="color:#98A2B3;font-size:12px;margin:0">BNM – Betreuung neuer Muslime · iman.ngo</p>
+    <p style="color:#98A2B3;font-size:12px;margin:0">BNM – Betreuung neuer Muslime · neuemuslime.com</p>
   </div>
 </div>`.trim();
 
@@ -99,7 +99,7 @@ serve(async (req) => {
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        from: "BNM <noreply@bnm.iman.ngo>",
+        from: "BNM <noreply@neuemuslime.com>",
         to: [email.trim().toLowerCase()],
         subject: "[BNM] Passwort zurücksetzen",
         html: htmlBody,

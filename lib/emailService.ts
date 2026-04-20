@@ -485,7 +485,7 @@ export async function sendCertificateEmail(
     <p style="color:#6B7280;margin-top:24px">Barakallahu fik<br>Das BNM-Team</p>
   </div>
   <div style="padding:16px;background:#F9FAFB;text-align:center">
-    <p style="color:#98A2B3;font-size:12px;margin:0">BNM – Betreuung neuer Muslime · iman.ngo</p>
+    <p style="color:#98A2B3;font-size:12px;margin:0">BNM – Betreuung neuer Muslime · neuemuslime.com</p>
   </div>
 </div>
   `.trim();

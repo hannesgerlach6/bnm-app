@@ -57,7 +57,7 @@ serve(async (req) => {
   }
 
   const body: Record<string, unknown> = {
-    from: "BNM <noreply@bnm.iman.ngo>",
+    from: "BNM <noreply@neuemuslime.com>",
     to: Array.isArray(to) ? to : [to],
     subject,
     html,

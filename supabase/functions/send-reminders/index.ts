@@ -145,7 +145,7 @@ Deno.serve(async (req: Request) => {
             "Content-Type": "application/json",
           },
           body: JSON.stringify({
-            from: "BNM <noreply@bnm.iman.ngo>",
+            from: "BNM <noreply@neuemuslime.com>",
             to: [mentorData.email],
             subject: "BNM: Session-Erinnerung",
             html: `
@@ -162,14 +162,14 @@ Deno.serve(async (req: Request) => {
                   Bitte melde dich bei deinem Mentee und trage die Session in der BNM-App ein — so bleibt der Fortschritt für alle sichtbar.
                 </p>
                 <div style="text-align: center; margin: 32px 0;">
-                  <a href="https://bnm.iman.ngo"
+                  <a href="https://neuemuslime.com"
                      style="display: inline-block; padding: 12px 28px; background: #EEA71B; color: #0A3A5A;
                             text-decoration: none; border-radius: 5px; font-weight: bold; font-size: 15px;">
                     Zur BNM-App →
                   </a>
                 </div>
                 <p style="color: #98A2B3; font-size: 12px; margin-top: 24px; text-align: center;">
-                  Betreuung neuer Muslime · <a href="https://bnm.iman.ngo" style="color: #98A2B3;">bnm.iman.ngo</a>
+                  Betreuung neuer Muslime · <a href="https://neuemuslime.com" style="color: #98A2B3;">neuemuslime.com</a>
                 </p>
               </div>
             `,

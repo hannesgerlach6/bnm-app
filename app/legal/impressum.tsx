@@ -52,7 +52,7 @@ export default function ImpressumScreen() {
           <View style={[styles.card, { backgroundColor: themeColors.card, borderColor: themeColors.border }]}>
             <Text style={[styles.sectionTitle, { color: themeColors.text }]}>Kontakt</Text>
             <Text style={[styles.paragraph, { color: themeColors.textSecondary }]}>
-              E-Mail: office@iman.ngo{"\n"}
+              E-Mail: office@neuemuslime.com{"\n"}
               Telefon: +43 664 99644265
             </Text>
           </View>

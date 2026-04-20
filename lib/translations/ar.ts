@@ -195,7 +195,7 @@ const ar: Record<TranslationKeys, string> = {
   "settings.website": "الموقع الإلكتروني",
   "settings.privacy": "الخصوصية",
   "settings.privacyText1": "تعالج BNM بياناتك حصرياً لإدارة برنامج الإرشاد. لا تُشارَك بياناتك مع أطراف ثالثة وتُحذف بعد انتهاء الإرشاد وفقاً لمتطلبات الاحتفاظ القانونية.",
-  "settings.privacyText2": "يحق لك الاطلاع على بياناتك المخزنة وتصحيحها وحذفها. للاستفسار تواصل مع datenschutz@iman.ngo.",
+  "settings.privacyText2": "يحق لك الاطلاع على بياناتك المخزنة وتصحيحها وحذفها. للاستفسار تواصل مع datenschutz@neuemuslime.com.",
   "settings.deleteAccount": "حذف الحساب",
   "settings.deleteTitle": "حذف الحساب",
   "settings.deleteConfirm": "سيتم حذف حسابك ولن تتمكن من تسجيل الدخول بعد ذلك. ستتم معالجة بياناتك وفقًا لسياسة الخصوصية والمتطلبات القانونية.",
@@ -1181,7 +1181,7 @@ const ar: Record<TranslationKeys, string> = {
   "footer.privacyTitle": "سياسة الخصوصية",
   "footer.privacyText": "يتم استخدام بياناتك حصريًا لإدارة برنامج الإرشاد BNM ولا تتم مشاركتها مع أطراف ثالثة.",
   "footer.imprintTitle": "بيانات النشر",
-  "footer.imprintText": "BNM – إرشاد المسلمين الجدد\nيُدار هذا البرنامج من قبل متطوعين.\nللتواصل: info@iman.ngo",
+  "footer.imprintText": "BNM – إرشاد المسلمين الجدد\nيُدار هذا البرنامج من قبل متطوعين.\nللتواصل: info@neuemuslime.com",
 
   // المسؤول: تعديل الملف الشخصي
   "editUser.title": "تعديل الملف الشخصي",
@@ -1687,7 +1687,7 @@ const ar: Record<TranslationKeys, string> = {
   // مشاركة (الحديث / الأسئلة والأجوبة)
   "share.hadith": "مشاركة الحديث",
   "share.answer": "مشاركة الإجابة",
-  "share.suffix": "— رعاية المسلمين الجدد (BNM) | المصدر: iman.ngo",
+  "share.suffix": "— رعاية المسلمين الجدد (BNM) | المصدر: neuemuslime.com",
 
   // إعدادات الإشعارات
   "notifSettings.title": "الإشعارات",
