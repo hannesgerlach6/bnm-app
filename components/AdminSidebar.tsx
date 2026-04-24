@@ -228,6 +228,8 @@ export function AdminSidebar() {
     ? (isMentor ? "leaderboard" : "mentors")
     : pathname.includes("/applications") || pathname.includes("/admin/pending")
     ? "applications"
+    : pathname.includes("/admin/team") || pathname.includes("/admin/create-user")
+    ? "team"
     : pathname.includes("/tools") || isAdminToolScreen
     ? "tools"
     : pathname.includes("/feedback")
@@ -266,6 +268,9 @@ export function AdminSidebar() {
         { key: "mentees", label: t("tabs.mentees"), iconName: "people-outline", iconNameActive: "people", href: "/(tabs)/mentees" },
         { key: "mentors", label: t("sidebar.mentors"), iconName: "school-outline", iconNameActive: "school", href: "/(tabs)/mentors" },
         { key: "applications", label: t("sidebar.applications"), iconName: "document-text-outline", iconNameActive: "document-text", href: "/(tabs)/applications" },
+        ...(!isOffice
+          ? [{ key: "team", label: "Team", iconName: "shield-checkmark-outline", iconNameActive: "shield-checkmark", href: "/admin/team" }]
+          : []),
         { key: "tools", label: "Tools", iconName: "construct-outline", iconNameActive: "construct", href: "/(tabs)/tools" },
         calendarItem,
         { key: "feedback", label: t("tabs.feedback"), iconName: "star-outline", iconNameActive: "star", href: "/(tabs)/feedback" },

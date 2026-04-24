@@ -87,7 +87,10 @@ export function AdminMobileDrawer({ open, onClose }: Props) {
         { key: "/mentors", label: t("sidebar.mentors"), icon: "school-outline" as const, iconActive: "school" as const, href: "/(tabs)/mentors" },
         { key: "/applications", label: t("sidebar.applications"), icon: "document-text-outline" as const, iconActive: "document-text" as const, href: "/(tabs)/applications" },
         ...(!isOffice
-          ? [{ key: "/chats", label: t("tabs.chats"), icon: "chatbubbles-outline" as const, iconActive: "chatbubbles" as const, href: "/(tabs)/chats", badge: chatUnread }]
+          ? [
+              { key: "/admin/team", label: "Team", icon: "shield-checkmark-outline" as const, iconActive: "shield-checkmark" as const, href: "/admin/team" },
+              { key: "/chats", label: t("tabs.chats"), icon: "chatbubbles-outline" as const, iconActive: "chatbubbles" as const, href: "/(tabs)/chats", badge: chatUnread },
+            ]
           : []),
         { key: "/tools", label: "Tools", icon: "construct-outline" as const, iconActive: "construct" as const, href: "/(tabs)/tools" },
         calendarNavItem,

@@ -7,7 +7,7 @@ import {
   KeyboardAvoidingView,
   Platform,
 } from "react-native";
-import { useRouter } from "expo-router";
+import { useRouter, useLocalSearchParams } from "expo-router";
 import { useAuth } from "../../contexts/AuthContext";
 import { useData } from "../../contexts/DataContext";
 import { COLORS, RADIUS } from "../../constants/Colors";
@@ -28,12 +28,18 @@ const ROLES: { key: UserRole; label: string }[] = [
 
 export default function CreateUserScreen() {
   const router = useRouter();
+  const params = useLocalSearchParams<{ role?: string }>();
   const { user: authUser } = useAuth();
   const { addUser } = useData();
   const themeColors = useThemeColors();
   const insets = useSafeAreaInsets();
 
-  const [role, setRole] = useState<UserRole>("office");
+  const preselectedRole = (params.role as UserRole) ?? "office";
+  const [role, setRole] = useState<UserRole>(
+    ["office", "admin", "mentor", "mentee"].includes(preselectedRole)
+      ? preselectedRole
+      : "office"
+  );
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
