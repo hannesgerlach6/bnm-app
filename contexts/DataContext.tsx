@@ -115,7 +115,7 @@ export interface DataContextValue {
   toggleMentorOfMonth: () => Promise<void>;
 
   // User registration (Mentee via Admin-Aufruf, nicht mehr nötig für Supabase)
-  addUser: (user: Omit<User, "id" | "created_at">) => Promise<void>;
+  addUser: (user: Omit<User, "id" | "created_at"> & { password: string }) => Promise<{ userId: string } | null>;
 
   // Mentorship actions
   assignMentorship: (menteeId: string, mentorId: string, adminId: string, status?: MentorshipStatus) => Promise<void>;
@@ -2283,14 +2283,74 @@ export function DataProvider({ children }: { children: ReactNode }) {
   // ─── addUser (für Admin: neuen Mentee ohne Auth anlegen) ──────────────────────
 
   const addUser = useCallback(
-    async (userData: Omit<User, "id" | "created_at">) => {
-      // Hinweis: Einen User ohne Auth.signUp anzulegen ist nur mit dem Service Key möglich.
-      // Mit dem Anon Key kann man nur die eigene profiles-Row anlegen.
-      // Diese Funktion ist daher nur funktional wenn der aufrufende User Admin-Rechte hat
-      // und via Admin API (Server-Side) aufgerufen wird.
-      // Für den Client-Flow: approveApplication() legt den User via signUp an.
-      // Direktes Profil-Insert ohne Auth-User nicht möglich mit Anon Key.
-      // Account-Erstellung erfolgt über approveApplication().
+    async (userData: Omit<User, "id" | "created_at"> & { password: string }) => {
+      // Admin-Session sichern (signUp auf supabaseAnon beeinflusst die Haupt-Session nicht)
+      await supabase.auth.getSession();
+
+      const { data: signUpData, error: signUpError } = await supabaseAnon.auth.signUp({
+        email: userData.email.trim().toLowerCase(),
+        password: userData.password,
+        options: {
+          data: {
+            name: userData.name,
+            role: userData.role,
+            gender: userData.gender,
+            city: userData.city,
+            age: userData.age,
+          },
+        },
+      });
+
+      if (signUpError) {
+        throw new Error(signUpError.message);
+      }
+
+      const newUserId = signUpData?.user?.id;
+      if (!newUserId) {
+        throw new Error("Account konnte nicht erstellt werden");
+      }
+
+      // Warten bis handle_new_user() Trigger das Profil erstellt hat
+      await new Promise((r) => setTimeout(r, 1500));
+
+      // handle_new_user() setzt Rolle auf 'mentee' (Security-Fix).
+      // Explizit auf gewünschte Rolle + alle Daten setzen.
+      const { error: updateErr } = await supabase
+        .from("profiles")
+        .update({
+          role: userData.role,
+          gender: userData.gender,
+          city: userData.city ?? "",
+          plz: userData.plz ?? null,
+          age: userData.age ?? null,
+          phone: userData.phone ?? null,
+          contact_preference: userData.contact_preference ?? null,
+          is_active: true,
+        })
+        .eq("id", newUserId);
+
+      if (updateErr) {
+        throw new Error(`Profil konnte nicht aktualisiert werden: ${updateErr.message}`);
+      }
+
+      // Frisches Profil laden + in State einfügen
+      const { data: freshProfile } = await supabase
+        .from("profiles")
+        .select("*")
+        .eq("id", newUserId)
+        .single();
+
+      if (freshProfile) {
+        setUsers((prev) => {
+          if (prev.some((u) => u.id === freshProfile.id)) return prev;
+          return [...prev, mapProfile(freshProfile)];
+        });
+      }
+
+      // supabaseAnon session aufraeumen
+      await supabaseAnon.auth.signOut();
+
+      return { userId: newUserId };
     },
     []
   );

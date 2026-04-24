@@ -49,6 +49,21 @@ export default function ToolsTabScreen() {
             {showSystemSettings && (
               <BNMPressable
                 style={[styles.toolItem, { backgroundColor: themeColors.card, width: itemWidth }]}
+                onPress={() => router.push("/admin/create-user" as never)}
+                accessibilityRole="link"
+                accessibilityLabel="Neuen User anlegen"
+              >
+                <View style={[styles.toolIconBg, { backgroundColor: "#FEE2E2" }]}>
+                  <Ionicons name="person-add-outline" size={24} color={COLORS.error} />
+                </View>
+                <Text style={[styles.toolLabel, { color: themeColors.text }]}>User anlegen</Text>
+                <Text style={[styles.toolSubLabel, { color: themeColors.textSecondary }]}>Office, Admin, Mentor, Mentee</Text>
+              </BNMPressable>
+            )}
+
+            {showSystemSettings && (
+              <BNMPressable
+                style={[styles.toolItem, { backgroundColor: themeColors.card, width: itemWidth }]}
                 onPress={() => router.push("/admin/session-types")}
                 accessibilityRole="link"
                 accessibilityLabel="Sitzungstypen verwalten"
