@@ -221,8 +221,8 @@ export default function RegisterMentorScreen() {
           })
           .eq("id", newUserId);
 
-        // Cleanup: supabaseAnon-Session entfernen
-        await supabaseAnon.auth.signOut();
+        // Cleanup: supabaseAnon-Session entfernen (fire-and-forget)
+        supabaseAnon.auth.signOut().catch(() => {});
       }
 
       // 3) Bewerbung in mentor_applications speichern

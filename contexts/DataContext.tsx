@@ -2347,8 +2347,8 @@ export function DataProvider({ children }: { children: ReactNode }) {
         });
       }
 
-      // supabaseAnon session aufraeumen
-      await supabaseAnon.auth.signOut();
+      // supabaseAnon session aufraeumen (fire-and-forget, darf Return nicht blockieren)
+      supabaseAnon.auth.signOut().catch(() => {});
 
       return { userId: newUserId };
     },

@@ -48,16 +48,44 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   // Auth-State-Listener beim Mount registrieren
   useEffect(() => {
-    // Initiale Session prüfen
+    // Initiale Session prüfen — mit 5s Hard-Cutoff, damit die App nicht
+    // endlos auf "Wird geladen..." haengt, falls die Session-Tokens korrupt
+    // oder Supabase langsam ist.
+    let settled = false;
+    const cutoff = setTimeout(() => {
+      if (settled) return;
+      settled = true;
+      console.warn("[AuthContext] getSession timeout — clearing localStorage");
+      // Session-Daten aus localStorage loeschen (kaputte Tokens)
+      try {
+        if (Platform.OS === "web" && typeof localStorage !== "undefined") {
+          const keys = Object.keys(localStorage).filter((k) => k.startsWith("sb-"));
+          keys.forEach((k) => localStorage.removeItem(k));
+        }
+      } catch {}
+      setUser(null);
+      setIsLoading(false);
+    }, 5000);
+
     supabase.auth.getSession().then(async ({ data: { session } }) => {
+      if (settled) return;
       if (session?.user) {
-        const profile = await loadProfile(session.user.id);
+        const profile = await loadProfile(session.user.id).catch(() => null);
+        if (settled) return;
         if (profile?.is_active === false) {
-          await supabase.auth.signOut();
+          supabase.auth.signOut().catch(() => {});
         } else {
           setUser(profile);
         }
       }
+      settled = true;
+      clearTimeout(cutoff);
+      setIsLoading(false);
+    }).catch(() => {
+      if (settled) return;
+      settled = true;
+      clearTimeout(cutoff);
+      setUser(null);
       setIsLoading(false);
     });
 
