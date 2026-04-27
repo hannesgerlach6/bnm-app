@@ -211,7 +211,7 @@ export default function FeedbackScreen() {
     const validationErrors = validateSection(section, answers);
     const translatedErrors: Record<string, string> = {};
     for (const [key, tKey] of Object.entries(validationErrors)) {
-      translatedErrors[key] = t(tKey);
+      translatedErrors[key] = t(tKey as any);
     }
     if (Object.keys(translatedErrors).length > 0) {
       setErrors(translatedErrors);
@@ -287,7 +287,7 @@ export default function FeedbackScreen() {
     return (
       <View key={q.id} style={styles.questionBlock}>
         <Text style={[styles.questionLabel, { color: themeColors.text }]}>
-          {t(q.translationKey)}
+          {t(q.translationKey as any)}
           {q.required && <Text style={{ color: COLORS.error }}> *</Text>}
         </Text>
 
@@ -302,6 +302,7 @@ export default function FeedbackScreen() {
         {q.type === "text" && (
           <View>
             <BNMInput
+              label=""
               value={answers[q.id] || ""}
               onChangeText={(v: string) => setAnswer(q.id, v)}
               placeholder={t("feedback.commentPlaceholder")}
@@ -314,7 +315,7 @@ export default function FeedbackScreen() {
 
         {q.type === "multiselect" && q.options && (
           <ChipSelector
-            options={q.options.map((o) => ({ key: o.key, label: t(o.translationKey) }))}
+            options={q.options.map((o) => ({ key: o.key, label: t(o.translationKey as any) }))}
             selected={answers[q.id] || []}
             onChange={(v) => setAnswer(q.id, v)}
             multi
@@ -324,7 +325,7 @@ export default function FeedbackScreen() {
 
         {q.type === "singleselect" && q.options && (
           <ChipSelector
-            options={q.options.map((o) => ({ key: o.key, label: t(o.translationKey) }))}
+            options={q.options.map((o) => ({ key: o.key, label: t(o.translationKey as any) }))}
             selected={answers[q.id] || ""}
             onChange={(v) => setAnswer(q.id, v)}
             multi={false}
@@ -350,7 +351,7 @@ export default function FeedbackScreen() {
         {QUESTIONNAIRE_SECTIONS.map((sec) => (
           <View key={sec.id} style={[styles.summaryCard, { backgroundColor: themeColors.card, borderColor: themeColors.border }]}>
             <Text style={[styles.summarySectionTitle, { color: themeColors.primary }]}>
-              {t(sec.titleKey)}
+              {t(sec.titleKey as any)}
             </Text>
             {sec.questions.map((q) => {
               if (!isConditionMet(q, answers)) return null;
@@ -365,17 +366,17 @@ export default function FeedbackScreen() {
               } else if (q.type === "multiselect" && q.options) {
                 display = (val as string[]).map((k) => {
                   const opt = q.options!.find((o) => o.key === k);
-                  return opt ? t(opt.translationKey) : k;
+                  return opt ? t(opt.translationKey as any) : k;
                 }).join(", ");
               } else if (q.type === "singleselect" && q.options) {
                 const opt = q.options.find((o) => o.key === val);
-                display = opt ? t(opt.translationKey) : String(val);
+                display = opt ? t(opt.translationKey as any) : String(val);
               }
 
               return (
                 <View key={q.id} style={styles.summaryRow}>
                   <Text style={[styles.summaryQuestion, { color: themeColors.textSecondary }]}>
-                    {t(q.translationKey)}
+                    {t(q.translationKey as any)}
                   </Text>
                   <Text style={[styles.summaryAnswer, { color: themeColors.text }]}>
                     {display}
@@ -441,7 +442,7 @@ export default function FeedbackScreen() {
             ) : (
               <View style={[styles.sectionCard, { backgroundColor: themeColors.card, borderColor: themeColors.border }]}>
                 <Text style={[styles.sectionTitle, { color: themeColors.primary }]}>
-                  {t(section.titleKey)}
+                  {t(section.titleKey as any)}
                 </Text>
                 {section.questions.map(renderQuestion)}
               </View>

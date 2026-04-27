@@ -15,8 +15,10 @@ import type { CalendarEvent } from "../types";
 
 // ─── Konfiguration ─────────────────────────────────────────────────────────────
 
-const GOOGLE_CLIENT_ID     = process.env.EXPO_PUBLIC_GOOGLE_CLIENT_ID     ?? "";
-const GOOGLE_CLIENT_SECRET = process.env.EXPO_PUBLIC_GOOGLE_CLIENT_SECRET ?? "";
+const GOOGLE_CLIENT_ID = process.env.EXPO_PUBLIC_GOOGLE_CLIENT_ID ?? "";
+// Client Secret darf nicht in EXPO_PUBLIC_ — wird serverseitig via Edge Function gehandhabt.
+// Token-Refresh ohne Secret: Nutzer muss sich bei abgelaufenem Token neu verbinden.
+const GOOGLE_CLIENT_SECRET = "";
 
 const GOOGLE_CALENDAR_API = "https://www.googleapis.com/calendar/v3";
 const SCOPES = "https://www.googleapis.com/auth/calendar.events";

@@ -15,7 +15,7 @@ export const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
     debug: false,
     // navigator.locks komplett deaktivieren — verhindert AbortError + Lock-Timeout auf Web.
     // lock: undefined deaktiviert NICHT, es braucht eine no-op Funktion.
-    lock: (_name: string, _timeout: number, fn: () => Promise<unknown>) => fn(),
+    lock: <R>(_name: string, _timeout: number, fn: () => Promise<R>): Promise<R> => fn(),
     flowType: "pkce",
   },
 });

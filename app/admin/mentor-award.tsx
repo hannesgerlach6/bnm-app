@@ -222,7 +222,7 @@ export default function MentorAwardScreen() {
     try {
       const { downloadMentorAwardPDF } = await import("../../lib/pdfGenerator");
       await downloadMentorAwardPDF({
-        mentorName: award.mentor_name,
+        mentorName: award.mentor_name ?? "",
         period: `${getMonthName(award.month, "de")} ${award.year}`,
         score: award.score,
         sessions: award.sessions_count,

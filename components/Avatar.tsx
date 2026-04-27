@@ -9,7 +9,7 @@
  *   <Avatar name="Hasan" size={44} showOnline online />
  */
 import React from "react";
-import { View, Text, StyleSheet, Platform } from "react-native";
+import { View, Text, StyleSheet, Platform, ViewStyle } from "react-native";
 import { COLORS, TYPOGRAPHY } from "../constants/Colors";
 import { useThemeColors } from "../contexts/ThemeContext";
 
@@ -82,8 +82,8 @@ const styles = StyleSheet.create({
   statusDot: {
     position: "absolute",
   },
-  webHover: Platform.OS === "web" ? {
+  webHover: (Platform.OS === "web" ? {
     // @ts-ignore
     transition: "transform 0.15s ease",
-  } : {},
+  } : {}) as ViewStyle,
 });

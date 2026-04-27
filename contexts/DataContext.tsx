@@ -27,6 +27,7 @@ import type {
   EventParticipationStatus,
   ResourceCompletion,
   CalendarEvent,
+  CalendarEventType,
   EventAttendee,
   EventAttendeeStatus,
 } from "../types";
@@ -164,7 +165,7 @@ export interface DataContextValue {
   submitApplication: (data: Omit<MentorApplication, "id" | "status" | "submitted_at">) => Promise<void>;
 
   // User actions
-  updateUser: (userId: string, data: Partial<Pick<User, "name" | "city" | "plz" | "age" | "phone" | "contact_preference" | "avatar_url" | "role" | "gender" | "lat" | "lng" | "admin_notes">>) => Promise<void>;
+  updateUser: (userId: string, data: Partial<Pick<User, "name" | "email" | "city" | "plz" | "age" | "phone" | "contact_preference" | "avatar_url" | "role" | "gender" | "lat" | "lng" | "admin_notes">>) => Promise<void>;
   setUserActive: (userId: string, isActive: boolean) => Promise<void>;
   deleteUser: (userId: string) => Promise<boolean>;
   bulkDeleteUsers: (userIds: string[]) => Promise<{ success: number; failed: number }>;
@@ -578,8 +579,8 @@ export function DataProvider({ children }: { children: ReactNode }) {
         ]);
 
       // Jede Query einzeln mit Timeout wrappen — eine hängende Query blockiert nicht alle anderen
-      const safe = <T,>(p: Promise<T>): Promise<T> =>
-        withTimeout(p).catch((err) => {
+      const safe = <T,>(p: PromiseLike<T>): Promise<T> =>
+        withTimeout(Promise.resolve(p)).catch((err) => {
           console.warn("[DataContext] Query failed:", err?.message);
           return { data: null, error: err } as unknown as T;
         });
@@ -1071,27 +1072,30 @@ export function DataProvider({ children }: { children: ReactNode }) {
 
         if (newReminders.length > 0) {
           // fire-and-forget: Reminder-INSERT darf loadAllData nicht blockieren
-          supabase
-            .from('notifications')
-            .insert(
-              newReminders.map((r) => ({
-                user_id: authUser.id,
-                type: r.type,
-                title: r.title,
-                body: r.body,
-                related_id: r.related_id ?? null,
-              }))
-            )
-            .select()
-            .then(({ data: insertedReminders }) => {
+          void Promise.resolve(
+            supabase
+              .from('notifications')
+              .insert(
+                newReminders.map((r) => ({
+                  user_id: authUser.id,
+                  type: r.type,
+                  title: r.title,
+                  body: r.body,
+                  related_id: r.related_id ?? null,
+                }))
+              )
+              .select()
+          ).then(
+            ({ data: insertedReminders }) => {
               if (insertedReminders) {
                 setNotifications((prev) => [
                   ...prev,
                   ...insertedReminders.map(mapNotification),
                 ]);
               }
-            })
-            .catch((err) => console.warn("[DataContext] reminder insert:", err));
+            },
+            (err) => console.warn("[DataContext] reminder insert:", err)
+          );
         }
       }
 
@@ -1137,27 +1141,30 @@ export function DataProvider({ children }: { children: ReactNode }) {
         );
 
         if (menteeReminders.length > 0) {
-          supabase
-            .from('notifications')
-            .insert(
-              menteeReminders.map((r) => ({
-                user_id: authUser.id,
-                type: r.type,
-                title: r.title,
-                body: r.body,
-                related_id: r.related_id ?? null,
-              }))
-            )
-            .select()
-            .then(({ data: insertedReminders }) => {
+          void Promise.resolve(
+            supabase
+              .from('notifications')
+              .insert(
+                menteeReminders.map((r) => ({
+                  user_id: authUser.id,
+                  type: r.type,
+                  title: r.title,
+                  body: r.body,
+                  related_id: r.related_id ?? null,
+                }))
+              )
+              .select()
+          ).then(
+            ({ data: insertedReminders }) => {
               if (insertedReminders) {
                 setNotifications((prev) => [
                   ...prev,
                   ...insertedReminders.map(mapNotification),
                 ]);
               }
-            })
-            .catch((err) => console.warn("[DataContext] mentee reminder insert:", err));
+            },
+            (err) => console.warn("[DataContext] mentee reminder insert:", err)
+          );
         }
       }
 
@@ -1169,7 +1176,7 @@ export function DataProvider({ children }: { children: ReactNode }) {
           description: (row.description ?? "") as string,
           start_at: row.start_at as string,
           end_at: (row.end_at ?? null) as string | null,
-          type: (row.type ?? "custom") as string,
+          type: (row.type ?? "custom") as CalendarEventType,
           location: (row.location ?? "") as string,
           created_by: (row.created_by ?? null) as string | null,
           recurrence: (row.recurrence ?? null) as any,
@@ -1197,27 +1204,30 @@ export function DataProvider({ children }: { children: ReactNode }) {
         );
 
         if (eventReminders.length > 0) {
-          supabase
-            .from('notifications')
-            .insert(
-              eventReminders.map((r) => ({
-                user_id: authUser.id,
-                type: r.type,
-                title: r.title,
-                body: r.body,
-                related_id: r.related_id ?? null,
-              }))
-            )
-            .select()
-            .then(({ data: insertedReminders }) => {
+          void Promise.resolve(
+            supabase
+              .from('notifications')
+              .insert(
+                eventReminders.map((r) => ({
+                  user_id: authUser.id,
+                  type: r.type,
+                  title: r.title,
+                  body: r.body,
+                  related_id: r.related_id ?? null,
+                }))
+              )
+              .select()
+          ).then(
+            ({ data: insertedReminders }) => {
               if (insertedReminders) {
                 setNotifications((prev) => [
                   ...prev,
                   ...insertedReminders.map(mapNotification),
                 ]);
               }
-            })
-            .catch((err) => console.warn("[DataContext] event reminder insert:", err));
+            },
+            (err) => console.warn("[DataContext] event reminder insert:", err)
+          );
         }
       }
     } catch (err) {
@@ -3262,7 +3272,8 @@ export function DataProvider({ children }: { children: ReactNode }) {
           id: row.id, title: row.title ?? "", url: row.url ?? "", description: row.description ?? "",
           icon: row.icon ?? "link-outline", category: row.category ?? "general",
           sort_order: row.sort_order ?? 0, is_active: row.is_active ?? true,
-          visible_to: row.visible_to ?? "all", visible_until: row.visible_until ?? null, created_at: row.created_at,
+          visible_to: row.visible_to ?? "all", visible_until: row.visible_until ?? null,
+          visible_after_session_type_id: row.visible_after_session_type_id ?? null, created_at: row.created_at,
         })));
       }
     }
