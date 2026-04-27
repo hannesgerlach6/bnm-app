@@ -1120,6 +1120,8 @@ const ar: Record<TranslationKeys, string> = {
   "pendingApprovals.rejectReasonRequired": "يرجى تقديم سبب للرفض.",
   "pendingApprovals.rejectConfirm": "رفض",
   "pendingApprovals.rejectCancel": "إلغاء",
+  "pendingApprovals.allHandled": "تمت معالجة جميع التعيينات.",
+  "createUser.adminOnly": "فقط المسؤولون يمكنهم إنشاء مستخدمين.",
   "pendingApprovals.notificationTitle": "تم رفض التعيين",
   "pendingApprovals.notificationBody": "تم رفض تعيينك إلى {0}. السبب: {1}",
 

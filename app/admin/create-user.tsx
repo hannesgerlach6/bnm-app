@@ -16,6 +16,7 @@ import { Container } from "../../components/Container";
 import { BNMPressable } from "../../components/BNMPressable";
 import { BNMInput } from "../../components/BNMInput";
 import { useThemeColors } from "../../contexts/ThemeContext";
+import { useLanguage } from "../../contexts/LanguageContext";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import type { UserRole, Gender, ContactPreference } from "../../types";
 
@@ -32,6 +33,7 @@ export default function CreateUserScreen() {
   const { user: authUser } = useAuth();
   const { addUser } = useData();
   const themeColors = useThemeColors();
+  const { t } = useLanguage();
   const insets = useSafeAreaInsets();
 
   const preselectedRole = (params.role as UserRole) ?? "office";
@@ -56,7 +58,7 @@ export default function CreateUserScreen() {
     return (
       <Container fullWidth={Platform.OS === "web"}>
         <View style={[styles.center, { backgroundColor: themeColors.background }]}>
-          <Text style={[styles.denied, { color: COLORS.error }]}>Nur Admin darf User anlegen.</Text>
+          <Text style={[styles.denied, { color: COLORS.error }]}>{t("createUser.adminOnly")}</Text>
         </View>
       </Container>
     );

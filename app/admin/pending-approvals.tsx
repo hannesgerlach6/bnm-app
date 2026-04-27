@@ -123,7 +123,7 @@ export default function PendingApprovalsScreen() {
             <EmptyState
               icon="checkmark-done-outline"
               title={t("pendingApprovals.empty")}
-              description="Alle Zuweisungen wurden bereits bearbeitet."
+              description={t("pendingApprovals.allHandled")}
               compact
             />
           ) : (

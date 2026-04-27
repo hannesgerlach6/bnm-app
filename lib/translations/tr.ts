@@ -1120,6 +1120,8 @@ const tr: Record<TranslationKeys, string> = {
   "pendingApprovals.rejectReasonRequired": "Lütfen red gerekçesi girin.",
   "pendingApprovals.rejectConfirm": "Reddet",
   "pendingApprovals.rejectCancel": "İptal",
+  "pendingApprovals.allHandled": "Tüm atamalar zaten işlendi.",
+  "createUser.adminOnly": "Yalnızca yöneticiler kullanıcı oluşturabilir.",
   "pendingApprovals.notificationTitle": "Atama reddedildi",
   "pendingApprovals.notificationBody": "{0} için atamanız reddedildi. Gerekçe: {1}",
 

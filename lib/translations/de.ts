@@ -1124,6 +1124,8 @@ const de = {
   "pendingApprovals.rejectReasonRequired": "Bitte gib einen Ablehnungsgrund an.",
   "pendingApprovals.rejectConfirm": "Ablehnen",
   "pendingApprovals.rejectCancel": "Abbrechen",
+  "pendingApprovals.allHandled": "Alle Zuweisungen wurden bereits bearbeitet.",
+  "createUser.adminOnly": "Nur Admin darf User anlegen.",
   "pendingApprovals.notificationTitle": "Zuweisung abgelehnt",
   "pendingApprovals.notificationBody": "Deine Zuweisung zu {0} wurde abgelehnt. Grund: {1}",
 

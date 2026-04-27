@@ -1120,6 +1120,8 @@ const en: Record<TranslationKeys, string> = {
   "pendingApprovals.rejectReasonRequired": "Please provide a reason for rejection.",
   "pendingApprovals.rejectConfirm": "Reject",
   "pendingApprovals.rejectCancel": "Cancel",
+  "pendingApprovals.allHandled": "All assignments have already been processed.",
+  "createUser.adminOnly": "Only admins can create users.",
   "pendingApprovals.notificationTitle": "Assignment rejected",
   "pendingApprovals.notificationBody": "Your assignment to {0} was rejected. Reason: {1}",
 
