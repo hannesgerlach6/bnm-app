@@ -30,6 +30,7 @@ import type {
   CalendarEventType,
   EventAttendee,
   EventAttendeeStatus,
+  ResourceVisibility,
 } from "../types";
 import { XP_VALUES } from "../lib/gamification";
 
@@ -285,6 +286,90 @@ function mapNotification(row: Record<string, unknown>): Notification {
     created_at: row.created_at as string,
     read: row.read_at !== null && row.read_at !== undefined,
     related_id: (row.related_id as string) ?? undefined,
+  };
+}
+
+// Hilfsfunktion: DB-Row auf MessageTemplate mappen
+function mapMessageTemplate(row: Record<string, unknown>): MessageTemplate {
+  return {
+    id: row.id as string,
+    title: (row.title as string) ?? "",
+    category: (row.category as string) ?? "general",
+    body: (row.body as string) ?? "",
+    sort_order: (row.sort_order as number) ?? 0,
+    is_active: (row.is_active as boolean) ?? true,
+    template_key: (row.template_key as string) ?? undefined,
+  };
+}
+
+// Hilfsfunktion: DB-Row auf Resource mappen
+function mapResource(row: Record<string, unknown>): Resource {
+  return {
+    id: row.id as string,
+    title: (row.title as string) ?? "",
+    url: (row.url as string) ?? "",
+    description: (row.description as string) ?? "",
+    icon: (row.icon as string) ?? "link-outline",
+    category: (row.category as string) ?? "general",
+    sort_order: (row.sort_order as number) ?? 0,
+    is_active: (row.is_active as boolean) ?? true,
+    visible_to: (row.visible_to as ResourceVisibility) ?? "all",
+    visible_until: (row.visible_until as string) ?? null,
+    visible_after_session_type_id: (row.visible_after_session_type_id as string) ?? null,
+    created_at: row.created_at as string,
+  };
+}
+
+// Hilfsfunktion: DB-Row auf EventParticipation mappen
+function mapEventParticipation(row: Record<string, unknown>): EventParticipation {
+  return {
+    id: row.id as string,
+    resource_id: row.resource_id as string,
+    user_id: row.user_id as string,
+    status: (row.status as EventParticipationStatus) ?? "interested",
+    created_at: row.created_at as string,
+  };
+}
+
+// Hilfsfunktion: DB-Row auf ResourceCompletion mappen
+function mapResourceCompletion(row: Record<string, unknown>): ResourceCompletion {
+  return {
+    id: row.id as string,
+    resource_id: row.resource_id as string,
+    user_id: row.user_id as string,
+    completed_at: row.completed_at as string,
+  };
+}
+
+// Hilfsfunktion: DB-Row auf CalendarEvent mappen
+function mapCalendarEvent(row: Record<string, unknown>): CalendarEvent {
+  return {
+    id: row.id as string,
+    title: (row.title as string) ?? "",
+    description: (row.description as string) ?? "",
+    start_at: row.start_at as string,
+    end_at: (row.end_at as string) ?? null,
+    type: (row.type as CalendarEventType) ?? "custom",
+    location: (row.location as string) ?? "",
+    created_by: (row.created_by as string) ?? null,
+    recurrence: (row.recurrence as CalendarEvent["recurrence"]) ?? null,
+    visible_to: (row.visible_to as ResourceVisibility) ?? "all",
+    is_active: (row.is_active as boolean) ?? true,
+    google_calendar_event_id: (row.google_calendar_event_id as string) ?? null,
+    created_at: row.created_at as string,
+  };
+}
+
+// Hilfsfunktion: DB-Row auf EventAttendee mappen
+function mapEventAttendee(row: Record<string, unknown>): EventAttendee {
+  return {
+    id: row.id as string,
+    event_id: row.event_id as string,
+    user_id: row.user_id as string,
+    status: (row.status as EventAttendeeStatus) ?? "invited",
+    reminder_minutes: (row.reminder_minutes as number) ?? 60,
+    google_synced: (row.google_synced as boolean) ?? false,
+    created_at: row.created_at as string,
   };
 }
 
@@ -830,91 +915,37 @@ export function DataProvider({ children }: { children: ReactNode }) {
       // Message Templates
       if (messageTemplatesRes.error) console.warn("[DataContext] message_templates error:", messageTemplatesRes.error.message);
       if (messageTemplatesRes.data) {
-        setMessageTemplates(messageTemplatesRes.data.map((row: any) => ({
-          id: row.id,
-          title: row.title,
-          category: row.category ?? "general",
-          body: row.body,
-          sort_order: row.sort_order ?? 0,
-          is_active: row.is_active ?? true,
-          template_key: row.template_key ?? undefined,
-        })));
+        setMessageTemplates(messageTemplatesRes.data.map(mapMessageTemplate));
       }
 
       // Resources
       if (resourcesRes.error) console.warn("[DataContext] resources error:", resourcesRes.error.message);
       if (resourcesRes.data) {
-        setResources(resourcesRes.data.map((row: any) => ({
-          id: row.id,
-          title: row.title ?? "",
-          url: row.url ?? "",
-          description: row.description ?? "",
-          icon: row.icon ?? "link-outline",
-          category: row.category ?? "general",
-          sort_order: row.sort_order ?? 0,
-          is_active: row.is_active ?? true,
-          visible_to: row.visible_to ?? "all",
-          visible_until: row.visible_until ?? null,
-          visible_after_session_type_id: row.visible_after_session_type_id ?? null,
-          created_at: row.created_at,
-        })));
+        setResources(resourcesRes.data.map(mapResource));
       }
 
       // Event Participations
       if (eventParticipationsRes.error) console.warn("[DataContext] event_participations error:", eventParticipationsRes.error.message);
       if (eventParticipationsRes.data) {
-        setEventParticipations(eventParticipationsRes.data.map((row: any) => ({
-          id: row.id,
-          resource_id: row.resource_id,
-          user_id: row.user_id,
-          status: row.status ?? "interested",
-          created_at: row.created_at,
-        })));
+        setEventParticipations(eventParticipationsRes.data.map(mapEventParticipation));
       }
 
       // Resource Completions
       if (resourceCompletionsRes.error) console.warn("[DataContext] resource_completions error:", resourceCompletionsRes.error.message);
       if (resourceCompletionsRes.data) {
-        setResourceCompletions(resourceCompletionsRes.data.map((row: any) => ({
-          id: row.id,
-          resource_id: row.resource_id,
-          user_id: row.user_id,
-          completed_at: row.completed_at,
-        })));
+        setResourceCompletions(resourceCompletionsRes.data.map(mapResourceCompletion));
       }
 
       // Calendar Events
       if (calendarEventsRes.error) console.warn("[DataContext] calendar_events error:", calendarEventsRes.error.message);
       if (calendarEventsRes.data) {
-        setCalendarEvents(calendarEventsRes.data.map((row: any) => ({
-          id: row.id,
-          title: row.title ?? "",
-          description: row.description ?? "",
-          start_at: row.start_at,
-          end_at: row.end_at ?? null,
-          type: row.type ?? "custom",
-          location: row.location ?? "",
-          created_by: row.created_by ?? null,
-          recurrence: row.recurrence ?? null,
-          visible_to: row.visible_to ?? "all",
-          is_active: row.is_active ?? true,
-          google_calendar_event_id: row.google_calendar_event_id ?? null,
-          created_at: row.created_at,
-        })));
+        setCalendarEvents(calendarEventsRes.data.map(mapCalendarEvent));
       }
 
       // Event Attendees
       if (eventAttendeesRes.error) console.warn("[DataContext] event_attendees error:", eventAttendeesRes.error.message);
       if (eventAttendeesRes.data) {
-        setEventAttendees(eventAttendeesRes.data.map((row: any) => ({
-          id: row.id,
-          event_id: row.event_id,
-          user_id: row.user_id,
-          status: row.status ?? "invited",
-          reminder_minutes: row.reminder_minutes ?? 60,
-          google_synced: row.google_synced ?? false,
-          created_at: row.created_at,
-        })));
+        setEventAttendees(eventAttendeesRes.data.map(mapEventAttendee));
       }
 
       // ─── Admin-Messages verarbeiten (Query läuft parallel im Promise.all oben) ──
@@ -1020,10 +1051,7 @@ export function DataProvider({ children }: { children: ReactNode }) {
           feedback: cachedFeedback as Feedback[],
           hadithe: cachedHadithe,
           qaEntries: cachedQAEntries as QAEntry[],
-          messageTemplates: messageTemplatesRes?.data?.map((row: any) => ({
-            id: row.id, title: row.title, category: row.category, body: row.body,
-            sort_order: row.sort_order, is_active: row.is_active,
-          })) ?? [],
+          messageTemplates: messageTemplatesRes?.data?.map(mapMessageTemplate) ?? [],
           appSettings: cachedSettings,
           mentorOfMonthVisible: cachedMentorOfMonthVisible,
           timestamp: Date.now(),
@@ -1170,30 +1198,8 @@ export function DataProvider({ children }: { children: ReactNode }) {
 
       // ─── Kalender-Event-Reminder-Check (alle Rollen) ───────────────────────
       if (calendarEventsRes.data && eventAttendeesRes.data && notificationsRes.data && authUser) {
-        const freshCalendarEvents = calendarEventsRes.data.map((row: any) => ({
-          id: row.id as string,
-          title: (row.title ?? "") as string,
-          description: (row.description ?? "") as string,
-          start_at: row.start_at as string,
-          end_at: (row.end_at ?? null) as string | null,
-          type: (row.type ?? "custom") as CalendarEventType,
-          location: (row.location ?? "") as string,
-          created_by: (row.created_by ?? null) as string | null,
-          recurrence: (row.recurrence ?? null) as any,
-          visible_to: (row.visible_to ?? "all") as any,
-          is_active: (row.is_active ?? true) as boolean,
-          google_calendar_event_id: (row.google_calendar_event_id ?? null) as string | null,
-          created_at: row.created_at as string,
-        }));
-        const freshEventAttendees = eventAttendeesRes.data.map((row: any) => ({
-          id: row.id as string,
-          event_id: row.event_id as string,
-          user_id: row.user_id as string,
-          status: (row.status ?? "invited") as any,
-          reminder_minutes: (row.reminder_minutes ?? 60) as number,
-          google_synced: (row.google_synced ?? false) as boolean,
-          created_at: row.created_at as string,
-        }));
+        const freshCalendarEvents = calendarEventsRes.data.map(mapCalendarEvent);
+        const freshEventAttendees = eventAttendeesRes.data.map(mapEventAttendee);
         const freshNotificationsForEvents: Notification[] = notificationsRes.data.map(mapNotification);
 
         const eventReminders = checkEventReminders(
@@ -3268,13 +3274,7 @@ export function DataProvider({ children }: { children: ReactNode }) {
       // Fallback: alle Ressourcen neu laden
       const { data: allRes } = await supabase.from("resources").select("*").order("sort_order", { ascending: true });
       if (allRes) {
-        setResources(allRes.map((row: any) => ({
-          id: row.id, title: row.title ?? "", url: row.url ?? "", description: row.description ?? "",
-          icon: row.icon ?? "link-outline", category: row.category ?? "general",
-          sort_order: row.sort_order ?? 0, is_active: row.is_active ?? true,
-          visible_to: row.visible_to ?? "all", visible_until: row.visible_until ?? null,
-          visible_after_session_type_id: row.visible_after_session_type_id ?? null, created_at: row.created_at,
-        })));
+        setResources(allRes.map(mapResource));
       }
     }
   }, []);
@@ -3469,11 +3469,7 @@ export function DataProvider({ children }: { children: ReactNode }) {
     const { data, error } = await supabase.from("event_attendees").insert(rows).select();
     if (error) throw new Error(error.message);
     if (data) {
-      setEventAttendees((prev) => [...prev, ...data.map((row: any) => ({
-        id: row.id, event_id: row.event_id, user_id: row.user_id,
-        status: row.status ?? "invited", reminder_minutes: row.reminder_minutes ?? 60,
-        google_synced: row.google_synced ?? false, created_at: row.created_at,
-      }))]);
+      setEventAttendees((prev) => [...prev, ...data.map(mapEventAttendee)]);
     }
   }, [eventAttendees]);
 
