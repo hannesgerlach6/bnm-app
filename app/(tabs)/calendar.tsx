@@ -394,14 +394,14 @@ export default function CalendarTabScreen() {
         description: createDesc.trim(),
         start_at: start.toISOString(),
         end_at: null,
-        type: "custom",
+        type: "custom" as const,
         location: "",
         created_by: userId ?? null,
         recurrence: null,
-        visible_to: "all",
+        visible_to: "all" as const,
         is_active: true,
         google_calendar_event_id: null,
-      } as any);
+      });
       setShowCreateModal(false);
     } catch {
       // handled in DataContext
