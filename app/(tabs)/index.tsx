@@ -1725,20 +1725,21 @@ function MenteeDashboard() {
     setRefreshing(false);
   }, [refreshData]);
 
-  // Kein auto-refresh bei Tab-Focus — Realtime-Subscriptions halten Daten aktuell.
-  // Pull-to-Refresh (onRefresh) bleibt für manuelles Aktualisieren.
+  // Mentorship für den eingeloggten Mentee (null wenn kein user)
+  const mentorship = user ? getMentorshipByMenteeId(user.id) : undefined;
 
-  if (!user) return null;
-
-  const mentorship = getMentorshipByMenteeId(user.id);
-
-  // Notizen aus mentorship in lokalen State laden (einmalig)
+  // Notizen aus Mentorship in lokalen State laden (einmalig) — VOR jedem early return!
   useEffect(() => {
     if (mentorship && !notesInitialized) {
       setMenteeNotesText(mentorship.mentee_notes ?? "");
       setNotesInitialized(true);
     }
   }, [mentorship?.id, notesInitialized]);
+
+  // Kein auto-refresh bei Tab-Focus — Realtime-Subscriptions halten Daten aktuell.
+  // Pull-to-Refresh (onRefresh) bleibt für manuelles Aktualisieren.
+
+  if (!user) return null;
 
   async function handleSaveNotes() {
     if (!mentorship) return;
