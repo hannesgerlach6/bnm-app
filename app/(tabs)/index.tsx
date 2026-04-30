@@ -643,7 +643,7 @@ function AdminDashboard({ showSystemSettings = true }: { showSystemSettings?: bo
 
             {/* ── Row 2: Aktivitäten-Log (links) + XP-Übersicht (rechts) ── */}
             <DashboardRow>
-            <View style={[styles.card, styles.dashCol, { backgroundColor: themeColors.card }]}>
+            <View style={[styles.card, styles.dashCol, { backgroundColor: themeColors.card, marginBottom: 0 }]}>
               <Text style={[styles.cardTitle, { color: themeColors.text, marginBottom: 4 }]}>{t("dashboard.recentActivity")}</Text>
               <Text style={[styles.tertiaryXs, { color: themeColors.textTertiary, marginBottom: 10 }]}>{t("dashboard.recentActivitySub")}</Text>
 
@@ -745,7 +745,7 @@ function AdminDashboard({ showSystemSettings = true }: { showSystemSettings?: bo
             </View>
 
             {/* XP-System Übersicht (Admin) */}
-            <View style={[styles.card, styles.dashCol, { backgroundColor: themeColors.card }]}>
+            <View style={[styles.card, styles.dashCol, { backgroundColor: themeColors.card, marginBottom: 0 }]}>
               <View style={{ flexDirection: "row", alignItems: "center", gap: 10, marginBottom: 16 }}>
                 <View style={{ width: 36, height: 36, borderRadius: RADIUS.md, backgroundColor: COLORS.gold + "18", alignItems: "center", justifyContent: "center" }}>
                   <Ionicons name="trophy" size={18} color={COLORS.gold} />
@@ -840,10 +840,10 @@ function AdminDashboard({ showSystemSettings = true }: { showSystemSettings?: bo
 
             {/* Balkendiagramm + Matching-Info (Row) */}
             <DashboardRow>
-            <View style={styles.dashCol}>
+            <View style={[styles.dashCol, { marginBottom: 0 }]}>
               <MonthlyChart mentorships={mentorships} />
             </View>
-            <View style={[styles.card, styles.dashCol, { backgroundColor: themeColors.card }]}>
+            <View style={[styles.card, styles.dashCol, { backgroundColor: themeColors.card, marginBottom: 0 }]}>
               <View style={{ flexDirection: "row", alignItems: "center", gap: 10, marginBottom: 16 }}>
                 <View style={{ width: 36, height: 36, borderRadius: RADIUS.md, backgroundColor: COLORS.gradientStart + "18", alignItems: "center", justifyContent: "center" }}>
                   <Ionicons name="git-compare-outline" size={18} color={COLORS.gradientStart} />
@@ -2179,9 +2179,14 @@ function MenteeDashboard() {
 function DashboardRow({ children }: { children: React.ReactNode }) {
   const { width } = useWindowDimensions();
   const isDesktop = Platform.OS === "web" && width > 900;
+  const childArray = React.Children.toArray(children);
   return (
-    <View style={{ flexDirection: isDesktop ? "row" : "column", gap: 16, marginBottom: 16, alignItems: isDesktop ? "flex-start" : undefined }}>
-      {children}
+    <View style={{ flexDirection: isDesktop ? "row" : "column", gap: 16, marginBottom: 16, alignItems: "stretch" }}>
+      {childArray.map((child, idx) => (
+        <View key={idx} style={isDesktop ? { flex: 1, minWidth: 0 } : undefined}>
+          {child}
+        </View>
+      ))}
     </View>
   );
 }
@@ -2408,14 +2413,12 @@ const styles = StyleSheet.create({
   periodBar: {
     flexDirection: "row",
     alignItems: "center",
-    justifyContent: "space-between",
     borderRadius: RADIUS.md,
     borderWidth: 1,
     paddingHorizontal: 16,
     paddingVertical: 12,
     marginBottom: 16,
-    flexWrap: "wrap",
-    gap: 8,
+    gap: 12,
   },
   periodBarLeft: {
     flexDirection: "row",
@@ -2430,6 +2433,8 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     gap: 6,
     flexWrap: "wrap",
+    flex: 1,
+    justifyContent: "flex-end",
   },
   periodBtn: {
     paddingHorizontal: 12,
@@ -2539,6 +2544,7 @@ const styles = StyleSheet.create({
     borderRadius: RADIUS.lg,
     padding: 20,
     marginBottom: 16,
+    overflow: "hidden",
     ...SHADOWS.md,
   },
   cardTitle: { ...TYPOGRAPHY.styles.h4, color: COLORS.primary, marginBottom: 12 },
@@ -2595,7 +2601,7 @@ const styles = StyleSheet.create({
     marginLeft: 10,
     flexShrink: 0,
   },
-  statLabel: { fontSize: TYPOGRAPHY.size.sm, marginTop: 4, fontWeight: TYPOGRAPHY.weight.medium, textTransform: "uppercase", letterSpacing: TYPOGRAPHY.letterSpacing.wide },
+  statLabel: { fontSize: TYPOGRAPHY.size.xs, marginTop: 4, fontWeight: TYPOGRAPHY.weight.medium, textTransform: "uppercase", letterSpacing: 0.3 },
   statSublabel: { fontSize: TYPOGRAPHY.size.xs, marginTop: 2 },
   statValue: { fontSize: TYPOGRAPHY.size.display, fontWeight: TYPOGRAPHY.weight.extrabold, letterSpacing: TYPOGRAPHY.letterSpacing.tight },
   statValueHighlight: { fontSize: TYPOGRAPHY.size.hero },
