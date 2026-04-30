@@ -59,7 +59,9 @@ interface ImportResult {
 // ─── Hilfsfunction: Passwort generieren ──────────────────────────────────────
 
 function generateTempPassword(): string {
-  return "BNM-" + Math.floor(100000 + Math.random() * 900000);
+  const array = new Uint32Array(1);
+  crypto.getRandomValues(array);
+  return "BNM-" + String(100000 + (array[0] % 900000));
 }
 
 // ─── Haupt-Komponente ─────────────────────────────────────────────────────────

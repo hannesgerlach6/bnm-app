@@ -19,7 +19,7 @@ import { useTheme, useThemeColors } from "../../contexts/ThemeContext";
 import { COLORS, RADIUS, SHADOWS, SEMANTIC, sem } from "../../constants/Colors";
 import { EmptyState } from "../../components/EmptyState";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import type { CalendarEvent, CalendarEventType, ResourceVisibility, EventAttendee } from "../../types";
+import type { CalendarEvent, CalendarEventType, ResourceVisibility, EventAttendee, User } from "../../types";
 
 const EVENT_TYPES: CalendarEventType[] = ["webinar", "retreat", "kurs", "meeting", "custom"];
 const VISIBLE_OPTIONS: ResourceVisibility[] = ["all", "mentors", "mentees", "male", "female"];
@@ -59,7 +59,7 @@ function AttendeeSection({
 }: {
   eventId: string;
   attendees: EventAttendee[];
-  users: any[];
+  users: User[];
   onInviteMentors: () => void;
   onInviteMentees: () => void;
 }) {

@@ -200,14 +200,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     []
   );
 
-  // loginAs: nicht mehr verfügbar (Test-Credentials entfernt)
-  const loginAs = useCallback(
-    async (_role: UserRole): Promise<{ success: boolean; error?: string }> => {
-      return { success: false, error: "Schnellzugang nicht verfügbar." };
-    },
-    []
-  );
-
   const logout = useCallback(async () => {
     // Sofort User-State löschen → UI reagiert unmittelbar
     setUser(null);
@@ -236,7 +228,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, [user?.id]);
 
   return (
-    <AuthContext.Provider value={{ user, isLoading, login, loginAs, logout, refreshUser }}>
+    <AuthContext.Provider value={{ user, isLoading, login, logout, refreshUser }}>
       {children}
     </AuthContext.Provider>
   );

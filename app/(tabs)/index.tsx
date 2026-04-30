@@ -1265,6 +1265,7 @@ function MentorDashboard() {
               <View style={{ flexDirection: "row", flexWrap: "wrap", gap: 8, justifyContent: "space-between" }}>
                 {ACHIEVEMENTS.map((ach) => {
                   const isUnlocked = userAchievements.some((a) => a.achievement_key === ach.key);
+                  const isMystery = (ach as any).mystery === true;
                   return (
                     <BNMPressable
                       key={ach.key}
@@ -1273,26 +1274,31 @@ function MentorDashboard() {
                         {
                           width: "23.5%",
                           minWidth: 60,
-                          backgroundColor: isUnlocked
-                            ? (sem(SEMANTIC.goldBg, isDark))
-                            : (isDark ? "#1A1A24" : themeColors.border + "66"),
-                          borderColor: isUnlocked ? COLORS.gold : (sem(SEMANTIC.goldBorder, isDark)),
-                          opacity: isUnlocked ? 1 : 0.5,
+                          backgroundColor: isMystery
+                            ? (isDark ? "#1a1a2e" : "#f0f0f8")
+                            : isUnlocked
+                              ? (sem(SEMANTIC.goldBg, isDark))
+                              : (isDark ? "#1A1A24" : themeColors.border + "66"),
+                          borderColor: isMystery
+                            ? (isDark ? "#6366f1" : "#a5b4fc")
+                            : isUnlocked ? COLORS.gold : (sem(SEMANTIC.goldBorder, isDark)),
+                          borderStyle: isMystery ? "dashed" : "solid",
+                          opacity: isUnlocked ? 1 : isMystery ? 0.8 : 0.5,
                         },
                       ]}
                       onPress={() => setShowAchievementTooltip(showAchievementTooltip === ach.key ? null : ach.key)}
                       accessibilityRole="button"
-                      accessibilityLabel={`Auszeichnung: ${ach.label}`}
-                                         >
-                      <Text style={styles.achievementIcon}>{ach.icon}</Text>
-                      <Text style={{ fontSize: 9, fontWeight: "600", color: isUnlocked ? (isDark ? COLORS.gold : "#92400e") : themeColors.textTertiary, marginTop: 4, textAlign: "center" }} numberOfLines={1}>{ach.label}</Text>
+                      accessibilityLabel={isMystery ? "Geheime Auszeichnung" : `Auszeichnung: ${ach.label}`}
+                    >
+                      <Text style={[styles.achievementIcon, isMystery && { fontSize: 20 }]}>{ach.icon}</Text>
+                      <Text style={{ fontSize: 9, fontWeight: "600", color: isMystery ? (isDark ? "#818cf8" : "#6366f1") : isUnlocked ? (isDark ? COLORS.gold : "#92400e") : themeColors.textTertiary, marginTop: 4, textAlign: "center" }} numberOfLines={1}>{ach.label}</Text>
                       {showAchievementTooltip === ach.key && (
-                        <View style={[styles.achievementTooltip, { backgroundColor: isDark ? "#1C1C28" : "#FFFFFF", borderColor: COLORS.gold }]}>
-                          <Text style={[styles.achievementTooltipTitle, { color: themeColors.text }]}>{ach.label}</Text>
+                        <View style={[styles.achievementTooltip, { backgroundColor: isDark ? "#1C1C28" : "#FFFFFF", borderColor: isMystery ? "#6366f1" : COLORS.gold }]}>
+                          <Text style={[styles.achievementTooltipTitle, { color: isMystery ? (isDark ? "#818cf8" : "#6366f1") : themeColors.text }]}>{ach.label}</Text>
                           <Text style={[styles.achievementTooltipDesc, { color: themeColors.textSecondary }]}>{ach.desc}</Text>
                           {!isUnlocked && (
                             <Text style={[styles.achievementTooltipLocked, { color: themeColors.textTertiary }]}>
-                              {t("gamification.achievementLocked")}
+                              {isMystery ? "Dieses Geheimnis wartet noch..." : t("gamification.achievementLocked")}
                             </Text>
                           )}
                         </View>
@@ -2175,18 +2181,31 @@ function DashboardRow({ children }: { children: React.ReactNode }) {
 
 function KpiGrid({ children, style }: { children: React.ReactNode; style?: object }) {
   const { width } = useWindowDimensions();
-  const isDesktop = width > 768;
+  const isDesktop = Platform.OS === "web" && width > 900;
   const childArray = React.Children.toArray(children);
+
+  if (isDesktop) {
+    return (
+      <View style={[{ flexDirection: "row", gap: 12 }, style]}>
+        {childArray.map((child, idx) => (
+          <View key={idx} style={{ flex: 1 }}>{child}</View>
+        ))}
+      </View>
+    );
+  }
+
+  // Mobile/Tablet: explizite 2-Spalten-Reihen (zuverlässiger als flexWrap + %)
+  const rows: React.ReactNode[][] = [];
+  for (let i = 0; i < childArray.length; i += 2) {
+    rows.push(childArray.slice(i, i + 2));
+  }
   return (
-    <View style={[{ flexDirection: "row", flexWrap: "wrap", gap: 12 }, style]}>
-      {childArray.map((child, idx) => (
-        <View
-          key={idx}
-          style={{
-            width: isDesktop ? "23.5%" : "48%",
-          }}
-        >
-          {child}
+    <View style={[{ gap: 12 }, style]}>
+      {rows.map((row, rowIdx) => (
+        <View key={rowIdx} style={{ flexDirection: "row", gap: 12 }}>
+          {row.map((child, colIdx) => (
+            <View key={colIdx} style={{ flex: 1 }}>{child}</View>
+          ))}
         </View>
       ))}
     </View>

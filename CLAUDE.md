@@ -100,6 +100,25 @@ neuemuslime.com-Stil. Dunkelblau (#0A3A5A) + Gold (#EEA71B). `constants/Colors.t
 
 ## FORTSCHRITTS-LOG
 
+### 2026-04-30 — Mentor-Feedback-Features (6 Punkte aus User-Test)
+**Keine SQL-Migrationen nötig.**
+**Bug-Fix 1 – Chat öffnen funktioniert nicht (Mobile):**
+- `lib/chatNavigation.ts`: Platform-Check entfernt — beide Plattformen nutzen jetzt `/(tabs)/chats` mit `openChat`-Param
+- `app/(tabs)/chats.tsx`: `Platform.OS === "web"`-Check im openChat-useEffect entfernt
+- `app/(tabs)/chats.tsx`: Neue mobile Vollbild-Chat-Ansicht (wie Admin-DM-Panel) wenn `selectedChatId` gesetzt + nicht WideWeb
+
+**Feature 1 – Abschluss rückgängig machen (Admin/Office):**
+- `app/mentorship/[id].tsx`: `handleReactivate()` Funktion (setzt Status zurück auf "active" via `updateMentorshipStatus`)
+- Neuer Button "↩ Abschluss rückgängig machen" nur bei status="completed" und Rolle admin/office
+
+**Bug-Fix 2 – Dashboard Stats 2x2 Grid Layout (Mobile):**
+- `app/(tabs)/index.tsx`: `KpiGrid` komplett neu — auf Desktop (web + >900px) alle 4 Karten in einer Reihe, auf Mobile explizite 2-Spalten-Reihen (flex: 1 statt % width, zuverlässiger auf Android/Mobile Web)
+
+**Feature 2 – Mehr Errungenschaften + Mystery-Achievement:**
+- `lib/gamification.ts`: 12 neue Achievements hinzugefügt (treuer Begleiter, Inspirator, Frühaufsteher, Wegweiser, Halbzeit-Held, Ramadan-Mentor, Meister, Hingabe, Platin-Herz, Mentor des Jahres, Legende) → jetzt 20 Achievements total
+- Letztes Achievement = Mystery "❓" mit gestricheltem Indigo-Rahmen + "Geheimnis"-Tooltip
+- `app/(tabs)/index.tsx`: Achievement-Grid unterscheidet Mystery-Achievement (Indigo statt Gold, gestrichelt)
+
 ### 2026-04-30 — Mentee-Feedback-Features (4 Punkte aus User-Test)
 **Neue SQL-Migration:** `supabase/mentee-notes.sql` (mentee_notes TEXT + UPDATE-Policy fuer Mentee)
 **Feature 1 – Mentee-Notizen:**

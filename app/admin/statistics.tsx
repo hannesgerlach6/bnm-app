@@ -164,19 +164,19 @@ function StatisticsContent() {
             label={t("statistics.completed")}
             count={stats.completedCount}
             total={stats.totalMentorships}
-            colorLight="#15803d"
-            colorDark="#4ade80"
-            bgLight="#dcfce7"
-            bgDark="#1a3a2a"
+            colorLight={COLORS.successDark}
+            colorDark={COLORS.successLight}
+            bgLight={COLORS.successBg}
+            bgDark={COLORS.successBgDark}
           />
           <StatusRow
             label={t("statistics.cancelled")}
             count={stats.cancelledCount}
             total={stats.totalMentorships}
-            colorLight="#b91c1c"
-            colorDark="#f87171"
-            bgLight="#fee2e2"
-            bgDark="#3a1a1a"
+            colorLight={COLORS.errorDark}
+            colorDark={COLORS.errorBorder}
+            bgLight={COLORS.errorBgAlt}
+            bgDark={COLORS.errorBgDark}
           />
           <View style={[styles.statusRow, { borderBottomWidth: 0, borderBottomColor: themeColors.border }]}>
             <Text style={[styles.statusLabel, { color: themeColors.textSecondary }]}>{t("statistics.total")}</Text>

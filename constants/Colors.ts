@@ -16,7 +16,9 @@ export const COLORS = {
   errorLight: "#ef4444",         // Helleres Rot (Badges, Borders)
   errorDark: "#b91c1c",          // Dunkles Rot (Text auf hellem Bg)
   errorBorder: "#f87171",        // Rot für Input-Borders, Error-States
-  errorBg: "#fef2f2",            // Error-Hintergrund
+  errorBg: "#fef2f2",            // Error-Hintergrund (Light Mode)
+  errorBgAlt: "#fee2e2",         // Alternative Error-Hintergrund (etwas dunkler)
+  errorBgDark: "#3a1a1a",        // Error-Hintergrund (Dark Mode)
   errorBorderLight: "#fecaca",   // Helle Error-Border
   blue: "#3b82f6",               // Standard-Blau (Links, Badges)
   blueLight: "#93c5fd",          // Helles Blau (Dark-Mode Text)
@@ -25,7 +27,9 @@ export const COLORS = {
   warningDark: "#b45309",        // Dunkles Amber (Text)
   warningBorder: "#fde68a",      // Amber-Border
   successDark: "#15803d",        // Dunkles Grün (Text auf hellem Bg)
-  successBg: "#dcfce7",          // Grüner Hintergrund
+  successLight: "#4ade80",       // Helles Grün (Dark-Mode Text)
+  successBg: "#dcfce7",          // Grüner Hintergrund (Light Mode)
+  successBgDark: "#1a3a2a",      // Grüner Hintergrund (Dark Mode)
   gray: "#666666",               // Mittleres Grau (disabled Buttons)
   grayLight: "#cccccc",          // Helles Grau (Borders, disabled)
   grayMuted: "#6B7280",          // Gedämpftes Grau (Subtexte, Labels)

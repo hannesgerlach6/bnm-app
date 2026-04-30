@@ -681,7 +681,7 @@ export default function ChatsScreen() {
 
   // Wenn von einem anderen Screen mit openChat-Parameter navigiert wird
   useEffect(() => {
-    if (params.openChat && Platform.OS === "web") {
+    if (params.openChat) {
       setSelectedChatId(params.openChat);
     }
   }, [params.openChat]);
@@ -1107,6 +1107,28 @@ export default function ChatsScreen() {
   }
 
   // ── Mobile / schmales Layout ──────────────────────────────────────────────
+
+  // Mobile: Wenn Mentorship-Chat ausgewaehlt, zeige ChatPanel
+  if (selectedChatId && !isWideWeb) {
+    return (
+      <Container fullWidth={Platform.OS === "web"}>
+        <View style={{ flex: 1 }}>
+          <BNMPressable
+            style={[styles.backButton, { backgroundColor: themeColors.card }]}
+            onPress={() => setSelectedChatId(null)}
+            accessibilityRole="link"
+            accessibilityLabel="Zurück"
+          >
+            <Ionicons name="arrow-back" size={20} color={themeColors.text} />
+            <Text style={[{ color: themeColors.text, marginLeft: 8, fontSize: 15, fontWeight: "600" }]}>
+              {t("chats.back") ?? "Zurück"}
+            </Text>
+          </BNMPressable>
+          <ChatPanel mentorshipId={selectedChatId} />
+        </View>
+      </Container>
+    );
+  }
 
   // Mobile: Wenn Admin-DM User ausgewaehlt, zeige AdminChatPanel
   if (selectedAdminUserId && !isWideWeb) {

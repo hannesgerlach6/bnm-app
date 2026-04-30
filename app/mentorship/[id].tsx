@@ -110,6 +110,21 @@ export default function MentorshipDetailScreen() {
     (user.role === "admin" || user.id === mentorship.mentor_id) &&
     mentorship.status === "active";
 
+  async function handleReactivate() {
+    const ok = await showConfirm("Betreuung reaktivieren?", "Die Betreuung wird wieder auf 'Aktiv' gesetzt. Nur bei versehentlichem Abschluss verwenden.");
+    if (!ok) return;
+    setIsUpdatingStatus(true);
+    try {
+      await updateMentorshipStatus(mentorshipId, "active");
+      showSuccess("Betreuung wurde reaktiviert.");
+      router.back();
+    } catch {
+      showError(t("common.error"));
+    } finally {
+      setIsUpdatingStatus(false);
+    }
+  }
+
   async function handleComplete() {
     // Mentoren dürfen erst abschließen wenn alle Schritte dokumentiert sind
     const allStepsDone = completedStepIds.length === sessionTypes.length;
@@ -540,6 +555,21 @@ export default function MentorshipDetailScreen() {
               .replace("{0}", mentorship.status === "completed" ? t("mentorship.completed") : t("mentorship.cancelled"))
               .replace("{1}", new Date(mentorship.completed_at).toLocaleDateString("de-DE"))}
           </Text>
+        )}
+
+        {/* Reaktivieren (nur Admin/Office, nur bei abgeschlossenen Betreuungen) */}
+        {mentorship.status === "completed" && (user?.role === "admin" || user?.role === "office") && (
+          <BNMPressable
+            style={[styles.cancelButton, { backgroundColor: isDark ? "#1a2a3a" : "#eff6ff", borderColor: isDark ? "#1e3a5a" : "#bfdbfe", marginBottom: 12 }, isUpdatingStatus ? { opacity: 0.5 } : {}]}
+            onPress={handleReactivate}
+            disabled={isUpdatingStatus}
+            accessibilityRole="button"
+            accessibilityLabel="Betreuung reaktivieren"
+          >
+            <Text style={[styles.cancelButtonText, { color: isDark ? "#60a5fa" : "#2563eb" }]}>
+              {isUpdatingStatus ? "..." : "↩ Abschluss rückgängig machen"}
+            </Text>
+          </BNMPressable>
         )}
 
         {/* Mentor-Notizen (nur für Mentor + Admin sichtbar) */}
