@@ -54,6 +54,7 @@ export default function CertificateGeneratorScreen() {
   const [selectedMonth, setSelectedMonth] = useState(now.getMonth() + 1);
   const [selectedYear, setSelectedYear] = useState(now.getFullYear());
   const [emailTo, setEmailTo] = useState("");
+  const [emailTemplate, setEmailTemplate] = useState<"direct" | "thirdparty">("direct");
   const [isGeneratingPDF, setIsGeneratingPDF] = useState(false);
   const [isGeneratingPNG, setIsGeneratingPNG] = useState(false);
   const [isSendingEmail, setIsSendingEmail] = useState(false);
@@ -139,7 +140,7 @@ export default function CertificateGeneratorScreen() {
       const bytes = await generateMentorAwardPDFBytes(awardData);
       if (!bytes) throw new Error("PDF-Generierung fehlgeschlagen");
       const { sendCertificateEmail } = await import("../../lib/emailService");
-      const ok = await sendCertificateEmail(recipient, awardData.mentorName, awardData.period, bytes);
+      const ok = await sendCertificateEmail(recipient, awardData.mentorName, awardData.period, bytes, emailTemplate);
       if (ok) showSuccess(t("certGen.emailSent"));
       else showError(t("certGen.emailError"));
     } catch { showError(t("certGen.emailError")); }
@@ -323,6 +324,32 @@ export default function CertificateGeneratorScreen() {
           {/* E-Mail-Versand */}
           <View style={[styles.card, { backgroundColor: themeColors.card, borderColor: themeColors.border, marginTop: 0 }]}>
             <Text style={[styles.cardLabel, { color: themeColors.textSecondary }]}>{t("certGen.sendEmail")}</Text>
+
+            {/* Template-Auswahl */}
+            <Text style={[styles.templateLabel, { color: themeColors.textSecondary }]}>Vorlage</Text>
+            <View style={styles.templateRow}>
+              {([
+                { key: "direct" as const, label: "Direkt an Mentor", desc: "Persönliche Glückwunsch-Nachricht" },
+                { key: "thirdparty" as const, label: "Weiterleitung", desc: "Neutral, z.B. an Dritte" },
+              ] as const).map((tpl) => (
+                <BNMPressable
+                  key={tpl.key}
+                  style={[
+                    styles.templateChip,
+                    emailTemplate === tpl.key
+                      ? { backgroundColor: themeColors.primary, borderColor: themeColors.primary }
+                      : { backgroundColor: themeColors.card, borderColor: themeColors.border },
+                  ]}
+                  onPress={() => setEmailTemplate(tpl.key)}
+                  accessibilityRole="radio"
+                  accessibilityState={{ checked: emailTemplate === tpl.key }}
+                >
+                  <Text style={[styles.templateChipTitle, { color: emailTemplate === tpl.key ? COLORS.white : themeColors.text }]}>{tpl.label}</Text>
+                  <Text style={[styles.templateChipDesc, { color: emailTemplate === tpl.key ? "rgba(255,255,255,0.75)" : themeColors.textSecondary }]}>{tpl.desc}</Text>
+                </BNMPressable>
+              ))}
+            </View>
+
             <View style={[styles.emailRow, { borderColor: themeColors.border }]}>
               <Ionicons name="mail-outline" size={16} color={themeColors.textSecondary} style={{ marginRight: 8 }} />
               <TextInput
