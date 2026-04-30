@@ -1852,6 +1852,10 @@ export function DataProvider({ children }: { children: ReactNode }) {
         updateData.completed_at = new Date().toISOString();
       } else if (status === "cancelled") {
         updateData.cancelled_at = new Date().toISOString();
+      } else if (status === "active") {
+        // Reaktivierung: Abschluss-/Abbruchdatum zurücksetzen
+        updateData.completed_at = null;
+        updateData.cancelled_at = null;
       }
 
       const { error } = await supabase
@@ -1870,16 +1874,24 @@ export function DataProvider({ children }: { children: ReactNode }) {
                 ...m,
                 status,
                 completed_at:
-                  status === "completed" || status === "cancelled"
+                  status === "completed"
                     ? new Date().toISOString()
+                    : status === "active"
+                    ? undefined
                     : m.completed_at,
+                cancelled_at:
+                  status === "cancelled"
+                    ? new Date().toISOString()
+                    : status === "active"
+                    ? undefined
+                    : m.cancelled_at,
               }
             : m
         )
       );
 
-      // assignedMenteeIds neu laden nach Status-Aenderung
-      if (status === "completed" || status === "cancelled") {
+      // assignedMenteeIds neu laden nach Status-Aenderung (auch bei Reaktivierung)
+      if (status === "completed" || status === "cancelled" || status === "active") {
         supabase.rpc("get_assigned_mentee_ids").then(({ data }) => {
           if (data) setAssignedMenteeIds(new Set(data as string[]));
         });
