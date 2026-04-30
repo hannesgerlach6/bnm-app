@@ -492,6 +492,16 @@ const styles = StyleSheet.create({
   dlBtnPNG: { backgroundColor: "#10B981" },
   dlBtnPNGText: { color: "#0E0E14", fontWeight: "700", fontSize: 14 },
 
+  // E-Mail Templates
+  templateLabel: { fontSize: 12, fontWeight: "600", marginBottom: 8, textTransform: "uppercase", letterSpacing: 0.5 },
+  templateRow: { flexDirection: "row", gap: 10, marginBottom: 14 },
+  templateChip: {
+    flex: 1, borderWidth: 1.5, borderRadius: RADIUS.sm,
+    paddingVertical: 10, paddingHorizontal: 12,
+  },
+  templateChipTitle: { fontSize: 13, fontWeight: "700", marginBottom: 2 },
+  templateChipDesc: { fontSize: 11 },
+
   // E-Mail
   emailRow: {
     flexDirection: "row", alignItems: "center",
