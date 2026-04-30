@@ -672,6 +672,9 @@ const en: Record<TranslationKeys, string> = {
   "editProfile.uploading": "Uploading...",
   "editProfile.name": "Name",
   "editProfile.namePlaceholder": "First and last name",
+  "editProfile.gender": "Gender",
+  "editProfile.genderMale": "m (male)",
+  "editProfile.genderFemale": "f (female)",
   "editProfile.city": "City",
   "editProfile.cityPlaceholder": "e.g. London",
   "editProfile.age": "Age",
@@ -1528,6 +1531,7 @@ const en: Record<TranslationKeys, string> = {
   "earlyWarning.negativeFeedback": "Negative feedback",
   "earlyWarning.discrepancy": "Discrepancy",
   "earlyWarning.inactive": "Mentor inactive",
+  "earlyWarning.inactiveFemale": "Mentor (f) inactive",
   "earlyWarning.noWarnings": "No warnings",
   "earlyWarning.daysAgo": "{0} days ago",
 

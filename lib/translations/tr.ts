@@ -672,6 +672,9 @@ const tr: Record<TranslationKeys, string> = {
   "editProfile.uploading": "Yükleniyor...",
   "editProfile.name": "Ad",
   "editProfile.namePlaceholder": "Ad Soyad",
+  "editProfile.gender": "Cinsiyet",
+  "editProfile.genderMale": "erkek",
+  "editProfile.genderFemale": "kadın",
   "editProfile.city": "Şehir",
   "editProfile.cityPlaceholder": "örn. Berlin",
   "editProfile.age": "Yaş",
@@ -1582,6 +1585,7 @@ const tr: Record<TranslationKeys, string> = {
   "earlyWarning.negativeFeedback": "Olumsuz geri bildirim",
   "earlyWarning.discrepancy": "Tutarsızlık",
   "earlyWarning.inactive": "Mentor inaktif",
+  "earlyWarning.inactiveFemale": "Mentör (k) inaktif",
   "earlyWarning.noWarnings": "Uyarı yok",
   "earlyWarning.daysAgo": "{0} gün önce",
 

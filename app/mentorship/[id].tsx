@@ -710,7 +710,7 @@ export default function MentorshipDetailScreen() {
             {QUESTIONNAIRE_SECTIONS.map((section, sIdx) => (
               <View key={section.id} style={{ marginBottom: 16 }}>
                 <Text style={{ fontWeight: "700", fontSize: 14, color: COLORS.gold, marginBottom: 8 }}>
-                  {sIdx + 1}. {t(section.titleKey)}
+                  {sIdx + 1}. {t(section.titleKey as any)}
                 </Text>
                 {section.questions
                   .filter((q) => !q.conditionalOn)
@@ -718,7 +718,7 @@ export default function MentorshipDetailScreen() {
                     <View key={q.id} style={{ flexDirection: "row", gap: 8, marginBottom: 6, paddingLeft: 8 }}>
                       <Text style={{ color: themeColors.textTertiary, fontSize: 13, minWidth: 16 }}>{qIdx + 1}.</Text>
                       <Text style={{ color: themeColors.textSecondary, fontSize: 13, flex: 1 }}>
-                        {t(q.translationKey)}
+                        {t(q.translationKey as any)}
                         {q.type === "rating" ? " (1–5 Sterne)" : ""}
                       </Text>
                     </View>

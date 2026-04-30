@@ -672,6 +672,9 @@ const ar: Record<TranslationKeys, string> = {
   "editProfile.uploading": "جار الرفع...",
   "editProfile.name": "الاسم",
   "editProfile.namePlaceholder": "الاسم الأول والأخير",
+  "editProfile.gender": "الجنس",
+  "editProfile.genderMale": "ذكر",
+  "editProfile.genderFemale": "أنثى",
   "editProfile.city": "المدينة",
   "editProfile.cityPlaceholder": "مثل: برلين",
   "editProfile.age": "العمر",
@@ -1582,6 +1585,7 @@ const ar: Record<TranslationKeys, string> = {
   "earlyWarning.negativeFeedback": "تقييم سلبي",
   "earlyWarning.discrepancy": "تناقض",
   "earlyWarning.inactive": "المرشد غير نشط",
+  "earlyWarning.inactiveFemale": "المرشدة غير نشطة",
   "earlyWarning.noWarnings": "لا توجد تحذيرات",
   "earlyWarning.daysAgo": "منذ {0} أيام",
 
