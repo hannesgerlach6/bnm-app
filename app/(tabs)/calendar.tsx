@@ -596,7 +596,7 @@ export default function CalendarTabScreen() {
                   onChangeText={(v) => { setCreateTime(v); setCreateTimeError(false); }}
                   placeholder="HH:MM"
                   placeholderTextColor={themeColors.textTertiary}
-                  keyboardType="numbers-and-punctuation"
+                  keyboardType={Platform.OS === "ios" ? "numbers-and-punctuation" : "numeric"}
                   maxLength={5}
                 />
                 {createTimeError && (
