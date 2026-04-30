@@ -379,12 +379,14 @@ export default function ChatScreen() {
             onScroll={handleScroll}
             scrollEventThrottle={100}
             ListEmptyComponent={
-              <EmptyState
-                icon="chatbubble-ellipses-outline"
-                title={t("chat.noMessages")}
-                description="Starte die Konversation mit einer Nachricht."
-                compact
-              />
+              <View style={{ transform: [{ scaleY: -1 }] }}>
+                <EmptyState
+                  icon="chatbubble-ellipses-outline"
+                  title={t("chat.noMessages")}
+                  description="Starte die Konversation mit einer Nachricht."
+                  compact
+                />
+              </View>
             }
           />
         )}
