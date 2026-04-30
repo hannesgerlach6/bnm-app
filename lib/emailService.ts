@@ -494,9 +494,37 @@ export async function sendCertificateEmail(
   to: string,
   mentorName: string,
   period: string,
-  pdfBytes: Uint8Array
+  pdfBytes: Uint8Array,
+  templateType: "direct" | "thirdparty" = "thirdparty"
 ): Promise<boolean> {
   const subject = sanitizeSubject(`BNM – Urkunde: ${mentorName} – ${period}`);
+
+  // Template 1: Persönliche Nachricht direkt an den Mentor
+  const directBody = `
+    <h2 style="color:#0A3A5A;margin:0 0 8px">Urkunde: Mentor des Monats</h2>
+    <p style="color:#6B7280;margin:0 0 24px">Zeitraum: ${escapeHtml(period)}</p>
+    <p style="font-size:16px;color:#111">
+      Assalamu alaykum liebe/r <strong>${escapeHtml(mentorName)}</strong>,
+    </p>
+    <p style="font-size:16px;color:#111">
+      herzlichen Glückwunsch! Du wurdest als <strong>Mentor des Monats ${escapeHtml(period)}</strong> ausgezeichnet.
+      Dein Einsatz und deine Hingabe in der Betreuung neuer Muslime sind eine große Bereicherung für unser Programm.
+      Im Anhang findest du deine persönliche Urkunde.
+    </p>
+    <p style="font-size:16px;color:#111">Barakallahu fik – möge Allah dich segnen für deine Arbeit.</p>
+    <p style="color:#6B7280;margin-top:24px">Das BNM-Team</p>`;
+
+  // Template 2: Neutrale Weiterleitungs-E-Mail (z.B. an Dritte)
+  const thirdpartyBody = `
+    <h2 style="color:#0A3A5A;margin:0 0 8px">Urkunde: Mentor des Monats</h2>
+    <p style="color:#6B7280;margin:0 0 24px">Zeitraum: ${escapeHtml(period)}</p>
+    <p style="font-size:16px;color:#111">
+      Im Anhang findest du die Urkunde für <strong>${escapeHtml(mentorName)}</strong> als Mentor des Monats ${escapeHtml(period)}.
+    </p>
+    <p style="color:#6B7280;margin-top:24px">Barakallahu fik<br>Das BNM-Team</p>`;
+
+  const bodyHtml = templateType === "direct" ? directBody : thirdpartyBody;
+
   const html = `
 <div style="font-family:Arial,sans-serif;max-width:600px;margin:0 auto">
   <div style="background:#0A3A5A;padding:24px;text-align:center">
@@ -504,12 +532,7 @@ export async function sendCertificateEmail(
     <p style="color:rgba(255,255,255,0.6);margin:4px 0 0;font-size:12px">Betreuung neuer Muslime</p>
   </div>
   <div style="padding:32px;background:#fff">
-    <h2 style="color:#0A3A5A;margin:0 0 8px">Urkunde: Mentor des Monats</h2>
-    <p style="color:#6B7280;margin:0 0 24px">Zeitraum: ${escapeHtml(period)}</p>
-    <p style="font-size:16px;color:#111">
-      Im Anhang findest du die Urkunde für <strong>${escapeHtml(mentorName)}</strong> als Mentor des Monats ${escapeHtml(period)}.
-    </p>
-    <p style="color:#6B7280;margin-top:24px">Barakallahu fik<br>Das BNM-Team</p>
+    ${bodyHtml}
   </div>
   <div style="padding:16px;background:#F9FAFB;text-align:center">
     <p style="color:#98A2B3;font-size:12px;margin:0">BNM – Betreuung neuer Muslime · neuemuslime.com</p>
