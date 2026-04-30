@@ -1262,7 +1262,7 @@ function MentorDashboard() {
               <Text style={[styles.mentorSectionTitle, { color: themeColors.textSecondary, marginBottom: 10 }]}>
                 {t("gamification.achievementsTitle")}
               </Text>
-              <View style={{ flexDirection: "row", flexWrap: "wrap", gap: 8, justifyContent: "space-between" }}>
+              <View style={{ flexDirection: "row", flexWrap: "wrap", gap: 8, justifyContent: "flex-start" }}>
                 {ACHIEVEMENTS.map((ach) => {
                   const isUnlocked = userAchievements.some((a) => a.achievement_key === ach.key);
                   const isMystery = (ach as any).mystery === true;
@@ -1272,7 +1272,7 @@ function MentorDashboard() {
                       style={[
                         styles.achievementChip,
                         {
-                          width: "23.5%",
+                          width: "22%",
                           minWidth: 60,
                           backgroundColor: isMystery
                             ? (isDark ? "#1a1a2e" : "#f0f0f8")
@@ -1291,7 +1291,7 @@ function MentorDashboard() {
                       accessibilityLabel={isMystery ? "Geheime Auszeichnung" : `Auszeichnung: ${ach.label}`}
                     >
                       <Text style={[styles.achievementIcon, isMystery && { fontSize: 20 }]}>{ach.icon}</Text>
-                      <Text style={{ fontSize: 9, fontWeight: "600", color: isMystery ? (isDark ? "#818cf8" : "#6366f1") : isUnlocked ? (isDark ? COLORS.gold : "#92400e") : themeColors.textTertiary, marginTop: 4, textAlign: "center" }} numberOfLines={1}>{ach.label}</Text>
+                      <Text style={{ fontSize: 9, fontWeight: "600", color: isMystery ? (isDark ? "#818cf8" : "#6366f1") : isUnlocked ? (isDark ? COLORS.gold : COLORS.goldText) : themeColors.textTertiary, marginTop: 4, textAlign: "center" }} numberOfLines={1}>{ach.label}</Text>
                       {showAchievementTooltip === ach.key && (
                         <View style={[styles.achievementTooltip, { backgroundColor: isDark ? "#1C1C28" : "#FFFFFF", borderColor: isMystery ? "#6366f1" : COLORS.gold }]}>
                           <Text style={[styles.achievementTooltipTitle, { color: isMystery ? (isDark ? "#818cf8" : "#6366f1") : themeColors.text }]}>{ach.label}</Text>
@@ -1518,7 +1518,11 @@ function MentorDashboard() {
                         { backgroundColor: themeColors.card, borderColor: completed ? COLORS.cta + "60" : sem(SEMANTIC.goldBorder, isDark) },
                         completed && { opacity: 0.75 },
                       ]}
-                      onPress={() => !isEvent ? Linking.openURL(res.url) : undefined}
+                      onPress={() => {
+                        if (isEvent) return;
+                        if (Platform.OS === "web") { (window as any).open(res.url, "_blank"); }
+                        else { Linking.openURL(res.url); }
+                      }}
                       accessibilityRole={isEvent ? "button" : "link"}
                       accessibilityLabel={res.title}
                     >

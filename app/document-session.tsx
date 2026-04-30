@@ -523,7 +523,7 @@ export default function DocumentSessionScreen() {
               </View>
             )}
 
-            {(isCompleted || nextStep || (isAdmin && adminSelectedTypeId) || forceNewSession) && (
+            {(isCompleted || nextStep || (isAdmin && adminSelectedTypeId) || forceNewSession || !!editingSessionId) && (
               <>
                 <Text style={[styles.sectionLabel, { color: themeColors.textTertiary }]}>{t("docSession.document")}</Text>
 
@@ -928,13 +928,11 @@ export default function DocumentSessionScreen() {
                           <Text style={[styles.historyDetails, { color: themeColors.textTertiary }]} numberOfLines={1}>{s.details}</Text>
                         ) : null}
                       </View>
-                      {isAdmin && (
-                        <BNMPressable
+                      <BNMPressable
                           style={[styles.historyEditButton, { backgroundColor: themeColors.background, borderColor: themeColors.border }]}
                           accessibilityRole="button"
                           accessibilityLabel={`${stName} bearbeiten`}
                           onPress={() => {
-                            // Felder vorausfüllen
                             const isoDateStr = s.date
                               ? new Date(s.date).toISOString().split("T")[0]
                               : todayIso;
@@ -948,7 +946,6 @@ export default function DocumentSessionScreen() {
                         >
                           <Text style={[styles.historyEditText, { color: themeColors.textSecondary }]}>{t("docSession.historyEdit")} ✏️</Text>
                         </BNMPressable>
-                      )}
                     </View>
                   );
                 })}

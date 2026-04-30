@@ -7,6 +7,8 @@ import {
   Platform,
   Linking,
   ActivityIndicator,
+  Modal,
+  TextInput,
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { useAuth } from "../../contexts/AuthContext";
@@ -236,6 +238,7 @@ export default function CalendarTabScreen() {
     calendarEvents,
     eventAttendees,
     respondToEvent,
+    addCalendarEvent,
   } = useData();
 
   const [selectedDate, setSelectedDate] = useState<string | null>(() => {
@@ -246,6 +249,14 @@ export default function CalendarTabScreen() {
   const [googleConnected, setGoogleConnected] = useState(false);
   const [googleLoading,   setGoogleLoading]   = useState(false);
   const [googleCalItems,  setGoogleCalItems]   = useState<GoogleCalendarEvent[]>([]);
+
+  // Termin-Erstellen State
+  const [showCreateModal, setShowCreateModal] = useState(false);
+  const [createTitle, setCreateTitle] = useState("");
+  const [createDate, setCreateDate] = useState("");
+  const [createTime, setCreateTime] = useState("10:00");
+  const [createDesc, setCreateDesc] = useState("");
+  const [createSaving, setCreateSaving] = useState(false);
 
   const userId = user?.id;
 
@@ -364,6 +375,41 @@ export default function CalendarTabScreen() {
 
   const hasItems = dayEvents.length > 0 || dayGoogleItems.length > 0;
 
+  const openCreateModal = useCallback(() => {
+    setCreateTitle("");
+    setCreateDate(selectedDate ?? new Date().toISOString().slice(0, 10));
+    setCreateTime("10:00");
+    setCreateDesc("");
+    setShowCreateModal(true);
+  }, [selectedDate]);
+
+  const handleCreateEvent = useCallback(async () => {
+    if (!createTitle.trim() || !createDate) return;
+    setCreateSaving(true);
+    try {
+      const [h, m] = createTime.split(":").map(Number);
+      const start = new Date(`${createDate}T${String(h).padStart(2, "0")}:${String(m || 0).padStart(2, "0")}:00`);
+      await addCalendarEvent({
+        title: createTitle.trim(),
+        description: createDesc.trim(),
+        start_at: start.toISOString(),
+        end_at: null,
+        type: "custom",
+        location: "",
+        created_by: userId ?? null,
+        recurrence: null,
+        visible_to: "all",
+        is_active: true,
+        google_calendar_event_id: null,
+      } as any);
+      setShowCreateModal(false);
+    } catch {
+      // handled in DataContext
+    } finally {
+      setCreateSaving(false);
+    }
+  }, [createTitle, createDate, createTime, createDesc, addCalendarEvent, userId]);
+
   // Format selected date for display
   const selectedDateDisplay = selectedDate
     ? new Date(selectedDate + "T00:00:00").toLocaleDateString("de-DE", {
@@ -444,9 +490,20 @@ export default function CalendarTabScreen() {
           {/* Day Detail */}
           {selectedDate && (
             <View style={styles.dayDetailSection}>
-              <Text style={[styles.dayDetailTitle, { color: themeColors.text }]}>
-                {selectedDateDisplay}
-              </Text>
+              <View style={{ flexDirection: "row", alignItems: "center", justifyContent: "space-between", marginBottom: 12 }}>
+                <Text style={[styles.dayDetailTitle, { color: themeColors.text, marginBottom: 0 }]}>
+                  {selectedDateDisplay}
+                </Text>
+                <BNMPressable
+                  style={[styles.createEventBtn, { backgroundColor: COLORS.gold + "18", borderColor: COLORS.gold + "50" }]}
+                  onPress={openCreateModal}
+                  accessibilityRole="button"
+                  accessibilityLabel="Termin erstellen"
+                >
+                  <Ionicons name="add" size={16} color={COLORS.gold} />
+                  <Text style={{ fontSize: 13, fontWeight: "600", color: COLORS.gold }}>Termin</Text>
+                </BNMPressable>
+              </View>
 
               {!hasItems && (
                 <EmptyState
@@ -476,6 +533,85 @@ export default function CalendarTabScreen() {
           )}
         </View>
       </ScrollView>
+
+      {/* Termin erstellen Modal */}
+      <Modal
+        visible={showCreateModal}
+        transparent
+        animationType="fade"
+        onRequestClose={() => setShowCreateModal(false)}
+      >
+        <View style={styles.modalOverlay}>
+          <View style={[styles.modalCard, { backgroundColor: themeColors.card }]}>
+            <View style={{ flexDirection: "row", alignItems: "center", justifyContent: "space-between", marginBottom: 16 }}>
+              <Text style={[styles.modalTitle, { color: themeColors.text }]}>Termin erstellen</Text>
+              <BNMPressable onPress={() => setShowCreateModal(false)} accessibilityRole="button" accessibilityLabel="Schließen">
+                <Ionicons name="close" size={22} color={themeColors.textSecondary} />
+              </BNMPressable>
+            </View>
+
+            <Text style={[styles.modalLabel, { color: themeColors.textSecondary }]}>Titel *</Text>
+            <TextInput
+              style={[styles.modalInput, { borderColor: themeColors.border, color: themeColors.text, backgroundColor: themeColors.background }]}
+              value={createTitle}
+              onChangeText={setCreateTitle}
+              placeholder="z.B. Treffen mit Mentee"
+              placeholderTextColor={themeColors.textTertiary}
+              autoFocus
+            />
+
+            <View style={{ flexDirection: "row", gap: 12, marginTop: 12 }}>
+              <View style={{ flex: 1 }}>
+                <Text style={[styles.modalLabel, { color: themeColors.textSecondary }]}>Datum *</Text>
+                <TextInput
+                  style={[styles.modalInput, { borderColor: themeColors.border, color: themeColors.text, backgroundColor: themeColors.background }]}
+                  value={createDate}
+                  onChangeText={setCreateDate}
+                  placeholder="JJJJ-MM-TT"
+                  placeholderTextColor={themeColors.textTertiary}
+                />
+              </View>
+              <View style={{ flex: 1 }}>
+                <Text style={[styles.modalLabel, { color: themeColors.textSecondary }]}>Uhrzeit</Text>
+                <TextInput
+                  style={[styles.modalInput, { borderColor: themeColors.border, color: themeColors.text, backgroundColor: themeColors.background }]}
+                  value={createTime}
+                  onChangeText={setCreateTime}
+                  placeholder="HH:MM"
+                  placeholderTextColor={themeColors.textTertiary}
+                />
+              </View>
+            </View>
+
+            <Text style={[styles.modalLabel, { color: themeColors.textSecondary, marginTop: 12 }]}>Beschreibung</Text>
+            <TextInput
+              style={[styles.modalInput, { borderColor: themeColors.border, color: themeColors.text, backgroundColor: themeColors.background, minHeight: 64, textAlignVertical: "top" }]}
+              value={createDesc}
+              onChangeText={setCreateDesc}
+              placeholder="Optional"
+              placeholderTextColor={themeColors.textTertiary}
+              multiline
+              numberOfLines={3}
+            />
+
+            <View style={{ flexDirection: "row", gap: 10, marginTop: 20 }}>
+              <BNMPressable
+                style={[styles.modalCancelBtn, { borderColor: themeColors.border }]}
+                onPress={() => setShowCreateModal(false)}
+              >
+                <Text style={{ color: themeColors.textSecondary, fontWeight: "600" }}>Abbrechen</Text>
+              </BNMPressable>
+              <BNMPressable
+                style={[styles.modalSaveBtn, { opacity: (!createTitle.trim() || createSaving) ? 0.5 : 1 }]}
+                onPress={handleCreateEvent}
+                disabled={!createTitle.trim() || createSaving}
+              >
+                <Text style={{ color: COLORS.white, fontWeight: "600" }}>{createSaving ? "..." : "Speichern"}</Text>
+              </BNMPressable>
+            </View>
+          </View>
+        </View>
+      </Modal>
     </Container>
   );
 }
@@ -651,4 +787,60 @@ const styles = StyleSheet.create({
     fontWeight: "600",
   },
 
+  // Termin erstellen Button
+  createEventBtn: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 4,
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    borderRadius: RADIUS.sm,
+    borderWidth: 1,
+  },
+
+  // Create Modal
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: "rgba(0,0,0,0.5)",
+    justifyContent: "center",
+    alignItems: "center",
+    padding: 24,
+  },
+  modalCard: {
+    width: "100%",
+    maxWidth: 480,
+    borderRadius: RADIUS.lg,
+    padding: 24,
+    ...SHADOWS.lg,
+  },
+  modalTitle: {
+    fontSize: 18,
+    fontWeight: "700",
+  },
+  modalLabel: {
+    fontSize: 13,
+    fontWeight: "500",
+    marginBottom: 6,
+  },
+  modalInput: {
+    borderWidth: 1,
+    borderRadius: RADIUS.sm,
+    paddingHorizontal: 12,
+    paddingVertical: 10,
+    fontSize: 14,
+  },
+  modalCancelBtn: {
+    flex: 1,
+    padding: 12,
+    borderRadius: RADIUS.sm,
+    borderWidth: 1,
+    alignItems: "center",
+  },
+  modalSaveBtn: {
+    flex: 1,
+    padding: 12,
+    borderRadius: RADIUS.sm,
+    alignItems: "center",
+    backgroundColor: COLORS.gradientStart,
+  },
 });

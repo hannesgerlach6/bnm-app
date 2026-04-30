@@ -21,6 +21,7 @@ import { useTheme, useThemeColors } from "../../contexts/ThemeContext";
 import { supabase } from "../../lib/supabase";
 import { Container } from "../../components/Container";
 import { StatusBadge } from "../../components/StatusBadge";
+import { QUESTIONNAIRE_SECTIONS } from "../../lib/questionnaireConfig";
 
 
 export default function MentorshipDetailScreen() {
@@ -43,6 +44,9 @@ export default function MentorshipDetailScreen() {
   const [notesText, setNotesText] = useState<string | null>(null);
   const [isSavingNotes, setIsSavingNotes] = useState(false);
   const [expandedSessions, setExpandedSessions] = useState<Set<string>>(new Set());
+
+  // Fragebogen-Vorschau State
+  const [showFeedbackPreview, setShowFeedbackPreview] = useState(false);
 
   // Abbruch-Flow State
   const [showCancelModal, setShowCancelModal] = useState(false);
@@ -97,6 +101,12 @@ export default function MentorshipDetailScreen() {
     );
   }
 
+  const NACHBETREUUNG_TYPE_NAME = "Nachbetreuung";
+  const requiredStepIds = sessionTypes
+    .filter((st) => st.name !== NACHBETREUUNG_TYPE_NAME)
+    .map((st) => st.id);
+  const allRequiredStepsDone = requiredStepIds.every((sid) => completedStepIds.includes(sid));
+
   const progress = sessionTypes.length > 0 ? Math.round((completedStepIds.length / sessionTypes.length) * 100) : 0;
   const mentorshipId = mentorship.id;
 
@@ -126,9 +136,8 @@ export default function MentorshipDetailScreen() {
   }
 
   async function handleComplete() {
-    // Mentoren dürfen erst abschließen wenn alle Schritte dokumentiert sind
-    const allStepsDone = completedStepIds.length === sessionTypes.length;
-    if (!allStepsDone && user?.role === "mentor") {
+    // Nachbetreuung ist optional vor dem Abschluss — nur Pflicht-Schritte prüfen
+    if (!allRequiredStepsDone && user?.role === "mentor") {
       showError(t("mentorship.stepsIncomplete"));
       return;
     }
@@ -459,7 +468,7 @@ export default function MentorshipDetailScreen() {
         </View>
 
         {/* Abschluss-Banner wenn alle Steps erledigt */}
-        {mentorship.status === "active" && completedStepIds.length === sessionTypes.length && canChangeStatus && (
+        {mentorship.status === "active" && allRequiredStepsDone && canChangeStatus && (
           <View style={[styles.allDoneBanner, { backgroundColor: isDark ? "#1a3a2a" : "#dcfce7", borderColor: sem(SEMANTIC.greenBorder, isDark) }]}>
             <Text style={[styles.allDoneBannerTitle, { color: sem(SEMANTIC.greenText, isDark) }]}>✓ {t("mentorship.allStepsComplete")}</Text>
             <BNMPressable
@@ -509,7 +518,7 @@ export default function MentorshipDetailScreen() {
                   style={[
                     styles.completeButton,
                     { backgroundColor: isDark ? "#1a3a2a" : "#f0fdf4", borderColor: isDark ? "#2d6a4a" : "#bbf7d0" },
-                    (isUpdatingStatus || (user?.role === "mentor" && completedStepIds.length < sessionTypes.length)) ? { opacity: 0.4 } : {},
+                    (isUpdatingStatus || (user?.role === "mentor" && !allRequiredStepsDone)) ? { opacity: 0.4 } : {},
                   ]}
                   onPress={handleComplete}
                   disabled={isUpdatingStatus}
@@ -537,16 +546,26 @@ export default function MentorshipDetailScreen() {
         )}
 
         {mentorship.status !== "active" && (
-          <BNMPressable
-            style={[styles.primaryButton, { backgroundColor: COLORS.primary, marginBottom: 16 }]}
-            onPress={() =>
-              navigateToChat(router, mentorship.id)
-            }
-            accessibilityRole="button"
-            accessibilityLabel="Chat oeffnen"
-          >
-            <Text style={styles.primaryButtonText}>{t("mentorship.openChat")}</Text>
-          </BNMPressable>
+          <View style={{ gap: 12, marginBottom: 16 }}>
+            <BNMPressable
+              style={[styles.primaryButton, { backgroundColor: COLORS.primary }]}
+              onPress={() => navigateToChat(router, mentorship.id)}
+              accessibilityRole="button"
+              accessibilityLabel="Chat oeffnen"
+            >
+              <Text style={styles.primaryButtonText}>{t("mentorship.openChat")}</Text>
+            </BNMPressable>
+            {mentorship.status === "completed" && user && (user.role === "mentor" || user.role === "admin" || user.role === "office") && (
+              <BNMPressable
+                style={[styles.primaryButton, { backgroundColor: COLORS.cta }]}
+                onPress={() => router.push({ pathname: "/document-session", params: { mentorshipId: mentorship.id } })}
+                accessibilityRole="button"
+                accessibilityLabel="Nachbetreuung dokumentieren"
+              >
+                <Text style={styles.primaryButtonText}>Nachbetreuung dokumentieren</Text>
+              </BNMPressable>
+            )}
+          </View>
         )}
 
         {mentorship.completed_at && (
@@ -573,6 +592,20 @@ export default function MentorshipDetailScreen() {
         )}
 
         {/* Mentor-Notizen (nur für Mentor + Admin sichtbar) */}
+        {/* Feedback-Fragebogen Vorschau (für Mentoren) */}
+        {user?.role === "mentor" && (
+          <BNMPressable
+            style={[styles.feedbackPreviewButton, { backgroundColor: themeColors.card, borderColor: themeColors.border }]}
+            onPress={() => setShowFeedbackPreview(true)}
+            accessibilityRole="button"
+            accessibilityLabel="Feedback-Fragebogen ansehen"
+          >
+            <Ionicons name="help-circle-outline" size={18} color={COLORS.gold} />
+            <Text style={[styles.feedbackPreviewText, { color: themeColors.text }]}>Feedback-Fragebogen ansehen</Text>
+            <Ionicons name="chevron-forward" size={16} color={themeColors.textTertiary} />
+          </BNMPressable>
+        )}
+
         {canWriteNotes && (
           <View style={[styles.notesCard, { backgroundColor: themeColors.card, borderColor: themeColors.border }]}>
             <Text style={[styles.notesTitle, { color: themeColors.text }]}>{t("notes.title")}</Text>
@@ -647,6 +680,51 @@ export default function MentorshipDetailScreen() {
               </Text>
             </BNMPressable>
           </View>
+        </View>
+      </View>
+    </Modal>
+    {/* Fragebogen-Vorschau Modal */}
+    <Modal
+      visible={showFeedbackPreview}
+      transparent
+      animationType="slide"
+      onRequestClose={() => setShowFeedbackPreview(false)}
+    >
+      <View style={styles.modalOverlay}>
+        <View style={[styles.modalCard, { backgroundColor: themeColors.card, maxHeight: "85%" }]}>
+          <View style={{ flexDirection: "row", alignItems: "center", justifyContent: "space-between", marginBottom: 16 }}>
+            <Text style={[styles.modalTitle, { color: themeColors.text }]}>Feedback-Fragebogen</Text>
+            <BNMPressable
+              onPress={() => setShowFeedbackPreview(false)}
+              accessibilityRole="button"
+              accessibilityLabel="Schließen"
+            >
+              <Ionicons name="close" size={22} color={themeColors.textSecondary} />
+            </BNMPressable>
+          </View>
+          <Text style={[styles.modalSubtitle, { color: themeColors.textSecondary, marginBottom: 12 }]}>
+            Diese Fragen werden dem Mentee nach Abschluss der Betreuung gestellt.
+          </Text>
+          <ScrollView showsVerticalScrollIndicator={false}>
+            {QUESTIONNAIRE_SECTIONS.map((section, sIdx) => (
+              <View key={section.id} style={{ marginBottom: 16 }}>
+                <Text style={{ fontWeight: "700", fontSize: 14, color: COLORS.gold, marginBottom: 8 }}>
+                  {sIdx + 1}. {t(section.titleKey)}
+                </Text>
+                {section.questions
+                  .filter((q) => !q.conditionalOn)
+                  .map((q, qIdx) => (
+                    <View key={q.id} style={{ flexDirection: "row", gap: 8, marginBottom: 6, paddingLeft: 8 }}>
+                      <Text style={{ color: themeColors.textTertiary, fontSize: 13, minWidth: 16 }}>{qIdx + 1}.</Text>
+                      <Text style={{ color: themeColors.textSecondary, fontSize: 13, flex: 1 }}>
+                        {t(q.translationKey)}
+                        {q.type === "rating" ? " (1–5 Sterne)" : ""}
+                      </Text>
+                    </View>
+                  ))}
+              </View>
+            ))}
+          </ScrollView>
         </View>
       </View>
     </Modal>
@@ -781,6 +859,17 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   notesSaveButtonText: { color: COLORS.white, fontWeight: "600", fontSize: 14 },
+
+  feedbackPreviewButton: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 10,
+    padding: 14,
+    borderRadius: RADIUS.md,
+    borderWidth: 1,
+    marginBottom: 16,
+  },
+  feedbackPreviewText: { flex: 1, fontSize: 14, fontWeight: "500" },
 
   // Session-Bearbeiten/Löschen in Timeline
   sessionActionRow: { flexDirection: "row", gap: 8, marginTop: 6 },

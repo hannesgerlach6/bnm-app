@@ -52,6 +52,7 @@ import {
   sendMenteeAssignedNotification,
   sendFeedbackRequestEmail,
   sendMentorshipCancelledToMenteeEmail,
+  sendFeedbackCopyToMentorEmail,
 } from "../lib/emailService";
 import { sendLocalNotification, notifyNewMessage, notifyMentorAssigned, notifyMenteeAssigned, notifyMentorshipCompleted, notifyFeedbackRequested } from "../lib/notificationService";
 
@@ -2236,12 +2237,13 @@ export function DataProvider({ children }: { children: ReactNode }) {
         .single();
 
       if (msRow) {
-        const { data: submitterProfile } = await supabase
-          .from("profiles")
-          .select("name")
-          .eq("id", feedbackData.submitted_by)
-          .single();
+        const [{ data: submitterProfile }, { data: mentorProfile }] = await Promise.all([
+          supabase.from("profiles").select("name").eq("id", feedbackData.submitted_by).single(),
+          supabase.from("profiles").select("name, email").eq("id", msRow.mentor_id).single(),
+        ]);
         const submitterName = submitterProfile?.name ?? "Dein Mentee";
+        const mentorName = mentorProfile?.name ?? "Mentor";
+        const mentorEmail = mentorProfile?.email;
 
         await createNotification(
           msRow.mentor_id,
@@ -2250,6 +2252,16 @@ export function DataProvider({ children }: { children: ReactNode }) {
           `${submitterName} hat Feedback hinterlassen (${feedbackData.rating}/5 Sterne).`,
           feedbackData.mentorship_id
         );
+        // E-Mail-Kopie an den Mentor
+        if (mentorEmail) {
+          sendFeedbackCopyToMentorEmail(
+            mentorEmail,
+            mentorName,
+            submitterName,
+            feedbackData.rating,
+            feedbackData.comments
+          ).catch(() => {});
+        }
         // Lokale Push Notification: zusätzlich auf dem Gerät des Mentors (wenn App offen)
         if (authUser?.id === msRow.mentor_id) {
           sendLocalNotification(

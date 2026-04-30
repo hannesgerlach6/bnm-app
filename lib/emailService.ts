@@ -220,6 +220,27 @@ export async function sendNewFeedbackNotification(
   return sendEmail(await getAdminEmail(), subject, body);
 }
 
+export async function sendFeedbackCopyToMentorEmail(
+  mentorEmail: string,
+  mentorName: string,
+  menteeName: string,
+  rating: number,
+  comment?: string
+) {
+  const subject = sanitizeSubject(`[BNM] Feedback von ${menteeName}`);
+  const body = `
+<p>Hallo ${escapeHtml(mentorName)},</p>
+<p>${escapeHtml(menteeName)} hat deine Betreuung bewertet. Hier ist eine Kopie des Feedbacks:</p>
+<ul>
+  <li><strong>Bewertung:</strong> ${"★".repeat(rating)}${"☆".repeat(5 - rating)} (${rating}/5)</li>
+  ${comment ? `<li><strong>Kommentar:</strong> ${escapeHtml(comment)}</li>` : ""}
+</ul>
+<p>Das vollständige Feedback (inkl. Fragebogen) kannst du in der App unter deinen Betreuungen einsehen.</p>
+<hr><p style="color:#98A2B3;font-size:12px">BNM – neuemuslime.com</p>
+  `.trim();
+  return sendEmail(mentorEmail, subject, body);
+}
+
 export async function sendNewMenteeRegistrationNotification(
   menteeName: string,
   menteeEmail: string,
