@@ -100,6 +100,25 @@ neuemuslime.com-Stil. Dunkelblau (#0A3A5A) + Gold (#EEA71B). `constants/Colors.t
 
 ## FORTSCHRITTS-LOG
 
+### 2026-04-30 — 5 User-Test-Features (Session-Edit, Nachbetreuung, Feedback-Kopie, Dashboard-Fixes, Kalender)
+**Neue SQL-Migration:** `supabase/calendar-user-create.sql` (INSERT/UPDATE/DELETE für eigene Events)
+**1 – Sessions mehrfach bearbeitbar:**
+- `app/document-session.tsx`: Edit-Button in Session-History nicht mehr admin-only — alle Mentoren können eigene Sessions bearbeiten
+- `app/document-session.tsx`: Form-Anzeige auch wenn `editingSessionId` gesetzt (fix für Mentoren ohne nextStep)
+**2 – Nachbetreuung entkoppelt:**
+- `app/mentorship/[id].tsx`: "Nachbetreuung" aus Pflicht-Abschluss-Prüfung ausgenommen (`requiredStepIds` filtert Nachbetreuung-Step)
+- `app/mentorship/[id].tsx`: "Nachbetreuung dokumentieren"-Button bei status="completed" (navigiert zu document-session)
+**3 – Feedback Mentor-Kopie + Fragebogen-Vorschau:**
+- `lib/emailService.ts`: Neue Funktion `sendFeedbackCopyToMentorEmail()` mit Bewertung + Kommentar
+- `contexts/DataContext.tsx`: `addFeedback()` lädt Mentor-Profil und sendet E-Mail-Kopie nach Speichern
+- `app/mentorship/[id].tsx`: "Feedback-Fragebogen ansehen"-Button für Mentoren → Modal zeigt alle Fragen (aus questionnaireConfig.ts)
+**4 – Dashboard-Bugs:**
+- `app/(tabs)/index.tsx`: Ressourcen-Links öffnen im neuen Tab (window.open auf Web)
+- `app/(tabs)/index.tsx`: Achievement-Grid: `justifyContent: flex-start`, `width: 22%`, hardcoded `#92400e` → `COLORS.goldText`
+**5 – Kalendereinträge erstellen:**
+- `app/(tabs)/calendar.tsx`: "Termin erstellen"-Button im Day-Detail → Modal mit Titel/Datum/Uhrzeit/Beschreibung
+- `supabase/calendar-user-create.sql`: INSERT/UPDATE/DELETE-RLS für auth. User (eigene Events)
+
 ### 2026-04-30 — Mentor-Feedback-Features (6 Punkte aus User-Test)
 **Keine SQL-Migrationen nötig.**
 **Bug-Fix 1 – Chat öffnen funktioniert nicht (Mobile):**
