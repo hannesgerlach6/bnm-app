@@ -1167,14 +1167,7 @@ export default function ChatsScreen() {
           isSelected ? { backgroundColor: sem(SEMANTIC.selectedBg, isDark) } : {},
         ]}
         onPress={() => {
-          if (isWideWeb) {
-            setSelectedChatId(m.id);
-          } else {
-            router.push({
-              pathname: "/chat/[mentorshipId]",
-              params: { mentorshipId: m.id },
-            });
-          }
+          setSelectedChatId(m.id);
         }}
         accessibilityRole="button"
         accessibilityLabel={`Chat mit ${getChatTitle(m)}${unread > 0 ? `, ${unread} ungelesen` : ""}`}
