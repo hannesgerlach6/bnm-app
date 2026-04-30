@@ -173,6 +173,7 @@ export interface DataContextValue {
 
   // Mentorship Notes
   updateMentorshipNotes: (mentorshipId: string, notes: string) => Promise<void>;
+  updateMenteeNotes: (mentorshipId: string, mentee_notes: string) => Promise<void>;
 
   // Mentee step confirmation
   confirmStepAsMentee: (mentorshipId: string, sessionTypeId: string) => Promise<void>;
@@ -753,6 +754,7 @@ export function DataProvider({ children }: { children: ReactNode }) {
           assigned_at: row.assigned_at as string,
           completed_at: (row.completed_at as string) ?? undefined,
           notes: (row.notes as string) ?? "",
+          mentee_notes: (row.mentee_notes as string) ?? "",
           mentor: profileMap[row.mentor_id as string],
           mentee: profileMap[row.mentee_id as string],
           mentee_confirmed_steps: (row.mentee_confirmed_steps as string[]) ?? [],
@@ -983,6 +985,7 @@ export function DataProvider({ children }: { children: ReactNode }) {
               assigned_at: row.assigned_at as string,
               completed_at: (row.completed_at as string) ?? undefined,
               notes: (row.notes as string) ?? "",
+              mentee_notes: (row.mentee_notes as string) ?? "",
               mentee_confirmed_steps: (row.mentee_confirmed_steps as string[]) ?? [],
             }))
           : [];
@@ -2891,6 +2894,22 @@ export function DataProvider({ children }: { children: ReactNode }) {
     );
   }, []);
 
+  const updateMenteeNotes = useCallback(async (mentorshipId: string, mentee_notes: string) => {
+    await supabase.auth.getSession();
+    const { error } = await supabase
+      .from("mentorships")
+      .update({ mentee_notes })
+      .eq("id", mentorshipId);
+
+    if (error) {
+      throw new Error(error.message);
+    }
+
+    setMentorships((prev) =>
+      prev.map((m) => (m.id === mentorshipId ? { ...m, mentee_notes } : m))
+    );
+  }, []);
+
   const confirmStepAsMentee = useCallback(async (mentorshipId: string, sessionTypeId: string) => {
     // Mentorship direkt aus DB laden (nicht aus stale Closure!)
     const { data: msRow } = await supabase
@@ -3727,6 +3746,7 @@ export function DataProvider({ children }: { children: ReactNode }) {
     deleteUser,
     bulkDeleteUsers,
     updateMentorshipNotes,
+    updateMenteeNotes,
     confirmStepAsMentee,
     unconfirmStepAsMentee,
     getMentorshipsByMentorId,
@@ -3765,7 +3785,7 @@ export function DataProvider({ children }: { children: ReactNode }) {
     getAdminMessagesByUserId, getAdminChatPartners,
     approveApplication, rejectApplication, deleteApplication, submitApplication,
     updateUser, setUserActive, deleteUser, bulkDeleteUsers,
-    updateMentorshipNotes, confirmStepAsMentee, unconfirmStepAsMentee,
+    updateMentorshipNotes, updateMenteeNotes, confirmStepAsMentee, unconfirmStepAsMentee,
     getMentorshipsByMentorId, getMentorshipByMenteeId, getMentorshipById,
     getSessionsByMentorshipId, getCompletedStepIds, getMessagesByMentorshipId,
     getUserById, getUnassignedMentees, getPendingApplicationsCount,

@@ -45,7 +45,8 @@ Alle SQL-Änderungen dokumentieren. Selbstständig handeln.
   20. `supabase/email-templates.sql` — template_key Spalte + Default E-Mail-Vorlagen (Admin kann E-Mail-Texte aendern)
   21. `supabase/admin-notes.sql` — Admin-Notizen Spalte fuer Profile
   22. `supabase/delete-applications.sql` — DELETE-Policy fuer mentor_applications (Admin/Office)
-  23. Dashboard: Auth → Email → "Confirm email" OFF
+  23. `supabase/mentee-notes.sql` — mentee_notes-Spalte fuer eigene Mentee-Notizen in Mentorships
+  24. Dashboard: Auth → Email → "Confirm email" OFF
   13. Test-User manuell anlegen + Profile-INSERT
   14. `lib/supabase.ts`: URL + Anon Key ändern (2 Zeilen)
 
@@ -98,6 +99,21 @@ neuemuslime.com-Stil. Dunkelblau (#0A3A5A) + Gold (#EEA71B). `constants/Colors.t
 ---
 
 ## FORTSCHRITTS-LOG
+
+### 2026-04-30 — Mentee-Feedback-Features (4 Punkte aus User-Test)
+**Neue SQL-Migration:** `supabase/mentee-notes.sql` (mentee_notes TEXT + UPDATE-Policy fuer Mentee)
+**Feature 1 – Mentee-Notizen:**
+- `types/index.ts`: `mentee_notes?: string` in Mentorship-Interface
+- `contexts/DataContext.tsx`: Mapping + `updateMenteeNotes()` Funktion
+- `app/(tabs)/index.tsx`: Textarea-Sektion "Meine Notizen" mit Speichern-Button im MenteeDashboard
+**Feature 2 – Mentor-Kontakt-Karte:**
+- Klickbare Mentor-Karte (Name, Stadt) im MenteeDashboard → öffnet Modal mit E-Mail, Telefon, Kontaktpräferenz
+- Sichtbar bei ALLEN Status (aktiv, abgeschlossen, abgebrochen) → Kontaktdaten gehen nicht verloren
+**Feature 3 – Feedback-Button im Dashboard:**
+- Zeigt goldene Karte "Jetzt Feedback geben →" wenn Betreuung abgeschlossen/abgebrochen und noch kein Feedback abgegeben
+- Navigiert direkt zu `/feedback?mentorshipId=<id>`
+**Feature 4 – E-Mail mit Direktlink:**
+- `lib/emailService.ts`: Feedback-E-Mail enthält jetzt Gold-Button + Text-Link direkt zur Feedback-Seite (`neuemuslime.com/feedback?mentorshipId=...`)
 
 ### 2026-04-16 — Domain-Umzug von bnm.iman.ngo auf neuemuslime.com
 **Neue Datei:** `lib/appConstants.ts` — zentrale URLs/E-Mail-Adressen

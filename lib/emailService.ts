@@ -1,4 +1,5 @@
 import { supabase, SUPABASE_URL, SUPABASE_ANON_KEY } from "./supabase";
+import { APP_URL } from "./appConstants";
 
 // ============================================================
 // E-Mail Service — schreibt in die email_queue (Audit-Trail)
@@ -33,6 +34,10 @@ async function sendViaResend(
   attachments?: { filename: string; content: string }[]
 ): Promise<boolean> {
   try {
+    // User-JWT holen — fällt auf Anon Key zurück wenn keine Session
+    const { data: { session } } = await supabase.auth.getSession();
+    const authToken = session?.access_token ?? SUPABASE_ANON_KEY;
+
     // 10s Timeout damit die UI nie hängen bleibt
     const controller = new AbortController();
     const timeout = setTimeout(() => controller.abort(), 10_000);
@@ -44,7 +49,7 @@ async function sendViaResend(
         headers: {
           "Content-Type": "application/json",
           apikey: SUPABASE_ANON_KEY,
-          Authorization: `Bearer ${SUPABASE_ANON_KEY}`,
+          Authorization: `Bearer ${authToken}`,
         },
         body: JSON.stringify({ to, subject, html: htmlBody, attachments }),
         signal: controller.signal,
@@ -57,7 +62,6 @@ async function sendViaResend(
       console.error(`[emailService] send-direct ${res.status}:`, responseText);
       return false;
     }
-    console.log("[emailService] send-direct OK:", to, responseText);
     return true;
   } catch (err: any) {
     if (err?.name === "AbortError") {
@@ -372,11 +376,13 @@ export async function sendFeedbackRequestEmail(
   if (template) return sendEmail(menteeEmail, template.subject, template.body);
 
   // Fallback: hardcoded
+  const feedbackUrl = `${APP_URL}/feedback?mentorshipId=${mentorshipId}`;
   const subject = `[BNM] Bitte gib Feedback zu deiner Betreuung`;
   const body = `
 <p>Salam Aleikum ${escapeHtml(menteeName)},</p>
 <p>deine Betreuung mit <strong>${escapeHtml(mentorName)}</strong> wurde erfolgreich abgeschlossen. Wir würden uns sehr freuen, wenn du kurz dein Feedback teilst — das hilft uns, das BNM-Programm weiter zu verbessern.</p>
-<p>Bitte öffne die BNM-App und gib dein Feedback zur Betreuung (ID: ${mentorshipId}) ab.</p>
+<p><a href="${feedbackUrl}" style="display:inline-block;background:#EEA71B;color:#fff;font-weight:700;padding:12px 24px;border-radius:5px;text-decoration:none">Feedback jetzt geben →</a></p>
+<p style="color:#98A2B3;font-size:12px">Oder direkt aufrufen: <a href="${feedbackUrl}">${feedbackUrl}</a></p>
 <p>Barakallahu fik</p>
 <p>Das BNM-Team</p>
 <hr><p style="color:#98A2B3;font-size:12px">BNM – Betreuung neuer Muslime</p>

@@ -1698,13 +1698,17 @@ function MenteeDashboard() {
   const { t } = useLanguage();
   const themeColors = useThemeColors();
   const { isDark } = useTheme();
-  const { getMentorshipByMenteeId, getCompletedStepIds, sessionTypes, hadithe, refreshData, isLoading, calendarEvents, eventAttendees, respondToEvent } = useData();
+  const { getMentorshipByMenteeId, getCompletedStepIds, sessionTypes, hadithe, refreshData, isLoading, calendarEvents, eventAttendees, respondToEvent, feedback, updateMenteeNotes } = useData();
   const { sendThanks } = useGamification();
   const [refreshing, setRefreshing] = useState(false);
   const [hadithOffset, setHadithOffset] = useState(0);
   const [showThanksModal, setShowThanksModal] = useState(false);
   const [thanksMessage, setThanksMessage] = useState("");
   const [sendingThanks, setSendingThanks] = useState(false);
+  const [showMentorContact, setShowMentorContact] = useState(false);
+  const [menteeNotesText, setMenteeNotesText] = useState("");
+  const [savingNotes, setSavingNotes] = useState(false);
+  const [notesInitialized, setNotesInitialized] = useState(false);
   const onRefresh = useCallback(async () => {
     setRefreshing(true);
     await refreshData();
@@ -1717,6 +1721,27 @@ function MenteeDashboard() {
   if (!user) return null;
 
   const mentorship = getMentorshipByMenteeId(user.id);
+
+  // Notizen aus mentorship in lokalen State laden (einmalig)
+  useEffect(() => {
+    if (mentorship && !notesInitialized) {
+      setMenteeNotesText(mentorship.mentee_notes ?? "");
+      setNotesInitialized(true);
+    }
+  }, [mentorship?.id, notesInitialized]);
+
+  async function handleSaveNotes() {
+    if (!mentorship) return;
+    setSavingNotes(true);
+    try {
+      await updateMenteeNotes(mentorship.id, menteeNotesText);
+      showSuccess("Notizen gespeichert");
+    } catch {
+      showError("Fehler beim Speichern");
+    } finally {
+      setSavingNotes(false);
+    }
+  }
 
   async function handleSendThanks() {
     if (!mentorship?.mentor_id) return;
@@ -1883,6 +1908,80 @@ function MenteeDashboard() {
               </BNMPressable>
             )}
 
+            {/* ── Mentor-Kontakt-Karte (immer sichtbar wenn Mentorship existiert) ── */}
+            {mentorship.mentor && (
+              <BNMPressable
+                style={[styles.levelCard, { backgroundColor: themeColors.card, borderColor: sem(SEMANTIC.goldBorder, isDark), flexDirection: "row", alignItems: "center", gap: 12 }]}
+                onPress={() => setShowMentorContact(true)}
+                accessibilityRole="button"
+                accessibilityLabel="Mentor Kontaktdaten anzeigen"
+              >
+                <View style={{ width: 40, height: 40, borderRadius: 20, backgroundColor: COLORS.gradientStart + "18", alignItems: "center", justifyContent: "center" }}>
+                  <Ionicons name="person-outline" size={20} color={COLORS.gradientStart} />
+                </View>
+                <View style={{ flex: 1 }}>
+                  <Text style={{ fontSize: 11, fontWeight: "700", color: themeColors.textTertiary, letterSpacing: 0.8, textTransform: "uppercase", marginBottom: 2 }}>Mein Mentor</Text>
+                  <Text style={{ fontSize: 15, fontWeight: "700", color: themeColors.text }}>{mentorship.mentor.name}</Text>
+                  {mentorship.mentor.city ? <Text style={{ fontSize: 12, color: themeColors.textSecondary }}>{mentorship.mentor.city}</Text> : null}
+                </View>
+                <Ionicons name="chevron-forward-outline" size={18} color={themeColors.textTertiary} />
+              </BNMPressable>
+            )}
+
+            {/* ── Feedback-Button (bei abgeschlossener/abgebrochener Betreuung ohne Feedback) ── */}
+            {(mentorship.status === "completed" || mentorship.status === "cancelled") &&
+              !feedback.some((f) => f.mentorship_id === mentorship.id && f.submitted_by === user.id) && (
+              <BNMPressable
+                style={[styles.levelCard, { backgroundColor: COLORS.gold + "12", borderColor: COLORS.gold + "50", flexDirection: "row", alignItems: "center", gap: 12 }]}
+                onPress={() => router.push({ pathname: "/feedback", params: { mentorshipId: mentorship.id } } as never)}
+                accessibilityRole="button"
+                accessibilityLabel="Feedback zur Betreuung geben"
+              >
+                <View style={{ width: 40, height: 40, borderRadius: 20, backgroundColor: COLORS.gold + "20", alignItems: "center", justifyContent: "center" }}>
+                  <Ionicons name="star-outline" size={20} color={COLORS.gold} />
+                </View>
+                <View style={{ flex: 1 }}>
+                  <Text style={{ fontSize: 11, fontWeight: "700", color: COLORS.gold, letterSpacing: 0.8, textTransform: "uppercase", marginBottom: 2 }}>Feedback ausstehend</Text>
+                  <Text style={{ fontSize: 14, fontWeight: "600", color: themeColors.text }}>Jetzt Feedback geben →</Text>
+                  <Text style={{ fontSize: 12, color: themeColors.textSecondary }}>Hilf uns das Programm zu verbessern</Text>
+                </View>
+              </BNMPressable>
+            )}
+
+            {/* ── Meine Notizen ── */}
+            <View style={[styles.levelCard, { backgroundColor: themeColors.card, borderColor: sem(SEMANTIC.goldBorder, isDark) }]}>
+              <Text style={{ fontSize: 11, fontWeight: "700", color: themeColors.textTertiary, letterSpacing: 0.8, textTransform: "uppercase", marginBottom: 10 }}>Meine Notizen</Text>
+              <TextInput
+                style={{
+                  color: themeColors.text,
+                  backgroundColor: isDark ? "#1A1A24" : themeColors.background,
+                  borderWidth: 1,
+                  borderColor: sem(SEMANTIC.darkBorder, isDark),
+                  borderRadius: RADIUS.sm,
+                  padding: 12,
+                  minHeight: 100,
+                  fontSize: 14,
+                  lineHeight: 20,
+                  textAlignVertical: "top",
+                  marginBottom: 10,
+                }}
+                placeholder="z.B. Ersttreffen war am... Nächste Session planen..."
+                placeholderTextColor={themeColors.textTertiary}
+                value={menteeNotesText}
+                onChangeText={setMenteeNotesText}
+                multiline
+              />
+              <BNMPressable
+                style={{ alignSelf: "flex-end", backgroundColor: COLORS.gradientStart, paddingVertical: 8, paddingHorizontal: 16, borderRadius: RADIUS.sm, opacity: savingNotes ? 0.6 : 1 }}
+                onPress={handleSaveNotes}
+                disabled={savingNotes}
+                accessibilityRole="button"
+                accessibilityLabel="Notizen speichern"
+              >
+                <Text style={{ color: "#fff", fontWeight: "700", fontSize: 13 }}>{savingNotes ? "Speichern..." : "Speichern"}</Text>
+              </BNMPressable>
+            </View>
+
             {/* ── Glückwunsch-Banner + Confetti (ganz unten) ── */}
             {(mentorship.status === "active" || mentorship.status === "completed") && allDone && (
               <>
@@ -1894,6 +1993,60 @@ function MenteeDashboard() {
                 </View>
               </>
             )}
+
+            {/* Mentor-Kontakt-Modal */}
+            <Modal visible={showMentorContact} transparent animationType="fade" onRequestClose={() => setShowMentorContact(false)}>
+              <View style={styles.modalOverlay}>
+                <View style={[styles.modalCard, { backgroundColor: themeColors.card }]}>
+                  <View style={{ flexDirection: "row", justifyContent: "space-between", alignItems: "center", marginBottom: 16 }}>
+                    <Text style={[styles.modalTitle, { color: themeColors.text, marginBottom: 0 }]}>Mein Mentor</Text>
+                    <BNMPressable onPress={() => setShowMentorContact(false)} accessibilityRole="button" accessibilityLabel="Schließen">
+                      <Ionicons name="close-outline" size={24} color={themeColors.textTertiary} />
+                    </BNMPressable>
+                  </View>
+                  {mentorship?.mentor && (
+                    <View style={{ gap: 10 }}>
+                      <View style={{ flexDirection: "row", alignItems: "center", gap: 10 }}>
+                        <View style={{ width: 48, height: 48, borderRadius: 24, backgroundColor: COLORS.gradientStart + "18", alignItems: "center", justifyContent: "center" }}>
+                          <Ionicons name="person-outline" size={24} color={COLORS.gradientStart} />
+                        </View>
+                        <View>
+                          <Text style={{ fontSize: 17, fontWeight: "700", color: themeColors.text }}>{mentorship.mentor.name}</Text>
+                          {mentorship.mentor.city ? <Text style={{ fontSize: 13, color: themeColors.textSecondary }}>{mentorship.mentor.city}</Text> : null}
+                        </View>
+                      </View>
+                      <View style={{ height: 1, backgroundColor: sem(SEMANTIC.darkBorder, isDark), marginVertical: 4 }} />
+                      {mentorship.mentor.email ? (
+                        <BNMPressable style={{ flexDirection: "row", alignItems: "center", gap: 10 }} onPress={() => Linking.openURL(`mailto:${mentorship.mentor!.email}`)} accessibilityRole="link" accessibilityLabel="E-Mail schreiben">
+                          <Ionicons name="mail-outline" size={18} color={COLORS.gradientStart} />
+                          <Text style={{ fontSize: 14, color: COLORS.gradientStart }}>{mentorship.mentor.email}</Text>
+                        </BNMPressable>
+                      ) : null}
+                      {mentorship.mentor.phone ? (
+                        <BNMPressable style={{ flexDirection: "row", alignItems: "center", gap: 10 }} onPress={() => Linking.openURL(`tel:${mentorship.mentor!.phone}`)} accessibilityRole="link" accessibilityLabel="Anrufen">
+                          <Ionicons name="call-outline" size={18} color={COLORS.gradientStart} />
+                          <Text style={{ fontSize: 14, color: COLORS.gradientStart }}>{mentorship.mentor.phone}</Text>
+                        </BNMPressable>
+                      ) : null}
+                      {mentorship.mentor.contact_preference && (
+                        <View style={{ flexDirection: "row", alignItems: "center", gap: 10 }}>
+                          <Ionicons name="chatbubble-outline" size={18} color={themeColors.textTertiary} />
+                          <Text style={{ fontSize: 13, color: themeColors.textSecondary }}>
+                            Bevorzugter Kontakt:{" "}
+                            <Text style={{ fontWeight: "600", color: themeColors.text }}>
+                              {{ phone: "Telefon", whatsapp: "WhatsApp", telegram: "Telegram", email: "E-Mail" }[mentorship.mentor.contact_preference] ?? mentorship.mentor.contact_preference}
+                            </Text>
+                          </Text>
+                        </View>
+                      )}
+                    </View>
+                  )}
+                  <BNMPressable style={[styles.modalConfirmBtn, { marginTop: 16 }]} onPress={() => setShowMentorContact(false)} accessibilityRole="button" accessibilityLabel="Schließen">
+                    <Text style={styles.modalConfirmText}>Schließen</Text>
+                  </BNMPressable>
+                </View>
+              </View>
+            </Modal>
 
             {/* Danke-Modal (Overlay) */}
             <Modal visible={showThanksModal} transparent animationType="fade" onRequestClose={() => setShowThanksModal(false)}>
