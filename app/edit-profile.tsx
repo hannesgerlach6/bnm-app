@@ -47,6 +47,7 @@ export default function EditProfileScreen() {
   const [contactPref, setContactPref] = useState<ContactPreference>(
     user?.contact_preference ?? "email"
   );
+  const [gender, setGender] = useState<"male" | "female">(user?.gender ?? "male");
   const [isSaving, setIsSaving] = useState(false);
   const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
   const [avatarPreview, setAvatarPreview] = useState<string | undefined>(user?.avatar_url);
@@ -157,6 +158,7 @@ export default function EditProfileScreen() {
         age: parseInt(age, 10),
         phone: phone.trim() || undefined,
         contact_preference: contactPref,
+        gender,
         ...(coords ? { lat: coords.lat, lng: coords.lng } : {}),
       });
       // AuthContext + DataContext aktualisieren
@@ -295,6 +297,28 @@ export default function EditProfileScreen() {
             keyboardType="phone-pad"
             accessibilityLabel={t("editProfile.phone")}
           />
+
+          {/* Geschlecht */}
+          <Text style={[styles.fieldLabel, { color: themeColors.textSecondary }]}>{t("editProfile.gender")}</Text>
+          <View style={styles.contactGrid}>
+            {(["male", "female"] as const).map((g) => (
+              <BNMPressable
+                key={g}
+                style={[
+                  styles.contactChip,
+                  gender === g ? [styles.contactChipActive, { backgroundColor: themeColors.primary, borderColor: themeColors.primary }] : [styles.contactChipInactive, { backgroundColor: themeColors.card, borderColor: themeColors.border }],
+                ]}
+                onPress={() => setGender(g)}
+                accessibilityRole="radio"
+                accessibilityLabel={t(g === "male" ? "editProfile.genderMale" : "editProfile.genderFemale")}
+                accessibilityState={{ checked: gender === g }}
+              >
+                <Text style={gender === g ? styles.contactChipTextActive : [styles.contactChipTextInactive, { color: themeColors.textSecondary }]}>
+                  {t(g === "male" ? "editProfile.genderMale" : "editProfile.genderFemale")}
+                </Text>
+              </BNMPressable>
+            ))}
+          </View>
 
           {/* Kontaktpräferenz */}
           <Text style={[styles.fieldLabel, { color: themeColors.textSecondary }]}>{t("editProfile.contactPref")}</Text>

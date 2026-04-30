@@ -240,7 +240,7 @@ function AdminDashboard({ showSystemSettings = true }: { showSystemSettings?: bo
 
   // Betreuungs-Warnungen: Alle Typen in einer vereinten Liste
   const allWarnings = useMemo(() => {
-    const warnings: { type: "feedback" | "discrepancy" | "inactive"; label: string; mentorName: string; menteeName: string; mentorshipId: string; mentorId?: string; daysSince?: number; date?: Date }[] = [];
+    const warnings: { type: "feedback" | "discrepancy" | "inactive"; label: string; mentorName: string; menteeName: string; mentorshipId: string; mentorId?: string; mentorGender?: string; daysSince?: number; date?: Date }[] = [];
 
     // Negatives Feedback (Rating ≤ 2)
     for (const f of feedback) {
@@ -299,6 +299,7 @@ function AdminDashboard({ showSystemSettings = true }: { showSystemSettings?: bo
           menteeName: m.mentee?.name ?? "?",
           mentorshipId: m.id,
           mentorId: m.mentor_id,
+          mentorGender: m.mentor?.gender,
           daysSince,
           date: new Date(lastTime),
         });
@@ -614,7 +615,7 @@ function AdminDashboard({ showSystemSettings = true }: { showSystemSettings?: bo
                   <View style={[styles.warningBadge, { backgroundColor: isDark ? "#FFCA28" : "#f59e0b" }]}><Text style={[styles.warningBadgeText, { color: "#0E0E14" }]}>{allWarnings.length}</Text></View>
                 </View>
                 {allWarnings.map((w, idx) => {
-                  const typeLabel = w.type === "feedback" ? t("earlyWarning.negativeFeedback") : w.type === "discrepancy" ? t("earlyWarning.discrepancy") : t("earlyWarning.inactive");
+                  const typeLabel = w.type === "feedback" ? t("earlyWarning.negativeFeedback") : w.type === "discrepancy" ? t("earlyWarning.discrepancy") : (w.mentorGender === "female" ? t("earlyWarning.inactiveFemale") : t("earlyWarning.inactive"));
                   const dotColor = w.type === "feedback" ? COLORS.error : w.type === "discrepancy" ? "#f59e0b" : "#3b82f6";
                   const isInactive = w.type === "inactive";
                   const isSending = sendingReminderFor === w.mentorshipId;
@@ -870,9 +871,11 @@ function AdminDashboard({ showSystemSettings = true }: { showSystemSettings?: bo
                     <Text style={{ color: themeColors.text, fontSize: 13, fontWeight: "600" }}>{item.label}</Text>
                     <Text style={{ color: themeColors.textTertiary, fontSize: 10, marginTop: 2 }}>{item.desc}</Text>
                   </View>
-                  <View style={{ backgroundColor: COLORS.gradientStart + "15", borderRadius: RADIUS.sm, paddingHorizontal: 10, paddingVertical: 4 }}>
-                    <Text style={{ color: isDark ? "#42A5F5" : COLORS.gradientStart, fontSize: 12, fontWeight: "800" }}>max {item.max}</Text>
-                  </View>
+                  {item.max !== "—" && (
+                    <View style={{ backgroundColor: COLORS.gradientStart + "15", borderRadius: RADIUS.sm, paddingHorizontal: 10, paddingVertical: 4 }}>
+                      <Text style={{ color: isDark ? "#42A5F5" : COLORS.gradientStart, fontSize: 12, fontWeight: "800" }}>max {item.max}</Text>
+                    </View>
+                  )}
                 </View>
               ))}
 

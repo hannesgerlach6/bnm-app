@@ -264,7 +264,7 @@ export default function ApplicationsTabScreen() {
           <View style={styles.statsRow}>
             <Text style={[styles.statsLabel, { color: themeColors.textTertiary }]}>Geschlecht</Text>
             <Text style={[styles.statsValue, { color: themeColors.textSecondary }]}>
-              {stats.maleCount} ♂ / {stats.femaleCount} ♀
+              {stats.maleCount} m / {stats.femaleCount} w
             </Text>
           </View>
         </View>
@@ -543,7 +543,7 @@ function ApplicationCard({
               value={contactLabels[application.contact_preference] ?? application.contact_preference}
             />
             <InfoLine label={t("applications.genderLabel")} value={`${genderLabel} · ${application.age} ${t("common.yearsOld")}`} />
-            <InfoLine label={t("applications.cityLabel")} value={application.plz ? `${application.city} (${application.plz})` : application.city} />
+            <InfoLine label={t("applications.cityLabel")} value={application.plz ? `${application.city}, ${application.plz}` : application.city} />
             <InfoLine
               label={t("applications.submittedLabel")}
               value={new Date(application.submitted_at).toLocaleDateString("de-DE", {

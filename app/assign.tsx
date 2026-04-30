@@ -36,8 +36,7 @@ function calculateMatchScore(mentee: User, mentor: User): MatchScore {
   if (mentor.gender !== mentee.gender) {
     return { mentor, score: -1, reasonKeys: ["assign.reasonGenderMismatch"], distanceKm: null };
   }
-  // Geschlecht passt immer (vorher gefiltert) — kein Score, nur Anzeige
-  reasonKeys.push("assign.reasonGenderMatch");
+  // Geschlecht ist Pflichtvoraussetzung — wird nicht als Bonus-Chip angezeigt
 
   // Distanz-Matching: Priorität 1 = gespeicherte DB-Koordinaten, Priorität 2 = PLZ-Lookup
   let distance: number | null = null;

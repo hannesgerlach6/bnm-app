@@ -123,6 +123,7 @@ function AppStackScreens({ isWebSidebar }: { isWebSidebar: boolean }) {
 
   const headerOpts = (title: string) => ({
     title,
+    headerShown: true,
     headerStyle: { backgroundColor: themeColors.headerBackground },
     headerTintColor: themeColors.headerText,
   });
@@ -263,7 +264,7 @@ function RootLayoutInner() {
         <View style={{ flexDirection: "row", flex: 1, backgroundColor: themeColors.background }}>
           <AdminSidebar />
           <View style={{ flex: 1, overflow: "hidden" }}>
-            <Stack screenOptions={{ ...slideAnimation }}>
+            <Stack screenOptions={{ headerShown: false, ...slideAnimation }}>
               <AppStackScreens isWebSidebar={true} />
             </Stack>
           </View>
@@ -278,7 +279,7 @@ function RootLayoutInner() {
       <NavigationGuard />
       <CommandPalette />
       <OfflineBanner />
-      <Stack screenOptions={{ ...slideAnimation }}>
+      <Stack screenOptions={{ headerShown: false, ...slideAnimation }}>
         <AppStackScreens isWebSidebar={false} />
       </Stack>
     </NavigationThemeProvider>

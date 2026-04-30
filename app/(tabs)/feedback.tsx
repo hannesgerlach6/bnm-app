@@ -249,7 +249,7 @@ function FeedbackStatistics({ feedbacks }: { feedbacks: Feedback[] }) {
           {stats.sortedTopics.length > 0 && stats.topicQuestion?.options && (
             <View style={styles.statsTopics}>
               <Text style={[styles.statsTopicsTitle, { color: themeColors.textSecondary }]}>
-                Haeufigste Themen
+                Häufigste Themen
               </Text>
               <View style={styles.statsTopicsGrid}>
                 {stats.sortedTopics.map(([key, count]) => {

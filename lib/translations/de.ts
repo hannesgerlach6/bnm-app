@@ -16,7 +16,7 @@ const de = {
 
   // Dashboard
   "dashboard.admin": "Admin Dashboard",
-  "dashboard.overview": "Gesamtübersicht BNM-Programm",
+  "dashboard.overview": "Gesamtübersicht BNM‑Programm",
   "dashboard.activeMentorships": "Aktive Betreuungen",
   "dashboard.completed": "Abgeschlossen",
   "dashboard.mentors": "Mentoren",
@@ -52,7 +52,7 @@ const de = {
   "dashboard.feedbackOverview": "Feedback-Übersicht",
   "dashboard.viewAllFeedbacks": "Alle Feedbacks einsehen",
   "dashboard.withoutAssignment": "ohne Zuweisung",
-  "dashboard.newMenteesWaiting": "{0} neue Mentee(s) – warten auf Zuweisung",
+  "dashboard.newMenteesWaiting": "{0} neue Mentees warten auf Zuweisung",
   "dashboard.assign": "Zuweisen",
   "dashboard.brother": "Bruder",
   "dashboard.sister": "Schwester",
@@ -197,7 +197,7 @@ const de = {
   "settings.deleteAccount": "Konto löschen",
   "settings.deleteTitle": "Konto löschen",
   "settings.deleteConfirm": "Dein Konto wird gelöscht und du kannst dich nicht mehr einloggen. Deine Daten werden gemäß unserer Datenschutzrichtlinie und gesetzlicher Aufbewahrungsfristen verarbeitet.",
-  "settings.rtlHint": "RTL-Layout wird in einer zukünftigen Version unterstützt",
+  "settings.rtlHint": "Arabisch (Rechts-nach-links-Layout noch nicht unterstützt)",
   "settings.footer": "BNM – Betreuung neuer Muslime · Version 1.0.0",
 
   // Register Public
@@ -671,6 +671,9 @@ const de = {
 
   // Edit Profile
   "editProfile.title": "Profil bearbeiten",
+  "editProfile.gender": "Geschlecht",
+  "editProfile.genderMale": "m (männlich)",
+  "editProfile.genderFemale": "w (weiblich)",
   "editProfile.back": "‹ Zurück",
   "editProfile.changePicture": "Profilbild ändern",
   "editProfile.uploading": "Wird hochgeladen...",
@@ -1530,10 +1533,11 @@ const de = {
   "settings.mentorOfMonthDesc": "Zeigt die Auszeichnung auf dem Leaderboard und im Admin-Dashboard.",
 
   // Betreuungs-Warnungen
-  "earlyWarning.title": "Betreuungs-Warnungen",
+  "earlyWarning.title": "Hinweise zur Betreuung",
   "earlyWarning.negativeFeedback": "Negatives Feedback",
   "earlyWarning.discrepancy": "Diskrepanz",
   "earlyWarning.inactive": "Mentor inaktiv",
+  "earlyWarning.inactiveFemale": "Mentorin inaktiv",
   "earlyWarning.noWarnings": "Keine Warnungen",
   "earlyWarning.daysAgo": "vor {0} Tagen",
 
@@ -1738,7 +1742,7 @@ const de = {
   "sidebar.logoutConfirm": "Wirklich abmelden?",
   "sidebar.logoutConfirmMsg": "Möchtest du dich wirklich abmelden?",
   "dashboard.refresh": "Aktualisieren",
-  "dashboard.subtitle": "Gesamtübersicht BNM-Programm",
+  "dashboard.subtitle": "Gesamtübersicht BNM‑Programm",
   "dashboard.periodBar": "Zeitraum:",
   "dashboard.periodThisMonth": "Dieser Monat",
   "dashboard.periodLastMonth": "Letzter Monat",

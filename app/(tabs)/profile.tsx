@@ -170,7 +170,7 @@ export default function ProfileScreen() {
       </View>
 
       <Text style={[styles.genderText, { color: themeColors.textTertiary }]}>
-        {user.gender === "male" ? t("mentees.brother") : t("mentees.sister")}
+        {user.gender === "male" ? "(m)" : "(w)"}
       </Text>
 
       <BNMPressable

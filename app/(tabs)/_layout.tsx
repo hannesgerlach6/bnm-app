@@ -535,18 +535,18 @@ function AdminMobileLayout() {
           lazy: false,
         }}
       >
-        <Tabs.Screen name="index" options={{ title: t("tabs.dashboard") }} />
-        <Tabs.Screen name="mentees" options={{ title: t("tabs.mentees") }} />
-        <Tabs.Screen name="chats" options={{ title: t("tabs.chats"), href: isOffice ? null : undefined }} />
+        <Tabs.Screen name="index" options={{ title: "" }} />
+        <Tabs.Screen name="mentees" options={{ title: "" }} />
+        <Tabs.Screen name="chats" options={{ title: "", href: isOffice ? null : undefined }} />
         <Tabs.Screen name="leaderboard" options={{ href: null }} />
-        <Tabs.Screen name="calendar" options={{ title: t("tabs.calendar") }} />
+        <Tabs.Screen name="calendar" options={{ title: "" }} />
         <Tabs.Screen name="faq" options={{ href: null }} />
-        <Tabs.Screen name="mentors" options={{ title: t("sidebar.mentors") }} />
-        <Tabs.Screen name="applications" options={{ title: t("sidebar.applications") }} />
-        <Tabs.Screen name="tools" options={{ title: "Tools" }} />
-        <Tabs.Screen name="reports" options={{ title: t("tabs.reports") }} />
-        <Tabs.Screen name="feedback" options={{ title: t("tabs.feedback") }} />
-        <Tabs.Screen name="profile" options={{ title: t("tabs.profile") }} />
+        <Tabs.Screen name="mentors" options={{ title: "" }} />
+        <Tabs.Screen name="applications" options={{ title: "" }} />
+        <Tabs.Screen name="tools" options={{ title: "" }} />
+        <Tabs.Screen name="reports" options={{ title: "" }} />
+        <Tabs.Screen name="feedback" options={{ title: "" }} />
+        <Tabs.Screen name="profile" options={{ title: "" }} />
       </Tabs>
       <AdminMobileDrawer open={drawerOpen} onClose={() => setDrawerOpen(false)} />
     </>
