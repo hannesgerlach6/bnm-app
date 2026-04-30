@@ -9,6 +9,7 @@ import {
   ActivityIndicator,
   Modal,
   TextInput,
+  Dimensions,
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { useAuth } from "../../contexts/AuthContext";
@@ -257,6 +258,7 @@ export default function CalendarTabScreen() {
   const [createTime, setCreateTime] = useState("10:00");
   const [createDesc, setCreateDesc] = useState("");
   const [createSaving, setCreateSaving] = useState(false);
+  const [createTimeError, setCreateTimeError] = useState(false);
 
   const userId = user?.id;
 
@@ -380,15 +382,21 @@ export default function CalendarTabScreen() {
     setCreateDate(selectedDate ?? new Date().toISOString().slice(0, 10));
     setCreateTime("10:00");
     setCreateDesc("");
+    setCreateTimeError(false);
     setShowCreateModal(true);
   }, [selectedDate]);
 
   const handleCreateEvent = useCallback(async () => {
     if (!createTitle.trim() || !createDate) return;
+    // Uhrzeit validieren
+    const timeMatch = createTime.match(/^(\d{1,2}):(\d{2})$/);
+    if (!timeMatch) { setCreateTimeError(true); return; }
+    const h = parseInt(timeMatch[1], 10);
+    const m = parseInt(timeMatch[2], 10);
+    if (h < 0 || h > 23 || m < 0 || m > 59) { setCreateTimeError(true); return; }
     setCreateSaving(true);
     try {
-      const [h, m] = createTime.split(":").map(Number);
-      const start = new Date(`${createDate}T${String(h).padStart(2, "0")}:${String(m || 0).padStart(2, "0")}:00`);
+      const start = new Date(`${createDate}T${String(h).padStart(2, "0")}:${String(m).padStart(2, "0")}:00`);
       await addCalendarEvent({
         title: createTitle.trim(),
         description: createDesc.trim(),
@@ -542,7 +550,7 @@ export default function CalendarTabScreen() {
         onRequestClose={() => setShowCreateModal(false)}
       >
         <View style={styles.modalOverlay}>
-          <View style={[styles.modalCard, { backgroundColor: themeColors.card }]}>
+          <View style={[styles.modalCard, { backgroundColor: themeColors.card, maxHeight: Dimensions.get("window").height * 0.85 }]}>
             <View style={{ flexDirection: "row", alignItems: "center", justifyContent: "space-between", marginBottom: 16 }}>
               <Text style={[styles.modalTitle, { color: themeColors.text }]}>Termin erstellen</Text>
               <BNMPressable onPress={() => setShowCreateModal(false)} accessibilityRole="button" accessibilityLabel="Schließen">
@@ -561,25 +569,39 @@ export default function CalendarTabScreen() {
             />
 
             <View style={{ flexDirection: "row", gap: 12, marginTop: 12 }}>
+              {/* Datum: auf Mobile read-only (kommt vom ausgewählten Kalendertag), auf Web editierbar */}
               <View style={{ flex: 1 }}>
-                <Text style={[styles.modalLabel, { color: themeColors.textSecondary }]}>Datum *</Text>
-                <TextInput
-                  style={[styles.modalInput, { borderColor: themeColors.border, color: themeColors.text, backgroundColor: themeColors.background }]}
-                  value={createDate}
-                  onChangeText={setCreateDate}
-                  placeholder="JJJJ-MM-TT"
-                  placeholderTextColor={themeColors.textTertiary}
-                />
+                <Text style={[styles.modalLabel, { color: themeColors.textSecondary }]}>Datum</Text>
+                {Platform.OS === "web" ? (
+                  <TextInput
+                    style={[styles.modalInput, { borderColor: themeColors.border, color: themeColors.text, backgroundColor: themeColors.background }]}
+                    value={createDate}
+                    onChangeText={setCreateDate}
+                    placeholder="JJJJ-MM-TT"
+                    placeholderTextColor={themeColors.textTertiary}
+                  />
+                ) : (
+                  <View style={[styles.modalInput, { borderColor: themeColors.border, backgroundColor: themeColors.background, justifyContent: "center" }]}>
+                    <Text style={{ color: themeColors.text, fontSize: 14 }}>
+                      {createDate ? new Date(createDate + "T00:00:00").toLocaleDateString("de-DE", { weekday: "short", day: "numeric", month: "long" }) : "–"}
+                    </Text>
+                  </View>
+                )}
               </View>
               <View style={{ flex: 1 }}>
                 <Text style={[styles.modalLabel, { color: themeColors.textSecondary }]}>Uhrzeit</Text>
                 <TextInput
-                  style={[styles.modalInput, { borderColor: themeColors.border, color: themeColors.text, backgroundColor: themeColors.background }]}
+                  style={[styles.modalInput, { borderColor: createTimeError ? COLORS.error : themeColors.border, color: themeColors.text, backgroundColor: themeColors.background }]}
                   value={createTime}
-                  onChangeText={setCreateTime}
+                  onChangeText={(v) => { setCreateTime(v); setCreateTimeError(false); }}
                   placeholder="HH:MM"
                   placeholderTextColor={themeColors.textTertiary}
+                  keyboardType="numbers-and-punctuation"
+                  maxLength={5}
                 />
+                {createTimeError && (
+                  <Text style={{ color: COLORS.error, fontSize: 11, marginTop: 2 }}>Format: HH:MM (z.B. 14:30)</Text>
+                )}
               </View>
             </View>
 

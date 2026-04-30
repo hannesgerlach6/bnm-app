@@ -7,6 +7,7 @@ import {
   TextInput,
   Modal,
   Platform,
+  Dimensions,
 } from "react-native";
 import { BNMPressable } from "../../components/BNMPressable";
 import { Ionicons } from "@expo/vector-icons";
@@ -691,7 +692,7 @@ export default function MentorshipDetailScreen() {
       onRequestClose={() => setShowFeedbackPreview(false)}
     >
       <View style={styles.modalOverlay}>
-        <View style={[styles.modalCard, { backgroundColor: themeColors.card, maxHeight: "85%" }]}>
+        <View style={[styles.modalCard, { backgroundColor: themeColors.card, maxHeight: Dimensions.get("window").height * 0.85 }]}>
           <View style={{ flexDirection: "row", alignItems: "center", justifyContent: "space-between", marginBottom: 16 }}>
             <Text style={[styles.modalTitle, { color: themeColors.text }]}>Feedback-Fragebogen</Text>
             <BNMPressable
