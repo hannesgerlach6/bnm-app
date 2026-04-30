@@ -1739,10 +1739,50 @@ function MenteeDashboard() {
     }
   }, [mentorship?.id, notesInitialized]);
 
-  // Kein auto-refresh bei Tab-Focus — Realtime-Subscriptions halten Daten aktuell.
-  // Pull-to-Refresh (onRefresh) bleibt für manuelles Aktualisieren.
+  // Hadith für heute — VOR early return (Hook-Regel)
+  const todayHadith = useMemo(() => {
+    if (hadithe.length === 0) return null;
+    const today = new Date();
+    const dayOfYear = Math.floor(
+      (today.getTime() - new Date(today.getFullYear(), 0, 0).getTime()) / 86400000
+    );
+    const baseIdx = dayOfYear % hadithe.length;
+    const idx = (baseIdx + hadithOffset) % hadithe.length;
+    return hadithe[idx];
+  }, [hadithe, hadithOffset]);
+
+  // Nächste 3 Kalender-Termine — VOR early return (Hook-Regel)
+  const upcomingMenteeEvents = useMemo(() => {
+    const now = new Date();
+    return calendarEvents
+      .filter((e) => {
+        if (!e.is_active) return false;
+        if (new Date(e.start_at) <= now) return false;
+        if (e.visible_to === "mentors") return false;
+        if (e.visible_to === "male" && user?.gender !== "male") return false;
+        if (e.visible_to === "female" && user?.gender !== "female") return false;
+        return true;
+      })
+      .sort((a, b) => new Date(a.start_at).getTime() - new Date(b.start_at).getTime())
+      .slice(0, 3);
+  }, [calendarEvents, user]);
+
+  // ── Ab hier: kein Hook mehr ──────────────────────────────────────────────────
 
   if (!user) return null;
+  if (isLoading) return <SkeletonDashboard />;
+
+  // Anzahl Tage seit Start der Betreuung
+  const daysSinceStart = mentorship?.assigned_at
+    ? Math.max(0, Math.floor((Date.now() - new Date(mentorship.assigned_at).getTime()) / 86400000))
+    : null;
+
+  const completedStepIds = mentorship ? getCompletedStepIds(mentorship.id) : [];
+  const sortedSessionTypes = [...sessionTypes].sort((a, b) => a.sort_order - b.sort_order);
+  const allDone = sessionTypes.length > 0 && completedStepIds.length === sessionTypes.length;
+  const progressPercent = sessionTypes.length > 0
+    ? Math.round((completedStepIds.length / sessionTypes.length) * 100)
+    : 0;
 
   async function handleSaveNotes() {
     if (!mentorship) return;
@@ -1771,47 +1811,6 @@ function MenteeDashboard() {
       setSendingThanks(false);
     }
   }
-  const completedStepIds = mentorship ? getCompletedStepIds(mentorship.id) : [];
-  const sortedSessionTypes = [...sessionTypes].sort((a, b) => a.sort_order - b.sort_order);
-  const allDone = sessionTypes.length > 0 && completedStepIds.length === sessionTypes.length;
-  const progressPercent = sessionTypes.length > 0
-    ? Math.round((completedStepIds.length / sessionTypes.length) * 100)
-    : 0;
-
-  // Hadith für heute
-  const todayHadith = useMemo(() => {
-    if (hadithe.length === 0) return null;
-    const today = new Date();
-    const dayOfYear = Math.floor(
-      (today.getTime() - new Date(today.getFullYear(), 0, 0).getTime()) / 86400000
-    );
-    const baseIdx = dayOfYear % hadithe.length;
-    const idx = (baseIdx + hadithOffset) % hadithe.length;
-    return hadithe[idx];
-  }, [hadithe, hadithOffset]);
-
-  // Anzahl Tage seit Start der Betreuung
-  const daysSinceStart = mentorship?.assigned_at
-    ? Math.max(0, Math.floor((Date.now() - new Date(mentorship.assigned_at).getTime()) / 86400000))
-    : null;
-
-  // Nächste 3 Kalender-Termine (sichtbar für Mentee-Rolle + Geschlecht)
-  const upcomingMenteeEvents = useMemo(() => {
-    const now = new Date();
-    return calendarEvents
-      .filter((e) => {
-        if (!e.is_active) return false;
-        if (new Date(e.start_at) <= now) return false;
-        if (e.visible_to === "mentors") return false;
-        if (e.visible_to === "male" && user?.gender !== "male") return false;
-        if (e.visible_to === "female" && user?.gender !== "female") return false;
-        return true;
-      })
-      .sort((a, b) => new Date(a.start_at).getTime() - new Date(b.start_at).getTime())
-      .slice(0, 3);
-  }, [calendarEvents, user]);
-
-  if (isLoading) return <SkeletonDashboard />;
 
   return (
     <ScrollView
