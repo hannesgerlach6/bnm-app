@@ -589,6 +589,7 @@ const de = {
   "questionnaire.q1_1": "Wie zufrieden bist du insgesamt mit der Betreuung?",
   "questionnaire.q1_2": "Was war der wichtigste Grund für deine Bewertung?",
   "questionnaire.q1_3": "Wie gut hat dich dein Mentor/deine Mentorin unterstützt?",
+  "questionnaire.q1_3b": "Bitte begründe kurz deine Bewertung.",
   "questionnaire.q2_1": "Hattest du das Gefühl, dass deine Fragen ernst genommen und beantwortet wurden?",
   "questionnaire.q2_2": "In welchen Bereichen hättest du dir mehr Unterstützung gewünscht?",
   "questionnaire.q2_2b": "Bitte erläutere, falls du \"Andere\" gewählt hast",
@@ -608,6 +609,7 @@ const de = {
   "questionnaire.q2_2_glaubenslehre": "Glaubenslehre",
   "questionnaire.q2_2_gemeinschaft": "Gemeinschaft",
   "questionnaire.q2_2_alltagsfragen": "Alltagsfragen",
+  "questionnaire.q2_2_zufrieden": "Mit allem zufrieden",
   "questionnaire.q2_2_andere": "Andere",
   // Questionnaire - Optionen Sektion 4
   "questionnaire.q4_2_mehr_treffen": "Mehr Treffen",

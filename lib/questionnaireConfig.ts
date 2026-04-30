@@ -30,6 +30,7 @@ export const QUESTIONNAIRE_SECTIONS: SectionConfig[] = [
       { id: "q1_1", type: "rating", required: true, translationKey: "questionnaire.q1_1" },
       { id: "q1_2", type: "text", required: true, translationKey: "questionnaire.q1_2" },
       { id: "q1_3", type: "rating", required: true, translationKey: "questionnaire.q1_3" },
+      { id: "q1_3b", type: "text", required: true, translationKey: "questionnaire.q1_3b" },
     ],
   },
   // ─── Sektion 2: Betreuung & Inhalte ──────────────────────────────
@@ -49,6 +50,7 @@ export const QUESTIONNAIRE_SECTIONS: SectionConfig[] = [
           { key: "glaubenslehre", translationKey: "questionnaire.q2_2_glaubenslehre" },
           { key: "gemeinschaft", translationKey: "questionnaire.q2_2_gemeinschaft" },
           { key: "alltagsfragen", translationKey: "questionnaire.q2_2_alltagsfragen" },
+          { key: "zufrieden", translationKey: "questionnaire.q2_2_zufrieden" },
           { key: "andere", translationKey: "questionnaire.q2_2_andere" },
         ],
       },
@@ -114,7 +116,6 @@ export const QUESTIONNAIRE_SECTIONS: SectionConfig[] = [
         required: true,
         translationKey: "questionnaire.q4_4",
         options: [
-          { key: "noch_in_betreuung", translationKey: "questionnaire.q4_4_noch_in_betreuung" },
           { key: "erfolgreich_abgeschlossen", translationKey: "questionnaire.q4_4_erfolgreich_abgeschlossen" },
           { key: "vorzeitig_beendet", translationKey: "questionnaire.q4_4_vorzeitig_beendet" },
         ],

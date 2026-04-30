@@ -366,6 +366,15 @@ export default function ChatScreen() {
           <View style={[styles.messagesScroll, { paddingHorizontal: 16, paddingVertical: 12 }]}>
             <SkeletonChatMessages count={6} />
           </View>
+        ) : reversedMessages.length === 0 ? (
+          <View style={[styles.messagesScroll, { justifyContent: "center" }]}>
+            <EmptyState
+              icon="chatbubble-ellipses-outline"
+              title={t("chat.noMessages")}
+              description="Starte die Konversation mit einer Nachricht."
+              compact
+            />
+          </View>
         ) : (
           <FlatList
             ref={flatListRef}
@@ -378,16 +387,6 @@ export default function ChatScreen() {
             contentContainerStyle={{ paddingHorizontal: 16, paddingVertical: 12 }}
             onScroll={handleScroll}
             scrollEventThrottle={100}
-            ListEmptyComponent={
-              <View style={{ transform: [{ scaleY: -1 }] }}>
-                <EmptyState
-                  icon="chatbubble-ellipses-outline"
-                  title={t("chat.noMessages")}
-                  description="Starte die Konversation mit einer Nachricht."
-                  compact
-                />
-              </View>
-            }
           />
         )}
 
