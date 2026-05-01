@@ -111,21 +111,11 @@ export const QUESTIONNAIRE_SECTIONS: SectionConfig[] = [
         ],
       },
       {
-        id: "q4_4",
-        type: "singleselect",
-        required: true,
-        translationKey: "questionnaire.q4_4",
-        options: [
-          { key: "erfolgreich_abgeschlossen", translationKey: "questionnaire.q4_4_erfolgreich_abgeschlossen" },
-          { key: "vorzeitig_beendet", translationKey: "questionnaire.q4_4_vorzeitig_beendet" },
-        ],
-      },
-      {
         id: "q4_5",
         type: "text",
         required: false,
         translationKey: "questionnaire.q4_5",
-        conditionalOn: { questionId: "q4_4", value: "vorzeitig_beendet" },
+        // Kein conditionalOn mehr — Frage immer anzeigen (Kontext ist bereits klar durch den Abschluss/Abbruch)
       },
     ],
   },

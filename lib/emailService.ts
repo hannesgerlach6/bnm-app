@@ -495,7 +495,8 @@ export async function sendCertificateEmail(
   mentorName: string,
   period: string,
   pdfBytes: Uint8Array,
-  templateType: "direct" | "thirdparty" = "thirdparty"
+  templateType: "direct" | "thirdparty" | "custom" = "thirdparty",
+  customBody?: string
 ): Promise<boolean> {
   const subject = sanitizeSubject(`BNM – Urkunde: ${mentorName} – ${period}`);
 
@@ -523,7 +524,16 @@ export async function sendCertificateEmail(
     </p>
     <p style="color:#6B7280;margin-top:24px">Barakallahu fik<br>Das BNM-Team</p>`;
 
-  const bodyHtml = templateType === "direct" ? directBody : thirdpartyBody;
+  // Template 3: Freitext — vom Admin selbst verfasst, Zeilenumbrüche → <br>
+  const customBodyHtml = customBody
+    ? `<h2 style="color:#0A3A5A;margin:0 0 24px">Urkunde: Mentor des Monats</h2>` +
+      `<div style="font-size:16px;color:#111;white-space:pre-line">${escapeHtml(customBody)}</div>`
+    : thirdpartyBody;
+
+  const bodyHtml =
+    templateType === "direct" ? directBody :
+    templateType === "custom" ? customBodyHtml :
+    thirdpartyBody;
 
   const html = `
 <div style="font-family:Arial,sans-serif;max-width:600px;margin:0 auto">

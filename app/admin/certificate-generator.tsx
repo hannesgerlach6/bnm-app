@@ -54,7 +54,8 @@ export default function CertificateGeneratorScreen() {
   const [selectedMonth, setSelectedMonth] = useState(now.getMonth() + 1);
   const [selectedYear, setSelectedYear] = useState(now.getFullYear());
   const [emailTo, setEmailTo] = useState("");
-  const [emailTemplate, setEmailTemplate] = useState<"direct" | "thirdparty">("direct");
+  const [emailTemplate, setEmailTemplate] = useState<"direct" | "thirdparty" | "custom">("direct");
+  const [customEmailBody, setCustomEmailBody] = useState("");
   const [isGeneratingPDF, setIsGeneratingPDF] = useState(false);
   const [isGeneratingPNG, setIsGeneratingPNG] = useState(false);
   const [isSendingEmail, setIsSendingEmail] = useState(false);
@@ -140,7 +141,7 @@ export default function CertificateGeneratorScreen() {
       const bytes = await generateMentorAwardPDFBytes(awardData);
       if (!bytes) throw new Error("PDF-Generierung fehlgeschlagen");
       const { sendCertificateEmail } = await import("../../lib/emailService");
-      const ok = await sendCertificateEmail(recipient, awardData.mentorName, awardData.period, bytes, emailTemplate);
+      const ok = await sendCertificateEmail(recipient, awardData.mentorName, awardData.period, bytes, emailTemplate, emailTemplate === "custom" ? customEmailBody : undefined);
       if (ok) showSuccess(t("certGen.emailSent"));
       else showError(t("certGen.emailError"));
     } catch { showError(t("certGen.emailError")); }
@@ -331,6 +332,7 @@ export default function CertificateGeneratorScreen() {
               {([
                 { key: "direct" as const, label: "Direkt an Mentor", desc: "Persönliche Glückwunsch-Nachricht" },
                 { key: "thirdparty" as const, label: "Weiterleitung", desc: "Neutral, z.B. an Dritte" },
+                { key: "custom" as const, label: "Freitext", desc: "Eigener Text" },
               ] as const).map((tpl) => (
                 <BNMPressable
                   key={tpl.key}
@@ -349,6 +351,23 @@ export default function CertificateGeneratorScreen() {
                 </BNMPressable>
               ))}
             </View>
+
+            {/* Freitext-Eingabe */}
+            {emailTemplate === "custom" && (
+              <TextInput
+                style={[
+                  styles.freitextInput,
+                  { backgroundColor: themeColors.background, borderColor: themeColors.border, color: themeColors.text },
+                ]}
+                value={customEmailBody}
+                onChangeText={setCustomEmailBody}
+                placeholder="E-Mail-Text eingeben… (Zeilenumbrüche werden übernommen)"
+                placeholderTextColor={themeColors.textTertiary}
+                multiline
+                numberOfLines={6}
+                textAlignVertical="top"
+              />
+            )}
 
             <View style={[styles.emailRow, { borderColor: themeColors.border }]}>
               <Ionicons name="mail-outline" size={16} color={themeColors.textSecondary} style={{ marginRight: 8 }} />
@@ -501,6 +520,13 @@ const styles = StyleSheet.create({
   },
   templateChipTitle: { fontSize: 13, fontWeight: "700", marginBottom: 2 },
   templateChipDesc: { fontSize: 11 },
+
+  // Freitext
+  freitextInput: {
+    borderWidth: 1, borderRadius: RADIUS.sm,
+    padding: 12, marginBottom: 14,
+    fontSize: 14, minHeight: 120,
+  },
 
   // E-Mail
   emailRow: {
