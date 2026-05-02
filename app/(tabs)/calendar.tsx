@@ -282,7 +282,12 @@ export default function CalendarTabScreen() {
     setGoogleLoading(true);
     try {
       const tokens = await initiateGoogleAuth(userId);
-      setGoogleConnected(!!tokens);
+      if (tokens) {
+        setGoogleConnected(true);
+        // Direkt mit dem frischen Token Events laden — kein DB-Read-Umweg nötig
+        const items = await fetchGoogleCalendarEvents(tokens.accessToken);
+        setGoogleCalItems(items);
+      }
     } finally {
       setGoogleLoading(false);
     }
