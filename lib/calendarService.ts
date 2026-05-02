@@ -232,26 +232,41 @@ export function downloadICalFile(event: {
 
 // ─── 2. Google OAuth ───────────────────────────────────────────────────────────
 
-/** Auth-Code gegen Access + Refresh Token tauschen */
+/**
+ * Auth-Code gegen Access + Refresh Token tauschen.
+ * Läuft NICHT direkt gegen Google (client_secret wäre nötig, darf aber nicht im Frontend sein).
+ * Stattdessen: Supabase Edge Function "google-calendar-auth" übernimmt den Tausch server-seitig.
+ * Deploy: supabase functions deploy google-calendar-auth --project-ref cufuikcxliwbmyhwlmga
+ */
 async function exchangeCodeForTokens(
   code: string,
   redirectUri: string
 ): Promise<{ accessToken: string; refreshToken: string } | null> {
   try {
-    const res = await fetch("https://oauth2.googleapis.com/token", {
-      method: "POST",
-      headers: { "Content-Type": "application/x-www-form-urlencoded" },
-      body: new URLSearchParams({
-        code,
-        client_id:     GOOGLE_CLIENT_ID,
-        client_secret: GOOGLE_CLIENT_SECRET,
-        redirect_uri:  redirectUri,
-        grant_type:    "authorization_code",
-      }).toString(),
-    });
+    const { data: { session } } = await supabase.auth.getSession();
+    if (!session) {
+      console.error("[calendarService] Kein Supabase-Session für Edge Function Aufruf");
+      return null;
+    }
+
+    const supabaseUrl = (supabase as any).supabaseUrl as string
+      ?? "https://cufuikcxliwbmyhwlmga.supabase.co";
+
+    const res = await fetch(
+      `${supabaseUrl}/functions/v1/google-calendar-auth`,
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${session.access_token}`,
+        },
+        body: JSON.stringify({ code, redirect_uri: redirectUri }),
+      }
+    );
 
     if (!res.ok) {
-      console.error("[calendarService] Token-Tausch fehlgeschlagen:", res.status, await res.text());
+      const errText = await res.text();
+      console.error("[calendarService] Edge Function Token-Tausch fehlgeschlagen:", res.status, errText);
       return null;
     }
 
