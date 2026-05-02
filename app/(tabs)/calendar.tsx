@@ -33,6 +33,7 @@ import {
   type GoogleCalendarEvent,
 } from "../../lib/calendarService";
 import type { CalendarEvent, EventAttendee } from "../../types";
+import DateTimePicker from "@react-native-community/datetimepicker";
 
 // ─── Helpers ────────────────────────────────────────────────────────────────
 
@@ -296,6 +297,9 @@ export default function CalendarTabScreen() {
   const [createDateError, setCreateDateError] = useState(false);
   const [editingEvent, setEditingEvent] = useState<CalendarEvent | null>(null);
   const [selectedMenteeIds, setSelectedMenteeIds] = useState<string[]>([]);
+  const [showDatePicker, setShowDatePicker] = useState(false);
+  const [showTimePicker, setShowTimePicker] = useState(false);
+  const [confirmDeleteEvent, setConfirmDeleteEvent] = useState<CalendarEvent | null>(null);
 
   const userId = user?.id;
 
@@ -534,23 +538,16 @@ export default function CalendarTabScreen() {
       addCalendarEvent, updateCalendarEvent, inviteToEvent, userId, eventAttendees]);
 
   const handleDeleteEvent = useCallback((event: CalendarEvent) => {
-    Alert.alert(
-      "Termin stornieren",
-      `Möchtest du "${event.title}" wirklich löschen?`,
-      [
-        { text: "Abbrechen", style: "cancel" },
-        {
-          text: "Löschen",
-          style: "destructive",
-          onPress: async () => {
-            try {
-              await deleteCalendarEvent(event.id);
-            } catch { /* handled */ }
-          },
-        },
-      ]
-    );
-  }, [deleteCalendarEvent]);
+    setConfirmDeleteEvent(event);
+  }, []);
+
+  const confirmDelete = useCallback(async () => {
+    if (!confirmDeleteEvent) return;
+    try {
+      await deleteCalendarEvent(confirmDeleteEvent.id);
+    } catch { /* handled */ }
+    finally { setConfirmDeleteEvent(null); }
+  }, [confirmDeleteEvent, deleteCalendarEvent]);
 
   // Format selected date for display
   const selectedDateDisplay = selectedDate
@@ -678,7 +675,7 @@ export default function CalendarTabScreen() {
         </View>
       </ScrollView>
 
-      {/* Termin erstellen Modal */}
+      {/* Termin erstellen / bearbeiten Modal */}
       <Modal
         visible={showCreateModal}
         transparent
@@ -686,7 +683,8 @@ export default function CalendarTabScreen() {
         onRequestClose={() => setShowCreateModal(false)}
       >
         <View style={styles.modalOverlay}>
-          <View style={[styles.modalCard, { backgroundColor: themeColors.card, maxHeight: Dimensions.get("window").height * 0.85 }]}>
+          <View style={[styles.modalCard, { backgroundColor: themeColors.card, maxHeight: Dimensions.get("window").height * 0.9 }]}>
+            {/* Header */}
             <View style={{ flexDirection: "row", alignItems: "center", justifyContent: "space-between", marginBottom: 16 }}>
               <Text style={[styles.modalTitle, { color: themeColors.text }]}>{editingEvent ? "Termin bearbeiten" : "Termin erstellen"}</Text>
               <BNMPressable onPress={() => setShowCreateModal(false)} accessibilityRole="button" accessibilityLabel="Schließen">
@@ -694,120 +692,204 @@ export default function CalendarTabScreen() {
               </BNMPressable>
             </View>
 
-            <Text style={[styles.modalLabel, { color: themeColors.textSecondary }]}>Titel *</Text>
-            <TextInput
-              style={[styles.modalInput, { borderColor: themeColors.border, color: themeColors.text, backgroundColor: themeColors.background }]}
-              value={createTitle}
-              onChangeText={setCreateTitle}
-              placeholder="z.B. Treffen mit Mentee"
-              placeholderTextColor={themeColors.textTertiary}
-              autoFocus
-            />
+            {/* Scrollbarer Inhalt */}
+            <ScrollView style={{ flex: 1 }} showsVerticalScrollIndicator={false} keyboardShouldPersistTaps="handled">
 
-            <View style={{ flexDirection: "row", gap: 12, marginTop: 12 }}>
-              {/* Datum: auf Mobile read-only (kommt vom ausgewählten Kalendertag), auf Web editierbar */}
-              <View style={{ flex: 1 }}>
-                <Text style={[styles.modalLabel, { color: themeColors.textSecondary }]}>Datum</Text>
-                {Platform.OS === "web" ? (
-                  <TextInput
-                    style={[styles.modalInput, { borderColor: createDateError ? COLORS.error : themeColors.border, color: themeColors.text, backgroundColor: themeColors.background }]}
-                    value={createDate}
-                    onChangeText={(v) => { setCreateDate(v); setCreateDateError(false); }}
-                    {...{ type: "date" } as any}
-                  />
-                ) : (
-                  <View style={[styles.modalInput, { borderColor: themeColors.border, backgroundColor: themeColors.background, justifyContent: "center" }]}>
-                    <Text style={{ color: themeColors.text, fontSize: 14 }}>
-                      {createDate ? new Date(createDate + "T00:00:00").toLocaleDateString("de-DE", { weekday: "short", day: "numeric", month: "long" }) : "–"}
-                    </Text>
-                  </View>
-                )}
-              </View>
-              {createDateError && Platform.OS === "web" && (
-                <Text style={{ color: COLORS.error, fontSize: 11, marginTop: 2 }}>Ungültiges Datum</Text>
-              )}
-              <View style={{ flex: 1 }}>
-                <Text style={[styles.modalLabel, { color: themeColors.textSecondary }]}>Uhrzeit</Text>
-                <TextInput
-                  style={[styles.modalInput, { borderColor: createTimeError ? COLORS.error : themeColors.border, color: themeColors.text, backgroundColor: themeColors.background }]}
-                  value={createTime}
-                  onChangeText={(v) => { setCreateTime(v); setCreateTimeError(false); }}
-                  placeholder="HH:MM"
-                  placeholderTextColor={themeColors.textTertiary}
-                  keyboardType={Platform.OS === "ios" ? "numbers-and-punctuation" : "default"}
-                  maxLength={5}
-                />
-                {createTimeError && (
-                  <Text style={{ color: COLORS.error, fontSize: 11, marginTop: 2 }}>Format: HH:MM (z.B. 14:30)</Text>
-                )}
-              </View>
-            </View>
+              <Text style={[styles.modalLabel, { color: themeColors.textSecondary }]}>Titel *</Text>
+              <TextInput
+                style={[styles.modalInput, { borderColor: themeColors.border, color: themeColors.text, backgroundColor: themeColors.background }]}
+                value={createTitle}
+                onChangeText={setCreateTitle}
+                placeholder="z.B. Treffen mit Mentee"
+                placeholderTextColor={themeColors.textTertiary}
+              />
 
-            <Text style={[styles.modalLabel, { color: themeColors.textSecondary, marginTop: 12 }]}>Beschreibung</Text>
-            <TextInput
-              style={[styles.modalInput, { borderColor: themeColors.border, color: themeColors.text, backgroundColor: themeColors.background, minHeight: 64, textAlignVertical: "top" }]}
-              value={createDesc}
-              onChangeText={setCreateDesc}
-              placeholder="Optional"
-              placeholderTextColor={themeColors.textTertiary}
-              multiline
-              numberOfLines={3}
-            />
-
-            {myMentees.length > 0 && (
-              <View style={{ marginTop: 12 }}>
-                <Text style={[styles.modalLabel, { color: themeColors.textSecondary }]}>Mentees einladen</Text>
-                <View style={{ gap: 6, marginTop: 6 }}>
-                  {myMentees.map((mentee) => {
-                    const isSelected = selectedMenteeIds.includes(mentee.id);
-                    return (
-                      <BNMPressable
-                        key={mentee.id}
-                        style={{
-                          flexDirection: "row",
-                          alignItems: "center",
-                          gap: 10,
-                          padding: 10,
-                          borderRadius: RADIUS.sm,
-                          borderWidth: 1,
-                          borderColor: isSelected ? COLORS.gold : themeColors.border,
-                          backgroundColor: isSelected ? COLORS.gold + "15" : themeColors.background,
-                        }}
-                        onPress={() => setSelectedMenteeIds((prev) =>
-                          isSelected ? prev.filter((id) => id !== mentee.id) : [...prev, mentee.id]
-                        )}
-                      >
-                        <Ionicons
-                          name={isSelected ? "checkmark-circle" : "ellipse-outline"}
-                          size={18}
-                          color={isSelected ? COLORS.gold : themeColors.textTertiary}
+              <View style={{ flexDirection: "row", gap: 12, marginTop: 12 }}>
+                {/* Datum */}
+                <View style={{ flex: 1 }}>
+                  <Text style={[styles.modalLabel, { color: themeColors.textSecondary }]}>Datum</Text>
+                  {Platform.OS === "web" ? (
+                    // Web: nativer Browser-Kalender via <input type="date">
+                    <View style={[styles.modalInput, { borderColor: createDateError ? COLORS.error : themeColors.border, backgroundColor: themeColors.background, padding: 0 }]}>
+                      {(global as any).document ? (
+                        <input
+                          type="date"
+                          value={createDate}
+                          onChange={(e: any) => { setCreateDate(e.target.value); setCreateDateError(false); }}
+                          style={{
+                            width: "100%", border: "none", outline: "none", background: "transparent",
+                            fontSize: 14, color: themeColors.text, padding: "10px 12px", boxSizing: "border-box",
+                          } as any}
                         />
-                        <Text style={{ fontSize: 14, color: themeColors.text, flex: 1 }}>{mentee.name}</Text>
-                      </BNMPressable>
-                    );
-                  })}
+                      ) : null}
+                    </View>
+                  ) : (
+                    // Mobile: Tap → DateTimePicker
+                    <BNMPressable
+                      style={[styles.modalInput, { borderColor: themeColors.border, backgroundColor: themeColors.background, justifyContent: "space-between", flexDirection: "row", alignItems: "center" }]}
+                      onPress={() => setShowDatePicker(true)}
+                    >
+                      <Text style={{ color: themeColors.text, fontSize: 14 }}>
+                        {createDate ? new Date(createDate + "T00:00:00").toLocaleDateString("de-DE", { weekday: "short", day: "numeric", month: "long" }) : "Datum wählen"}
+                      </Text>
+                      <Ionicons name="calendar-outline" size={16} color={themeColors.textSecondary} />
+                    </BNMPressable>
+                  )}
+                  {createDateError && <Text style={{ color: COLORS.error, fontSize: 11, marginTop: 2 }}>Ungültiges Datum</Text>}
+                </View>
+
+                {/* Uhrzeit */}
+                <View style={{ flex: 1 }}>
+                  <Text style={[styles.modalLabel, { color: themeColors.textSecondary }]}>Uhrzeit</Text>
+                  {Platform.OS === "web" ? (
+                    <View style={[styles.modalInput, { borderColor: themeColors.border, backgroundColor: themeColors.background, padding: 0 }]}>
+                      {(global as any).document ? (
+                        <input
+                          type="time"
+                          value={createTime}
+                          onChange={(e: any) => { setCreateTime(e.target.value); setCreateTimeError(false); }}
+                          style={{
+                            width: "100%", border: "none", outline: "none", background: "transparent",
+                            fontSize: 14, color: themeColors.text, padding: "10px 12px", boxSizing: "border-box",
+                          } as any}
+                        />
+                      ) : null}
+                    </View>
+                  ) : (
+                    <BNMPressable
+                      style={[styles.modalInput, { borderColor: themeColors.border, backgroundColor: themeColors.background, justifyContent: "space-between", flexDirection: "row", alignItems: "center" }]}
+                      onPress={() => setShowTimePicker(true)}
+                    >
+                      <Text style={{ color: themeColors.text, fontSize: 14 }}>{createTime || "10:00"}</Text>
+                      <Ionicons name="time-outline" size={16} color={themeColors.textSecondary} />
+                    </BNMPressable>
+                  )}
+                  {createTimeError && <Text style={{ color: COLORS.error, fontSize: 11, marginTop: 2 }}>Format: HH:MM</Text>}
                 </View>
               </View>
-            )}
 
-            <View style={{ flexDirection: "row", gap: 10, marginTop: 20 }}>
-              <BNMPressable
-                style={[styles.modalCancelBtn, { borderColor: themeColors.border }]}
-                onPress={() => setShowCreateModal(false)}
-              >
+              <Text style={[styles.modalLabel, { color: themeColors.textSecondary, marginTop: 12 }]}>Beschreibung</Text>
+              <TextInput
+                style={[styles.modalInput, { borderColor: themeColors.border, color: themeColors.text, backgroundColor: themeColors.background, minHeight: 64, textAlignVertical: "top" }]}
+                value={createDesc}
+                onChangeText={setCreateDesc}
+                placeholder="Optional"
+                placeholderTextColor={themeColors.textTertiary}
+                multiline
+                numberOfLines={3}
+              />
+
+              {/* Mentees einladen — eigene ScrollView damit lange Listen nicht das Modal sprengen */}
+              {myMentees.length > 0 && (
+                <View style={{ marginTop: 12 }}>
+                  <Text style={[styles.modalLabel, { color: themeColors.textSecondary }]}>Mentees einladen</Text>
+                  <ScrollView
+                    style={{ maxHeight: 200, marginTop: 6 }}
+                    nestedScrollEnabled
+                    showsVerticalScrollIndicator={true}
+                  >
+                    <View style={{ gap: 6 }}>
+                      {myMentees.map((mentee) => {
+                        const isSelected = selectedMenteeIds.includes(mentee.id);
+                        return (
+                          <BNMPressable
+                            key={mentee.id}
+                            style={{
+                              flexDirection: "row", alignItems: "center", gap: 10, padding: 10,
+                              borderRadius: RADIUS.sm, borderWidth: 1,
+                              borderColor: isSelected ? COLORS.gold : themeColors.border,
+                              backgroundColor: isSelected ? COLORS.gold + "15" : themeColors.background,
+                            }}
+                            onPress={() => setSelectedMenteeIds((prev) =>
+                              isSelected ? prev.filter((id) => id !== mentee.id) : [...prev, mentee.id]
+                            )}
+                          >
+                            <Ionicons name={isSelected ? "checkmark-circle" : "ellipse-outline"} size={18} color={isSelected ? COLORS.gold : themeColors.textTertiary} />
+                            <Text style={{ fontSize: 14, color: themeColors.text, flex: 1 }}>{mentee.name}</Text>
+                          </BNMPressable>
+                        );
+                      })}
+                    </View>
+                  </ScrollView>
+                </View>
+              )}
+
+              <View style={{ flexDirection: "row", gap: 10, marginTop: 20, marginBottom: 4 }}>
+                <BNMPressable style={[styles.modalCancelBtn, { borderColor: themeColors.border }]} onPress={() => setShowCreateModal(false)}>
+                  <Text style={{ color: themeColors.textSecondary, fontWeight: "600" }}>Abbrechen</Text>
+                </BNMPressable>
+                <BNMPressable
+                  style={[styles.modalSaveBtn, { opacity: (!createTitle.trim() || createSaving) ? 0.5 : 1 }]}
+                  onPress={handleSaveEvent}
+                  disabled={!createTitle.trim() || createSaving}
+                >
+                  <Text style={{ color: COLORS.white, fontWeight: "600" }}>{createSaving ? "..." : "Speichern"}</Text>
+                </BNMPressable>
+              </View>
+            </ScrollView>
+          </View>
+        </View>
+      </Modal>
+
+      {/* Native DateTimePicker (nur Mobile) */}
+      {showDatePicker && Platform.OS !== "web" && (
+        <DateTimePicker
+          value={createDate ? new Date(createDate + "T00:00:00") : new Date()}
+          mode="date"
+          display={Platform.OS === "ios" ? "spinner" : "default"}
+          onChange={(_, date) => {
+            setShowDatePicker(false);
+            if (date) {
+              const y = date.getFullYear();
+              const m = String(date.getMonth() + 1).padStart(2, "0");
+              const d = String(date.getDate()).padStart(2, "0");
+              setCreateDate(`${y}-${m}-${d}`);
+            }
+          }}
+        />
+      )}
+      {showTimePicker && Platform.OS !== "web" && (
+        <DateTimePicker
+          value={(() => {
+            const [hStr, mStr] = (createTime || "10:00").split(":");
+            const d = new Date();
+            d.setHours(parseInt(hStr || "10", 10), parseInt(mStr || "0", 10), 0);
+            return d;
+          })()}
+          mode="time"
+          is24Hour
+          display={Platform.OS === "ios" ? "spinner" : "default"}
+          onChange={(_, date) => {
+            setShowTimePicker(false);
+            if (date) {
+              const h = String(date.getHours()).padStart(2, "0");
+              const m = String(date.getMinutes()).padStart(2, "0");
+              setCreateTime(`${h}:${m}`);
+            }
+          }}
+        />
+      )}
+
+      {/* Termin stornieren — Bestätigung */}
+      <Modal visible={!!confirmDeleteEvent} transparent animationType="fade" onRequestClose={() => setConfirmDeleteEvent(null)}>
+        <View style={styles.modalOverlay}>
+          <View style={[styles.modalCard, { backgroundColor: themeColors.card, maxHeight: 220 }]}>
+            <Text style={[styles.modalTitle, { color: themeColors.text, marginBottom: 10 }]}>Termin stornieren</Text>
+            <Text style={{ color: themeColors.textSecondary, marginBottom: 20 }}>
+              Möchtest du <Text style={{ fontWeight: "700", color: themeColors.text }}>„{confirmDeleteEvent?.title}"</Text> wirklich löschen?
+            </Text>
+            <View style={{ flexDirection: "row", gap: 10 }}>
+              <BNMPressable style={[styles.modalCancelBtn, { borderColor: themeColors.border }]} onPress={() => setConfirmDeleteEvent(null)}>
                 <Text style={{ color: themeColors.textSecondary, fontWeight: "600" }}>Abbrechen</Text>
               </BNMPressable>
-              <BNMPressable
-                style={[styles.modalSaveBtn, { opacity: (!createTitle.trim() || createSaving) ? 0.5 : 1 }]}
-                onPress={handleSaveEvent}
-                disabled={!createTitle.trim() || createSaving}
-              >
-                <Text style={{ color: COLORS.white, fontWeight: "600" }}>{createSaving ? "..." : "Speichern"}</Text>
+              <BNMPressable style={[styles.modalSaveBtn, { backgroundColor: COLORS.error }]} onPress={confirmDelete}>
+                <Text style={{ color: COLORS.white, fontWeight: "600" }}>Löschen</Text>
               </BNMPressable>
             </View>
           </View>
         </View>
       </Modal>
+
     </Container>
   );
 }
