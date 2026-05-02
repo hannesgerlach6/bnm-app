@@ -209,7 +209,7 @@ export interface DataContextValue {
   getResourceCompletionCount: (resourceId: string) => number;
 
   // Calendar actions
-  addCalendarEvent: (event: Omit<CalendarEvent, "id" | "created_at">) => Promise<void>;
+  addCalendarEvent: (event: Omit<CalendarEvent, "id" | "created_at">) => Promise<string | null>;
   updateCalendarEvent: (id: string, data: Partial<Omit<CalendarEvent, "id" | "created_at">>) => Promise<void>;
   deleteCalendarEvent: (id: string) => Promise<void>;
   respondToEvent: (eventId: string, status: EventAttendeeStatus) => Promise<void>;
@@ -3448,7 +3448,7 @@ export function DataProvider({ children }: { children: ReactNode }) {
 
   // ─── Calendar Event Actions ────────────────────────────────────────────────────
 
-  const addCalendarEvent = useCallback(async (event: Omit<CalendarEvent, "id" | "created_at">) => {
+  const addCalendarEvent = useCallback(async (event: Omit<CalendarEvent, "id" | "created_at">): Promise<string | null> => {
     await supabase.auth.getSession();
     const { data, error } = await supabase.from("calendar_events").insert(event).select().maybeSingle();
     if (error) throw new Error(error.message);
@@ -3461,7 +3461,9 @@ export function DataProvider({ children }: { children: ReactNode }) {
         is_active: data.is_active ?? true, google_calendar_event_id: data.google_calendar_event_id ?? null,
         created_at: data.created_at,
       }]);
+      return data.id as string;
     }
+    return null;
   }, []);
 
   const updateCalendarEvent = useCallback(async (id: string, data: Partial<Omit<CalendarEvent, "id" | "created_at">>) => {

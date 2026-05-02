@@ -10,7 +10,9 @@ import {
   Modal,
   TextInput,
   Dimensions,
+  Alert,
 } from "react-native";
+import { supabase } from "../../lib/supabase";
 import { Ionicons } from "@expo/vector-icons";
 import { useAuth } from "../../contexts/AuthContext";
 import { useData } from "../../contexts/DataContext";
@@ -55,12 +57,16 @@ function EventCard({
   userId,
   onRespond,
   onAddToGoogle,
+  onEdit,
+  onDelete,
 }: {
   event: CalendarEvent;
   attendees: EventAttendee[];
   userId: string;
   onRespond: (eventId: string, status: "accepted" | "declined") => void;
   onAddToGoogle: (event: CalendarEvent) => void;
+  onEdit?: (event: CalendarEvent) => void;
+  onDelete?: (event: CalendarEvent) => void;
 }) {
   const themeColors = useThemeColors();
   const { isDark } = useTheme();
@@ -164,6 +170,29 @@ function EventCard({
           Google Kalender
         </Text>
       </BNMPressable>
+
+      {(onEdit || onDelete) && (
+        <View style={{ flexDirection: "row", gap: 8, marginTop: 8, borderTopWidth: 1, borderTopColor: themeColors.border, paddingTop: 8 }}>
+          {onEdit && (
+            <BNMPressable
+              style={{ flexDirection: "row", alignItems: "center", gap: 4, padding: 6 }}
+              onPress={() => onEdit(event)}
+            >
+              <Ionicons name="pencil-outline" size={14} color={themeColors.textSecondary} />
+              <Text style={{ fontSize: 12, color: themeColors.textSecondary }}>Bearbeiten</Text>
+            </BNMPressable>
+          )}
+          {onDelete && (
+            <BNMPressable
+              style={{ flexDirection: "row", alignItems: "center", gap: 4, padding: 6 }}
+              onPress={() => onDelete(event)}
+            >
+              <Ionicons name="trash-outline" size={14} color={COLORS.error} />
+              <Text style={{ fontSize: 12, color: COLORS.error }}>Stornieren</Text>
+            </BNMPressable>
+          )}
+        </View>
+      )}
     </View>
   );
 }
@@ -240,6 +269,11 @@ export default function CalendarTabScreen() {
     eventAttendees,
     respondToEvent,
     addCalendarEvent,
+    updateCalendarEvent,
+    deleteCalendarEvent,
+    inviteToEvent,
+    mentorships,
+    users,
   } = useData();
 
   const [selectedDate, setSelectedDate] = useState<string | null>(() => {
@@ -260,8 +294,19 @@ export default function CalendarTabScreen() {
   const [createSaving, setCreateSaving] = useState(false);
   const [createTimeError, setCreateTimeError] = useState(false);
   const [createDateError, setCreateDateError] = useState(false);
+  const [editingEvent, setEditingEvent] = useState<CalendarEvent | null>(null);
+  const [selectedMenteeIds, setSelectedMenteeIds] = useState<string[]>([]);
 
   const userId = user?.id;
+
+  // Eigene aktive Mentees (nur für Mentoren)
+  const myMentees = useMemo(() => {
+    if (!userId || user?.role === "mentee") return [];
+    return mentorships
+      .filter((m) => m.mentor_id === userId && m.status === "active")
+      .map((m) => users.find((u) => u.id === m.mentee_id))
+      .filter((u): u is NonNullable<typeof u> => !!u);
+  }, [mentorships, users, userId, user?.role]);
 
   // Tokens aus DB laden beim Start
   useEffect(() => {
@@ -387,6 +432,8 @@ export default function CalendarTabScreen() {
   const hasItems = dayEvents.length > 0 || dayGoogleItems.length > 0;
 
   const openCreateModal = useCallback(() => {
+    setEditingEvent(null);
+    setSelectedMenteeIds([]);
     setCreateTitle("");
     setCreateDate(selectedDate ?? new Date().toISOString().slice(0, 10));
     setCreateTime("10:00");
@@ -396,12 +443,29 @@ export default function CalendarTabScreen() {
     setShowCreateModal(true);
   }, [selectedDate]);
 
-  const handleCreateEvent = useCallback(async () => {
+  const openEditModal = useCallback((event: CalendarEvent) => {
+    setEditingEvent(event);
+    const d = new Date(event.start_at);
+    const dateStr = `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,"0")}-${String(d.getDate()).padStart(2,"0")}`;
+    const timeStr = `${String(d.getHours()).padStart(2,"0")}:${String(d.getMinutes()).padStart(2,"0")}`;
+    // Bereits eingeladene Mentees vorselektieren
+    const alreadyInvited = eventAttendees
+      .filter((a) => a.event_id === event.id)
+      .map((a) => a.user_id);
+    setSelectedMenteeIds(alreadyInvited);
+    setCreateTitle(event.title);
+    setCreateDate(dateStr);
+    setCreateTime(timeStr);
+    setCreateDesc(event.description ?? "");
+    setCreateTimeError(false);
+    setCreateDateError(false);
+    setShowCreateModal(true);
+  }, [eventAttendees]);
+
+  const handleSaveEvent = useCallback(async () => {
     if (!createTitle.trim() || !createDate) return;
-    // Datum validieren
     const dateMatch = createDate.match(/^\d{4}-\d{2}-\d{2}$/);
     if (!dateMatch) { setCreateDateError(true); return; }
-    // Uhrzeit validieren
     const timeMatch = createTime.match(/^(\d{1,2}):(\d{2})$/);
     if (!timeMatch) { setCreateTimeError(true); return; }
     const h = parseInt(timeMatch[1], 10);
@@ -409,28 +473,84 @@ export default function CalendarTabScreen() {
     if (h < 0 || h > 23 || m < 0 || m > 59) { setCreateTimeError(true); return; }
     setCreateSaving(true);
     try {
-      const start = new Date(`${createDate}T${String(h).padStart(2, "0")}:${String(m).padStart(2, "0")}:00`);
+      const start = new Date(`${createDate}T${String(h).padStart(2,"0")}:${String(m).padStart(2,"0")}:00`);
       if (isNaN(start.getTime())) { setCreateDateError(true); setCreateSaving(false); return; }
-      await addCalendarEvent({
-        title: createTitle.trim(),
-        description: createDesc.trim(),
-        start_at: start.toISOString(),
-        end_at: null,
-        type: "custom" as const,
-        location: "",
-        created_by: userId ?? null,
-        recurrence: null,
-        visible_to: "all" as const,
-        is_active: true,
-        google_calendar_event_id: null,
-      });
+
+      let eventId: string | null = editingEvent?.id ?? null;
+
+      if (editingEvent) {
+        // Bearbeiten
+        await updateCalendarEvent(editingEvent.id, {
+          title: createTitle.trim(),
+          description: createDesc.trim(),
+          start_at: start.toISOString(),
+        });
+      } else {
+        // Neu erstellen
+        eventId = await addCalendarEvent({
+          title: createTitle.trim(),
+          description: createDesc.trim(),
+          start_at: start.toISOString(),
+          end_at: null,
+          type: "custom" as const,
+          location: "",
+          created_by: userId ?? null,
+          recurrence: null,
+          visible_to: "all" as const,
+          is_active: true,
+          google_calendar_event_id: null,
+        });
+      }
+
+      // Mentees einladen (nur neu hinzugefügte)
+      if (eventId && selectedMenteeIds.length > 0) {
+        await inviteToEvent(eventId, selectedMenteeIds);
+
+        // In-App Benachrichtigung an eingeladene Mentees
+        const alreadyInvited = editingEvent
+          ? eventAttendees.filter((a) => a.event_id === editingEvent.id).map((a) => a.user_id)
+          : [];
+        const newlyInvited = selectedMenteeIds.filter((id) => !alreadyInvited.includes(id));
+        if (newlyInvited.length > 0) {
+          await supabase.from("notifications").insert(
+            newlyInvited.map((uid) => ({
+              user_id: uid,
+              type: "calendar_invite",
+              title: "Neuer Termin",
+              body: `Du wurdest zu einem Termin eingeladen: ${createTitle.trim()}`,
+              related_id: eventId,
+            }))
+          );
+        }
+      }
+
       setShowCreateModal(false);
     } catch {
-      // handled in DataContext
+      // handled
     } finally {
       setCreateSaving(false);
     }
-  }, [createTitle, createDate, createTime, createDesc, addCalendarEvent, userId]);
+  }, [createTitle, createDate, createTime, createDesc, editingEvent, selectedMenteeIds,
+      addCalendarEvent, updateCalendarEvent, inviteToEvent, userId, eventAttendees]);
+
+  const handleDeleteEvent = useCallback((event: CalendarEvent) => {
+    Alert.alert(
+      "Termin stornieren",
+      `Möchtest du "${event.title}" wirklich löschen?`,
+      [
+        { text: "Abbrechen", style: "cancel" },
+        {
+          text: "Löschen",
+          style: "destructive",
+          onPress: async () => {
+            try {
+              await deleteCalendarEvent(event.id);
+            } catch { /* handled */ }
+          },
+        },
+      ]
+    );
+  }, [deleteCalendarEvent]);
 
   // Format selected date for display
   const selectedDateDisplay = selectedDate
@@ -543,6 +663,8 @@ export default function CalendarTabScreen() {
                   userId={user?.id || ""}
                   onRespond={handleRespond}
                   onAddToGoogle={handleAddToGoogle}
+                  onEdit={(event.created_by === userId || user?.role === "admin" || user?.role === "office") ? openEditModal : undefined}
+                  onDelete={(event.created_by === userId || user?.role === "admin" || user?.role === "office") ? handleDeleteEvent : undefined}
                 />
               ))}
 
@@ -566,7 +688,7 @@ export default function CalendarTabScreen() {
         <View style={styles.modalOverlay}>
           <View style={[styles.modalCard, { backgroundColor: themeColors.card, maxHeight: Dimensions.get("window").height * 0.85 }]}>
             <View style={{ flexDirection: "row", alignItems: "center", justifyContent: "space-between", marginBottom: 16 }}>
-              <Text style={[styles.modalTitle, { color: themeColors.text }]}>Termin erstellen</Text>
+              <Text style={[styles.modalTitle, { color: themeColors.text }]}>{editingEvent ? "Termin bearbeiten" : "Termin erstellen"}</Text>
               <BNMPressable onPress={() => setShowCreateModal(false)} accessibilityRole="button" accessibilityLabel="Schließen">
                 <Ionicons name="close" size={22} color={themeColors.textSecondary} />
               </BNMPressable>
@@ -632,6 +754,42 @@ export default function CalendarTabScreen() {
               numberOfLines={3}
             />
 
+            {myMentees.length > 0 && (
+              <View style={{ marginTop: 12 }}>
+                <Text style={[styles.modalLabel, { color: themeColors.textSecondary }]}>Mentees einladen</Text>
+                <View style={{ gap: 6, marginTop: 6 }}>
+                  {myMentees.map((mentee) => {
+                    const isSelected = selectedMenteeIds.includes(mentee.id);
+                    return (
+                      <BNMPressable
+                        key={mentee.id}
+                        style={{
+                          flexDirection: "row",
+                          alignItems: "center",
+                          gap: 10,
+                          padding: 10,
+                          borderRadius: RADIUS.sm,
+                          borderWidth: 1,
+                          borderColor: isSelected ? COLORS.gold : themeColors.border,
+                          backgroundColor: isSelected ? COLORS.gold + "15" : themeColors.background,
+                        }}
+                        onPress={() => setSelectedMenteeIds((prev) =>
+                          isSelected ? prev.filter((id) => id !== mentee.id) : [...prev, mentee.id]
+                        )}
+                      >
+                        <Ionicons
+                          name={isSelected ? "checkmark-circle" : "ellipse-outline"}
+                          size={18}
+                          color={isSelected ? COLORS.gold : themeColors.textTertiary}
+                        />
+                        <Text style={{ fontSize: 14, color: themeColors.text, flex: 1 }}>{mentee.name}</Text>
+                      </BNMPressable>
+                    );
+                  })}
+                </View>
+              </View>
+            )}
+
             <View style={{ flexDirection: "row", gap: 10, marginTop: 20 }}>
               <BNMPressable
                 style={[styles.modalCancelBtn, { borderColor: themeColors.border }]}
@@ -641,7 +799,7 @@ export default function CalendarTabScreen() {
               </BNMPressable>
               <BNMPressable
                 style={[styles.modalSaveBtn, { opacity: (!createTitle.trim() || createSaving) ? 0.5 : 1 }]}
-                onPress={handleCreateEvent}
+                onPress={handleSaveEvent}
                 disabled={!createTitle.trim() || createSaving}
               >
                 <Text style={{ color: COLORS.white, fontWeight: "600" }}>{createSaving ? "..." : "Speichern"}</Text>
