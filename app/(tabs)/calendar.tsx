@@ -259,6 +259,7 @@ export default function CalendarTabScreen() {
   const [createDesc, setCreateDesc] = useState("");
   const [createSaving, setCreateSaving] = useState(false);
   const [createTimeError, setCreateTimeError] = useState(false);
+  const [createDateError, setCreateDateError] = useState(false);
 
   const userId = user?.id;
 
@@ -383,11 +384,15 @@ export default function CalendarTabScreen() {
     setCreateTime("10:00");
     setCreateDesc("");
     setCreateTimeError(false);
+    setCreateDateError(false);
     setShowCreateModal(true);
   }, [selectedDate]);
 
   const handleCreateEvent = useCallback(async () => {
     if (!createTitle.trim() || !createDate) return;
+    // Datum validieren
+    const dateMatch = createDate.match(/^\d{4}-\d{2}-\d{2}$/);
+    if (!dateMatch) { setCreateDateError(true); return; }
     // Uhrzeit validieren
     const timeMatch = createTime.match(/^(\d{1,2}):(\d{2})$/);
     if (!timeMatch) { setCreateTimeError(true); return; }
@@ -397,6 +402,7 @@ export default function CalendarTabScreen() {
     setCreateSaving(true);
     try {
       const start = new Date(`${createDate}T${String(h).padStart(2, "0")}:${String(m).padStart(2, "0")}:00`);
+      if (isNaN(start.getTime())) { setCreateDateError(true); setCreateSaving(false); return; }
       await addCalendarEvent({
         title: createTitle.trim(),
         description: createDesc.trim(),
@@ -574,11 +580,10 @@ export default function CalendarTabScreen() {
                 <Text style={[styles.modalLabel, { color: themeColors.textSecondary }]}>Datum</Text>
                 {Platform.OS === "web" ? (
                   <TextInput
-                    style={[styles.modalInput, { borderColor: themeColors.border, color: themeColors.text, backgroundColor: themeColors.background }]}
+                    style={[styles.modalInput, { borderColor: createDateError ? COLORS.error : themeColors.border, color: themeColors.text, backgroundColor: themeColors.background }]}
                     value={createDate}
-                    onChangeText={setCreateDate}
-                    placeholder="JJJJ-MM-TT"
-                    placeholderTextColor={themeColors.textTertiary}
+                    onChangeText={(v) => { setCreateDate(v); setCreateDateError(false); }}
+                    {...{ type: "date" } as any}
                   />
                 ) : (
                   <View style={[styles.modalInput, { borderColor: themeColors.border, backgroundColor: themeColors.background, justifyContent: "center" }]}>
@@ -588,6 +593,9 @@ export default function CalendarTabScreen() {
                   </View>
                 )}
               </View>
+              {createDateError && Platform.OS === "web" && (
+                <Text style={{ color: COLORS.error, fontSize: 11, marginTop: 2 }}>Ungültiges Datum</Text>
+              )}
               <View style={{ flex: 1 }}>
                 <Text style={[styles.modalLabel, { color: themeColors.textSecondary }]}>Uhrzeit</Text>
                 <TextInput

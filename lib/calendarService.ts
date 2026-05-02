@@ -516,7 +516,7 @@ export async function removeEventFromGoogle(
 /**
  * Erneuert ein abgelaufenes Google Access Token via Refresh Token.
  */
-export async function refreshGoogleToken(refreshToken: string): Promise<string | null> {
+export async function refreshGoogleToken(refreshToken: string, userId?: string): Promise<string | null> {
   if (!refreshToken) return null;
 
   try {
@@ -535,7 +535,7 @@ export async function refreshGoogleToken(refreshToken: string): Promise<string |
 
     const data = await res.json();
     if (data.access_token) {
-      await saveGoogleTokens(data.access_token, refreshToken, undefined);
+      await saveGoogleTokens(data.access_token, refreshToken, userId);
     }
     return data.access_token ?? null;
   } catch (err) {
@@ -562,7 +562,7 @@ export async function getValidAccessToken(userId?: string): Promise<string | nul
 
   // Token abgelaufen → erneuern
   if (refreshToken) {
-    return await refreshGoogleToken(refreshToken);
+    return await refreshGoogleToken(refreshToken, userId);
   }
 
   return null;
