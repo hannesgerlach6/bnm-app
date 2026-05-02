@@ -16,7 +16,7 @@ const de = {
 
   // Dashboard
   "dashboard.admin": "Admin Dashboard",
-  "dashboard.overview": "Gesamtübersicht BNMâ€‘Programm",
+  "dashboard.overview": "Gesamtübersicht BNM‑Programm",
   "dashboard.activeMentorships": "Aktive Betreuungen",
   "dashboard.completed": "Abgeschlossen",
   "dashboard.mentors": "Mentoren",
@@ -674,7 +674,7 @@ const de = {
   "editProfile.gender": "Geschlecht",
   "editProfile.genderMale": "m (männlich)",
   "editProfile.genderFemale": "w (weiblich)",
-  "editProfile.back": "â€¹ Zurück",
+  "editProfile.back": "‹ Zurück",
   "editProfile.changePicture": "Profilbild ändern",
   "editProfile.uploading": "Wird hochgeladen...",
   "editProfile.name": "Name",
@@ -700,7 +700,7 @@ const de = {
 
   // Change Password
   "changePassword.title": "Passwort ändern",
-  "changePassword.back": "â€¹ Zurück",
+  "changePassword.back": "‹ Zurück",
   "changePassword.info": "Wähle ein sicheres Passwort mit mindestens 8 Zeichen.",
   "changePassword.forcedInfo": "Dein Passwort wurde vom Administrator zurückgesetzt. Bitte wähle ein neues Passwort, um fortzufahren.",
   "changePassword.currentPassword": "Aktuelles Passwort",
@@ -847,7 +847,7 @@ const de = {
   // Mentee Detail
   "menteeDetail.title": "Mentee-Profil",
   "menteeDetail.headerTitle": "Mentee-Detail",
-  "menteeDetail.back": "â€¹ Zurück",
+  "menteeDetail.back": "‹ Zurück",
   "menteeDetail.notFound": "Mentee nicht gefunden.",
   "menteeDetail.contactInfo": "KONTAKTINFORMATIONEN",
   "menteeDetail.email": "E-Mail",
@@ -872,7 +872,7 @@ const de = {
 
   // Mentor Detail
   "mentorDetail.title": "Mentor-Profil",
-  "mentorDetail.back": "â€¹ Zurück",
+  "mentorDetail.back": "‹ Zurück",
   "mentorDetail.notFound": "Mentor nicht gefunden.",
   "mentorDetail.stats": "STATISTIKEN",
   "mentorDetail.activeMentorships": "Aktive Betreuungen",
@@ -941,8 +941,8 @@ const de = {
   "feedbackOverview.warningText": "Es gibt Feedbacks mit 1–2 Sternen. Bitte zeitnah prüfen.",
   "feedbackOverview.filter": "FILTER",
   "feedbackOverview.all": "Alle",
-  "feedbackOverview.positive": "Positiv (4-5 â˜…)",
-  "feedbackOverview.negative": "Negativ (1-2 â˜…)",
+  "feedbackOverview.positive": "Positiv (4-5 ★)",
+  "feedbackOverview.negative": "Negativ (1-2 ★)",
   "feedbackOverview.noFeedbacks": "Keine Feedbacks in dieser Kategorie.",
   "feedbackOverview.noComment": "Kein Kommentar",
   "feedbackOverview.actionNeeded": "Handlungsbedarf",
@@ -1198,7 +1198,7 @@ const de = {
 
   // Admin: Profil bearbeiten
   "editUser.title": "Profil bearbeiten",
-  "editUser.back": "â€¹ Zurück",
+  "editUser.back": "‹ Zurück",
   "editUser.name": "Name",
   "editUser.namePlaceholder": "Vor- und Nachname",
   "editUser.city": "Stadt",
@@ -1257,7 +1257,7 @@ const de = {
 
   // Admin Statistiken
   "statistics.title": "Erweiterte Statistiken",
-  "statistics.back": "â€¹ Zurück",
+  "statistics.back": "‹ Zurück",
   "statistics.avgDuration": "Ø Betreuungsdauer",
   "statistics.avgDurationUnit": "Wochen",
   "statistics.avgSessions": "Ø Sessions pro Betreuung",
@@ -1742,7 +1742,7 @@ const de = {
   "sidebar.logoutConfirm": "Wirklich abmelden?",
   "sidebar.logoutConfirmMsg": "Möchtest du dich wirklich abmelden?",
   "dashboard.refresh": "Aktualisieren",
-  "dashboard.subtitle": "Gesamtübersicht BNMâ€‘Programm",
+  "dashboard.subtitle": "Gesamtübersicht BNM‑Programm",
   "dashboard.periodBar": "Zeitraum:",
   "dashboard.periodThisMonth": "Dieser Monat",
   "dashboard.periodLastMonth": "Letzter Monat",
@@ -1882,7 +1882,7 @@ const de = {
   // Gamification – Danke
   "gamification.thanksCount": "{0} Danke erhalten",
   "gamification.thanksLabel": "Danke",
-  "gamification.thankButton": "Danke sagen ðŸ¤²",
+  "gamification.thankButton": "Danke sagen 🤲",
   "gamification.thankTitle": "Deinem Mentor danken",
   "gamification.thankMessage": "Möchtest du deinem Mentor danken?",
   "gamification.thankMessagePlaceholder": "Optionale Nachricht...",
