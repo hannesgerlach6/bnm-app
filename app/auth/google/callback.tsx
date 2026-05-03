@@ -22,14 +22,18 @@ export default function GoogleCallbackScreen() {
     const error = params.error as string | undefined;
 
     if (window.opener) {
-      // Popup-Flow: Code an Elternfenster senden
+      // Web-Popup-Flow: Code ans Elternfenster schicken
       window.opener.postMessage(
         { type: "google-auth-callback", code: code ?? null, error: error ?? null },
         window.location.origin
       );
       window.close();
+    } else if (code || error) {
+      // Native-Flow (iOS/Android): weiterleiten auf Custom-Scheme damit
+      // ASWebAuthenticationSession / Chrome Custom Tabs die URL abfangen können
+      const qs = window.location.search;
+      window.location.href = `bnmapp://auth/google/callback${qs}`;
     } else {
-      // Kein Opener → direkt auf Home weiterleiten
       window.location.href = "/";
     }
   }, [params]);

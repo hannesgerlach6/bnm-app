@@ -342,12 +342,14 @@ export async function initiateGoogleAuth(userId?: string): Promise<{
 
     // ── Native (iOS + Android) ───────────────────────────────────────────────
     } else {
-      const redirectUri   = GOOGLE_OAUTH_REDIRECT_NATIVE;
+      // redirect_uri für Google und Token-Exchange: HTTPS (registriert in Google Console)
+      // openAuthSessionAsync wartet auf den bnmapp://-Redirect den callback.tsx auslöst
+      const redirectUri   = GOOGLE_OAUTH_REDIRECT;
       const codeVerifier  = generateCodeVerifier();
       const codeChallenge = await generateCodeChallenge(codeVerifier);
       const authUrl       = buildAuthUrl(redirectUri, codeChallenge);
 
-      const result = await WebBrowser.openAuthSessionAsync(authUrl, redirectUri);
+      const result = await WebBrowser.openAuthSessionAsync(authUrl, GOOGLE_OAUTH_REDIRECT_NATIVE);
 
       if (result.type !== "success" || !result.url) {
         if (result.type === "cancel") return null;
@@ -372,6 +374,7 @@ export async function initiateGoogleAuth(userId?: string): Promise<{
         return null;
       }
 
+      // Token-Exchange mit der HTTPS-URI (muss exakt mit Google-Registrierung übereinstimmen)
       const tokens = await exchangeCodeForTokens(code, redirectUri, codeVerifier);
       if (tokens) await saveGoogleTokens(tokens.accessToken, tokens.refreshToken, userId);
       return tokens;
