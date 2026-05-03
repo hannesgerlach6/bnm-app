@@ -105,7 +105,7 @@ export default function CreateUserScreen() {
     <Container fullWidth={Platform.OS === "web"}>
       <KeyboardAvoidingView
         style={styles.flex1}
-        behavior={Platform.OS === "ios" ? "padding" : "height"}
+        behavior="padding"
       >
         <ScrollView
           style={[styles.scroll, { backgroundColor: themeColors.background }]}

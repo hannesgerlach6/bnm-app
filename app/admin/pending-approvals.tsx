@@ -183,7 +183,7 @@ export default function PendingApprovalsScreen() {
       >
         <KeyboardAvoidingView
           style={styles.modalOverlay}
-          behavior={Platform.OS === "ios" ? "padding" : "height"}
+          behavior="padding"
         >
           <View style={[styles.modalBox, { backgroundColor: themeColors.card, borderColor: themeColors.border }]}>
             <Text style={[styles.modalTitle, { color: themeColors.text }]}>

@@ -29,6 +29,7 @@
         "backgroundColor": "#F9FAFB"
       },
       "package": "com.bnm.app",
+      "softwareKeyboardLayoutMode": "pan",
       "permissions": [
         "CAMERA",
         "READ_EXTERNAL_STORAGE",

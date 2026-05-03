@@ -363,7 +363,7 @@ export default function RegisterPublicScreen() {
     <Container fullWidth={Platform.OS === "web"}>
       <KeyboardAvoidingView
         style={[styles.flex1, { backgroundColor: themeColors.background }]}
-        behavior={Platform.OS === "ios" ? "padding" : "height"}
+        behavior="padding"
       >
         <ScrollView
           style={[styles.flex1, { backgroundColor: themeColors.background }]}

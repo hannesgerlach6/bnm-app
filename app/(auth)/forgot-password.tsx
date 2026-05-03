@@ -69,7 +69,7 @@ export default function ForgotPasswordScreen() {
   return (
     <KeyboardAvoidingView
       style={[styles.flex1, { backgroundColor: themeColors.background }]}
-      behavior={Platform.OS === "ios" ? "padding" : "height"}
+      behavior="padding"
     >
       <ScrollView
         style={[styles.flex1, { backgroundColor: themeColors.background }]}
