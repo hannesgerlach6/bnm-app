@@ -1,4 +1,5 @@
 import { Platform, Alert, Linking } from "react-native";
+import * as ExpoCrypto from "expo-crypto";
 import * as WebBrowser from "expo-web-browser";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { supabase } from "./supabase";
@@ -241,14 +242,12 @@ function generateCodeVerifier(): string {
 }
 
 async function generateCodeChallenge(verifier: string): Promise<string> {
-  try {
-    const data   = new TextEncoder().encode(verifier);
-    const digest = await crypto.subtle.digest("SHA-256", data);
-    return btoa(String.fromCharCode(...new Uint8Array(digest)))
-      .replace(/\+/g, "-").replace(/\//g, "_").replace(/=/g, "");
-  } catch {
-    return verifier; // plain-Fallback wenn crypto.subtle nicht verfügbar
-  }
+  const digest = await ExpoCrypto.digestStringAsync(
+    ExpoCrypto.CryptoDigestAlgorithm.SHA256,
+    verifier,
+    { encoding: ExpoCrypto.CryptoEncoding.BASE64 }
+  );
+  return digest.replace(/\+/g, "-").replace(/\//g, "_").replace(/=/g, "");
 }
 
 async function exchangeCodeForTokens(
