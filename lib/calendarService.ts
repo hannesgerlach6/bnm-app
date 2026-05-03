@@ -16,10 +16,8 @@ import type { CalendarEvent } from "../types";
 
 // ─── Konfiguration ─────────────────────────────────────────────────────────────
 
-const GOOGLE_CLIENT_ID = process.env.EXPO_PUBLIC_GOOGLE_CLIENT_ID ?? "";
-// Client Secret darf nicht in EXPO_PUBLIC_ — wird serverseitig via Edge Function gehandhabt.
-// Token-Refresh ohne Secret: Nutzer muss sich bei abgelaufenem Token neu verbinden.
-const GOOGLE_CLIENT_SECRET = "";
+const GOOGLE_CLIENT_ID     = process.env.EXPO_PUBLIC_GOOGLE_CLIENT_ID     ?? "";
+const GOOGLE_CLIENT_SECRET = process.env.EXPO_PUBLIC_GOOGLE_CLIENT_SECRET ?? "";
 
 const GOOGLE_CALENDAR_API = "https://www.googleapis.com/calendar/v3";
 const SCOPES = "https://www.googleapis.com/auth/calendar.events";
@@ -262,6 +260,7 @@ async function exchangeCodeForTokens(
       body: new URLSearchParams({
         code,
         client_id:     GOOGLE_CLIENT_ID,
+        ...(GOOGLE_CLIENT_SECRET ? { client_secret: GOOGLE_CLIENT_SECRET } : {}),
         redirect_uri:  redirectUri,
         grant_type:    "authorization_code",
         code_verifier: codeVerifier,
@@ -542,6 +541,7 @@ export async function refreshGoogleToken(refreshToken: string, userId?: string):
       headers: { "Content-Type": "application/x-www-form-urlencoded" },
       body: new URLSearchParams({
         client_id:     GOOGLE_CLIENT_ID,
+        ...(GOOGLE_CLIENT_SECRET ? { client_secret: GOOGLE_CLIENT_SECRET } : {}),
         grant_type:    "refresh_token",
         refresh_token: refreshToken,
       }).toString(),
