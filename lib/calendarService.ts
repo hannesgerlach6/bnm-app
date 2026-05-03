@@ -3,7 +3,7 @@ import * as ExpoCrypto from "expo-crypto";
 import * as WebBrowser from "expo-web-browser";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { supabase } from "./supabase";
-import { GOOGLE_OAUTH_REDIRECT } from "./appConstants";
+import { GOOGLE_OAUTH_REDIRECT, GOOGLE_OAUTH_REDIRECT_NATIVE } from "./appConstants";
 import type { CalendarEvent } from "../types";
 
 // ============================================================
@@ -342,7 +342,7 @@ export async function initiateGoogleAuth(userId?: string): Promise<{
 
     // ── Native (iOS + Android) ───────────────────────────────────────────────
     } else {
-      const redirectUri   = GOOGLE_OAUTH_REDIRECT;
+      const redirectUri   = GOOGLE_OAUTH_REDIRECT_NATIVE;
       const codeVerifier  = generateCodeVerifier();
       const codeChallenge = await generateCodeChallenge(codeVerifier);
       const authUrl       = buildAuthUrl(redirectUri, codeChallenge);

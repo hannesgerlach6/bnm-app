@@ -13,3 +13,5 @@ export const EMAIL_INFO = "info@neuemuslime.com";
 
 // OAuth Redirect
 export const GOOGLE_OAUTH_REDIRECT = `${APP_URL}/auth/google/callback`;
+// Native (iOS/Android): Custom-Scheme damit ASWebAuthenticationSession die URL abfangen kann
+export const GOOGLE_OAUTH_REDIRECT_NATIVE = "bnmapp://auth/google/callback";
