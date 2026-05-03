@@ -230,43 +230,47 @@ export function downloadICalFile(event: {
   }, 100);
 }
 
-// ─── 2. Google OAuth ───────────────────────────────────────────────────────────
+// ─── 2. Google OAuth (PKCE — kein Client Secret nötig) ────────────────────────
 
-/**
- * Auth-Code gegen Access + Refresh Token tauschen.
- * Läuft NICHT direkt gegen Google (client_secret wäre nötig, darf aber nicht im Frontend sein).
- * Stattdessen: Supabase Edge Function "google-calendar-auth" übernimmt den Tausch server-seitig.
- * Deploy: supabase functions deploy google-calendar-auth --project-ref cufuikcxliwbmyhwlmga
- */
+function generateCodeVerifier(): string {
+  const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-._~";
+  const array = new Uint8Array(64);
+  try { crypto.getRandomValues(array); }
+  catch { for (let i = 0; i < 64; i++) array[i] = Math.floor(Math.random() * 256); }
+  return Array.from(array).map((b) => chars[b % chars.length]).join("");
+}
+
+async function generateCodeChallenge(verifier: string): Promise<string> {
+  try {
+    const data   = new TextEncoder().encode(verifier);
+    const digest = await crypto.subtle.digest("SHA-256", data);
+    return btoa(String.fromCharCode(...new Uint8Array(digest)))
+      .replace(/\+/g, "-").replace(/\//g, "_").replace(/=/g, "");
+  } catch {
+    return verifier; // plain-Fallback wenn crypto.subtle nicht verfügbar
+  }
+}
+
 async function exchangeCodeForTokens(
   code: string,
-  redirectUri: string
+  redirectUri: string,
+  codeVerifier: string
 ): Promise<{ accessToken: string; refreshToken: string } | null> {
   try {
-    const { data: { session } } = await supabase.auth.getSession();
-    if (!session) {
-      console.error("[calendarService] Kein Supabase-Session für Edge Function Aufruf");
-      return null;
-    }
-
-    const supabaseUrl = (supabase as any).supabaseUrl as string
-      ?? "https://cufuikcxliwbmyhwlmga.supabase.co";
-
-    const res = await fetch(
-      `${supabaseUrl}/functions/v1/google-calendar-auth`,
-      {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          "Authorization": `Bearer ${session.access_token}`,
-        },
-        body: JSON.stringify({ code, redirect_uri: redirectUri }),
-      }
-    );
+    const res = await fetch("https://oauth2.googleapis.com/token", {
+      method:  "POST",
+      headers: { "Content-Type": "application/x-www-form-urlencoded" },
+      body: new URLSearchParams({
+        code,
+        client_id:     GOOGLE_CLIENT_ID,
+        redirect_uri:  redirectUri,
+        grant_type:    "authorization_code",
+        code_verifier: codeVerifier,
+      }).toString(),
+    });
 
     if (!res.ok) {
-      const errText = await res.text();
-      console.error("[calendarService] Edge Function Token-Tausch fehlgeschlagen:", res.status, errText);
+      console.error("[calendarService] Token-Tausch fehlgeschlagen:", res.status, await res.text());
       return null;
     }
 
@@ -283,23 +287,20 @@ async function exchangeCodeForTokens(
   }
 }
 
-function buildAuthUrl(redirectUri: string): string {
+function buildAuthUrl(redirectUri: string, codeChallenge: string): string {
   const params = new URLSearchParams({
-    client_id:     GOOGLE_CLIENT_ID,
-    redirect_uri:  redirectUri,
-    response_type: "code",
-    scope:         SCOPES,
-    access_type:   "offline",
-    prompt:        "consent",
+    client_id:             GOOGLE_CLIENT_ID,
+    redirect_uri:          redirectUri,
+    response_type:         "code",
+    scope:                 SCOPES,
+    access_type:           "offline",
+    prompt:                "consent",
+    code_challenge:        codeChallenge,
+    code_challenge_method: "S256",
   });
   return `https://accounts.google.com/o/oauth2/v2/auth?${params.toString()}`;
 }
 
-/**
- * Startet den Google OAuth Flow — Web + Native.
- * Gibt Tokens zurück oder null wenn abgebrochen/fehlgeschlagen.
- * Tokens werden automatisch in DB + lokal gespeichert.
- */
 export async function initiateGoogleAuth(userId?: string): Promise<{
   accessToken: string;
   refreshToken: string;
@@ -307,8 +308,10 @@ export async function initiateGoogleAuth(userId?: string): Promise<{
   try {
     // ── Web ──────────────────────────────────────────────────────────────────
     if (Platform.OS === "web") {
-      const redirectUri = `${window.location.origin}/auth/google/callback`;
-      const authUrl     = buildAuthUrl(redirectUri);
+      const redirectUri   = `${window.location.origin}/auth/google/callback`;
+      const codeVerifier  = generateCodeVerifier();
+      const codeChallenge = await generateCodeChallenge(codeVerifier);
+      const authUrl       = buildAuthUrl(redirectUri, codeChallenge);
 
       return new Promise((resolve) => {
         const popup = window.open(authUrl, "google-auth", "width=500,height=600");
@@ -321,7 +324,8 @@ export async function initiateGoogleAuth(userId?: string): Promise<{
         const handleMessage = async (e: MessageEvent) => {
           if (e.data?.type === "google-auth-callback" && e.data?.code) {
             window.removeEventListener("message", handleMessage);
-            const tokens = await exchangeCodeForTokens(e.data.code, redirectUri);
+            clearInterval(checkClosed);
+            const tokens = await exchangeCodeForTokens(e.data.code, redirectUri, codeVerifier);
             if (tokens) await saveGoogleTokens(tokens.accessToken, tokens.refreshToken, userId);
             resolve(tokens);
           }
@@ -339,12 +343,10 @@ export async function initiateGoogleAuth(userId?: string): Promise<{
 
     // ── Native (iOS + Android) ───────────────────────────────────────────────
     } else {
-      // Redirect URI: gleiche Web-URL — kein Custom Scheme nötig.
-      // expo-web-browser fängt die URL ab sobald Google dorthin redirectet.
-      // Muss in Google Cloud Console als "Authorized redirect URI" eingetragen sein:
-      //   https://neuemuslime.com/auth/google/callback  ← in Google Cloud Console eintragen
-      const redirectUri = GOOGLE_OAUTH_REDIRECT;
-      const authUrl     = buildAuthUrl(redirectUri);
+      const redirectUri   = GOOGLE_OAUTH_REDIRECT;
+      const codeVerifier  = generateCodeVerifier();
+      const codeChallenge = await generateCodeChallenge(codeVerifier);
+      const authUrl       = buildAuthUrl(redirectUri, codeChallenge);
 
       const result = await WebBrowser.openAuthSessionAsync(authUrl, redirectUri);
 
@@ -357,13 +359,11 @@ export async function initiateGoogleAuth(userId?: string): Promise<{
         return null;
       }
 
-      // Auth-Code aus Redirect-URL extrahieren
       let code: string | null = null;
       try {
         const url = new URL(result.url);
         code = url.searchParams.get("code");
       } catch {
-        // Fallback: URL manuell parsen
         const match = result.url.match(/[?&]code=([^&]+)/);
         code = match ? decodeURIComponent(match[1]) : null;
       }
@@ -373,7 +373,7 @@ export async function initiateGoogleAuth(userId?: string): Promise<{
         return null;
       }
 
-      const tokens = await exchangeCodeForTokens(code, redirectUri);
+      const tokens = await exchangeCodeForTokens(code, redirectUri, codeVerifier);
       if (tokens) await saveGoogleTokens(tokens.accessToken, tokens.refreshToken, userId);
       return tokens;
     }
@@ -540,7 +540,6 @@ export async function refreshGoogleToken(refreshToken: string, userId?: string):
       headers: { "Content-Type": "application/x-www-form-urlencoded" },
       body: new URLSearchParams({
         client_id:     GOOGLE_CLIENT_ID,
-        client_secret: GOOGLE_CLIENT_SECRET,
         grant_type:    "refresh_token",
         refresh_token: refreshToken,
       }).toString(),
