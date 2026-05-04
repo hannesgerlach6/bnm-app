@@ -495,6 +495,8 @@ function ApplicationCard({
   const isApproved = application.status === "approved";
   // Office darf Bewerbungen sehen aber nicht genehmigen (Genehmigung erstellt Accounts)
   const canApprove = currentUser?.role === "admin";
+  // Office darf Einladungs-E-Mails senden (Gespräch + Webinar)
+  const canInvite = currentUser?.role === "admin" || currentUser?.role === "office";
 
   const badgeStatus = isPending ? "pending" as const : isApproved ? "active" as const : "cancelled" as const;
   const statusLabel = isPending ? t("applications.statusOpen") : isApproved ? t("applications.statusApproved") : t("applications.statusRejected");
@@ -613,66 +615,67 @@ function ApplicationCard({
             </>
           )}
 
-          {/* Aktions-Buttons (nur für offene Einträge, Genehmigung nur für Admin) */}
+          {/* Ablehnen + Annehmen — nur Admin */}
           {isPending && canApprove && (
-            <>
-              <View style={styles.actionRow}>
-                <BNMPressable
-                  style={[styles.rejectButton, { backgroundColor: sem(SEMANTIC.redBg, isDark), borderColor: sem(SEMANTIC.redBorder, isDark) }]}
-                  onPress={onReject}
-                  accessibilityRole="button"
-                  accessibilityLabel={`${application.name} ${t("applications.reject")}`}
-                >
-                  <Text style={[styles.rejectButtonText, { color: isDark ? "#f87171" : "#dc2626" }]}>{t("applications.reject")}</Text>
-                </BNMPressable>
-                <BNMPressable
-                  style={[styles.approveButton, { backgroundColor: approveColor }]}
-                  onPress={onApprove}
-                  hapticStyle="success"
-                  accessibilityRole="button"
-                  accessibilityLabel={`${application.name} ${approveLabel}`}
-                >
-                  <Text style={styles.approveButtonText}>{approveLabel}</Text>
-                </BNMPressable>
-              </View>
-              {/* Einladungs-Buttons */}
-              <View style={styles.inviteRow}>
-                <BNMPressable
-                  style={[styles.inviteButton, { borderColor: COLORS.gradientStart }, isSendingInvite && { opacity: 0.6 }]}
-                  disabled={isSendingInvite}
-                  onPress={async () => {
-                    setIsSendingInvite(true);
-                    try {
-                      const ok = await sendInterviewInvitationEmail(application.email, application.name);
-                      if (ok) showSuccess("Gesprächseinladung gesendet");
-                      else showError("E-Mail konnte nicht gesendet werden");
-                    } catch { showError("Fehler beim Senden"); }
-                    finally { setIsSendingInvite(false); }
-                  }}
-                  accessibilityRole="button"
-                  accessibilityLabel={`${application.name} zum Gespräch einladen`}
-                >
-                  <Text style={[styles.inviteButtonText, { color: COLORS.gradientStart }]}>Zum Gespräch einladen</Text>
-                </BNMPressable>
-                <BNMPressable
-                  style={[styles.inviteButton, { borderColor: COLORS.gold }, isSendingInvite && { opacity: 0.6 }]}
-                  disabled={isSendingInvite}
-                  onPress={async () => {
-                    setIsSendingInvite(true);
-                    try {
-                      const ok = await sendWebinarInvitationEmail(application.email, application.name);
-                      if (ok) showSuccess("Webinar-Einladung gesendet");
-                      else showError("E-Mail konnte nicht gesendet werden");
-                    } catch { showError("Fehler beim Senden"); }
-                    finally { setIsSendingInvite(false); }
-                  }}
-                  accessibilityRole="button"
-                  accessibilityLabel={`${application.name} zum Webinar einladen`}
-                >
-                  <Text style={[styles.inviteButtonText, { color: COLORS.gold }]}>Zum Webinar einladen</Text>
-                </BNMPressable>
-              </View>
-            </>
+            <View style={styles.actionRow}>
+              <BNMPressable
+                style={[styles.rejectButton, { backgroundColor: sem(SEMANTIC.redBg, isDark), borderColor: sem(SEMANTIC.redBorder, isDark) }]}
+                onPress={onReject}
+                accessibilityRole="button"
+                accessibilityLabel={`${application.name} ${t("applications.reject")}`}
+              >
+                <Text style={[styles.rejectButtonText, { color: isDark ? "#f87171" : "#dc2626" }]}>{t("applications.reject")}</Text>
+              </BNMPressable>
+              <BNMPressable
+                style={[styles.approveButton, { backgroundColor: approveColor }]}
+                onPress={onApprove}
+                hapticStyle="success"
+                accessibilityRole="button"
+                accessibilityLabel={`${application.name} ${approveLabel}`}
+              >
+                <Text style={styles.approveButtonText}>{approveLabel}</Text>
+              </BNMPressable>
+            </View>
+          )}
+
+          {/* Einladungs-Buttons — Admin + Office */}
+          {isPending && canInvite && (
+            <View style={styles.inviteRow}>
+              <BNMPressable
+                style={[styles.inviteButton, { borderColor: COLORS.gradientStart }, isSendingInvite && { opacity: 0.6 }]}
+                disabled={isSendingInvite}
+                onPress={async () => {
+                  setIsSendingInvite(true);
+                  try {
+                    const ok = await sendInterviewInvitationEmail(application.email, application.name);
+                    if (ok) showSuccess("Gesprächseinladung gesendet");
+                    else showError("E-Mail konnte nicht gesendet werden");
+                  } catch { showError("Fehler beim Senden"); }
+                  finally { setIsSendingInvite(false); }
+                }}
+                accessibilityRole="button"
+                accessibilityLabel={`${application.name} zum Gespräch einladen`}
+              >
+                <Text style={[styles.inviteButtonText, { color: COLORS.gradientStart }]}>Zum Gespräch einladen</Text>
+              </BNMPressable>
+              <BNMPressable
+                style={[styles.inviteButton, { borderColor: COLORS.gold }, isSendingInvite && { opacity: 0.6 }]}
+                disabled={isSendingInvite}
+                onPress={async () => {
+                  setIsSendingInvite(true);
+                  try {
+                    const ok = await sendWebinarInvitationEmail(application.email, application.name);
+                    if (ok) showSuccess("Webinar-Einladung gesendet");
+                    else showError("E-Mail konnte nicht gesendet werden");
+                  } catch { showError("Fehler beim Senden"); }
+                  finally { setIsSendingInvite(false); }
+                }}
+                accessibilityRole="button"
+                accessibilityLabel={`${application.name} zum Webinar einladen`}
+              >
+                <Text style={[styles.inviteButtonText, { color: COLORS.gold }]}>Zum Webinar einladen</Text>
+              </BNMPressable>
+            </View>
           )}
 
           {/* Löschen-Button (Admin, alle Status) */}
