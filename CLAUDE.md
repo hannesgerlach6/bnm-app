@@ -86,19 +86,35 @@ neuemuslime.com-Stil. Dunkelblau (#0A3A5A) + Gold (#EEA71B). `constants/Colors.t
 
 | Function | Status | Beschreibung |
 |---|---|---|
-| `send-emails` | Gebaut, NICHT deployed | E-Mails aus email_queue versenden |
-| `send-push` | Gebaut, NICHT deployed | Push bei neuen Chat-Nachrichten |
-| `send-direct` | Gebaut, NICHT deployed | Direkter E-Mail-Versand (mit JWT-Auth) |
-| `reset-password` | Gebaut, NICHT deployed | Password-Reset Flow |
-| `send-reminders` | **NEU, NICHT deployed** | Tägliche Mentor-Erinnerungen (Notifications + Push + E-Mail) |
+| `send-emails` | ✅ **Deployed** | E-Mails aus email_queue versenden |
+| `send-push` | ✅ **Deployed** | Push bei Chat + Admin-DM + allen Notifications |
+| `send-direct` | ✅ **Deployed** | Direkter E-Mail-Versand (mit JWT-Auth) |
+| `reset-password` | ✅ **Deployed** | Password-Reset Flow |
+| `send-reminders` | ✅ **Deployed** | Tägliche Mentor-Erinnerungen (Notifications + Push + E-Mail) |
 
-**Deploy-Befehl:** `supabase functions deploy <name> --project-ref cufuikcxliwbmyhwlmga`
+**Deploy-Befehl:** `npx supabase functions deploy <name> --project-ref cufuikcxliwbmyhwlmga`
 
-**Für Erinnerungssystem:** Nach Deploy → `supabase/edge-functions.sql` im SQL-Editor ausführen (pg_cron + pg_net Extensions vorher aktivieren)
+**DB-Webhooks (Push):** `supabase/push-webhooks.sql` — bereits ausgeführt ✅
+- Trigger auf `messages`, `admin_messages`, `notifications` → `send-push`
+- Service-Role-Key sicher im Vault gespeichert (`send_push_service_role_key`)
+
+**Für Erinnerungssystem:** `supabase/edge-functions.sql` im SQL-Editor ausführen (pg_cron + pg_net Extensions vorher aktivieren)
 
 ---
 
 ## FORTSCHRITTS-LOG
+
+### 2026-05-04 — Push Notifications vollständig deployed
+**Alle 5 Edge Functions deployed (cufuikcxliwbmyhwlmga):**
+- `send-push` — erweitert: verarbeitet jetzt auch `notifications`-Tabelle (alle 5 Push-Kategorien)
+- `send-reminders`, `send-direct`, `send-emails`, `reset-password` — alle deployed
+
+**DB-Webhooks via pg_net (`supabase/push-webhooks.sql`, bereits ausgeführt):**
+- `messages` INSERT → `send-push` (Chat-Nachrichten)
+- `admin_messages` INSERT → `send-push` (Admin-DM)
+- `notifications` INSERT → `send-push` (Zuweisungen, Kalender-Einladungen, Absagen, System)
+- Service-Role-Key sicher in Vault gespeichert (`send_push_service_role_key`)
+- Trigger-Funktion: `private.call_send_push()` (SECURITY DEFINER)
 
 ### 2026-04-30 — 5 User-Test-Features (Session-Edit, Nachbetreuung, Feedback-Kopie, Dashboard-Fixes, Kalender)
 **Neue SQL-Migration:** `supabase/calendar-user-create.sql` (INSERT/UPDATE/DELETE für eigene Events)
