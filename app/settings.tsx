@@ -1,4 +1,32 @@
 import React, { useState } from "react";
+
+const PUSH_TOGGLES = [
+  {
+    key: "push_chat_messages",
+    label: "Chat-Nachrichten",
+    desc: "Push bei neuen Nachrichten in Mentoring-Chats und Admin-DMs",
+  },
+  {
+    key: "push_assignments",
+    label: "Zuweisungen",
+    desc: "Push wenn ein Mentor einem Mentee zugewiesen wird",
+  },
+  {
+    key: "push_calendar",
+    label: "Kalender-Einladungen & Absagen",
+    desc: "Push bei neuen Terminen und wenn jemand absagt",
+  },
+  {
+    key: "push_reminders",
+    label: "Erinnerungen",
+    desc: "Tägliche Erinnerungen bei fehlenden Sessions",
+  },
+  {
+    key: "push_system",
+    label: "System-Benachrichtigungen",
+    desc: "Alle sonstigen System-Meldungen (Feedback, Betreuungsabschluss etc.)",
+  },
+];
 import {
   View,
   Text,
@@ -34,10 +62,11 @@ export default function SettingsScreen() {
   const { user } = useAuth();
   const { logout } = useAuth();
   const { language, setLanguage, t } = useLanguage();
-  const { mentorOfMonthVisible, toggleMentorOfMonth } = useData();
+  const { mentorOfMonthVisible, toggleMentorOfMonth, getPushSetting, togglePushSetting } = useData();
   const themeColors = useThemeColors();
   const { isDark } = useTheme();
 
+  const isAdmin = user?.role === "admin";
   const isAdminOrOffice = user?.role === "admin" || user?.role === "office";
   const canDeleteAccount = user?.role === "mentor" || user?.role === "mentee";
   const [deleting, setDeleting] = useState(false);
@@ -104,6 +133,37 @@ export default function SettingsScreen() {
                     thumbColor={COLORS.white}
                   />
                 </View>
+              </View>
+            </>
+          )}
+
+          {/* Sektion: Push-Benachrichtigungen (nur Admin) */}
+          {isAdmin && (
+            <>
+              <Text style={[styles.sectionLabel, { color: themeColors.textTertiary }]}>
+                PUSH-BENACHRICHTIGUNGEN
+              </Text>
+              <Text style={[styles.pushHint, { color: themeColors.textSecondary }]}>
+                Hier steuerst du systemweit, welche Arten von Push-Benachrichtigungen an alle Nutzer gesendet werden.
+              </Text>
+              <View style={[styles.card, { backgroundColor: themeColors.card, borderColor: themeColors.border }]}>
+                {PUSH_TOGGLES.map((pt, idx) => (
+                  <React.Fragment key={pt.key}>
+                    {idx > 0 && <View style={[styles.divider, { backgroundColor: themeColors.border }]} />}
+                    <View style={styles.toggleRow}>
+                      <View style={styles.toggleInfo}>
+                        <Text style={[styles.toggleTitle, { color: themeColors.text }]}>{pt.label}</Text>
+                        <Text style={[styles.toggleSubtitle, { color: themeColors.textTertiary }]}>{pt.desc}</Text>
+                      </View>
+                      <Switch
+                        value={getPushSetting(pt.key)}
+                        onValueChange={() => togglePushSetting(pt.key)}
+                        trackColor={{ false: themeColors.border, true: COLORS.gold }}
+                        thumbColor={COLORS.white}
+                      />
+                    </View>
+                  </React.Fragment>
+                ))}
               </View>
             </>
           )}
@@ -249,6 +309,8 @@ const styles = StyleSheet.create({
   toggleInfo: { flex: 1, marginRight: 12 },
   toggleTitle: { fontWeight: "600", fontSize: 14 },
   toggleSubtitle: { fontSize: 12, marginTop: 1 },
+  divider: { height: 1 },
+  pushHint: { fontSize: 12, lineHeight: 17, marginBottom: 10, marginTop: -2 },
   languageRow: {
     flexDirection: "row",
     alignItems: "center",

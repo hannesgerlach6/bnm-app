@@ -117,6 +117,10 @@ export interface DataContextValue {
   mentorOfMonthVisible: boolean;
   toggleMentorOfMonth: () => Promise<void>;
 
+  // Push-Benachrichtigungs-Einstellungen (Admin-global)
+  getPushSetting: (key: string) => boolean;
+  togglePushSetting: (key: string) => Promise<void>;
+
   // User registration (Mentee via Admin-Aufruf, nicht mehr nötig für Supabase)
   addUser: (user: Omit<User, "id" | "created_at"> & { password: string }) => Promise<{ userId: string } | null>;
 
@@ -2323,6 +2327,30 @@ export function DataProvider({ children }: { children: ReactNode }) {
     return appSettings[key];
   }, [appSettings]);
 
+  // ─── Push-Benachrichtigungs-Einstellungen (Admin-global) ──────────────────────
+
+  const getPushSetting = useCallback((key: string): boolean => {
+    // Default: true — wenn Eintrag fehlt, ist Push aktiviert
+    return appSettings[key] !== "false";
+  }, [appSettings]);
+
+  const togglePushSetting = useCallback(async (key: string) => {
+    const current = appSettings[key] !== "false";
+    const newValue = !current;
+    // Optimistisch aktualisieren
+    setAppSettings((prev) => ({ ...prev, [key]: newValue ? "true" : "false" }));
+
+    const { error } = await supabase
+      .from("app_settings")
+      .update({ value: newValue ? "true" : "false" })
+      .eq("key", key);
+
+    if (error) {
+      // Rollback
+      setAppSettings((prev) => ({ ...prev, [key]: current ? "true" : "false" }));
+    }
+  }, [appSettings]);
+
   // ─── addUser (für Admin: neuen Mentee ohne Auth anlegen) ──────────────────────
 
   const addUser = useCallback(
@@ -3814,7 +3842,7 @@ export function DataProvider({ children }: { children: ReactNode }) {
   }), [
     users, mentorships, sessions, sessionTypes, feedback, messages, applications,
     notifications, hadithe, qaEntries,
-    messageTemplates, resources, eventParticipations, adminMessages, mentorOfMonthVisible, isLoading, _updateUserXP,
+    messageTemplates, resources, eventParticipations, adminMessages, mentorOfMonthVisible, appSettings, isLoading, _updateUserXP,
     addResource, updateResource, deleteResource,
     toggleEventParticipation, getEventParticipationsByResourceId, getMyEventParticipation,
     resourceCompletions, toggleResourceCompletion, isResourceCompleted, getResourceCompletionCount,
@@ -3822,7 +3850,7 @@ export function DataProvider({ children }: { children: ReactNode }) {
     respondToEvent, inviteToEvent, getEventsByDate,
     addHadith, updateHadith, deleteHadith, reorderHadithe, bulkInsertHadithe,
     loadQAEntries, addQAEntry, updateQAEntry, deleteQAEntry,
-    getSetting, toggleMentorOfMonth, addUser, assignMentorship,
+    getSetting, toggleMentorOfMonth, getPushSetting, togglePushSetting, addUser, assignMentorship,
     updateMentorshipStatus, approveMentorship, rejectMentorship, getPendingApprovalsCount,
     addSession, updateSession, deleteSession, cancelMentorship,
     addSessionType, updateSessionTypeOrder, updateSessionType, deleteSessionType, addFeedback, getFeedbacks,

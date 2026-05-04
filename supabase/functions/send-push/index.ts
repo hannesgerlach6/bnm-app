@@ -7,23 +7,36 @@
 // Deploy:
 //   supabase functions deploy send-push --project-ref cufuikcxliwbmyhwlmga
 //
-// Webhooks im Dashboard einrichten (Database → Webhooks):
-//   1. Table: messages,       Event: INSERT → send-push
-//   2. Table: admin_messages, Event: INSERT → send-push
-//   3. Table: notifications,  Event: INSERT → send-push
+// Admin-Steuerung über app_settings-Tabelle (Schlüssel):
+//   push_chat_messages  → messages + admin_messages
+//   push_assignments    → notifications vom Typ "assignment"
+//   push_calendar       → notifications vom Typ "calendar_invite" + "system" (Absagen)
+//   push_reminders      → notifications vom Typ "reminder"
+//   push_system         → alle anderen notification-Typen
 
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 
 const EXPO_PUSH_URL = "https://exp.host/--/api/v2/push/send";
 
 const NOTIFICATION_TITLES: Record<string, string> = {
-  assignment:     "Neue Zuweisung",
-  reminder:       "Erinnerung",
-  progress:       "Betreuungs-Update",
-  message:        "Neue Nachricht",
-  feedback:       "Feedback",
-  system:         "BNM",
-  calendar_invite:"Neuer Termin",
+  assignment:      "Neue Zuweisung",
+  reminder:        "Erinnerung",
+  progress:        "Betreuungs-Update",
+  message:         "Neue Nachricht",
+  feedback:        "Feedback",
+  system:          "BNM",
+  calendar_invite: "Neuer Termin",
+};
+
+// Welcher app_settings-Key gilt für welchen notification.type?
+const TYPE_TO_SETTING: Record<string, string> = {
+  assignment:      "push_assignments",
+  calendar_invite: "push_calendar",
+  system:          "push_system",
+  reminder:        "push_reminders",
+  progress:        "push_system",
+  feedback:        "push_system",
+  message:         "push_chat_messages",
 };
 
 Deno.serve(async (req: Request) => {
@@ -46,19 +59,50 @@ Deno.serve(async (req: Request) => {
     Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? ""
   );
 
+  // ── Admin-Einstellungen laden ─────────────────────────────────────────────
+  const { data: settingsRows } = await supabase
+    .from("app_settings")
+    .select("key, value")
+    .like("key", "push_%");
+
+  const settings: Record<string, boolean> = {};
+  for (const row of settingsRows ?? []) {
+    settings[row.key] = row.value !== "false";
+  }
+
+  // Helper: ist diese Einstellung aktiv? (Default: true wenn nicht gesetzt)
+  const isEnabled = (key: string) => settings[key] !== false;
+
+  // ── Tabellen-Routing + Einstellungs-Check ─────────────────────────────────
   let recipientId: string | null = null;
   let pushTitle = "BNM";
   let pushBody = "";
 
   // ── notifications table (alle Benachrichtigungs-Typen) ───────────────────
   if (table === "notifications") {
-    recipientId = record.user_id as string;
     const notifType = (record.type as string) ?? "system";
+    const settingKey = TYPE_TO_SETTING[notifType] ?? "push_system";
+
+    if (!isEnabled(settingKey)) {
+      return new Response(
+        JSON.stringify({ ok: false, reason: `push disabled: ${settingKey}` }),
+        { headers: { "Content-Type": "application/json" } }
+      );
+    }
+
+    recipientId = record.user_id as string;
     pushTitle = NOTIFICATION_TITLES[notifType] ?? "BNM";
     pushBody  = (record.body as string) ?? (record.title as string) ?? "";
 
   // ── messages (Mentorship-Chat) ────────────────────────────────────────────
   } else if (table === "messages") {
+    if (!isEnabled("push_chat_messages")) {
+      return new Response(
+        JSON.stringify({ ok: false, reason: "push disabled: push_chat_messages" }),
+        { headers: { "Content-Type": "application/json" } }
+      );
+    }
+
     const mentorshipId = record.mentorship_id as string;
     const senderId     = record.sender_id as string;
     pushBody           = (record.content as string) ?? "";
@@ -82,6 +126,13 @@ Deno.serve(async (req: Request) => {
 
   // ── admin_messages ────────────────────────────────────────────────────────
   } else if (table === "admin_messages") {
+    if (!isEnabled("push_chat_messages")) {
+      return new Response(
+        JSON.stringify({ ok: false, reason: "push disabled: push_chat_messages" }),
+        { headers: { "Content-Type": "application/json" } }
+      );
+    }
+
     const adminId  = record.admin_id as string | undefined;
     const userId   = record.user_id as string;
     const senderId = record.sender_id as string;
