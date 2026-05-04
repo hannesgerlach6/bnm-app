@@ -3503,7 +3503,27 @@ export function DataProvider({ children }: { children: ReactNode }) {
         }]);
       }
     }
-  }, [authUser, eventAttendees]);
+
+    // Bei Absage: Admin + Office in-app benachrichtigen
+    if (status === "declined") {
+      const event = calendarEvents.find((e) => e.id === eventId);
+      const decliner = users.find((u) => u.id === authUser.id);
+      const adminOffice = users.filter((u) => u.role === "admin" || u.role === "office");
+      if (event && adminOffice.length > 0) {
+        await Promise.all(
+          adminOffice.map((admin) =>
+            createNotification(
+              admin.id,
+              "system",
+              `Absage: ${event.title}`,
+              `${decliner?.name ?? "Jemand"} hat den Termin "${event.title}" abgesagt.`,
+              eventId
+            )
+          )
+        );
+      }
+    }
+  }, [authUser, eventAttendees, calendarEvents, users, createNotification]);
 
   const inviteToEvent = useCallback(async (eventId: string, userIds: string[]) => {
     await supabase.auth.getSession();
