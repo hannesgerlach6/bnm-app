@@ -337,7 +337,7 @@ const styles = StyleSheet.create({
   hadithArabic: { fontSize: 20, textAlign: "center", marginBottom: 10, fontStyle: "italic", lineHeight: 32 },
   hadithText: { fontSize: 14, lineHeight: 22, marginBottom: 8, fontStyle: "italic", textAlign: "center" },
   hadithSource: { fontSize: 12, marginBottom: 12, textAlign: "center" },
-  hadithActions: { flexDirection: "row", alignItems: "center", justifyContent: "space-between", gap: 8 },
+  hadithActions: { flexDirection: "column", alignItems: "flex-start", gap: 10 },
   hadithActionsLeft: { flexDirection: "row", alignItems: "center", gap: 8 },
   hadithNextBtn: {
     flexDirection: "row",
