@@ -1142,7 +1142,7 @@ function MentorDashboard() {
                 <Text style={styles.motivationNextText} numberOfLines={1}>{t("motivation.next")}</Text>
               </BNMPressable>
               <BNMPressable style={styles.motivationShareBtn} onPress={() => { const shareText = todayHadith.text_ar ? `${todayHadith.text_ar}\n\n${todayHadith.text_de}` : todayHadith.text_de; const shareSuffix = todayHadith.source ? `— ${t("motivation.source")}: ${todayHadith.source} | BNM` : t("share.suffix"); shareHadith(shareText, shareSuffix); }} accessibilityRole="button" accessibilityLabel="Hadith teilen">
-                <Ionicons name="paper-plane-outline" size={18} color={COLORS.gold} />
+                <Ionicons name="share-outline" size={18} color={COLORS.gold} />
               </BNMPressable>
             </View>
           </View>
@@ -1848,7 +1848,7 @@ function MenteeDashboard() {
                 <Text style={[styles.motivationNextText, { fontSize: 14 }]} numberOfLines={1}>{t("motivation.next")}</Text>
               </BNMPressable>
               <BNMPressable style={[styles.motivationShareBtn, { backgroundColor: isDark ? themeColors.elevated : "#e8eaf6", padding: 12, borderRadius: RADIUS.sm }]} onPress={() => { const shareText = todayHadith.text_ar ? `${todayHadith.text_ar}\n\n${todayHadith.text_de}` : todayHadith.text_de; const shareSuffix = todayHadith.source ? `— ${t("motivation.source")}: ${todayHadith.source} | BNM` : t("share.suffix"); shareHadith(shareText, shareSuffix); }} accessibilityRole="button" accessibilityLabel="Hadith teilen">
-                <Ionicons name="paper-plane-outline" size={20} color={COLORS.gold} />
+                <Ionicons name="share-outline" size={20} color={COLORS.gold} />
               </BNMPressable>
             </View>
           </View>
