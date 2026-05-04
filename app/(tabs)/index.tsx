@@ -1141,8 +1141,8 @@ function MentorDashboard() {
               <BNMPressable style={styles.motivationNextBtn} onPress={() => setHadithOffset((prev) => prev + 1)} accessibilityRole="button" accessibilityLabel="Naechster Hadith">
                 <Text style={styles.motivationNextText} numberOfLines={1}>{t("motivation.next")}</Text>
               </BNMPressable>
-              <BNMPressable style={styles.motivationShareBtn} onPress={() => { const shareText = todayHadith.text_ar ? `${todayHadith.text_ar}\n\n${todayHadith.text_de}` : todayHadith.text_de; const shareSuffix = todayHadith.source ? `— ${t("motivation.source")}: ${todayHadith.source} | BNM` : t("share.suffix"); shareHadith(shareText, shareSuffix); }} accessibilityRole="button" accessibilityLabel="Hadith teilen">
-                <Ionicons name="share-outline" size={18} color={COLORS.gold} />
+              <BNMPressable style={[styles.motivationShareBtn, { backgroundColor: isDark ? themeColors.elevated : "#e8eaf6", padding: 9, borderRadius: RADIUS.sm }]} onPress={() => { const shareText = todayHadith.text_ar ? `${todayHadith.text_ar}\n\n${todayHadith.text_de}` : todayHadith.text_de; const shareSuffix = todayHadith.source ? `— ${t("motivation.source")}: ${todayHadith.source} | BNM` : t("share.suffix"); shareHadith(shareText, shareSuffix); }} accessibilityRole="button" accessibilityLabel="Hadith teilen">
+                <Ionicons name="share-outline" size={16} color={COLORS.gold} />
               </BNMPressable>
             </View>
           </View>
