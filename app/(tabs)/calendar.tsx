@@ -707,7 +707,7 @@ export default function CalendarTabScreen() {
             </View>
 
             {/* Scrollbarer Inhalt */}
-            <ScrollView style={{ flex: 1 }} showsVerticalScrollIndicator={false} keyboardShouldPersistTaps="handled">
+            <ScrollView style={{ maxHeight: Dimensions.get("window").height * 0.65 }} showsVerticalScrollIndicator={false} keyboardShouldPersistTaps="handled">
 
               <Text style={[styles.modalLabel, { color: themeColors.textSecondary }]}>Titel *</Text>
               <TextInput

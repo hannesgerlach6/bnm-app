@@ -706,7 +706,7 @@ export default function MentorshipDetailScreen() {
           <Text style={[styles.modalSubtitle, { color: themeColors.textSecondary, marginBottom: 12 }]}>
             Diese Fragen werden dem Mentee nach Abschluss der Betreuung gestellt.
           </Text>
-          <ScrollView style={{ flex: 1 }} showsVerticalScrollIndicator={false}>
+          <ScrollView style={{ maxHeight: Dimensions.get("window").height * 0.6 }} showsVerticalScrollIndicator={false}>
             {QUESTIONNAIRE_SECTIONS.map((section, sIdx) => (
               <View key={section.id} style={{ marginBottom: 16 }}>
                 <Text style={{ fontWeight: "700", fontSize: 14, color: COLORS.gold, marginBottom: 8 }}>
