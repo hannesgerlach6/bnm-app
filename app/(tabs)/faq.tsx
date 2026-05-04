@@ -122,30 +122,32 @@ export default function FAQScreen() {
                 </Text>
               ) : null}
               <View style={styles.hadithActions}>
-                <BNMPressable
-                  style={[styles.hadithNextBtn, { backgroundColor: isDark ? themeColors.elevated : "#e8eaf6", borderColor: isDark ? themeColors.border : "#c5cae9" }]}
-                  onPress={() => setHadithOffset((prev) => prev + 1)}
-                  accessibilityRole="button"
-                  accessibilityLabel="Nächster Hadith"
-                >
-                  <Ionicons name="arrow-forward-outline" size={14} color={isDark ? COLORS.gold : "#3949ab"} />
-                  <Text style={[styles.hadithNextText, { color: isDark ? COLORS.gold : "#3949ab" }]}>
-                    {t("motivation.next")}
-                  </Text>
-                </BNMPressable>
-                <BNMPressable
-                  style={[styles.hadithShareBtn, { backgroundColor: isDark ? themeColors.elevated : "#e8eaf6" }]}
-                  accessibilityRole="button"
-                  accessibilityLabel="Hadith teilen"
-                  onPress={() => {
-                    const shareText = todayHadith.text_ar
-                      ? `${todayHadith.text_ar}\n\n${todayHadith.text_de}`
-                      : todayHadith.text_de;
-                    Share.share({ message: `${shareText}\n\n${t("share.suffix")}` }).catch(() => {});
-                  }}
-                >
-                  <Ionicons name="share-outline" size={16} color={COLORS.gold} />
-                </BNMPressable>
+                <View style={styles.hadithActionsLeft}>
+                  <BNMPressable
+                    style={[styles.hadithNextBtn, { backgroundColor: isDark ? themeColors.elevated : "#e8eaf6", borderColor: isDark ? themeColors.border : "#c5cae9" }]}
+                    onPress={() => setHadithOffset((prev) => prev + 1)}
+                    accessibilityRole="button"
+                    accessibilityLabel="Nächster Hadith"
+                  >
+                    <Ionicons name="arrow-forward-outline" size={14} color={isDark ? COLORS.gold : "#3949ab"} />
+                    <Text style={[styles.hadithNextText, { color: isDark ? COLORS.gold : "#3949ab" }]}>
+                      {t("motivation.next")}
+                    </Text>
+                  </BNMPressable>
+                  <BNMPressable
+                    style={[styles.hadithShareBtn, { backgroundColor: isDark ? themeColors.elevated : "#e8eaf6" }]}
+                    accessibilityRole="button"
+                    accessibilityLabel="Hadith teilen"
+                    onPress={() => {
+                      const shareText = todayHadith.text_ar
+                        ? `${todayHadith.text_ar}\n\n${todayHadith.text_de}`
+                        : todayHadith.text_de;
+                      Share.share({ message: `${shareText}\n\n${t("share.suffix")}` }).catch(() => {});
+                    }}
+                  >
+                    <Ionicons name="share-outline" size={16} color={COLORS.gold} />
+                  </BNMPressable>
+                </View>
                 <BNMPressable
                   style={[styles.hadithAllBtn, { borderColor: isDark ? "#3A3A5C" : "#c5cae9" }]}
                   onPress={() => router.push("/hadithe")}
@@ -335,7 +337,8 @@ const styles = StyleSheet.create({
   hadithArabic: { fontSize: 20, textAlign: "center", marginBottom: 10, fontStyle: "italic", lineHeight: 32 },
   hadithText: { fontSize: 14, lineHeight: 22, marginBottom: 8, fontStyle: "italic", textAlign: "center" },
   hadithSource: { fontSize: 12, marginBottom: 12, textAlign: "center" },
-  hadithActions: { flexDirection: "row", alignItems: "center", justifyContent: "center", gap: 8, flexWrap: "wrap" },
+  hadithActions: { flexDirection: "row", alignItems: "center", justifyContent: "space-between", gap: 8 },
+  hadithActionsLeft: { flexDirection: "row", alignItems: "center", gap: 8 },
   hadithNextBtn: {
     flexDirection: "row",
     alignItems: "center",
@@ -347,7 +350,7 @@ const styles = StyleSheet.create({
   },
   hadithNextText: { fontSize: 13, fontWeight: "500" },
   hadithShareBtn: { padding: 8, borderRadius: RADIUS.sm },
-  hadithAllBtn: { marginLeft: "auto", borderBottomWidth: 1, paddingBottom: 1 },
+  hadithAllBtn: { borderBottomWidth: 1, paddingBottom: 1 },
   hadithAllText: { fontSize: 13, fontWeight: "500" },
 
   // Sektion
