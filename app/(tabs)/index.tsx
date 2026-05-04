@@ -1127,7 +1127,7 @@ function MentorDashboard() {
         {todayHadith && (
           <View style={[styles.mentorHadithCard, { borderColor: sem(SEMANTIC.goldBorder, isDark) }]}>
             <View style={styles.hadithCardHeader}>
-              <Text style={styles.hadithStar}>★</Text>
+              <Ionicons name="star" size={16} color={COLORS.gold} />
               <Text style={[styles.hadithCardLabel, { color: themeColors.text }]}>{t("motivation.title")}</Text>
             </View>
             {todayHadith.text_ar ? (
@@ -1142,7 +1142,7 @@ function MentorDashboard() {
                 <Text style={styles.motivationNextText}>{t("motivation.next")}</Text>
               </BNMPressable>
               <BNMPressable style={styles.motivationShareBtn} onPress={() => { const shareText = todayHadith.text_ar ? `${todayHadith.text_ar}\n\n${todayHadith.text_de}` : todayHadith.text_de; const shareSuffix = todayHadith.source ? `— ${t("motivation.source")}: ${todayHadith.source} | BNM` : t("share.suffix"); shareHadith(shareText, shareSuffix); }} accessibilityRole="button" accessibilityLabel="Hadith teilen">
-                <Ionicons name="share-outline" size={18} color={COLORS.gold} />
+                <Ionicons name="share-social-outline" size={18} color={COLORS.gold} />
               </BNMPressable>
             </View>
           </View>
@@ -1833,7 +1833,7 @@ function MenteeDashboard() {
         {todayHadith && (
           <View style={[styles.menteeHadithBigCard, { backgroundColor: isDark ? "#1A1A2E" : "#f0f4ff", borderColor: sem(SEMANTIC.goldBorder, isDark) }]}>
             <View style={styles.hadithCardHeader}>
-              <Text style={styles.hadithStar}>★</Text>
+              <Ionicons name="star" size={18} color={COLORS.gold} />
               <Text style={[styles.hadithCardLabel, { color: themeColors.text, fontSize: 16 }]}>{t("motivation.title")}</Text>
             </View>
             {todayHadith.text_ar ? (
@@ -1848,7 +1848,7 @@ function MenteeDashboard() {
                 <Text style={[styles.motivationNextText, { fontSize: 14 }]}>{t("motivation.next")}</Text>
               </BNMPressable>
               <BNMPressable style={[styles.motivationShareBtn, { backgroundColor: isDark ? themeColors.elevated : "#e8eaf6", padding: 12, borderRadius: RADIUS.sm }]} onPress={() => { const shareText = todayHadith.text_ar ? `${todayHadith.text_ar}\n\n${todayHadith.text_de}` : todayHadith.text_de; const shareSuffix = todayHadith.source ? `— ${t("motivation.source")}: ${todayHadith.source} | BNM` : t("share.suffix"); shareHadith(shareText, shareSuffix); }} accessibilityRole="button" accessibilityLabel="Hadith teilen">
-                <Ionicons name="share-outline" size={20} color={COLORS.gold} />
+                <Ionicons name="share-social-outline" size={20} color={COLORS.gold} />
               </BNMPressable>
             </View>
           </View>
@@ -2275,7 +2275,7 @@ function StatCard({
         <View style={styles.statCardInner}>
           <View style={{ flex: 1 }}>
             <Text style={[styles.statValue, highlight && styles.statValueHighlight, { color: valueColor }]}>{value}</Text>
-            <Text style={[styles.statLabel, { color: highlight ? color : themeColors.textSecondary }]}>{label}</Text>
+            <Text style={[styles.statLabel, { color: highlight ? color : themeColors.textSecondary }]} numberOfLines={1} adjustsFontSizeToFit minimumFontScale={0.65}>{label}</Text>
             {sublabel && (
               <Text style={[styles.statSublabel, { color: themeColors.textTertiary }]}>{sublabel}</Text>
             )}
@@ -2922,7 +2922,7 @@ const styles = StyleSheet.create({
     marginBottom: 8,
   },
   hadithCardHeader: { flexDirection: "row", alignItems: "center", justifyContent: "center", marginBottom: 10, gap: 8 },
-  hadithStar: { color: COLORS.gold, fontSize: 18 },
+
   hadithCardLabel: { fontWeight: "700", color: COLORS.primary, fontSize: 14 },
   hadithCardText: { color: COLORS.secondary, fontSize: 13, lineHeight: 21, fontStyle: "italic", marginBottom: 8, textAlign: "center" },
   hadithCardQuelle: { color: COLORS.tertiary, fontSize: 11, marginBottom: 8, fontWeight: "500", textAlign: "center" },
