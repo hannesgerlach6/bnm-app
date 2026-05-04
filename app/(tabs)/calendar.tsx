@@ -594,7 +594,7 @@ export default function CalendarTabScreen() {
                   Google Kalender
                 </Text>
                 <Text style={[styles.googleConnectSub, { color: themeColors.textTertiary }]}>
-                  {googleConnected ? "Verbunden — Events werden synchronisiert" : "Verbinden für automatische Sync"}
+                  {googleConnected ? "Verbunden" : "Verbinden für automatische Sync"}
                 </Text>
               </View>
             </View>
