@@ -1,20 +1,32 @@
 // Supabase Edge Function: send-push
-// Wird via Database Webhook bei INSERT in messages / admin_messages aufgerufen.
-// Sendet Push-Notification via Expo Push API an den Empfänger.
+// Wird via Database Webhook aufgerufen bei INSERT in:
+//   - messages         → Chat-Nachricht
+//   - admin_messages   → Admin-Direktnachricht
+//   - notifications    → Alle anderen Push-Typen (Zuweisung, Kalender, System, ...)
 //
 // Deploy:
 //   supabase functions deploy send-push --project-ref cufuikcxliwbmyhwlmga
 //
-// Webhook im Dashboard einrichten:
-//   Database → Webhooks → Create Webhook
-//   → Table: messages, Event: INSERT, URL: <function-url>/send-push
+// Webhooks im Dashboard einrichten (Database → Webhooks):
+//   1. Table: messages,       Event: INSERT → send-push
+//   2. Table: admin_messages, Event: INSERT → send-push
+//   3. Table: notifications,  Event: INSERT → send-push
 
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 
 const EXPO_PUSH_URL = "https://exp.host/--/api/v2/push/send";
 
+const NOTIFICATION_TITLES: Record<string, string> = {
+  assignment:     "Neue Zuweisung",
+  reminder:       "Erinnerung",
+  progress:       "Betreuungs-Update",
+  message:        "Neue Nachricht",
+  feedback:       "Feedback",
+  system:         "BNM",
+  calendar_invite:"Neuer Termin",
+};
+
 Deno.serve(async (req: Request) => {
-  // Nur POST erlauben
   if (req.method !== "POST") {
     return new Response("Method not allowed", { status: 405 });
   }
@@ -26,27 +38,31 @@ Deno.serve(async (req: Request) => {
     return new Response("Invalid JSON", { status: 400 });
   }
 
-  // Supabase Webhook liefert { type, table, record, old_record, schema }
   const record = (payload.record ?? payload) as Record<string, unknown>;
-  const table = (payload.table as string) ?? "messages";
+  const table = (payload.table as string) ?? "notifications";
 
-  // Service-Role-Client für DB-Zugriff
   const supabase = createClient(
     Deno.env.get("SUPABASE_URL") ?? "",
     Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? ""
   );
 
   let recipientId: string | null = null;
-  let senderName = "BNM";
-  let messageText = "";
+  let pushTitle = "BNM";
+  let pushBody = "";
 
-  if (table === "messages") {
-    // Chat-Nachricht: Empfänger ist der ANDERE im Mentorship
+  // ── notifications table (alle Benachrichtigungs-Typen) ───────────────────
+  if (table === "notifications") {
+    recipientId = record.user_id as string;
+    const notifType = (record.type as string) ?? "system";
+    pushTitle = NOTIFICATION_TITLES[notifType] ?? "BNM";
+    pushBody  = (record.body as string) ?? (record.title as string) ?? "";
+
+  // ── messages (Mentorship-Chat) ────────────────────────────────────────────
+  } else if (table === "messages") {
     const mentorshipId = record.mentorship_id as string;
-    const senderId = record.sender_id as string;
-    messageText = (record.content as string) ?? "";
+    const senderId     = record.sender_id as string;
+    pushBody           = (record.content as string) ?? "";
 
-    // Mentorship laden um Empfänger zu ermitteln
     const { data: mentorship } = await supabase
       .from("mentorships")
       .select("mentor_id, mentee_id")
@@ -60,38 +76,22 @@ Deno.serve(async (req: Request) => {
           : mentorship.mentor_id;
     }
 
-    // Sender-Name laden
     const { data: sender } = await supabase
-      .from("profiles")
-      .select("name")
-      .eq("id", senderId)
-      .single();
-    if (sender) senderName = sender.name;
+      .from("profiles").select("name").eq("id", senderId).single();
+    pushTitle = `Neue Nachricht von ${sender?.name ?? "BNM"}`;
 
+  // ── admin_messages ────────────────────────────────────────────────────────
   } else if (table === "admin_messages") {
-    // Admin-Nachricht: Empfänger ist user_id (wenn Admin schreibt)
-    // oder Admin (wenn User schreibt) — wir benachrichtigen immer den user_id-Träger
-    const adminId = record.admin_id as string | undefined;
-    const userId = record.user_id as string;
+    const adminId  = record.admin_id as string | undefined;
+    const userId   = record.user_id as string;
     const senderId = record.sender_id as string;
-    messageText = (record.content as string) ?? "";
+    pushBody       = (record.content as string) ?? "";
 
-    // Empfänger: wer hat die Nachricht NICHT geschrieben?
-    if (senderId === userId) {
-      // User schreibt → Admin bekommt Push (admin_id aus record)
-      recipientId = adminId ?? null;
-    } else {
-      // Admin schreibt → User bekommt Push
-      recipientId = userId;
-    }
+    recipientId = senderId === userId ? (adminId ?? null) : userId;
 
-    // Sender-Name
     const { data: sender } = await supabase
-      .from("profiles")
-      .select("name")
-      .eq("id", senderId)
-      .single();
-    if (sender) senderName = sender.name;
+      .from("profiles").select("name").eq("id", senderId).single();
+    pushTitle = `Neue Nachricht von ${sender?.name ?? "BNM"}`;
   }
 
   if (!recipientId) {
@@ -100,12 +100,9 @@ Deno.serve(async (req: Request) => {
     });
   }
 
-  // Push Token des Empfängers laden
+  // Push Token des Empfängers
   const { data: recipient } = await supabase
-    .from("profiles")
-    .select("push_token, name")
-    .eq("id", recipientId)
-    .single();
+    .from("profiles").select("push_token").eq("id", recipientId).single();
 
   const pushToken = recipient?.push_token as string | null;
   if (!pushToken || !pushToken.startsWith("ExponentPushToken")) {
@@ -115,24 +112,18 @@ Deno.serve(async (req: Request) => {
     );
   }
 
-  // Nachricht kürzen
-  const body =
-    messageText.length > 100 ? messageText.substring(0, 100) + "…" : messageText;
+  const body = pushBody.length > 120 ? pushBody.substring(0, 120) + "…" : pushBody;
 
-  // Expo Push API aufrufen
   const pushRes = await fetch(EXPO_PUSH_URL, {
     method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      Accept: "application/json",
-    },
+    headers: { "Content-Type": "application/json", Accept: "application/json" },
     body: JSON.stringify({
-      to: pushToken,
-      title: `Neue Nachricht von ${senderName}`,
+      to:    pushToken,
+      title: pushTitle,
       body,
       sound: "default",
       badge: 1,
-      data: { table, senderId: record.sender_id },
+      data:  { table, type: record.type ?? null },
     }),
   });
 
