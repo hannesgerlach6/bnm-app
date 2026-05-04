@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState, useCallback } from "react";
 import {
   View,
   Text,
@@ -6,11 +6,13 @@ import {
   StyleSheet,
   Platform,
   useWindowDimensions,
+  RefreshControl,
 } from "react-native";
 import { BNMPressable } from "../../components/BNMPressable";
 import { useRouter } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
 import { useAuth } from "../../contexts/AuthContext";
+import { useData } from "../../contexts/DataContext";
 import { useLanguage } from "../../contexts/LanguageContext";
 import { COLORS, SHADOWS, RADIUS } from "../../constants/Colors";
 import { Container } from "../../components/Container";
@@ -19,9 +21,18 @@ export default function ToolsTabScreen() {
   const router = useRouter();
   const { t } = useLanguage();
   const { user } = useAuth();
+  const { refreshData } = useData();
   const themeColors = useThemeColors();
   const { isDark } = useTheme();
   const { width } = useWindowDimensions();
+
+  const [refreshing, setRefreshing] = useState(false);
+
+  const onRefresh = useCallback(async () => {
+    setRefreshing(true);
+    await refreshData();
+    setRefreshing(false);
+  }, [refreshData]);
   // Auf Mobile: 2-Spalten-Grid; auf Web/Desktop: flexibles Layout
   const isMobileLayout = Platform.OS !== "web" || width < 600;
   const itemWidth = isMobileLayout ? "48%" : undefined;
@@ -38,7 +49,10 @@ export default function ToolsTabScreen() {
 
   return (
     <Container fullWidth={Platform.OS === "web"}>
-      <ScrollView style={[styles.scrollView, { backgroundColor: themeColors.background }]}>
+      <ScrollView
+        style={[styles.scrollView, { backgroundColor: themeColors.background }]}
+        refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor={COLORS.primary} colors={[COLORS.primary]} />}
+      >
         <View style={styles.page}>
           <Text style={[styles.pageTitle, { color: themeColors.text }]}>Tools</Text>
           <Text style={[styles.pageSubtitle, { color: themeColors.textSecondary }]}>

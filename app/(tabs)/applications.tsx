@@ -7,6 +7,7 @@ import {
   StyleSheet,
   Modal,
   Platform,
+  RefreshControl,
 } from "react-native";
 import { BNMPressable } from "../../components/BNMPressable";
 import { showError, showSuccess, showConfirm } from "../../lib/errorHandler";
@@ -65,6 +66,13 @@ export default function ApplicationsTabScreen() {
   const [rejectReasonError, setRejectReasonError] = useState("");
   const [isRejecting, setIsRejecting] = useState(false);
   const isApprovingRef = useRef(false);
+  const [refreshing, setRefreshing] = useState(false);
+
+  const onRefresh = useCallback(async () => {
+    setRefreshing(true);
+    await refreshData();
+    setRefreshing(false);
+  }, [refreshData]);
 
   if (user?.role !== "admin" && user?.role !== "office") {
     return (
@@ -350,6 +358,7 @@ export default function ApplicationsTabScreen() {
         style={[styles.scrollView, { backgroundColor: themeColors.background }]}
         removeClippedSubviews={false}
         windowSize={10}
+        refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor={COLORS.primary} colors={[COLORS.primary]} />}
       />
 
       {/* ─── Ablehnung-Modal (Mentor) ─── */}

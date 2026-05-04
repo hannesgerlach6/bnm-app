@@ -6,6 +6,7 @@ import {
   StyleSheet,
   Platform,
   LayoutAnimation,
+  RefreshControl,
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { useAuth } from "../../contexts/AuthContext";
@@ -279,9 +280,16 @@ export default function FeedbackTabScreen() {
   const { t } = useLanguage();
   const themeColors = useThemeColors();
   const { isDark } = useTheme();
-  const { getFeedbacks, users, mentorships } = useData();
+  const { getFeedbacks, users, mentorships, refreshData } = useData();
   const [filter, setFilter] = useState<FeedbackFilter>("all");
   const [expandedIds, setExpandedIds] = useState<Set<string>>(new Set());
+  const [refreshing, setRefreshing] = useState(false);
+
+  const onRefresh = useCallback(async () => {
+    setRefreshing(true);
+    await refreshData();
+    setRefreshing(false);
+  }, [refreshData]);
 
   const allFeedbacks = getFeedbacks();
 
@@ -303,7 +311,10 @@ export default function FeedbackTabScreen() {
 
   return (
     <Container fullWidth={Platform.OS === "web"}>
-      <ScrollView style={[styles.scrollView, { backgroundColor: themeColors.background }]}>
+      <ScrollView
+        style={[styles.scrollView, { backgroundColor: themeColors.background }]}
+        refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor={COLORS.primary} colors={[COLORS.primary]} />}
+      >
         <View style={styles.page}>
           <Text style={[styles.pageTitle, { color: themeColors.text }]}>{t("tabs.feedback")}</Text>
           <Text style={[styles.pageSubtitle, { color: themeColors.textSecondary }]}>

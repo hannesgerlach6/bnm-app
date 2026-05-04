@@ -11,6 +11,7 @@ import {
   TextInput,
   Dimensions,
   Alert,
+  RefreshControl,
 } from "react-native";
 import { supabase } from "../../lib/supabase";
 import { Ionicons } from "@expo/vector-icons";
@@ -275,7 +276,16 @@ export default function CalendarTabScreen() {
     inviteToEvent,
     mentorships,
     users,
+    refreshData,
   } = useData();
+
+  const [refreshing, setRefreshing] = useState(false);
+
+  const onRefresh = useCallback(async () => {
+    setRefreshing(true);
+    await refreshData();
+    setRefreshing(false);
+  }, [refreshData]);
 
   const [selectedDate, setSelectedDate] = useState<string | null>(() => {
     const now = new Date();
@@ -561,7 +571,10 @@ export default function CalendarTabScreen() {
 
   return (
     <Container fullWidth={Platform.OS === "web"}>
-      <ScrollView style={[styles.scrollView, { backgroundColor: themeColors.background }]}>
+      <ScrollView
+        style={[styles.scrollView, { backgroundColor: themeColors.background }]}
+        refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor={COLORS.primary} colors={[COLORS.primary]} />}
+      >
         <View style={styles.page}>
           <Text style={[styles.pageTitle, { color: themeColors.text }]}>{t("tabs.calendar")}</Text>
 
