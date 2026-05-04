@@ -576,7 +576,9 @@ export default function CalendarTabScreen() {
         refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor={COLORS.primary} colors={[COLORS.primary]} />}
       >
         <View style={styles.page}>
-          <Text style={[styles.pageTitle, { color: themeColors.text }]}>{t("tabs.calendar")}</Text>
+          {Platform.OS !== "ios" && (
+            <Text style={[styles.pageTitle, { color: themeColors.text }]}>{t("tabs.calendar")}</Text>
+          )}
 
           {/* Google Calendar Connect Card */}
           <View style={[styles.googleConnectCard, {
