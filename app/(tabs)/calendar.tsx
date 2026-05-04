@@ -21,6 +21,7 @@ import { useLanguage } from "../../contexts/LanguageContext";
 import { useTheme, useThemeColors } from "../../contexts/ThemeContext";
 import { COLORS, SHADOWS, RADIUS, SEMANTIC, sem } from "../../constants/Colors";
 import { Container } from "../../components/Container";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { CalendarView, CalendarViewEvent } from "../../components/CalendarView";
 import { EmptyState } from "../../components/EmptyState";
 import { BNMPressable } from "../../components/BNMPressable";
@@ -266,6 +267,7 @@ export default function CalendarTabScreen() {
   const { t } = useLanguage();
   const themeColors = useThemeColors();
   const { isDark } = useTheme();
+  const insets = useSafeAreaInsets();
   const {
     calendarEvents,
     eventAttendees,
@@ -575,10 +577,7 @@ export default function CalendarTabScreen() {
         style={[styles.scrollView, { backgroundColor: themeColors.background }]}
         refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor={COLORS.primary} colors={[COLORS.primary]} />}
       >
-        <View style={styles.page}>
-          {Platform.OS !== "ios" && (
-            <Text style={[styles.pageTitle, { color: themeColors.text }]}>{t("tabs.calendar")}</Text>
-          )}
+        <View style={[styles.page, Platform.OS !== "web" && { paddingTop: insets.top + 12 }]}>
 
           {/* Google Calendar Connect Card */}
           <View style={[styles.googleConnectCard, {
