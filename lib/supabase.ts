@@ -1,4 +1,6 @@
 import { createClient } from "@supabase/supabase-js";
+import { Platform } from "react-native";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 // HINWEIS: In Supabase Dashboard → Authentication → Providers → Email
 // "Confirm email" auf OFF stellen, damit Registrierung ohne E-Mail-Verify funktioniert.
@@ -9,6 +11,9 @@ export const SUPABASE_ANON_KEY =
 
 export const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
   auth: {
+    // AsyncStorage auf Native → Session überlebt Reload/Neustart
+    // Web nutzt localStorage (Supabase-Standard, kein Override nötig)
+    storage: Platform.OS !== "web" ? AsyncStorage : undefined,
     persistSession: true,
     autoRefreshToken: true,
     detectSessionInUrl: true,

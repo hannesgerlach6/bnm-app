@@ -56,14 +56,13 @@ export default function LoginScreen() {
   return (
     <KeyboardAvoidingView
       style={[styles.flex1, { backgroundColor: themeColors.background }]}
-      behavior="padding"
-      keyboardVerticalOffset={0}
+      behavior={Platform.OS === "ios" ? "padding" : "height"}
+      keyboardVerticalOffset={Platform.OS === "ios" ? insets.top : 0}
     >
       <ScrollView
         style={[styles.flex1, { backgroundColor: themeColors.background }]}
         contentContainerStyle={[{ flexGrow: 1, paddingTop: insets.top, paddingBottom: Math.max(insets.bottom, 16) }, isDesktop && styles.desktopCenter]}
         keyboardShouldPersistTaps="handled"
-        automaticallyAdjustKeyboardInsets
       >
         {/* Desktop: Card-Wrapper */}
         <View style={isDesktop ? [styles.desktopCard, { backgroundColor: themeColors.card }, SHADOWS.lg] : undefined}>
