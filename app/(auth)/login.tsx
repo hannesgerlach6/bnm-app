@@ -1,11 +1,10 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState } from "react";
 import {
   View,
   Text,
   ScrollView,
   ActivityIndicator,
   KeyboardAvoidingView,
-  Keyboard,
   Platform,
   StyleSheet,
   useWindowDimensions,
@@ -38,25 +37,6 @@ export default function LoginScreen() {
   const [errorMsg, setErrorMsg] = useState("");
   const [loggingIn, setLoggingIn] = useState(false);
 
-  // ── DEBUG: Keyboard-Diagnose (TEMPORÄR – nach Fix entfernen) ──────────────
-  const [dbgKbHeight, setDbgKbHeight] = useState(0);
-  const [dbgKbVisible, setDbgKbVisible] = useState(false);
-  const [dbgScrollH, setDbgScrollH] = useState(0);
-  const [dbgKavH, setDbgKavH] = useState(0);
-  const { height: winHeight } = useWindowDimensions();
-  useEffect(() => {
-    const show = Keyboard.addListener("keyboardDidShow", (e) => {
-      setDbgKbHeight(Math.round(e.endCoordinates.height));
-      setDbgKbVisible(true);
-    });
-    const hide = Keyboard.addListener("keyboardDidHide", () => {
-      setDbgKbHeight(0);
-      setDbgKbVisible(false);
-    });
-    return () => { show.remove(); hide.remove(); };
-  }, []);
-  // ── END DEBUG ─────────────────────────────────────────────────────────────
-
   async function handleLogin() {
     if (!email.trim() || !password.trim()) {
       setErrorMsg(t("login.errorEmpty"));
@@ -74,30 +54,18 @@ export default function LoginScreen() {
   }
 
   return (
+    // behavior="height" schrumpft die KAV-Höhe wenn Tastatur erscheint.
+    // "padding" + contentContainerStyle{{flexGrow:1}} erzeugte einen endlosen
+    // Layout-Loop (kav wuchs auf 6000+px) — "height" hat diesen Bug nicht.
     <KeyboardAvoidingView
       style={[styles.flex1, { backgroundColor: themeColors.background }]}
-      behavior={Platform.OS === "ios" ? "padding" : "height"}
-      keyboardVerticalOffset={Platform.OS === "ios" ? insets.top : 0}
-      onLayout={(e) => setDbgKavH(Math.round(e.nativeEvent.layout.height))}
+      behavior="height"
+      keyboardVerticalOffset={0}
     >
-      {/* ── DEBUG OVERLAY (TEMPORÄR) ── */}
-      {Platform.OS !== "web" && (
-        <View style={styles.dbgOverlay} pointerEvents="none">
-          <Text style={styles.dbgText}>win:{Math.round(winHeight)} kav:{dbgKavH}</Text>
-          <Text style={styles.dbgText}>insets t:{Math.round(insets.top)} b:{Math.round(insets.bottom)}</Text>
-          <Text style={styles.dbgText}>kvOffset:{Math.round(insets.top)}</Text>
-          <Text style={[styles.dbgText, dbgKbVisible && styles.dbgHighlight]}>
-            kb:{dbgKbHeight}px {dbgKbVisible ? "▲OPEN" : "▼closed"}
-          </Text>
-          <Text style={styles.dbgText}>scroll:{dbgScrollH}</Text>
-        </View>
-      )}
-      {/* ── END DEBUG ── */}
       <ScrollView
         style={[styles.flex1, { backgroundColor: themeColors.background }]}
         contentContainerStyle={[{ flexGrow: 1, paddingTop: insets.top, paddingBottom: Math.max(insets.bottom, 16) }, isDesktop && styles.desktopCenter]}
         keyboardShouldPersistTaps="handled"
-        onLayout={(e) => setDbgScrollH(Math.round(e.nativeEvent.layout.height))}
       >
         {/* Desktop: Card-Wrapper */}
         <View style={isDesktop ? [styles.desktopCard, { backgroundColor: themeColors.card }, SHADOWS.lg] : undefined}>
@@ -212,14 +180,6 @@ export default function LoginScreen() {
 
 const styles = StyleSheet.create({
   flex1: { flex: 1 },
-  // DEBUG (TEMPORÄR)
-  dbgOverlay: {
-    position: "absolute", top: 50, right: 8, zIndex: 9999,
-    backgroundColor: "rgba(0,0,0,0.75)", borderRadius: 6, padding: 6, gap: 2,
-  },
-  dbgText: { color: "#00FF88", fontSize: 11, fontFamily: "monospace" },
-  dbgHighlight: { color: "#FFD700" },
-  // END DEBUG
 
   // ─── Desktop ───
   desktopCenter: {
