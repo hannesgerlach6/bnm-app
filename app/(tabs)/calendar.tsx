@@ -522,6 +522,8 @@ export default function CalendarTabScreen() {
         });
       }
 
+      setShowCreateModal(false);
+
       // Mentees einladen (nur neu hinzugefügte)
       if (eventId && selectedMenteeIds.length > 0) {
         await inviteToEvent(eventId, selectedMenteeIds);
@@ -562,8 +564,6 @@ export default function CalendarTabScreen() {
           );
         }
       }
-
-      setShowCreateModal(false);
     } catch {
       // handled
     } finally {
