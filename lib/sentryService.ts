@@ -13,6 +13,7 @@
  *   clearUser()                                // nach Logout
  */
 
+import type React from "react";
 import { Platform } from "react-native";
 
 // Lazy-geladen damit der Import den Bundle auf Web nicht aufbläht

@@ -90,8 +90,8 @@ function SentryInitializer() {
 function OTAUpdateChecker() {
   useEffect(() => {
     if (Platform.OS === "web" || !Updates) return;
-    // Nur in Production-Builds prüfen (nicht in Expo Go / Dev-Client)
-    if (Updates.isEmbeddedLaunch === false) return;
+    // Nur in Production-Builds prüfen — in Expo Go / Dev-Client überspringen
+    if (__DEV__) return;
 
     async function checkForUpdate() {
       try {

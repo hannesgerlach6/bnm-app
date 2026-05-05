@@ -3784,6 +3784,8 @@ export function DataProvider({ children }: { children: ReactNode }) {
     getSetting,
     mentorOfMonthVisible,
     toggleMentorOfMonth,
+    getPushSetting,
+    togglePushSetting,
     addUser,
     assignMentorship,
     updateMentorshipStatus,
