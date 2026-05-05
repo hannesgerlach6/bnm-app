@@ -201,6 +201,16 @@ const tr: Record<TranslationKeys, string> = {
   "settings.deleteConfirm": "Hesabınız silinecek ve artık giriş yapamayacaksınız. Verileriniz gizlilik politikamıza ve yasal saklama gereksinimlerine uygun olarak işlenecektir.",
   "settings.rtlHint": "RTL düzeni gelecek bir sürümde desteklenecektir",
   "settings.footer": "BNM – Yeni Müslümanlar İçin Rehberlik · Sürüm 1.0.0",
+  "settings.push.chatMessages": "Sohbet Mesajları",
+  "settings.push.chatMessagesDesc": "Mentorluk sohbetlerinde ve yönetici DM'lerinde yeni mesajlar için bildirim",
+  "settings.push.assignments": "Atamalar",
+  "settings.push.assignmentsDesc": "Bir mentor bir menteye atandığında bildirim",
+  "settings.push.calendar": "Takvim Davetleri ve İptaller",
+  "settings.push.calendarDesc": "Yeni randevular ve iptal bildirimlerinde bildirim",
+  "settings.push.reminders": "Hatırlatıcılar",
+  "settings.push.remindersDesc": "Eksik seanslar için günlük hatırlatıcılar",
+  "settings.push.system": "Sistem Bildirimleri",
+  "settings.push.systemDesc": "Diğer tüm sistem mesajları (geri bildirim, mentorluk tamamlama vb.)",
 
   // Register Public
   "register.plz": "Posta Kodu",

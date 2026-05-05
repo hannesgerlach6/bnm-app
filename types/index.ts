@@ -100,6 +100,7 @@ export interface MessageTemplate {
   title: string;
   category: string;
   body: string;
+  subject?: string;
   sort_order: number;
   is_active: boolean;
   template_key?: string;
@@ -195,6 +196,7 @@ export interface MentorApplication {
   phone?: string;
   status: ApplicationStatus;
   submitted_at: string;
+  application_type?: "mentor" | "mentee";
 }
 
 export interface AuthContextValue {

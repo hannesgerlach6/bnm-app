@@ -201,6 +201,16 @@ const en: Record<TranslationKeys, string> = {
   "settings.deleteConfirm": "Your account will be deleted and you will no longer be able to log in. Your data will be processed in accordance with our privacy policy and legal retention requirements.",
   "settings.rtlHint": "RTL layout will be supported in a future version",
   "settings.footer": "BNM – Guidance for New Muslims · Version 1.0.0",
+  "settings.push.chatMessages": "Chat Messages",
+  "settings.push.chatMessagesDesc": "Push on new messages in mentoring chats and admin DMs",
+  "settings.push.assignments": "Assignments",
+  "settings.push.assignmentsDesc": "Push when a mentor is assigned to a mentee",
+  "settings.push.calendar": "Calendar Invitations & Cancellations",
+  "settings.push.calendarDesc": "Push on new appointments and when someone cancels",
+  "settings.push.reminders": "Reminders",
+  "settings.push.remindersDesc": "Daily reminders for missing sessions",
+  "settings.push.system": "System Notifications",
+  "settings.push.systemDesc": "All other system messages (feedback, mentorship completion etc.)",
 
   // Register Public
   "register.plz": "Postal Code",

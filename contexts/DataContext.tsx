@@ -302,6 +302,7 @@ function mapMessageTemplate(row: Record<string, unknown>): MessageTemplate {
     title: (row.title as string) ?? "",
     category: (row.category as string) ?? "general",
     body: (row.body as string) ?? "",
+    subject: (row.subject as string) ?? "",
     sort_order: (row.sort_order as number) ?? 0,
     is_active: (row.is_active as boolean) ?? true,
     template_key: (row.template_key as string) ?? undefined,
@@ -2536,7 +2537,7 @@ export function DataProvider({ children }: { children: ReactNode }) {
 
       // Erst User via Supabase Auth signUp anlegen (nur bei Mentor-Bewerbungen)
       // Bei Mentee-Anmeldungen übernimmt handleAcceptMenteeRegistration in applications.tsx den signUp
-      const isMenteeRegistration = app.motivation === "Anmeldung als neuer Muslim (öffentliches Formular)";
+      const isMenteeRegistration = appRow.application_type === "mentee";
 
       if (!isMenteeRegistration) {
         // Prüfen ob der User bereits einen Account hat (vermeidet 422-Fehler von signUp)
@@ -2769,6 +2770,7 @@ export function DataProvider({ children }: { children: ReactNode }) {
           motivation: data.motivation,
           contact_preference: data.contact_preference,
           status: "pending",
+          application_type: data.application_type ?? "mentor",
         })
         .select()
         .maybeSingle();
@@ -2794,8 +2796,7 @@ export function DataProvider({ children }: { children: ReactNode }) {
       setApplications((prev) => [...prev, newApp]);
 
       // Notification an Admin/Office: Neue Mentor-Bewerbung eingegangen
-      const isMenteeRegistration =
-        inserted.motivation === "Anmeldung als neuer Muslim (öffentliches Formular)";
+      const isMenteeRegistration = inserted.application_type === "mentee";
       const admins = users.filter((u) => u.role === "admin" || u.role === "office");
       for (const admin of admins) {
         if (isMenteeRegistration) {

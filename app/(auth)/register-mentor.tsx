@@ -260,6 +260,7 @@ export default function RegisterMentorScreen() {
         experience: extraData,
         motivation: form.additionalMessage.trim() || "",
         contact_preference: form.contact_preference,
+        application_type: "mentor",
         status: "pending",
       });
 

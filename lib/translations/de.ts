@@ -199,6 +199,16 @@ const de = {
   "settings.deleteConfirm": "Dein Konto wird gelöscht und du kannst dich nicht mehr einloggen. Deine Daten werden gemäß unserer Datenschutzrichtlinie und gesetzlicher Aufbewahrungsfristen verarbeitet.",
   "settings.rtlHint": "Arabisch (Rechts-nach-links-Layout noch nicht unterstützt)",
   "settings.footer": "BNM – Betreuung neuer Muslime · Version 1.0.0",
+  "settings.push.chatMessages": "Chat-Nachrichten",
+  "settings.push.chatMessagesDesc": "Push bei neuen Nachrichten in Mentoring-Chats und Admin-DMs",
+  "settings.push.assignments": "Zuweisungen",
+  "settings.push.assignmentsDesc": "Push wenn ein Mentor einem Mentee zugewiesen wird",
+  "settings.push.calendar": "Kalender-Einladungen & Absagen",
+  "settings.push.calendarDesc": "Push bei neuen Terminen und wenn jemand absagt",
+  "settings.push.reminders": "Erinnerungen",
+  "settings.push.remindersDesc": "Tägliche Erinnerungen bei fehlenden Sessions",
+  "settings.push.system": "System-Benachrichtigungen",
+  "settings.push.systemDesc": "Alle sonstigen System-Meldungen (Feedback, Betreuungsabschluss etc.)",
 
   // Register Public
   "register.plz": "Postleitzahl",

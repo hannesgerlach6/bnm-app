@@ -1,32 +1,4 @@
-import React, { useState, useCallback } from "react";
-
-const PUSH_TOGGLES = [
-  {
-    key: "push_chat_messages",
-    label: "Chat-Nachrichten",
-    desc: "Push bei neuen Nachrichten in Mentoring-Chats und Admin-DMs",
-  },
-  {
-    key: "push_assignments",
-    label: "Zuweisungen",
-    desc: "Push wenn ein Mentor einem Mentee zugewiesen wird",
-  },
-  {
-    key: "push_calendar",
-    label: "Kalender-Einladungen & Absagen",
-    desc: "Push bei neuen Terminen und wenn jemand absagt",
-  },
-  {
-    key: "push_reminders",
-    label: "Erinnerungen",
-    desc: "Tägliche Erinnerungen bei fehlenden Sessions",
-  },
-  {
-    key: "push_system",
-    label: "System-Benachrichtigungen",
-    desc: "Alle sonstigen System-Meldungen (Feedback, Betreuungsabschluss etc.)",
-  },
-];
+import React, { useState, useCallback, useMemo } from "react";
 import {
   View,
   Text,
@@ -125,6 +97,34 @@ export default function SettingsScreen() {
     setLanguage(lang);
   }
 
+  const pushToggles = useMemo(() => [
+    {
+      key: "push_chat_messages",
+      label: t("settings.push.chatMessages"),
+      desc: t("settings.push.chatMessagesDesc"),
+    },
+    {
+      key: "push_assignments",
+      label: t("settings.push.assignments"),
+      desc: t("settings.push.assignmentsDesc"),
+    },
+    {
+      key: "push_calendar",
+      label: t("settings.push.calendar"),
+      desc: t("settings.push.calendarDesc"),
+    },
+    {
+      key: "push_reminders",
+      label: t("settings.push.reminders"),
+      desc: t("settings.push.remindersDesc"),
+    },
+    {
+      key: "push_system",
+      label: t("settings.push.system"),
+      desc: t("settings.push.systemDesc"),
+    },
+  ], [t]);
+
   return (
     <Container fullWidth={Platform.OS === "web"}>
       <View style={[styles.root, { backgroundColor: themeColors.background }]}>
@@ -170,7 +170,7 @@ export default function SettingsScreen() {
                 Hier steuerst du systemweit, welche Arten von Push-Benachrichtigungen an alle Nutzer gesendet werden.
               </Text>
               <View style={[styles.card, { backgroundColor: themeColors.card, borderColor: themeColors.border }]}>
-                {PUSH_TOGGLES.map((pt, idx) => (
+                {pushToggles.map((pt, idx) => (
                   <React.Fragment key={pt.key}>
                     {idx > 0 && <View style={[styles.divider, { backgroundColor: themeColors.border }]} />}
                     <View style={styles.toggleRow}>

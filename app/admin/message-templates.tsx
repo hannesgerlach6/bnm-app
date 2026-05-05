@@ -115,6 +115,7 @@ export default function MessageTemplatesScreen() {
           title: finalTitle,
           category,
           body: finalBody,
+          subject: activeTab === "email" ? subject.trim() : "",
           sort_order: messageTemplates.length + 1,
         });
         if (error) throw error;
@@ -124,6 +125,7 @@ export default function MessageTemplatesScreen() {
           title: finalTitle,
           category,
           body: finalBody,
+          subject: activeTab === "email" ? subject.trim() : "",
           updated_at: new Date().toISOString(),
         }).eq("id", editingId);
         if (error) throw error;

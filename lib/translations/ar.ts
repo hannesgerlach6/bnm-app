@@ -201,6 +201,16 @@ const ar: Record<TranslationKeys, string> = {
   "settings.deleteConfirm": "سيتم حذف حسابك ولن تتمكن من تسجيل الدخول بعد ذلك. ستتم معالجة بياناتك وفقًا لسياسة الخصوصية والمتطلبات القانونية.",
   "settings.rtlHint": "سيتم دعم تخطيط RTL في إصدار مستقبلي",
   "settings.footer": "BNM – رعاية المسلمين الجدد · الإصدار 1.0.0",
+  "settings.push.chatMessages": "رسائل الدردشة",
+  "settings.push.chatMessagesDesc": "إشعار عند وصول رسائل جديدة في محادثات الإرشاد والرسائل المباشرة",
+  "settings.push.assignments": "التخصيصات",
+  "settings.push.assignmentsDesc": "إشعار عند تخصيص موجه لمتعلم",
+  "settings.push.calendar": "دعوات التقويم والإلغاءات",
+  "settings.push.calendarDesc": "إشعار عند مواعيد جديدة أو إلغاء شخص ما",
+  "settings.push.reminders": "التذكيرات",
+  "settings.push.remindersDesc": "تذكيرات يومية للجلسات الفائتة",
+  "settings.push.system": "إشعارات النظام",
+  "settings.push.systemDesc": "جميع رسائل النظام الأخرى (تعليقات، إتمام الإرشاد، إلخ)",
 
   // Register Public
   "register.plz": "الرمز البريدي",

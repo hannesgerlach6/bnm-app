@@ -100,17 +100,27 @@ async function getEmailTemplate(
   try {
     const { data } = await supabase
       .from("message_templates")
-      .select("body")
+      .select("body, subject")
       .eq("template_key", templateKey)
       .eq("is_active", true)
       .maybeSingle();
 
     if (!data?.body) return null;
 
-    // Parse: "Betreff: ...\n---\n..." format
-    const parts = data.body.split("\n---\n");
-    const subjectLine = parts[0]?.replace(/^Betreff:\s*/, "").trim() || "";
-    const bodyText = parts.slice(1).join("\n---\n").trim() || "";
+    // Bevorzuge subject-Spalte; falle auf Parsing aus body zurück (altes Format)
+    let subjectLine: string;
+    let bodyText: string;
+    if (data.subject && data.subject.trim()) {
+      subjectLine = data.subject.trim();
+      // Body enthält im alten Format noch "Betreff: ...\n---\n" — das rausschneiden
+      const sepIdx = data.body.indexOf("\n---\n");
+      bodyText = sepIdx >= 0 ? data.body.slice(sepIdx + 5).trim() : data.body.trim();
+    } else {
+      // Altes Format: "Betreff: ...\n---\nBody"
+      const parts = data.body.split("\n---\n");
+      subjectLine = parts[0]?.replace(/^Betreff:\s*/, "").trim() || "";
+      bodyText = parts.slice(1).join("\n---\n").trim() || "";
+    }
 
     // Replace placeholders — Subject bekommt plain value, Body bekommt escaped value
     let subject = subjectLine;
@@ -138,29 +148,19 @@ export async function sendEmail(
   body: string
 ): Promise<boolean> {
   try {
-    // 1) In die Queue schreiben (Audit-Trail) — mit 8s Timeout
-    const insertPromise = supabase.from("email_queue").insert({
+    // 1) Audit-Trail: Queue-Insert fire-and-forget (blockiert den Send nicht)
+    supabase.from("email_queue").insert({
       to_email: to,
       subject,
       html_body: body,
       status: "pending",
       sent_at: null,
+    }).then(({ error }) => {
+      if (error) console.warn("[emailService] email_queue insert:", error.message ?? error);
     });
-    const { error } = await Promise.race([
-      insertPromise,
-      new Promise<{ error: { message: string } }>((resolve) =>
-        setTimeout(() => resolve({ error: { message: "email_queue timeout" } }), 8_000)
-      ),
-    ]);
 
-    if (error) console.warn("[emailService] email_queue insert:", error.message ?? error);
-
-    // 2) Direkt versenden
-    sendViaResend(to, subject, body).catch((err) =>
-      console.error("[emailService] sendViaResend failed:", err)
-    );
-
-    return !error;
+    // 2) Direkt versenden — awaited, gibt echten Erfolg zurück
+    return await sendViaResend(to, subject, body);
   } catch (err) {
     console.warn("[emailService] sendEmail failed:", err);
     return false;
