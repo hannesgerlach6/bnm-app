@@ -13,6 +13,6 @@ export const supabaseAnon = createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
     persistSession: false,
     autoRefreshToken: false,
     storageKey: "sb-anon-auth-token", // Eigener Key um Lock-Konflikte zu vermeiden
-    flowType: "implicit",
+    flowType: "pkce",
   },
 });

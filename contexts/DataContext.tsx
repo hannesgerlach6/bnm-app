@@ -2069,7 +2069,7 @@ export function DataProvider({ children }: { children: ReactNode }) {
       setMentorships((prev) =>
         prev.map((m) =>
           m.id === mentorshipId
-            ? { ...m, status: "cancelled" as MentorshipStatus, completed_at: now }
+            ? { ...m, status: "cancelled" as MentorshipStatus, cancelled_at: now }
             : m
         )
       );
@@ -2082,22 +2082,11 @@ export function DataProvider({ children }: { children: ReactNode }) {
         .single();
 
       if (msRow) {
-        const { data: mentorProfile } = await supabase
-          .from("profiles")
-          .select("id, name, email")
-          .eq("id", msRow.mentor_id)
-          .single();
-        const { data: menteeProfile } = await supabase
-          .from("profiles")
-          .select("id, name, email")
-          .eq("id", msRow.mentee_id)
-          .single();
-
-        // Admin-Notification bei Abbruch
-        const { data: adminRows } = await supabase
-          .from("profiles")
-          .select("id")
-          .in("role", ["admin", "office"]);
+        const [{ data: mentorProfile }, { data: menteeProfile }, { data: adminRows }] = await Promise.all([
+          supabase.from("profiles").select("id, name, email").eq("id", msRow.mentor_id).single(),
+          supabase.from("profiles").select("id, name, email").eq("id", msRow.mentee_id).single(),
+          supabase.from("profiles").select("id").in("role", ["admin", "office"]),
+        ]);
 
         for (const admin of adminRows ?? []) {
           await createNotification(
@@ -2117,15 +2106,8 @@ export function DataProvider({ children }: { children: ReactNode }) {
           "cancelled"
         ).catch(() => {});
 
-        // Mentee benachrichtigen: Feedback-Anfrage + Cancellation-E-Mail
+        // Mentee benachrichtigen: Cancellation-E-Mail (enthält bereits Feedback-Hinweis)
         if (menteeProfile?.email) {
-          sendFeedbackRequestEmail(
-            menteeProfile.email,
-            menteeProfile.name ?? "Mentee",
-            mentorProfile?.name ?? "Mentor",
-            mentorshipId
-          ).catch(() => {});
-
           sendMentorshipCancelledToMenteeEmail(
             menteeProfile.email,
             menteeProfile.name ?? "Mentee",
@@ -2631,8 +2613,20 @@ export function DataProvider({ children }: { children: ReactNode }) {
 
           // Neuer Account: Profil anlegen lassen + Rolle setzen
           if (signUpData?.user) {
-            // Warten bis DB-Trigger handle_new_user() das Profil erstellt hat
-            await new Promise((r) => setTimeout(r, 1500));
+            // Warten bis DB-Trigger handle_new_user() das Profil erstellt hat (Poll statt Sleep)
+            let profileCreated = false;
+            for (let attempt = 0; attempt < 20; attempt++) {
+              await new Promise((r) => setTimeout(r, 250));
+              const { data: checkProfile } = await supabase
+                .from("profiles")
+                .select("id")
+                .eq("id", signUpData.user.id)
+                .maybeSingle();
+              if (checkProfile) { profileCreated = true; break; }
+            }
+            if (!profileCreated) {
+              throw new Error("Profil wurde nicht durch DB-Trigger erstellt (Timeout 5s). Bitte erneut versuchen.");
+            }
 
             // Session nochmal refreshen (setSession oben könnte stale sein)
             await supabase.auth.getSession();
@@ -2918,11 +2912,11 @@ export function DataProvider({ children }: { children: ReactNode }) {
 
   const bulkDeleteUsers = useCallback(
     async (userIds: string[]): Promise<{ success: number; failed: number }> => {
+      const results = await Promise.allSettled(userIds.map((id) => deleteUser(id)));
       let success = 0;
       let failed = 0;
-      for (const id of userIds) {
-        const ok = await deleteUser(id);
-        if (ok) success++;
+      for (const result of results) {
+        if (result.status === "fulfilled" && result.value) success++;
         else failed++;
       }
       return { success, failed };

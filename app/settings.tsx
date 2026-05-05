@@ -49,6 +49,7 @@ import { useLanguage, type Language } from "../contexts/LanguageContext";
 import { COLORS, RADIUS } from "../constants/Colors";
 import { Container } from "../components/Container";
 import { useTheme, useThemeColors } from "../contexts/ThemeContext";
+import Constants from "expo-constants";
 
 const LANGUAGES: { key: Language; label: string; native: string }[] = [
   { key: "de", label: "Deutsch", native: "Deutsch" },
@@ -284,7 +285,7 @@ export default function SettingsScreen() {
           <View style={[styles.card, { backgroundColor: themeColors.card, borderColor: themeColors.border }]}>
             <View style={[styles.infoRow, styles.rowBorder, { borderBottomColor: themeColors.border }]}>
               <Text style={[styles.infoLabel, { color: themeColors.textSecondary }]}>{t("settings.version")}</Text>
-              <Text style={[styles.infoValue, { color: themeColors.text }]}>1.0.0</Text>
+              <Text style={[styles.infoValue, { color: themeColors.text }]}>{Constants.expoConfig?.version ?? "1.0.0"}</Text>
             </View>
             <BNMPressable
               style={[styles.infoRow, styles.rowBorder, { borderBottomColor: themeColors.border }]}

@@ -112,17 +112,17 @@ async function getEmailTemplate(
     const subjectLine = parts[0]?.replace(/^Betreff:\s*/, "").trim() || "";
     const bodyText = parts.slice(1).join("\n---\n").trim() || "";
 
-    // Replace placeholders
+    // Replace placeholders — Subject bekommt plain value, Body bekommt escaped value
     let subject = subjectLine;
-    let body = bodyText;
+    let bodyEscaped = escapeHtml(bodyText); // Erst gesamten Body escapen
     for (const [key, value] of Object.entries(placeholders)) {
-      const escaped = escapeHtml(value);
+      const escapedValue = escapeHtml(value);
       subject = subject.replace(new RegExp(`\\{${key}\\}`, "g"), value);
-      body = body.replace(new RegExp(`\\{${key}\\}`, "g"), escaped);
+      bodyEscaped = bodyEscaped.replace(new RegExp(escapeHtml(`{${key}}`), "g"), escapedValue);
     }
 
     // Convert newlines to HTML + add BNM footer
-    const htmlBody = body.replace(/\n/g, "<br>") +
+    const htmlBody = bodyEscaped.replace(/\n/g, "<br>") +
       `<br><hr><p style="color:#98A2B3;font-size:12px">BNM – Betreuung neuer Muslime</p>`;
 
     return { subject: sanitizeSubject(subject), body: htmlBody };

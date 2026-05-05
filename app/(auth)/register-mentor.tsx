@@ -205,10 +205,27 @@ export default function RegisterMentorScreen() {
       // 2) Profil deaktivieren bis Admin genehmigt
       const newUserId = signUpData?.user?.id;
       if (newUserId) {
-        // Warten bis handle_new_user() Trigger das Profil erstellt hat
-        await new Promise((r) => setTimeout(r, 1500));
-        // supabaseAnon hat die Session des neuen Users im Speicher → kann eigenes Profil updaten
-        await supabaseAnon
+        // Warten bis handle_new_user() Trigger das Profil erstellt hat (Poll statt Sleep)
+        let profileCreated = false;
+        for (let attempt = 0; attempt < 20; attempt++) {
+          await new Promise((r) => setTimeout(r, 250));
+          const { data: checkProfile } = await supabaseAnon
+            .from("profiles")
+            .select("id")
+            .eq("id", newUserId)
+            .maybeSingle();
+          if (checkProfile) { profileCreated = true; break; }
+        }
+
+        if (!profileCreated) {
+          // Auth-Account wieder löschen, da Profil-Setup fehlgeschlagen
+          supabaseAnon.auth.signOut().catch(() => {});
+          showError("Registrierung fehlgeschlagen. Bitte versuche es erneut.");
+          setIsSubmitting(false);
+          return;
+        }
+
+        const { error: updateErr } = await supabaseAnon
           .from("profiles")
           .update({
             is_active: false,
@@ -223,6 +240,12 @@ export default function RegisterMentorScreen() {
 
         // Cleanup: supabaseAnon-Session entfernen (fire-and-forget)
         supabaseAnon.auth.signOut().catch(() => {});
+
+        if (updateErr) {
+          showError("Registrierung fehlgeschlagen. Bitte versuche es erneut.");
+          setIsSubmitting(false);
+          return;
+        }
       }
 
       // 3) Bewerbung in mentor_applications speichern
