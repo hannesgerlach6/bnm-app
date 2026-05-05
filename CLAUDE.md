@@ -46,7 +46,9 @@ Alle SQL-Änderungen dokumentieren. Selbstständig handeln.
   21. `supabase/admin-notes.sql` — Admin-Notizen Spalte fuer Profile
   22. `supabase/delete-applications.sql` — DELETE-Policy fuer mentor_applications (Admin/Office)
   23. `supabase/mentee-notes.sql` — mentee_notes-Spalte fuer eigene Mentee-Notizen in Mentorships
-  24. Dashboard: Auth → Email → "Confirm email" OFF
+  24. `supabase/fix-message-template-subject.sql` — subject-Spalte für message_templates (E-Mail-Betreff aus body extrahiert)
+  25. `supabase/fix-application-type.sql` — application_type-Spalte für mentor_applications (mentor/mentee)
+  26. Dashboard: Auth → Email → "Confirm email" OFF
   13. Test-User manuell anlegen + Profile-INSERT
   14. `lib/supabase.ts`: URL + Anon Key ändern (2 Zeilen)
 
