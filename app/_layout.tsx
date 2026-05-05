@@ -65,17 +65,32 @@ const BNMDarkTheme = {
   },
 };
 
-function SentryInitializer() {
+function NavigationGuard() {
+  const { user, isLoading } = useAuth();
   const { getSetting } = useData();
-  const { user } = useAuth();
+  const segments = useSegments();
+  const router = useRouter();
+  const pushRegisteredRef = useRef<string | null>(null);
 
-  // Sentry starten sobald Settings geladen sind (einmalig)
+  // ── OTA Update-Check (einmalig beim Start, nur Production) ──────────────
+  useEffect(() => {
+    if (Platform.OS === "web" || !Updates || __DEV__) return;
+    Updates!.checkForUpdateAsync()
+      .then((result) => {
+        if (result.isAvailable) {
+          return Updates!.fetchUpdateAsync().then(() => Updates!.reloadAsync());
+        }
+      })
+      .catch(() => {});
+  }, []);
+
+  // ── Sentry initialisieren sobald Settings geladen sind ───────────────────
   useEffect(() => {
     const dsn = getSetting("sentry_dsn");
     if (dsn) initSentry(dsn);
   }, [getSetting]);
 
-  // User-Kontext bei Login/Logout setzen
+  // ── Sentry User-Kontext bei Login/Logout ────────────────────────────────
   useEffect(() => {
     if (user) {
       setSentryUser({ id: user.id, role: user.role });
@@ -84,52 +99,16 @@ function SentryInitializer() {
     }
   }, [user?.id]);
 
-  return null;
-}
-
-function OTAUpdateChecker() {
-  useEffect(() => {
-    if (Platform.OS === "web" || !Updates) return;
-    // Nur in Production-Builds prüfen — in Expo Go / Dev-Client überspringen
-    if (__DEV__) return;
-
-    async function checkForUpdate() {
-      try {
-        const result = await Updates!.checkForUpdateAsync();
-        if (result.isAvailable) {
-          await Updates!.fetchUpdateAsync();
-          await Updates!.reloadAsync();
-        }
-      } catch {
-        // Kein Update verfügbar oder offline — ignorieren
-      }
-    }
-
-    checkForUpdate();
-  }, []);
-
-  return null;
-}
-
-function NavigationGuard() {
-  const { user, isLoading } = useAuth();
-  const segments = useSegments();
-  const router = useRouter();
-  const pushRegisteredRef = useRef<string | null>(null);
-
-  // Push Token registrieren sobald User eingeloggt ist (einmalig pro User)
+  // ── Push Token registrieren sobald User eingeloggt ist (einmalig) ───────
   useEffect(() => {
     if (!user) {
       pushRegisteredRef.current = null;
       return;
     }
-    // Nicht doppelt registrieren wenn User-ID gleich bleibt
     if (pushRegisteredRef.current === user.id) return;
     pushRegisteredRef.current = user.id;
 
-    registerForPushNotifications(user.id).catch(() => {
-      // Fehler beim Token-Registrieren ignorieren — App funktioniert ohne Push
-    });
+    registerForPushNotifications(user.id).catch(() => {});
   }, [user?.id]);
 
   useEffect(() => {
@@ -344,8 +323,6 @@ export default function RootLayout() {
             <GamificationProvider>
               <ModalProvider>
                 <ToastProvider>
-                  <OTAUpdateChecker />
-                  <SentryInitializer />
                   <RootLayoutInner />
                 </ToastProvider>
               </ModalProvider>
