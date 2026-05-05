@@ -60,6 +60,7 @@ function EventCard({
   userId,
   onRespond,
   onAddToGoogle,
+  googleConnected,
   onEdit,
   onDelete,
 }: {
@@ -68,12 +69,14 @@ function EventCard({
   userId: string;
   onRespond: (eventId: string, status: "accepted" | "declined") => void;
   onAddToGoogle: (event: CalendarEvent) => void;
+  googleConnected: boolean;
   onEdit?: (event: CalendarEvent) => void;
   onDelete?: (event: CalendarEvent) => void;
 }) {
   const themeColors = useThemeColors();
   const { isDark } = useTheme();
   const typeInfo = EVENT_TYPE_LABELS[event.type] || EVENT_TYPE_LABELS.custom;
+  const isCreator = event.created_by === userId;
   const myAttendee = attendees.find((a) => a.event_id === event.id && a.user_id === userId);
   const acceptedCount = attendees.filter((a) => a.event_id === event.id && a.status === "accepted").length;
 
@@ -107,70 +110,74 @@ function EventCard({
         </Text>
       ) : null}
 
-      {/* Attendee count + RSVP */}
+      {/* Attendee count + RSVP (nur für Eingeladene, nicht für Ersteller) */}
       <View style={styles.eventFooter}>
         <Text style={[styles.attendeeCount, { color: themeColors.textTertiary }]}>
           {acceptedCount} zugesagt
         </Text>
-        <View style={styles.rsvpRow}>
-          <BNMPressable
-            style={[
-              styles.rsvpBtn,
-              myAttendee?.status === "accepted"
-                ? { backgroundColor: COLORS.cta + "20", borderColor: COLORS.cta }
-                : { backgroundColor: themeColors.background, borderColor: themeColors.border },
-            ]}
-            onPress={() => onRespond(event.id, "accepted")}
-            accessibilityLabel="Zusagen"
-          >
-            <Ionicons
-              name="checkmark"
-              size={14}
-              color={myAttendee?.status === "accepted" ? COLORS.cta : themeColors.textSecondary}
-            />
-            <Text style={[
-              styles.rsvpText,
-              { color: myAttendee?.status === "accepted" ? COLORS.cta : themeColors.textSecondary },
-            ]}>
-              Zusagen
-            </Text>
-          </BNMPressable>
-          <BNMPressable
-            style={[
-              styles.rsvpBtn,
-              myAttendee?.status === "declined"
-                ? { backgroundColor: COLORS.error + "20", borderColor: COLORS.error }
-                : { backgroundColor: themeColors.background, borderColor: themeColors.border },
-            ]}
-            onPress={() => onRespond(event.id, "declined")}
-            accessibilityLabel="Absagen"
-          >
-            <Ionicons
-              name="close"
-              size={14}
-              color={myAttendee?.status === "declined" ? COLORS.error : themeColors.textSecondary}
-            />
-            <Text style={[
-              styles.rsvpText,
-              { color: myAttendee?.status === "declined" ? COLORS.error : themeColors.textSecondary },
-            ]}>
-              Absagen
-            </Text>
-          </BNMPressable>
-        </View>
+        {!isCreator && (
+          <View style={styles.rsvpRow}>
+            <BNMPressable
+              style={[
+                styles.rsvpBtn,
+                myAttendee?.status === "accepted"
+                  ? { backgroundColor: COLORS.cta + "20", borderColor: COLORS.cta }
+                  : { backgroundColor: themeColors.background, borderColor: themeColors.border },
+              ]}
+              onPress={() => onRespond(event.id, "accepted")}
+              accessibilityLabel="Zusagen"
+            >
+              <Ionicons
+                name="checkmark"
+                size={14}
+                color={myAttendee?.status === "accepted" ? COLORS.cta : themeColors.textSecondary}
+              />
+              <Text style={[
+                styles.rsvpText,
+                { color: myAttendee?.status === "accepted" ? COLORS.cta : themeColors.textSecondary },
+              ]}>
+                Zusagen
+              </Text>
+            </BNMPressable>
+            <BNMPressable
+              style={[
+                styles.rsvpBtn,
+                myAttendee?.status === "declined"
+                  ? { backgroundColor: COLORS.error + "20", borderColor: COLORS.error }
+                  : { backgroundColor: themeColors.background, borderColor: themeColors.border },
+              ]}
+              onPress={() => onRespond(event.id, "declined")}
+              accessibilityLabel="Absagen"
+            >
+              <Ionicons
+                name="close"
+                size={14}
+                color={myAttendee?.status === "declined" ? COLORS.error : themeColors.textSecondary}
+              />
+              <Text style={[
+                styles.rsvpText,
+                { color: myAttendee?.status === "declined" ? COLORS.error : themeColors.textSecondary },
+              ]}>
+                Absagen
+              </Text>
+            </BNMPressable>
+          </View>
+        )}
       </View>
 
-      {/* Google Calendar Button */}
-      <BNMPressable
-        style={[styles.googleCalBtn, { borderColor: themeColors.border }]}
-        onPress={() => onAddToGoogle(event)}
-        accessibilityLabel="Zu Google Calendar hinzufügen"
-      >
-        <Ionicons name="logo-google" size={13} color={themeColors.textSecondary} />
-        <Text style={[styles.googleCalBtnText, { color: themeColors.textSecondary }]}>
-          Google Kalender
-        </Text>
-      </BNMPressable>
+      {/* Google Calendar Button — nur wenn verbunden */}
+      {googleConnected && (
+        <BNMPressable
+          style={[styles.googleCalBtn, { borderColor: themeColors.border }]}
+          onPress={() => onAddToGoogle(event)}
+          accessibilityLabel="Zu Google Calendar hinzufügen"
+        >
+          <Ionicons name="logo-google" size={13} color={themeColors.textSecondary} />
+          <Text style={[styles.googleCalBtnText, { color: themeColors.textSecondary }]}>
+            Google Kalender
+          </Text>
+        </BNMPressable>
+      )}
 
       {(onEdit || onDelete) && (
         <View style={{ flexDirection: "row", gap: 8, marginTop: 8, borderTopWidth: 1, borderTopColor: themeColors.border, paddingTop: 8 }}>
@@ -326,6 +333,14 @@ export default function CalendarTabScreen() {
       .filter((m) => m.mentor_id === userId && m.status === "active")
       .map((m) => users.find((u) => u.id === m.mentee_id))
       .filter((u): u is NonNullable<typeof u> => !!u);
+  }, [mentorships, users, userId, user?.role]);
+
+  // Eigener aktiver Mentor (nur für Mentees)
+  const myMentor = useMemo(() => {
+    if (user?.role !== "mentee" || !userId) return null;
+    const mentorship = mentorships.find((m) => m.mentee_id === userId && m.status === "active");
+    if (!mentorship) return null;
+    return users.find((u) => u.id === mentorship.mentor_id) ?? null;
   }, [mentorships, users, userId, user?.role]);
 
   // Tokens aus DB laden beim Start
@@ -546,8 +561,20 @@ export default function CalendarTabScreen() {
         }
       }
 
-      // Auto-Einladung aller aktiven Mentoren bei neuem Event (ohne bereits manuell gewählte)
-      if (eventId && !editingEvent) {
+      // Mentee: eigenen Mentor einladen
+      if (eventId && !editingEvent && user?.role === "mentee" && myMentor) {
+        await inviteToEvent(eventId, [myMentor.id]);
+        await supabase.from("notifications").insert([{
+          user_id: myMentor.id,
+          type: "calendar_invite",
+          title: "Terminvorschlag",
+          body: `${user.name} schlägt einen Termin vor: ${createTitle.trim()}`,
+          related_id: eventId,
+        }]);
+      }
+
+      // Mentor/Admin/Office: alle aktiven Mentoren einladen (ohne bereits manuell gewählte)
+      if (eventId && !editingEvent && user?.role !== "mentee") {
         const mentorIds = users
           .filter((u) => u.role === "mentor" && u.is_active && !selectedMenteeIds.includes(u.id))
           .map((u) => u.id);
@@ -570,7 +597,8 @@ export default function CalendarTabScreen() {
       setCreateSaving(false);
     }
   }, [createTitle, createDate, createTime, createDesc, editingEvent, selectedMenteeIds,
-      addCalendarEvent, updateCalendarEvent, inviteToEvent, userId, eventAttendees, users]);
+      addCalendarEvent, updateCalendarEvent, inviteToEvent, userId, eventAttendees, users,
+      user, myMentor, mentorships]);
 
   const handleDeleteEvent = useCallback((event: CalendarEvent) => {
     setConfirmDeleteEvent(event);
@@ -697,6 +725,7 @@ export default function CalendarTabScreen() {
                   userId={user?.id || ""}
                   onRespond={handleRespond}
                   onAddToGoogle={handleAddToGoogle}
+                  googleConnected={googleConnected}
                   onEdit={(event.created_by === userId || user?.role === "admin" || user?.role === "office") ? openEditModal : undefined}
                   onDelete={(event.created_by === userId || user?.role === "admin" || user?.role === "office") ? handleDeleteEvent : undefined}
                 />
@@ -860,6 +889,18 @@ export default function CalendarTabScreen() {
                 multiline
                 numberOfLines={3}
               />
+
+              {/* Mentee: Hinweis dass Mentor automatisch eingeladen wird */}
+              {user?.role === "mentee" && myMentor && (
+                <View style={{ marginTop: 12, flexDirection: "row", alignItems: "center", gap: 8,
+                  padding: 10, borderRadius: RADIUS.sm, backgroundColor: COLORS.gold + "15",
+                  borderWidth: 1, borderColor: COLORS.gold + "40" }}>
+                  <Ionicons name="person-outline" size={16} color={COLORS.gold} />
+                  <Text style={{ fontSize: 13, color: themeColors.textSecondary, flex: 1 }}>
+                    Dein Mentor <Text style={{ fontWeight: "600", color: themeColors.text }}>{myMentor.name}</Text> wird automatisch benachrichtigt.
+                  </Text>
+                </View>
+              )}
 
               {/* Mentees einladen — eigene ScrollView damit lange Listen nicht das Modal sprengen */}
               {myMentees.length > 0 && (
