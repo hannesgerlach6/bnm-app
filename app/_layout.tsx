@@ -23,8 +23,10 @@ import { LIGHT_COLORS, DARK_COLORS, COLORS } from "../constants/Colors";
 
 // Expo Notifications nur auf Native importieren
 let Notifications: typeof import("expo-notifications") | null = null;
+let Updates: typeof import("expo-updates") | null = null;
 if (Platform.OS !== "web") {
   Notifications = require("expo-notifications");
+  Updates = require("expo-updates");
 }
 
 export { ErrorBoundary } from "expo-router";
@@ -61,6 +63,30 @@ const BNMDarkTheme = {
     notification: COLORS.gold,
   },
 };
+
+function OTAUpdateChecker() {
+  useEffect(() => {
+    if (Platform.OS === "web" || !Updates) return;
+    // Nur in Production-Builds prüfen (nicht in Expo Go / Dev-Client)
+    if (Updates.isEmbeddedLaunch === false) return;
+
+    async function checkForUpdate() {
+      try {
+        const result = await Updates!.checkForUpdateAsync();
+        if (result.isAvailable) {
+          await Updates!.fetchUpdateAsync();
+          await Updates!.reloadAsync();
+        }
+      } catch {
+        // Kein Update verfügbar oder offline — ignorieren
+      }
+    }
+
+    checkForUpdate();
+  }, []);
+
+  return null;
+}
 
 function NavigationGuard() {
   const { user, isLoading } = useAuth();
@@ -295,6 +321,7 @@ export default function RootLayout() {
             <GamificationProvider>
               <ModalProvider>
                 <ToastProvider>
+                  <OTAUpdateChecker />
                   <RootLayoutInner />
                 </ToastProvider>
               </ModalProvider>
