@@ -943,14 +943,26 @@ export default function CalendarTabScreen() {
                 numberOfLines={3}
               />
 
-              {/* Mentee: Hinweis dass Mentor automatisch eingeladen wird */}
-              {user?.role === "mentee" && myMentor && (
+              {/* Mentee: Hinweis dass Mentor automatisch eingeladen wird (nur bei neuem Event) */}
+              {user?.role === "mentee" && !editingEvent && myMentor && (
                 <View style={{ marginTop: 12, flexDirection: "row", alignItems: "center", gap: 8,
                   padding: 10, borderRadius: RADIUS.sm, backgroundColor: COLORS.gold + "15",
                   borderWidth: 1, borderColor: COLORS.gold + "40" }}>
                   <Ionicons name="person-outline" size={16} color={COLORS.gold} />
                   <Text style={{ fontSize: 13, color: themeColors.textSecondary, flex: 1 }}>
                     Dein Mentor <Text style={{ fontWeight: "600", color: themeColors.text }}>{myMentor.name}</Text> wird automatisch benachrichtigt.
+                  </Text>
+                </View>
+              )}
+
+              {/* Mentee ohne aktiven Mentor: Warnung */}
+              {user?.role === "mentee" && !editingEvent && !myMentor && (
+                <View style={{ marginTop: 12, flexDirection: "row", alignItems: "center", gap: 8,
+                  padding: 10, borderRadius: RADIUS.sm, backgroundColor: COLORS.error + "15",
+                  borderWidth: 1, borderColor: COLORS.error + "40" }}>
+                  <Ionicons name="warning-outline" size={16} color={COLORS.error} />
+                  <Text style={{ fontSize: 13, color: themeColors.textSecondary, flex: 1 }}>
+                    Du hast aktuell keinen aktiven Mentor — bitte zuerst Zuweisung abwarten.
                   </Text>
                 </View>
               )}
@@ -995,9 +1007,13 @@ export default function CalendarTabScreen() {
                   <Text style={{ color: themeColors.textSecondary, fontWeight: "600" }}>Abbrechen</Text>
                 </BNMPressable>
                 <BNMPressable
-                  style={[styles.modalSaveBtn, { opacity: (!createTitle.trim() || createSaving) ? 0.5 : 1 }]}
+                  style={[styles.modalSaveBtn, {
+                    opacity: (!createTitle.trim() || createSaving ||
+                      (user?.role === "mentee" && !editingEvent && !myMentor)) ? 0.5 : 1
+                  }]}
                   onPress={handleSaveEvent}
-                  disabled={!createTitle.trim() || createSaving}
+                  disabled={!createTitle.trim() || createSaving ||
+                    (user?.role === "mentee" && !editingEvent && !myMentor)}
                 >
                   <Text style={{ color: COLORS.white, fontWeight: "600" }}>{createSaving ? "..." : "Speichern"}</Text>
                 </BNMPressable>

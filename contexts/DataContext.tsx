@@ -3569,11 +3569,14 @@ export function DataProvider({ children }: { children: ReactNode }) {
         .select().maybeSingle();
       if (error) throw new Error(error.message);
       if (data) {
-        setEventAttendees((prev) => [...prev, {
-          id: data.id, event_id: data.event_id, user_id: data.user_id,
-          status: data.status, reminder_minutes: data.reminder_minutes ?? 60,
-          google_synced: data.google_synced ?? false, created_at: data.created_at,
-        }]);
+        setEventAttendees((prev) => {
+          if (prev.some((a) => a.id === data.id)) return prev;
+          return [...prev, {
+            id: data.id, event_id: data.event_id, user_id: data.user_id,
+            status: data.status, reminder_minutes: data.reminder_minutes ?? 60,
+            google_synced: data.google_synced ?? false, created_at: data.created_at,
+          }];
+        });
       }
     }
 
@@ -3621,7 +3624,11 @@ export function DataProvider({ children }: { children: ReactNode }) {
     const { data, error } = await supabase.from("event_attendees").insert(rows).select();
     if (error) throw new Error(error.message);
     if (data) {
-      setEventAttendees((prev) => [...prev, ...data.map(mapEventAttendee)]);
+      const mapped = data.map(mapEventAttendee);
+      setEventAttendees((prev) => {
+        const existingIds = new Set(prev.map((a) => a.id));
+        return [...prev, ...mapped.filter((a) => !existingIds.has(a.id))];
+      });
     }
   }, [eventAttendees]);
 
