@@ -262,7 +262,13 @@ function GoogleEventCard({ event }: { event: GoogleCalendarEvent }) {
 
 export default function CalendarTabScreen() {
   const { user } = useAuth();
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
+
+  // Locale-Map für DateTimePicker (iOS verwendet IETF BCP 47 Tags)
+  const datePickerLocale: Record<string, string> = {
+    de: "de-DE", en: "en-GB", tr: "tr-TR", ar: "ar-SA",
+  };
+  const pickerLocale = datePickerLocale[language] ?? "de-DE";
   const themeColors = useThemeColors();
   const { isDark } = useTheme();
   const insets = useSafeAreaInsets();
@@ -735,7 +741,7 @@ export default function CalendarTabScreen() {
                 placeholderTextColor={themeColors.textTertiary}
               />
 
-              <View style={{ flexDirection: "row", gap: 12, marginTop: 12 }}>
+              <View style={{ flexDirection: showTimePicker && Platform.OS === "ios" ? "column" : "row", gap: 12, marginTop: 12 }}>
                 {/* Datum */}
                 <View style={{ flex: 1 }}>
                   <Text style={[styles.modalLabel, { color: themeColors.textSecondary }]}>Datum</Text>
@@ -771,6 +777,7 @@ export default function CalendarTabScreen() {
                           value={createDate ? new Date(createDate + "T00:00:00") : new Date()}
                           mode="date"
                           display={Platform.OS === "ios" ? "spinner" : "default"}
+                          locale={pickerLocale}
                           onChange={(_, date) => {
                             if (Platform.OS === "android") setShowDatePicker(false);
                             if (date) {
@@ -823,7 +830,10 @@ export default function CalendarTabScreen() {
                           })()}
                           mode="time"
                           is24Hour
+                          minuteInterval={5}
+                          locale={pickerLocale}
                           display={Platform.OS === "ios" ? "spinner" : "default"}
+                          style={{ width: "100%" }}
                           onChange={(_, date) => {
                             if (Platform.OS === "android") setShowTimePicker(false);
                             if (date) {
