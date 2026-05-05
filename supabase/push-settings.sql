@@ -8,5 +8,7 @@ INSERT INTO app_settings (key, value) VALUES
   ('push_assignments',     'true'),
   ('push_calendar',        'true'),
   ('push_reminders',       'true'),
-  ('push_system',          'true')
+  ('push_system',          'true'),
+  -- Sentry DSN: leer lassen = Sentry deaktiviert, DSN eintragen = aktiv
+  ('sentry_dsn',           '')
 ON CONFLICT (key) DO NOTHING;

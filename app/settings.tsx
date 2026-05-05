@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useCallback } from "react";
 
 const PUSH_TOGGLES = [
   {
@@ -36,6 +36,7 @@ import {
   Linking,
   Platform,
   ActivityIndicator,
+  TextInput,
 } from "react-native";
 import { BNMPressable } from "../components/BNMPressable";
 import { showSuccess, showConfirm, showError } from "../lib/errorHandler";
@@ -62,12 +63,33 @@ export default function SettingsScreen() {
   const { user } = useAuth();
   const { logout } = useAuth();
   const { language, setLanguage, t } = useLanguage();
-  const { mentorOfMonthVisible, toggleMentorOfMonth, getPushSetting, togglePushSetting } = useData();
+  const { mentorOfMonthVisible, toggleMentorOfMonth, getPushSetting, togglePushSetting, getSetting } = useData();
   const themeColors = useThemeColors();
   const { isDark } = useTheme();
 
   const isAdmin = user?.role === "admin";
   const isAdminOrOffice = user?.role === "admin" || user?.role === "office";
+
+  // Sentry DSN — aus DB laden, lokal editierbar
+  const [sentryDsn, setSentryDsn] = useState<string>(() => getSetting("sentry_dsn") ?? "");
+  const [sentryDsnSaving, setSentryDsnSaving] = useState(false);
+  const [sentryDsnSaved, setSentryDsnSaved] = useState(false);
+
+  const handleSaveSentryDsn = useCallback(async () => {
+    setSentryDsnSaving(true);
+    try {
+      const trimmed = sentryDsn.trim();
+      await supabase
+        .from("app_settings")
+        .upsert({ key: "sentry_dsn", value: trimmed }, { onConflict: "key" });
+      setSentryDsnSaved(true);
+      setTimeout(() => setSentryDsnSaved(false), 2500);
+    } catch {
+      // ignorieren
+    } finally {
+      setSentryDsnSaving(false);
+    }
+  }, [sentryDsn]);
   const canDeleteAccount = user?.role === "mentor" || user?.role === "mentee";
   const [deleting, setDeleting] = useState(false);
 
@@ -164,6 +186,58 @@ export default function SettingsScreen() {
                     </View>
                   </React.Fragment>
                 ))}
+              </View>
+            </>
+          )}
+
+          {/* Sektion: Sentry Crash-Reporting (nur Admin) */}
+          {isAdmin && (
+            <>
+              <Text style={[styles.sectionLabel, { color: themeColors.textTertiary }]}>
+                CRASH-REPORTING (SENTRY)
+              </Text>
+              <Text style={[styles.pushHint, { color: themeColors.textSecondary }]}>
+                Sentry meldet automatisch Abstürze und Fehler. DSN leer lassen um Sentry zu deaktivieren — die App funktioniert in beiden Fällen normal.
+              </Text>
+              <View style={[styles.card, { backgroundColor: themeColors.card, borderColor: themeColors.border }]}>
+                <View style={styles.sentryRow}>
+                  <Text style={[styles.toggleTitle, { color: themeColors.text, marginBottom: 6 }]}>
+                    Sentry DSN
+                  </Text>
+                  <TextInput
+                    value={sentryDsn}
+                    onChangeText={(v) => { setSentryDsn(v); setSentryDsnSaved(false); }}
+                    placeholder="https://xxx@oyyy.ingest.sentry.io/zzz"
+                    placeholderTextColor={themeColors.textTertiary}
+                    autoCapitalize="none"
+                    autoCorrect={false}
+                    style={[styles.sentryInput, {
+                      color: themeColors.text,
+                      borderColor: themeColors.border,
+                      backgroundColor: themeColors.background,
+                    }]}
+                  />
+                  <BNMPressable
+                    style={[
+                      styles.sentryButton,
+                      { backgroundColor: sentryDsnSaved ? COLORS.cta : COLORS.gradientStart },
+                    ]}
+                    onPress={handleSaveSentryDsn}
+                    disabled={sentryDsnSaving}
+                  >
+                    {sentryDsnSaving ? (
+                      <ActivityIndicator size="small" color={COLORS.white} />
+                    ) : (
+                      <Text style={styles.sentryButtonText}>
+                        {sentryDsnSaved ? "✓ Gespeichert" : "Speichern"}
+                      </Text>
+                    )}
+                  </BNMPressable>
+                  <Text style={[styles.sentryHint, { color: themeColors.textTertiary }]}>
+                    Den DSN findest du in deinem Sentry-Projekt unter Settings → Client Keys.
+                    Änderungen werden beim nächsten App-Start aktiv.
+                  </Text>
+                </View>
               </View>
             </>
           )}
@@ -311,6 +385,24 @@ const styles = StyleSheet.create({
   toggleSubtitle: { fontSize: 12, marginTop: 1 },
   divider: { height: 1 },
   pushHint: { fontSize: 12, lineHeight: 17, marginBottom: 10, marginTop: -2 },
+  sentryRow: { padding: 16 },
+  sentryInput: {
+    borderWidth: 1,
+    borderRadius: RADIUS.sm,
+    paddingHorizontal: 12,
+    paddingVertical: 9,
+    fontSize: 13,
+    fontFamily: Platform.OS === "ios" ? "Menlo" : "monospace",
+    marginBottom: 10,
+  },
+  sentryButton: {
+    borderRadius: RADIUS.sm,
+    paddingVertical: 10,
+    alignItems: "center",
+    marginBottom: 10,
+  },
+  sentryButtonText: { color: COLORS.white, fontSize: 14, fontWeight: "700" },
+  sentryHint: { fontSize: 11, lineHeight: 16 },
   languageRow: {
     flexDirection: "row",
     alignItems: "center",

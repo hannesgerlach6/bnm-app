@@ -8,13 +8,14 @@ import { Platform, View, useWindowDimensions } from "react-native";
 import "react-native-reanimated";
 
 import { AuthProvider, useAuth } from "../contexts/AuthContext";
-import { DataProvider } from "../contexts/DataContext";
+import { DataProvider, useData } from "../contexts/DataContext";
 import { GamificationProvider } from "../contexts/GamificationContext";
 import { ModalProvider } from "../contexts/ModalContext";
 import { LanguageProvider } from "../contexts/LanguageContext";
 import { ThemeProvider, useTheme, useThemeColors } from "../contexts/ThemeContext";
 import { LoadingScreen } from "../components/LoadingScreen";
 import { registerForPushNotifications } from "../lib/notificationService";
+import { initSentry, setSentryUser, clearSentryUser } from "../lib/sentryService";
 import { AdminSidebar } from "../components/AdminSidebar";
 import { CommandPalette } from "../components/CommandPalette";
 import { OfflineBanner } from "../components/OfflineBanner";
@@ -63,6 +64,28 @@ const BNMDarkTheme = {
     notification: COLORS.gold,
   },
 };
+
+function SentryInitializer() {
+  const { getSetting } = useData();
+  const { user } = useAuth();
+
+  // Sentry starten sobald Settings geladen sind (einmalig)
+  useEffect(() => {
+    const dsn = getSetting("sentry_dsn");
+    if (dsn) initSentry(dsn);
+  }, [getSetting]);
+
+  // User-Kontext bei Login/Logout setzen
+  useEffect(() => {
+    if (user) {
+      setSentryUser({ id: user.id, role: user.role });
+    } else {
+      clearSentryUser();
+    }
+  }, [user?.id]);
+
+  return null;
+}
 
 function OTAUpdateChecker() {
   useEffect(() => {
@@ -322,6 +345,7 @@ export default function RootLayout() {
               <ModalProvider>
                 <ToastProvider>
                   <OTAUpdateChecker />
+                  <SentryInitializer />
                   <RootLayoutInner />
                 </ToastProvider>
               </ModalProvider>
