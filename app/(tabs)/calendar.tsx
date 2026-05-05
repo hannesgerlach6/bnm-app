@@ -741,7 +741,7 @@ export default function CalendarTabScreen() {
                 placeholderTextColor={themeColors.textTertiary}
               />
 
-              <View style={{ flexDirection: showTimePicker && Platform.OS === "ios" ? "column" : "row", gap: 12, marginTop: 12 }}>
+              <View style={{ flexDirection: Platform.OS === "web" ? "row" : "column", gap: 12, marginTop: 12 }}>
                 {/* Datum */}
                 <View style={{ flex: 1 }}>
                   <Text style={[styles.modalLabel, { color: themeColors.textSecondary }]}>Datum</Text>
