@@ -755,16 +755,34 @@ export default function CalendarTabScreen() {
                       ) : null}
                     </View>
                   ) : (
-                    // Mobile: Tap → DateTimePicker
-                    <BNMPressable
-                      style={[styles.modalInput, { borderColor: themeColors.border, backgroundColor: themeColors.background, justifyContent: "space-between", flexDirection: "row", alignItems: "center" }]}
-                      onPress={() => setShowDatePicker(true)}
-                    >
-                      <Text style={{ color: themeColors.text, fontSize: 14 }}>
-                        {createDate ? new Date(createDate + "T00:00:00").toLocaleDateString("de-DE", { weekday: "short", day: "numeric", month: "long" }) : "Datum wählen"}
-                      </Text>
-                      <Ionicons name="calendar-outline" size={16} color={themeColors.textSecondary} />
-                    </BNMPressable>
+                    // Mobile: Tap → DateTimePicker inline im Modal
+                    <>
+                      <BNMPressable
+                        style={[styles.modalInput, { borderColor: themeColors.border, backgroundColor: themeColors.background, justifyContent: "space-between", flexDirection: "row", alignItems: "center" }]}
+                        onPress={() => { setShowDatePicker((v) => !v); setShowTimePicker(false); }}
+                      >
+                        <Text style={{ color: themeColors.text, fontSize: 14 }}>
+                          {createDate ? new Date(createDate + "T00:00:00").toLocaleDateString("de-DE", { weekday: "short", day: "numeric", month: "long" }) : "Datum wählen"}
+                        </Text>
+                        <Ionicons name="calendar-outline" size={16} color={themeColors.textSecondary} />
+                      </BNMPressable>
+                      {showDatePicker && (
+                        <DateTimePicker
+                          value={createDate ? new Date(createDate + "T00:00:00") : new Date()}
+                          mode="date"
+                          display={Platform.OS === "ios" ? "spinner" : "default"}
+                          onChange={(_, date) => {
+                            if (Platform.OS === "android") setShowDatePicker(false);
+                            if (date) {
+                              const y = date.getFullYear();
+                              const m = String(date.getMonth() + 1).padStart(2, "0");
+                              const d = String(date.getDate()).padStart(2, "0");
+                              setCreateDate(`${y}-${m}-${d}`);
+                            }
+                          }}
+                        />
+                      )}
+                    </>
                   )}
                   {createDateError && <Text style={{ color: COLORS.error, fontSize: 11, marginTop: 2 }}>Ungültiges Datum</Text>}
                 </View>
@@ -787,13 +805,36 @@ export default function CalendarTabScreen() {
                       ) : null}
                     </View>
                   ) : (
-                    <BNMPressable
-                      style={[styles.modalInput, { borderColor: themeColors.border, backgroundColor: themeColors.background, justifyContent: "space-between", flexDirection: "row", alignItems: "center" }]}
-                      onPress={() => setShowTimePicker(true)}
-                    >
-                      <Text style={{ color: themeColors.text, fontSize: 14 }}>{createTime || "10:00"}</Text>
-                      <Ionicons name="time-outline" size={16} color={themeColors.textSecondary} />
-                    </BNMPressable>
+                    <>
+                      <BNMPressable
+                        style={[styles.modalInput, { borderColor: themeColors.border, backgroundColor: themeColors.background, justifyContent: "space-between", flexDirection: "row", alignItems: "center" }]}
+                        onPress={() => { setShowTimePicker((v) => !v); setShowDatePicker(false); }}
+                      >
+                        <Text style={{ color: themeColors.text, fontSize: 14 }}>{createTime || "10:00"}</Text>
+                        <Ionicons name="time-outline" size={16} color={themeColors.textSecondary} />
+                      </BNMPressable>
+                      {showTimePicker && (
+                        <DateTimePicker
+                          value={(() => {
+                            const [hStr, mStr] = (createTime || "10:00").split(":");
+                            const d = new Date();
+                            d.setHours(parseInt(hStr || "10", 10), parseInt(mStr || "0", 10), 0);
+                            return d;
+                          })()}
+                          mode="time"
+                          is24Hour
+                          display={Platform.OS === "ios" ? "spinner" : "default"}
+                          onChange={(_, date) => {
+                            if (Platform.OS === "android") setShowTimePicker(false);
+                            if (date) {
+                              const h = String(date.getHours()).padStart(2, "0");
+                              const m = String(date.getMinutes()).padStart(2, "0");
+                              setCreateTime(`${h}:${m}`);
+                            }
+                          }}
+                        />
+                      )}
+                    </>
                   )}
                   {createTimeError && <Text style={{ color: COLORS.error, fontSize: 11, marginTop: 2 }}>Format: HH:MM</Text>}
                 </View>
@@ -861,45 +902,6 @@ export default function CalendarTabScreen() {
           </View>
         </View>
       </Modal>
-
-      {/* Native DateTimePicker (nur Mobile) */}
-      {showDatePicker && Platform.OS !== "web" && (
-        <DateTimePicker
-          value={createDate ? new Date(createDate + "T00:00:00") : new Date()}
-          mode="date"
-          display={Platform.OS === "ios" ? "spinner" : "default"}
-          onChange={(_, date) => {
-            setShowDatePicker(false);
-            if (date) {
-              const y = date.getFullYear();
-              const m = String(date.getMonth() + 1).padStart(2, "0");
-              const d = String(date.getDate()).padStart(2, "0");
-              setCreateDate(`${y}-${m}-${d}`);
-            }
-          }}
-        />
-      )}
-      {showTimePicker && Platform.OS !== "web" && (
-        <DateTimePicker
-          value={(() => {
-            const [hStr, mStr] = (createTime || "10:00").split(":");
-            const d = new Date();
-            d.setHours(parseInt(hStr || "10", 10), parseInt(mStr || "0", 10), 0);
-            return d;
-          })()}
-          mode="time"
-          is24Hour
-          display={Platform.OS === "ios" ? "spinner" : "default"}
-          onChange={(_, date) => {
-            setShowTimePicker(false);
-            if (date) {
-              const h = String(date.getHours()).padStart(2, "0");
-              const m = String(date.getMinutes()).padStart(2, "0");
-              setCreateTime(`${h}:${m}`);
-            }
-          }}
-        />
-      )}
 
       {/* Termin stornieren — Bestätigung */}
       <Modal visible={!!confirmDeleteEvent} transparent animationType="fade" onRequestClose={() => setConfirmDeleteEvent(null)}>
