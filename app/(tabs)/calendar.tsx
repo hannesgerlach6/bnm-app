@@ -34,7 +34,7 @@ import {
   fetchGoogleCalendarEvents,
   type GoogleCalendarEvent,
 } from "../../lib/calendarService";
-import type { CalendarEvent, EventAttendee } from "../../types";
+import type { CalendarEvent, EventAttendee, User } from "../../types";
 import DateTimePicker from "@react-native-community/datetimepicker";
 
 // ─── Helpers ────────────────────────────────────────────────────────────────
@@ -58,6 +58,7 @@ function EventCard({
   event,
   attendees,
   userId,
+  users,
   onRespond,
   onAddToGoogle,
   googleConnected,
@@ -67,7 +68,8 @@ function EventCard({
   event: CalendarEvent;
   attendees: EventAttendee[];
   userId: string;
-  onRespond: (eventId: string, status: "accepted" | "declined") => void;
+  users: User[];
+  onRespond: (eventId: string, status: "accepted" | "declined") => Promise<void>;
   onAddToGoogle: (event: CalendarEvent) => void;
   googleConnected: boolean;
   onEdit?: (event: CalendarEvent) => void;
@@ -75,10 +77,24 @@ function EventCard({
 }) {
   const themeColors = useThemeColors();
   const { isDark } = useTheme();
+  const [rsvpLoading, setRsvpLoading] = useState<"accepted" | "declined" | null>(null);
+  const [showAttendees, setShowAttendees] = useState(false);
+
   const typeInfo = EVENT_TYPE_LABELS[event.type] || EVENT_TYPE_LABELS.custom;
   const isCreator = event.created_by === userId;
-  const myAttendee = attendees.find((a) => a.event_id === event.id && a.user_id === userId);
-  const acceptedCount = attendees.filter((a) => a.event_id === event.id && a.status === "accepted").length;
+  const eventAttendees = attendees.filter((a) => a.event_id === event.id);
+  const myAttendee = eventAttendees.find((a) => a.user_id === userId);
+  const acceptedList = eventAttendees.filter((a) => a.status === "accepted");
+  const pendingList  = eventAttendees.filter((a) => a.status === "invited");
+  const declinedList = eventAttendees.filter((a) => a.status === "declined");
+
+  const handleRsvp = async (status: "accepted" | "declined") => {
+    if (rsvpLoading) return;
+    setRsvpLoading(status);
+    try { await onRespond(event.id, status); } finally { setRsvpLoading(null); }
+  };
+
+  const attendeeName = (uid: string) => users.find((u) => u.id === uid)?.name ?? "–";
 
   return (
     <View style={[styles.eventCard, { backgroundColor: themeColors.card, borderColor: themeColors.border }]}>
@@ -110,60 +126,96 @@ function EventCard({
         </Text>
       ) : null}
 
-      {/* Attendee count + RSVP (nur für Eingeladene, nicht für Ersteller) */}
-      <View style={styles.eventFooter}>
-        <Text style={[styles.attendeeCount, { color: themeColors.textTertiary }]}>
-          {acceptedCount} zugesagt
-        </Text>
-        {!isCreator && (
-          <View style={styles.rsvpRow}>
-            <BNMPressable
-              style={[
-                styles.rsvpBtn,
-                myAttendee?.status === "accepted"
-                  ? { backgroundColor: COLORS.cta + "20", borderColor: COLORS.cta }
-                  : { backgroundColor: themeColors.background, borderColor: themeColors.border },
-              ]}
-              onPress={() => onRespond(event.id, "accepted")}
-              accessibilityLabel="Zusagen"
-            >
-              <Ionicons
-                name="checkmark"
-                size={14}
-                color={myAttendee?.status === "accepted" ? COLORS.cta : themeColors.textSecondary}
-              />
-              <Text style={[
-                styles.rsvpText,
-                { color: myAttendee?.status === "accepted" ? COLORS.cta : themeColors.textSecondary },
-              ]}>
-                Zusagen
-              </Text>
-            </BNMPressable>
-            <BNMPressable
-              style={[
-                styles.rsvpBtn,
-                myAttendee?.status === "declined"
-                  ? { backgroundColor: COLORS.error + "20", borderColor: COLORS.error }
-                  : { backgroundColor: themeColors.background, borderColor: themeColors.border },
-              ]}
-              onPress={() => onRespond(event.id, "declined")}
-              accessibilityLabel="Absagen"
-            >
-              <Ionicons
-                name="close"
-                size={14}
-                color={myAttendee?.status === "declined" ? COLORS.error : themeColors.textSecondary}
-              />
-              <Text style={[
-                styles.rsvpText,
-                { color: myAttendee?.status === "declined" ? COLORS.error : themeColors.textSecondary },
-              ]}>
-                Absagen
-              </Text>
-            </BNMPressable>
-          </View>
-        )}
-      </View>
+      {/* Teilnehmerzähler — aufklappbar */}
+      {eventAttendees.length > 0 && (
+        <BNMPressable
+          onPress={() => setShowAttendees((v) => !v)}
+          style={{ flexDirection: "row", alignItems: "center", gap: 6, marginTop: 8 }}
+          accessibilityLabel="Teilnehmerliste anzeigen"
+        >
+          <Ionicons name="people-outline" size={14} color={themeColors.textTertiary} />
+          <Text style={{ fontSize: 12, color: themeColors.textTertiary }}>
+            {acceptedList.length > 0 && `${acceptedList.length} zugesagt`}
+            {acceptedList.length > 0 && pendingList.length > 0 && " · "}
+            {pendingList.length > 0 && `${pendingList.length} ausstehend`}
+            {declinedList.length > 0 && ` · ${declinedList.length} abgesagt`}
+          </Text>
+          <Ionicons
+            name={showAttendees ? "chevron-up-outline" : "chevron-down-outline"}
+            size={12}
+            color={themeColors.textTertiary}
+          />
+        </BNMPressable>
+      )}
+
+      {showAttendees && (
+        <View style={{ marginTop: 6, gap: 4 }}>
+          {acceptedList.map((a) => (
+            <View key={a.id} style={{ flexDirection: "row", alignItems: "center", gap: 6 }}>
+              <Ionicons name="checkmark-circle" size={13} color={COLORS.cta} />
+              <Text style={{ fontSize: 12, color: themeColors.textSecondary }}>{attendeeName(a.user_id)}</Text>
+            </View>
+          ))}
+          {pendingList.map((a) => (
+            <View key={a.id} style={{ flexDirection: "row", alignItems: "center", gap: 6 }}>
+              <Ionicons name="time-outline" size={13} color={themeColors.textTertiary} />
+              <Text style={{ fontSize: 12, color: themeColors.textTertiary }}>{attendeeName(a.user_id)}</Text>
+            </View>
+          ))}
+          {declinedList.map((a) => (
+            <View key={a.id} style={{ flexDirection: "row", alignItems: "center", gap: 6 }}>
+              <Ionicons name="close-circle" size={13} color={COLORS.error} />
+              <Text style={{ fontSize: 12, color: themeColors.textTertiary }}>{attendeeName(a.user_id)}</Text>
+            </View>
+          ))}
+        </View>
+      )}
+
+      {/* RSVP (nur für Eingeladene, nicht für Ersteller) */}
+      {!isCreator && (
+        <View style={[styles.eventFooter, { marginTop: 8 }]}>
+          <BNMPressable
+            style={[
+              styles.rsvpBtn,
+              myAttendee?.status === "accepted"
+                ? { backgroundColor: COLORS.cta + "20", borderColor: COLORS.cta }
+                : { backgroundColor: themeColors.background, borderColor: themeColors.border },
+              rsvpLoading === "accepted" && { opacity: 0.6 },
+            ]}
+            onPress={() => handleRsvp("accepted")}
+            disabled={!!rsvpLoading}
+            accessibilityLabel="Zusagen"
+          >
+            {rsvpLoading === "accepted"
+              ? <Ionicons name="sync-outline" size={14} color={COLORS.cta} />
+              : <Ionicons name="checkmark" size={14} color={myAttendee?.status === "accepted" ? COLORS.cta : themeColors.textSecondary} />
+            }
+            <Text style={[styles.rsvpText, { color: myAttendee?.status === "accepted" ? COLORS.cta : themeColors.textSecondary }]}>
+              Zusagen
+            </Text>
+          </BNMPressable>
+          <BNMPressable
+            style={[
+              styles.rsvpBtn,
+              myAttendee?.status === "declined"
+                ? { backgroundColor: COLORS.error + "20", borderColor: COLORS.error }
+                : { backgroundColor: themeColors.background, borderColor: themeColors.border },
+              rsvpLoading === "declined" && { opacity: 0.6 },
+            ]}
+            onPress={() => handleRsvp("declined")}
+            disabled={!!rsvpLoading}
+            accessibilityLabel="Absagen"
+          >
+            {rsvpLoading === "declined"
+              ? <Ionicons name="sync-outline" size={14} color={COLORS.error} />
+              : <Ionicons name="close" size={14} color={myAttendee?.status === "declined" ? COLORS.error : themeColors.textSecondary} />
+            }
+            <Text style={[styles.rsvpText, { color: myAttendee?.status === "declined" ? COLORS.error : themeColors.textSecondary }]}>
+              Absagen
+            </Text>
+          </BNMPressable>
+        </View>
+      )}
 
       {/* Google Calendar Button — nur wenn verbunden */}
       {googleConnected && (
@@ -723,6 +775,7 @@ export default function CalendarTabScreen() {
                   event={event}
                   attendees={eventAttendees}
                   userId={user?.id || ""}
+                  users={users}
                   onRespond={handleRespond}
                   onAddToGoogle={handleAddToGoogle}
                   googleConnected={googleConnected}

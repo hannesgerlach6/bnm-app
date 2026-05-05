@@ -584,6 +584,8 @@ export function DataProvider({ children }: { children: ReactNode }) {
         subscribeToProfiles(),
         subscribeToMentorships(),
         subscribeToAdminMessages(),
+        subscribeToCalendarEvents(),
+        subscribeToEventAttendees(),
       ];
     };
     // Kurze Verzögerung damit loadAllData den State füllen kann
@@ -1490,6 +1492,54 @@ export function DataProvider({ children }: { children: ReactNode }) {
     return () => {
       supabase.removeChannel(channel);
     };
+  }
+
+  // ─── Realtime: Calendar Events ────────────────────────────────────────────────
+
+  function subscribeToCalendarEvents(): () => void {
+    const channel = supabase
+      .channel("calendar-events-realtime")
+      .on("postgres_changes", { event: "*", schema: "public", table: "calendar_events" }, (payload) => {
+        if (payload.eventType === "INSERT") {
+          const row = payload.new as Record<string, unknown>;
+          setCalendarEvents((prev) => {
+            if (prev.some((e) => e.id === (row.id as string))) return prev;
+            return [...prev, mapCalendarEvent(row)];
+          });
+        } else if (payload.eventType === "UPDATE") {
+          const row = payload.new as Record<string, unknown>;
+          setCalendarEvents((prev) => prev.map((e) => e.id === (row.id as string) ? mapCalendarEvent(row) : e));
+        } else if (payload.eventType === "DELETE") {
+          const id = (payload.old as Record<string, unknown>).id as string;
+          setCalendarEvents((prev) => prev.filter((e) => e.id !== id));
+        }
+      })
+      .subscribe();
+    return () => { supabase.removeChannel(channel); };
+  }
+
+  // ─── Realtime: Event Attendees ────────────────────────────────────────────────
+
+  function subscribeToEventAttendees(): () => void {
+    const channel = supabase
+      .channel("event-attendees-realtime")
+      .on("postgres_changes", { event: "*", schema: "public", table: "event_attendees" }, (payload) => {
+        if (payload.eventType === "INSERT") {
+          const row = payload.new as Record<string, unknown>;
+          setEventAttendees((prev) => {
+            if (prev.some((a) => a.id === (row.id as string))) return prev;
+            return [...prev, mapEventAttendee(row)];
+          });
+        } else if (payload.eventType === "UPDATE") {
+          const row = payload.new as Record<string, unknown>;
+          setEventAttendees((prev) => prev.map((a) => a.id === (row.id as string) ? mapEventAttendee(row) : a));
+        } else if (payload.eventType === "DELETE") {
+          const id = (payload.old as Record<string, unknown>).id as string;
+          setEventAttendees((prev) => prev.filter((a) => a.id !== id));
+        }
+      })
+      .subscribe();
+    return () => { supabase.removeChannel(channel); };
   }
 
   // ─── Gamification-Helfer (delegiert an GamificationContext via Ref) ─────────
@@ -3527,11 +3577,25 @@ export function DataProvider({ children }: { children: ReactNode }) {
       }
     }
 
-    // Bei Absage: Admin + Office in-app benachrichtigen
+    const event = calendarEvents.find((e) => e.id === eventId);
+    const responder = users.find((u) => u.id === authUser.id);
+
+    // Ersteller benachrichtigen (außer wenn man selbst der Ersteller ist)
+    if (event?.created_by && event.created_by !== authUser.id) {
+      const label = status === "accepted" ? "zugesagt" : "abgesagt";
+      const title = status === "accepted" ? "Zusage" : "Absage";
+      await createNotification(
+        event.created_by,
+        "system",
+        `${title}: ${event.title}`,
+        `${responder?.name ?? "Jemand"} hat ${label}: ${event.title}`,
+        eventId
+      );
+    }
+
+    // Bei Absage zusätzlich Admin + Office benachrichtigen
     if (status === "declined") {
-      const event = calendarEvents.find((e) => e.id === eventId);
-      const decliner = users.find((u) => u.id === authUser.id);
-      const adminOffice = users.filter((u) => u.role === "admin" || u.role === "office");
+      const adminOffice = users.filter((u) => (u.role === "admin" || u.role === "office") && u.id !== event?.created_by);
       if (event && adminOffice.length > 0) {
         await Promise.all(
           adminOffice.map((admin) =>
@@ -3539,7 +3603,7 @@ export function DataProvider({ children }: { children: ReactNode }) {
               admin.id,
               "system",
               `Absage: ${event.title}`,
-              `${decliner?.name ?? "Jemand"} hat den Termin "${event.title}" abgesagt.`,
+              `${responder?.name ?? "Jemand"} hat den Termin "${event.title}" abgesagt.`,
               eventId
             )
           )
