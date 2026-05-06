@@ -1719,9 +1719,6 @@ function MenteeDashboard() {
   const [thanksMessage, setThanksMessage] = useState("");
   const [sendingThanks, setSendingThanks] = useState(false);
   const [showMentorContact, setShowMentorContact] = useState(false);
-  const [menteeNotesText, setMenteeNotesText] = useState("");
-  const [savingNotes, setSavingNotes] = useState(false);
-  const [notesInitialized, setNotesInitialized] = useState(false);
   const onRefresh = useCallback(async () => {
     setRefreshing(true);
     await refreshData();
@@ -1730,14 +1727,6 @@ function MenteeDashboard() {
 
   // Mentorship für den eingeloggten Mentee (null wenn kein user)
   const mentorship = user ? getMentorshipByMenteeId(user.id) : undefined;
-
-  // Notizen aus Mentorship in lokalen State laden (einmalig) — VOR jedem early return!
-  useEffect(() => {
-    if (mentorship && !notesInitialized) {
-      setMenteeNotesText(mentorship.mentee_notes ?? "");
-      setNotesInitialized(true);
-    }
-  }, [mentorship?.id, notesInitialized]);
 
   // Hadith für heute — VOR early return (Hook-Regel)
   const todayHadith = useMemo(() => {
@@ -1794,19 +1783,6 @@ function MenteeDashboard() {
   const progressPercent = sessionTypes.length > 0
     ? Math.round((completedStepIds.length / sessionTypes.length) * 100)
     : 0;
-
-  async function handleSaveNotes() {
-    if (!mentorship) return;
-    setSavingNotes(true);
-    try {
-      await updateMenteeNotes(mentorship.id, menteeNotesText);
-      showSuccess("Notizen gespeichert");
-    } catch {
-      showError("Fehler beim Speichern");
-    } finally {
-      setSavingNotes(false);
-    }
-  }
 
   async function handleSendThanks() {
     if (!mentorship?.mentor_id) return;
@@ -2008,40 +1984,6 @@ function MenteeDashboard() {
                 </View>
               </BNMPressable>
             )}
-
-            {/* ── Meine Notizen ── */}
-            <View style={[styles.levelCard, { backgroundColor: themeColors.card, borderColor: sem(SEMANTIC.goldBorder, isDark) }]}>
-              <Text style={{ fontSize: 11, fontWeight: "700", color: themeColors.textTertiary, letterSpacing: 0.8, textTransform: "uppercase", marginBottom: 10 }}>Meine Notizen</Text>
-              <TextInput
-                style={{
-                  color: themeColors.text,
-                  backgroundColor: isDark ? "#1A1A24" : themeColors.background,
-                  borderWidth: 1,
-                  borderColor: sem(SEMANTIC.darkBorder, isDark),
-                  borderRadius: RADIUS.sm,
-                  padding: 12,
-                  minHeight: 100,
-                  fontSize: 14,
-                  lineHeight: 20,
-                  textAlignVertical: "top",
-                  marginBottom: 10,
-                }}
-                placeholder="z.B. Ersttreffen war am... Nächste Session planen..."
-                placeholderTextColor={themeColors.textTertiary}
-                value={menteeNotesText}
-                onChangeText={setMenteeNotesText}
-                multiline
-              />
-              <BNMPressable
-                style={{ alignSelf: "flex-end", backgroundColor: COLORS.gradientStart, paddingVertical: 8, paddingHorizontal: 16, borderRadius: RADIUS.sm, opacity: savingNotes ? 0.6 : 1 }}
-                onPress={handleSaveNotes}
-                disabled={savingNotes}
-                accessibilityRole="button"
-                accessibilityLabel="Notizen speichern"
-              >
-                <Text style={{ color: "#fff", fontWeight: "700", fontSize: 13 }}>{savingNotes ? "Speichern..." : "Speichern"}</Text>
-              </BNMPressable>
-            </View>
 
             {/* ── Glückwunsch-Banner + Confetti (ganz unten) ── */}
             {(mentorship.status === "active" || mentorship.status === "completed") && allDone && (
