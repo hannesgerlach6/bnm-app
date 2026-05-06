@@ -1260,13 +1260,23 @@ function MentorDashboard() {
               </View>
             </View>
 
-            {/* ── Achievements (Grid 2x4) ── */}
+            {/* ── Achievements (Grid 3 Spalten) ── */}
             <View style={[styles.dashCol, styles.levelCard, { backgroundColor: themeColors.card, borderColor: sem(SEMANTIC.goldBorder, isDark), marginBottom: 0 }]}>
               <Text style={[styles.mentorSectionTitle, { color: themeColors.textSecondary, marginBottom: 10 }]}>
                 {t("gamification.achievementsTitle")}
               </Text>
               <View style={{ flexDirection: "row", flexWrap: "wrap", gap: 8, justifyContent: "flex-start" }}>
-                {ACHIEVEMENTS.map((ach) => {
+                {[...ACHIEVEMENTS]
+                  .sort((a, b) => {
+                    const aMystery = (a as any).mystery === true;
+                    const bMystery = (b as any).mystery === true;
+                    const aUnlocked = userAchievements.some((u) => u.achievement_key === a.key);
+                    const bUnlocked = userAchievements.some((u) => u.achievement_key === b.key);
+                    if (aMystery !== bMystery) return aMystery ? 1 : -1;
+                    if (aUnlocked !== bUnlocked) return aUnlocked ? -1 : 1;
+                    return 0;
+                  })
+                  .map((ach) => {
                   const isUnlocked = userAchievements.some((a) => a.achievement_key === ach.key);
                   const isMystery = (ach as any).mystery === true;
                   return (
@@ -1275,8 +1285,7 @@ function MentorDashboard() {
                       style={[
                         styles.achievementChip,
                         {
-                          width: "22%",
-                          minWidth: 60,
+                          width: "31%",
                           backgroundColor: isMystery
                             ? (isDark ? "#1a1a2e" : "#f0f0f8")
                             : isUnlocked
@@ -1289,28 +1298,47 @@ function MentorDashboard() {
                           opacity: isUnlocked ? 1 : isMystery ? 0.8 : 0.5,
                         },
                       ]}
-                      onPress={() => setShowAchievementTooltip(showAchievementTooltip === ach.key ? null : ach.key)}
+                      onPress={() => setShowAchievementTooltip(ach.key)}
                       accessibilityRole="button"
                       accessibilityLabel={isMystery ? "Geheime Auszeichnung" : `Auszeichnung: ${ach.label}`}
                     >
                       <Text style={[styles.achievementIcon, isMystery && { fontSize: 20 }]}>{ach.icon}</Text>
                       <Text style={{ fontSize: 9, fontWeight: "600", color: isMystery ? (isDark ? "#818cf8" : "#6366f1") : isUnlocked ? (isDark ? COLORS.gold : COLORS.goldText) : themeColors.textTertiary, marginTop: 4, textAlign: "center" }} numberOfLines={1}>{ach.label}</Text>
-                      {showAchievementTooltip === ach.key && (
-                        <View style={[styles.achievementTooltip, { backgroundColor: isDark ? "#1C1C28" : "#FFFFFF", borderColor: isMystery ? "#6366f1" : COLORS.gold }]}>
-                          <Text style={[styles.achievementTooltipTitle, { color: isMystery ? (isDark ? "#818cf8" : "#6366f1") : themeColors.text }]}>{ach.label}</Text>
-                          <Text style={[styles.achievementTooltipDesc, { color: themeColors.textSecondary }]}>{ach.desc}</Text>
-                          {!isUnlocked && (
-                            <Text style={[styles.achievementTooltipLocked, { color: themeColors.textTertiary }]}>
-                              {isMystery ? "Dieses Geheimnis wartet noch..." : t("gamification.achievementLocked")}
-                            </Text>
-                          )}
-                        </View>
-                      )}
                     </BNMPressable>
                   );
                 })}
               </View>
             </View>
+
+            {/* Achievement Detail Modal */}
+            {showAchievementTooltip && (() => {
+              const ach = ACHIEVEMENTS.find((a) => a.key === showAchievementTooltip);
+              if (!ach) return null;
+              const isUnlocked = userAchievements.some((a) => a.achievement_key === ach.key);
+              const isMystery = (ach as any).mystery === true;
+              const unlockedEntry = userAchievements.find((a) => a.achievement_key === ach.key);
+              return (
+                <Modal transparent animationType="fade" visible={true} onRequestClose={() => setShowAchievementTooltip(null)}>
+                  <BNMPressable style={{ flex: 1, backgroundColor: "rgba(0,0,0,0.55)", justifyContent: "center", alignItems: "center" }} onPress={() => setShowAchievementTooltip(null)}>
+                    <View style={[styles.achievementModal, { backgroundColor: isDark ? "#1C1C28" : "#FFFFFF", borderColor: isMystery ? "#6366f1" : COLORS.gold }]} onStartShouldSetResponder={() => true} onTouchEnd={(e) => e.stopPropagation()}>
+                      <Text style={{ fontSize: 52, textAlign: "center", marginBottom: 10 }}>{ach.icon}</Text>
+                      <Text style={[styles.achievementTooltipTitle, { color: isMystery ? (isDark ? "#818cf8" : "#6366f1") : themeColors.text, fontSize: 16, textAlign: "center" }]}>{ach.label}</Text>
+                      <Text style={[styles.achievementTooltipDesc, { color: themeColors.textSecondary, textAlign: "center", marginTop: 6 }]}>{ach.desc}</Text>
+                      {isUnlocked && unlockedEntry?.unlocked_at && (
+                        <Text style={{ fontSize: 11, color: COLORS.gold, marginTop: 10, textAlign: "center" }}>
+                          ✓ Freigeschaltet am {new Date(unlockedEntry.unlocked_at).toLocaleDateString("de-DE")}
+                        </Text>
+                      )}
+                      {!isUnlocked && (
+                        <Text style={[styles.achievementTooltipLocked, { color: themeColors.textTertiary, textAlign: "center", marginTop: 10 }]}>
+                          {isMystery ? "Dieses Geheimnis wartet noch..." : t("gamification.achievementLocked")}
+                        </Text>
+                      )}
+                    </View>
+                  </BNMPressable>
+                </Modal>
+              );
+            })()}
             </DashboardRow>
 
           </>
@@ -3240,25 +3268,19 @@ const styles = StyleSheet.create({
   achievementChip: {
     borderRadius: RADIUS.md,
     borderWidth: 1.5,
-    padding: 12,
-    marginHorizontal: 4,
+    padding: 10,
     alignItems: "center",
     justifyContent: "center",
-    minWidth: 52,
-    position: "relative",
   },
   achievementIcon: {
     fontSize: 26,
   },
-  achievementTooltip: {
-    position: "absolute",
-    top: 58,
-    left: -20,
-    width: 170,
-    borderRadius: RADIUS.md,
-    borderWidth: 1,
-    padding: 10,
-    zIndex: 100,
+  achievementModal: {
+    width: 280,
+    borderRadius: RADIUS.lg,
+    borderWidth: 2,
+    padding: 24,
+    alignItems: "center",
     ...SHADOWS.lg,
   },
   achievementTooltipTitle: {
