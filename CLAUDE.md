@@ -48,6 +48,7 @@ Alle SQL-Änderungen dokumentieren. Selbstständig handeln.
   23. `supabase/mentee-notes.sql` — mentee_notes-Spalte fuer eigene Mentee-Notizen in Mentorships
   24. `supabase/fix-message-template-subject.sql` — subject-Spalte für message_templates (E-Mail-Betreff aus body extrahiert)
   25. `supabase/fix-application-type.sql` — application_type-Spalte für mentor_applications (mentor/mentee)
+  26. `supabase/intro-videos.sql` — Einführungsvideos Seed-Daten (category="video", visible_to="mentees")
   26. Dashboard: Auth → Email → "Confirm email" OFF
   13. Test-User manuell anlegen + Profile-INSERT
   14. `lib/supabase.ts`: URL + Anon Key ändern (2 Zeilen)
@@ -105,6 +106,19 @@ neuemuslime.com-Stil. Dunkelblau (#0A3A5A) + Gold (#EEA71B). `constants/Colors.t
 ---
 
 ## FORTSCHRITTS-LOG
+
+### 2026-05-06 — Einführungsvideos für Mentees + Feedback-Fixes
+**Einführungsvideos:**
+- Ressourcen-System erweitert: Kategorie "video" in Admin-Resources-Screen verfügbar
+- `app/(tabs)/index.tsx` MenteeDashboard: "Einführungsvideos"-Sektion (immer sichtbar, unabhängig von Betreuungsstatus)
+- Filterlogik: category=video, visible_to=mentees/all/gender-spezifisch, is_active=true
+- `supabase/intro-videos.sql`: 3 Beispiel-Videos als Seed-Daten (Admin kann im Resources-Screen anpassen)
+
+**Feedback-Fixes (aus User-Tests):**
+- Mentor kann abgeschlossene Betreuung selbst rückgängig machen (nicht mehr nur Admin/Office)
+- Chat-Button direkt in Mentee-Karten der Mentor-Ansicht (navigateToChat)
+- FlatList key={mentorshipId} verhindert Spiegelverkehrt-Bug beim Chat-Wechsel
+- Certificate-Generator: Freitext-Vorlage via AsyncStorage persistent
 
 ### 2026-05-04 — Push Notifications vollständig deployed
 **Alle 5 Edge Functions deployed (cufuikcxliwbmyhwlmga):**

@@ -23,7 +23,7 @@ import { EmptyState } from "../../components/EmptyState";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import type { Resource } from "../../types";
 
-const RESOURCE_CATEGORIES = ["general", "lernmaterial", "organisation", "kontakt", "event"];
+const RESOURCE_CATEGORIES = ["general", "lernmaterial", "organisation", "kontakt", "event", "video"];
 
 export default function ResourcesScreen() {
   const router = useRouter();

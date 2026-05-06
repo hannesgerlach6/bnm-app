@@ -1711,7 +1711,7 @@ function MenteeDashboard() {
   const { t } = useLanguage();
   const themeColors = useThemeColors();
   const { isDark } = useTheme();
-  const { getMentorshipByMenteeId, getCompletedStepIds, sessionTypes, hadithe, refreshData, isLoading, calendarEvents, eventAttendees, respondToEvent, feedback, updateMenteeNotes } = useData();
+  const { getMentorshipByMenteeId, getCompletedStepIds, sessionTypes, hadithe, refreshData, isLoading, calendarEvents, eventAttendees, respondToEvent, feedback, updateMenteeNotes, resources } = useData();
   const { sendThanks } = useGamification();
   const [refreshing, setRefreshing] = useState(false);
   const [hadithOffset, setHadithOffset] = useState(0);
@@ -1766,6 +1766,17 @@ function MenteeDashboard() {
       .sort((a, b) => new Date(a.start_at).getTime() - new Date(b.start_at).getTime())
       .slice(0, 3);
   }, [calendarEvents, user]);
+
+  // Einführungsvideos: Ressourcen mit category="video" die für diesen User sichtbar sind
+  const introVideos = useMemo(() => {
+    return resources.filter((r) => {
+      if (!r.is_active || r.category !== "video") return false;
+      if (r.visible_to === "mentors") return false;
+      if (r.visible_to === "male" && user?.gender !== "male") return false;
+      if (r.visible_to === "female" && user?.gender !== "female") return false;
+      return true;
+    }).sort((a, b) => a.sort_order - b.sort_order);
+  }, [resources, user]);
 
   // ── Ab hier: kein Hook mehr ──────────────────────────────────────────────────
 
@@ -1850,6 +1861,43 @@ function MenteeDashboard() {
               <BNMPressable style={{ padding: 9, borderRadius: RADIUS.sm, backgroundColor: isDark ? themeColors.elevated : "#e8eaf6" }} onPress={() => { const shareText = todayHadith.text_ar ? `${todayHadith.text_ar}\n\n${todayHadith.text_de}` : todayHadith.text_de; const shareSuffix = todayHadith.source ? `— ${t("motivation.source")}: ${todayHadith.source} | BNM` : t("share.suffix"); shareHadith(shareText, shareSuffix); }} accessibilityRole="button" accessibilityLabel="Hadith teilen">
                 <Ionicons name="share-outline" size={16} color={COLORS.gold} />
               </BNMPressable>
+            </View>
+          </View>
+        )}
+
+        {/* ── Einführungsvideos (immer sichtbar für Mentees) ── */}
+        {introVideos.length > 0 && (
+          <View style={[styles.levelCard, { backgroundColor: themeColors.card, borderColor: sem(SEMANTIC.goldBorder, isDark) }]}>
+            <View style={{ flexDirection: "row", alignItems: "center", gap: 8, marginBottom: 12 }}>
+              <Ionicons name="play-circle-outline" size={20} color={COLORS.gold} />
+              <Text style={{ fontSize: 11, fontWeight: "700", color: themeColors.textTertiary, letterSpacing: 0.8, textTransform: "uppercase" }}>
+                Einführungsvideos
+              </Text>
+            </View>
+            <View style={{ gap: 10 }}>
+              {introVideos.map((video) => (
+                <BNMPressable
+                  key={video.id}
+                  style={{ flexDirection: "row", alignItems: "center", gap: 12, backgroundColor: isDark ? "#1A1A24" : themeColors.background, borderRadius: RADIUS.sm, padding: 12, borderWidth: 1, borderColor: sem(SEMANTIC.darkBorder, isDark) }}
+                  onPress={() => {
+                    if (Platform.OS === "web") { (window as any).open(video.url, "_blank"); }
+                    else { Linking.openURL(video.url); }
+                  }}
+                  accessibilityRole="link"
+                  accessibilityLabel={video.title}
+                >
+                  <View style={{ width: 44, height: 44, borderRadius: RADIUS.sm, backgroundColor: COLORS.gradientStart + "18", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
+                    <Ionicons name="play-circle" size={26} color={COLORS.gradientStart} />
+                  </View>
+                  <View style={{ flex: 1 }}>
+                    <Text style={{ fontSize: 14, fontWeight: "600", color: themeColors.text }} numberOfLines={2}>{video.title}</Text>
+                    {video.description ? (
+                      <Text style={{ fontSize: 12, color: themeColors.textSecondary, marginTop: 2 }} numberOfLines={2}>{video.description}</Text>
+                    ) : null}
+                  </View>
+                  <Ionicons name="chevron-forward-outline" size={16} color={themeColors.textTertiary} />
+                </BNMPressable>
+              ))}
             </View>
           </View>
         )}
