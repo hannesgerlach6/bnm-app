@@ -231,6 +231,15 @@ export default function MentorshipDetailScreen() {
   return (
     <Container fullWidth={Platform.OS === "web"}>
     <>
+    <BNMPressable
+      style={[styles.backButton, { backgroundColor: themeColors.card }]}
+      onPress={() => router.back()}
+      accessibilityRole="link"
+      accessibilityLabel="Zurück"
+    >
+      <Ionicons name="arrow-back" size={20} color={themeColors.text} />
+      <Text style={[styles.backButtonText, { color: themeColors.text }]}>Zurück</Text>
+    </BNMPressable>
     <ScrollView style={[styles.scrollView, { backgroundColor: themeColors.background }]}>
       <View style={styles.page}>
         {/* Status-Badge */}
@@ -743,6 +752,8 @@ function InfoChip({ label, themeColors }: { label: string; themeColors: any }) {
 }
 
 const styles = StyleSheet.create({
+  backButton: { flexDirection: "row", alignItems: "center", gap: 8, paddingHorizontal: 16, paddingVertical: 12, borderBottomWidth: 1, borderBottomColor: "transparent" },
+  backButtonText: { fontSize: 15, fontWeight: "600" },
   scrollView: { flex: 1 },
   centerContainer: { flex: 1, alignItems: "center", justifyContent: "center", padding: 24 },
   boldTitle: { fontWeight: "800" },
