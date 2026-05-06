@@ -3363,7 +3363,7 @@ const styles = StyleSheet.create({
   modalConfirmText: {
     fontSize: 14,
     fontWeight: "700",
-    color: COLORS.primary,
+    color: COLORS.white,
   },
   // Kompakte Mentees-Card im Mentor-Dashboard
   compactMenteesCard: {
