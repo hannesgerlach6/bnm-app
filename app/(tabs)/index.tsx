@@ -2028,50 +2028,52 @@ function MenteeDashboard() {
             {/* Mentor-Kontakt-Modal */}
             <Modal visible={showMentorContact} transparent animationType="fade" onRequestClose={() => setShowMentorContact(false)}>
               <View style={styles.modalOverlay}>
-                <View style={[styles.modalCard, { backgroundColor: themeColors.card }]}>
+                <View style={[styles.modalCard, { backgroundColor: themeColors.card }, Platform.OS === "web" ? { maxHeight: "85vh" as any, display: "flex" as any, flexDirection: "column" } : undefined]}>
                   <View style={{ flexDirection: "row", justifyContent: "space-between", alignItems: "center", marginBottom: 16 }}>
                     <Text style={[styles.modalTitle, { color: themeColors.text, marginBottom: 0 }]}>Mein Mentor</Text>
                     <BNMPressable onPress={() => setShowMentorContact(false)} accessibilityRole="button" accessibilityLabel="Schließen">
                       <Ionicons name="close-outline" size={24} color={themeColors.textTertiary} />
                     </BNMPressable>
                   </View>
-                  {mentorship?.mentor && (
-                    <View style={{ gap: 10 }}>
-                      <View style={{ flexDirection: "row", alignItems: "center", gap: 10 }}>
-                        <View style={{ width: 48, height: 48, borderRadius: 24, backgroundColor: COLORS.gradientStart + "18", alignItems: "center", justifyContent: "center" }}>
-                          <Ionicons name="person-outline" size={24} color={COLORS.gradientStart} />
-                        </View>
-                        <View>
-                          <Text style={{ fontSize: 17, fontWeight: "700", color: themeColors.text }}>{mentorship.mentor.name}</Text>
-                          {mentorship.mentor.city ? <Text style={{ fontSize: 13, color: themeColors.textSecondary }}>{mentorship.mentor.city}</Text> : null}
-                        </View>
-                      </View>
-                      <View style={{ height: 1, backgroundColor: sem(SEMANTIC.darkBorder, isDark), marginVertical: 4 }} />
-                      {mentorship.mentor.email ? (
-                        <BNMPressable style={{ flexDirection: "row", alignItems: "center", gap: 10 }} onPress={() => Linking.openURL(`mailto:${mentorship.mentor!.email}`)} accessibilityRole="link" accessibilityLabel="E-Mail schreiben">
-                          <Ionicons name="mail-outline" size={18} color={COLORS.gradientStart} />
-                          <Text style={{ fontSize: 14, color: COLORS.gradientStart }}>{mentorship.mentor.email}</Text>
-                        </BNMPressable>
-                      ) : null}
-                      {mentorship.mentor.phone ? (
-                        <BNMPressable style={{ flexDirection: "row", alignItems: "center", gap: 10 }} onPress={() => Linking.openURL(`tel:${mentorship.mentor!.phone}`)} accessibilityRole="link" accessibilityLabel="Anrufen">
-                          <Ionicons name="call-outline" size={18} color={COLORS.gradientStart} />
-                          <Text style={{ fontSize: 14, color: COLORS.gradientStart }}>{mentorship.mentor.phone}</Text>
-                        </BNMPressable>
-                      ) : null}
-                      {mentorship.mentor.contact_preference && (
+                  <ScrollView scrollEnabled={Platform.OS === "web"} style={Platform.OS === "web" ? { flex: 1 } : undefined} contentContainerStyle={{ gap: 10 }}>
+                    {mentorship?.mentor && (
+                      <>
                         <View style={{ flexDirection: "row", alignItems: "center", gap: 10 }}>
-                          <Ionicons name="chatbubble-outline" size={18} color={themeColors.textTertiary} />
-                          <Text style={{ fontSize: 13, color: themeColors.textSecondary }}>
-                            Bevorzugter Kontakt:{" "}
-                            <Text style={{ fontWeight: "600", color: themeColors.text }}>
-                              {{ phone: "Telefon", whatsapp: "WhatsApp", telegram: "Telegram", email: "E-Mail" }[mentorship.mentor.contact_preference] ?? mentorship.mentor.contact_preference}
-                            </Text>
-                          </Text>
+                          <View style={{ width: 48, height: 48, borderRadius: 24, backgroundColor: COLORS.gradientStart + "18", alignItems: "center", justifyContent: "center" }}>
+                            <Ionicons name="person-outline" size={24} color={COLORS.gradientStart} />
+                          </View>
+                          <View>
+                            <Text style={{ fontSize: 17, fontWeight: "700", color: themeColors.text }}>{mentorship.mentor.name}</Text>
+                            {mentorship.mentor.city ? <Text style={{ fontSize: 13, color: themeColors.textSecondary }}>{mentorship.mentor.city}</Text> : null}
+                          </View>
                         </View>
-                      )}
-                    </View>
-                  )}
+                        <View style={{ height: 1, backgroundColor: sem(SEMANTIC.darkBorder, isDark), marginVertical: 4 }} />
+                        {mentorship.mentor.email ? (
+                          <BNMPressable style={{ flexDirection: "row", alignItems: "center", gap: 10 }} onPress={() => Linking.openURL(`mailto:${mentorship.mentor!.email}`)} accessibilityRole="link" accessibilityLabel="E-Mail schreiben">
+                            <Ionicons name="mail-outline" size={18} color={COLORS.gradientStart} />
+                            <Text style={{ fontSize: 14, color: COLORS.gradientStart }}>{mentorship.mentor.email}</Text>
+                          </BNMPressable>
+                        ) : null}
+                        {mentorship.mentor.phone ? (
+                          <BNMPressable style={{ flexDirection: "row", alignItems: "center", gap: 10 }} onPress={() => Linking.openURL(`tel:${mentorship.mentor!.phone}`)} accessibilityRole="link" accessibilityLabel="Anrufen">
+                            <Ionicons name="call-outline" size={18} color={COLORS.gradientStart} />
+                            <Text style={{ fontSize: 14, color: COLORS.gradientStart }}>{mentorship.mentor.phone}</Text>
+                          </BNMPressable>
+                        ) : null}
+                        {mentorship.mentor.contact_preference && (
+                          <View style={{ flexDirection: "row", alignItems: "center", gap: 10 }}>
+                            <Ionicons name="chatbubble-outline" size={18} color={themeColors.textTertiary} />
+                            <Text style={{ fontSize: 13, color: themeColors.textSecondary }}>
+                              Bevorzugter Kontakt:{" "}
+                              <Text style={{ fontWeight: "600", color: themeColors.text }}>
+                                {{ phone: "Telefon", whatsapp: "WhatsApp", telegram: "Telegram", email: "E-Mail" }[mentorship.mentor.contact_preference] ?? mentorship.mentor.contact_preference}
+                              </Text>
+                            </Text>
+                          </View>
+                        )}
+                      </>
+                    )}
+                  </ScrollView>
                   <BNMPressable style={[styles.modalConfirmBtn, { marginTop: 16, flex: 0, alignSelf: "stretch" }]} onPress={() => setShowMentorContact(false)} accessibilityRole="button" accessibilityLabel="Schließen">
                     <Text style={styles.modalConfirmText}>Schließen</Text>
                   </BNMPressable>
