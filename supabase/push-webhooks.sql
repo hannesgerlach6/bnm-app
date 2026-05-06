@@ -55,7 +55,7 @@ BEGIN
       'Content-Type',  'application/json',
       'Authorization', 'Bearer ' || service_key
     ),
-    body    := payload::text
+    body    := payload
   );
 
   RETURN NEW;
