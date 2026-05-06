@@ -19,6 +19,7 @@ import { useData } from "../../contexts/DataContext";
 import { COLORS, SHADOWS, RADIUS, SEMANTIC, sem } from "../../constants/Colors";
 import { useLanguage } from "../../contexts/LanguageContext";
 import { useTheme, useThemeColors } from "../../contexts/ThemeContext";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { supabase } from "../../lib/supabase";
 import { Container } from "../../components/Container";
 import { StatusBadge } from "../../components/StatusBadge";
@@ -27,6 +28,7 @@ import { QUESTIONNAIRE_SECTIONS } from "../../lib/questionnaireConfig";
 
 export default function MentorshipDetailScreen() {
   const router = useRouter();
+  const insets = useSafeAreaInsets();
   const { user } = useAuth();
   const { t } = useLanguage();
   const themeColors = useThemeColors();
@@ -232,7 +234,7 @@ export default function MentorshipDetailScreen() {
     <Container fullWidth={Platform.OS === "web"}>
     <>
     <BNMPressable
-      style={[styles.backButton, { backgroundColor: themeColors.card }]}
+      style={[styles.backButton, { backgroundColor: themeColors.card, paddingTop: Math.max(insets.top, 12) }]}
       onPress={() => router.back()}
       accessibilityRole="link"
       accessibilityLabel="Zurück"
