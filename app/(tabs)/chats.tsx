@@ -165,6 +165,7 @@ function ChatPanel({ mentorshipId }: { mentorshipId: string }) {
         ) : (
           <FlatList
             ref={flatListRef}
+            key={mentorshipId}
             data={reversedMessages}
             keyExtractor={(item) => item.id}
             inverted={true}

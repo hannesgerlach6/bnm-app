@@ -102,6 +102,22 @@ export default function CertificateGeneratorScreen() {
     if (selectedMentor?.email) setEmailTo(selectedMentor.email);
   }, [selectedMentor?.email]);
 
+  // Freitext-Vorlage persistent laden/speichern
+  useEffect(() => {
+    (async () => {
+      const AS = (await import("@react-native-async-storage/async-storage")).default;
+      const saved = await AS.getItem("certGen_customEmailBody");
+      if (saved) setCustomEmailBody(saved);
+    })();
+  }, []);
+
+  useEffect(() => {
+    (async () => {
+      const AS = (await import("@react-native-async-storage/async-storage")).default;
+      await AS.setItem("certGen_customEmailBody", customEmailBody);
+    })();
+  }, [customEmailBody]);
+
   if (!authUser || (authUser.role !== "admin" && authUser.role !== "office")) {
     return (
       <View style={{ flex: 1, alignItems: "center", justifyContent: "center", backgroundColor: themeColors.background }}>

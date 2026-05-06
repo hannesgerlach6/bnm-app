@@ -992,20 +992,34 @@ function MentorMenteeCard({ mentorship }: { mentorship: Mentorship }) {
             ? t("mentees.sessionCountMany").replace("{0}", String(sessions.length))
             : t("mentees.sessionCountOne").replace("{0}", String(sessions.length))}
         </Text>
-        {mentorship.status === "active" && (
+        <View style={styles.footerActions}>
+          {mentorship.status === "active" && (
+            <BNMPressable
+              style={styles.docChipButton}
+              onPress={(e) => {
+                e.stopPropagation();
+                router.push({
+                  pathname: "/document-session",
+                  params: { mentorshipId: mentorship.id },
+                });
+              }}
+            >
+              <Text style={styles.docChipText}>{t("sessions.document")}</Text>
+            </BNMPressable>
+          )}
           <BNMPressable
-            style={styles.docChipButton}
+            style={styles.chatChipButton}
             onPress={(e) => {
               e.stopPropagation();
-              router.push({
-                pathname: "/document-session",
-                params: { mentorshipId: mentorship.id },
-              });
+              navigateToChat(router, mentorship.id);
             }}
+            accessibilityRole="button"
+            accessibilityLabel="Chat öffnen"
           >
-            <Text style={styles.docChipText}>{t("sessions.document")}</Text>
+            <Ionicons name="chatbubble-outline" size={14} color={COLORS.white} />
+            <Text style={styles.chatChipText}>Chat</Text>
           </BNMPressable>
-        )}
+        </View>
       </View>
     </BNMPressable>
   );
@@ -1394,6 +1408,17 @@ const styles = StyleSheet.create({
     borderRadius: RADIUS.sm,
   },
   docChipText: { color: COLORS.cta, fontSize: 12, fontWeight: "600" },
+  footerActions: { flexDirection: "row", gap: 8, alignItems: "center" },
+  chatChipButton: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 4,
+    backgroundColor: COLORS.gradientStart,
+    paddingHorizontal: 10,
+    paddingVertical: 6,
+    borderRadius: RADIUS.sm,
+  },
+  chatChipText: { color: COLORS.white, fontSize: 12, fontWeight: "600" },
   blockedBadge: {
     borderRadius: 4,
     paddingHorizontal: 6,

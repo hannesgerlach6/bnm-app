@@ -577,8 +577,8 @@ export default function MentorshipDetailScreen() {
           </Text>
         )}
 
-        {/* Reaktivieren (nur Admin/Office, nur bei abgeschlossenen Betreuungen) */}
-        {mentorship.status === "completed" && (user?.role === "admin" || user?.role === "office") && (
+        {/* Reaktivieren (Admin/Office oder eigener Mentor, nur bei abgeschlossenen Betreuungen) */}
+        {mentorship.status === "completed" && (user?.role === "admin" || user?.role === "office" || user?.id === mentorship.mentor_id) && (
           <BNMPressable
             style={[styles.cancelButton, { backgroundColor: isDark ? "#1a2a3a" : "#eff6ff", borderColor: isDark ? "#1e3a5a" : "#bfdbfe", marginBottom: 12 }, isUpdatingStatus ? { opacity: 0.5 } : {}]}
             onPress={handleReactivate}

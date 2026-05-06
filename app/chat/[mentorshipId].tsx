@@ -378,6 +378,7 @@ export default function ChatScreen() {
         ) : (
           <FlatList
             ref={flatListRef}
+            key={mentorshipId}
             data={reversedMessages}
             renderItem={renderItem}
             keyExtractor={keyExtractor}
