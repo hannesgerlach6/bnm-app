@@ -554,7 +554,7 @@ function ApplicationCard({
               value={contactLabels[application.contact_preference] ?? application.contact_preference}
             />
             <InfoLine label={t("applications.genderLabel")} value={`${genderLabel} · ${application.age} ${t("common.yearsOld")}`} />
-            <InfoLine label={t("applications.cityLabel")} value={application.city} />
+            <InfoLine label={t("applications.cityLabel")} value={application.plz ? `${application.plz} ${application.city}` : application.city} />
             <InfoLine
               label={t("applications.submittedLabel")}
               value={new Date(application.submitted_at).toLocaleDateString("de-DE", {
