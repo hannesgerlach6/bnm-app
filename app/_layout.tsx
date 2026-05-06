@@ -178,7 +178,8 @@ function AppStackScreens({ isWebSidebar }: { isWebSidebar: boolean }) {
       <Stack.Screen name="feedback" options={modalOpts("Feedback")} />
       <Stack.Screen name="mentorship/[id]" options={headerOpts("Betreuung")} />
       <Stack.Screen name="chat/[mentorshipId]" options={headerOpts("Chat")} />
-      <Stack.Screen name="admin/session-types" options={headerOpts("Session-Typen")} />
+      <Stack.Screen name="admin/session-types" options={{ headerShown: false }} />
+      <Stack.Screen name="admin/resources" options={{ headerShown: false }} />
       <Stack.Screen name="reset-password" options={headerOpts("Passwort zurücksetzen")} />
       <Stack.Screen name="hadithe" options={{ headerShown: false }} />
       <Stack.Screen name="donor-report" options={{ headerShown: false }} />

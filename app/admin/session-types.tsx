@@ -123,6 +123,11 @@ export default function SessionTypesScreen() {
     >
     <ScrollView style={[styles.scrollView, { backgroundColor: themeColors.background }]}>
       <View style={[styles.page, { paddingTop: insets.top + 12 }]}>
+        <View style={styles.header}>
+          <BNMPressable onPress={() => router.back()} style={styles.backBtn} accessibilityRole="link" accessibilityLabel="Zurück">
+            <Text style={[styles.backBtnText, { color: themeColors.text }]}>← Zurück</Text>
+          </BNMPressable>
+        </View>
         <Text style={[styles.pageTitle, { color: themeColors.text }]}>{t("sessionTypes.title")}</Text>
         <Text style={[styles.pageSubtitle, { color: themeColors.textSecondary }]}>
           {t("sessionTypes.subtitle").replace("{0}", String(sortedTypes.length))}
@@ -338,6 +343,9 @@ const styles = StyleSheet.create({
   centerContainer: { flex: 1, alignItems: "center", justifyContent: "center", padding: 24 },
   accessText: { fontWeight: "600" },
   page: { padding: 24 },
+  header: { flexDirection: "row", alignItems: "center", marginBottom: 8 },
+  backBtn: { paddingRight: 8, paddingVertical: 4 },
+  backBtnText: { fontSize: 16, fontWeight: "500" },
   pageTitle: { fontSize: 24, fontWeight: "bold", marginBottom: 4 },
   pageSubtitle: { marginBottom: 24 },
   blueBox: {
