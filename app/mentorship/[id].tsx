@@ -286,7 +286,7 @@ export default function MentorshipDetailScreen() {
 
         {/* Mentor-Info */}
         <View style={[styles.card, { backgroundColor: themeColors.card, borderColor: themeColors.border }]}>
-          <Text style={[styles.cardSectionLabel, { color: themeColors.textTertiary }]}>{t("mentorship.mentor")}</Text>
+          <Text style={[styles.cardSectionLabel, { color: themeColors.textTertiary }]}>{mentorship.mentor?.gender === "female" ? t("mentorship.mentorin") : t("mentorship.mentor")}</Text>
           <Text style={[styles.bigName, { fontSize: 18, color: themeColors.text }]}>{mentorship.mentor?.name}</Text>
           <View style={styles.chipRow}>
             <InfoChip label={mentorship.mentor?.city ?? ""} themeColors={themeColors} />

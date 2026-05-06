@@ -1981,7 +1981,7 @@ function MenteeDashboard() {
                   <Ionicons name="person-outline" size={20} color={COLORS.gradientStart} />
                 </View>
                 <View style={{ flex: 1 }}>
-                  <Text style={{ fontSize: 11, fontWeight: "700", color: themeColors.textTertiary, letterSpacing: 0.8, textTransform: "uppercase", marginBottom: 2 }}>Mein Mentor</Text>
+                  <Text style={{ fontSize: 11, fontWeight: "700", color: themeColors.textTertiary, letterSpacing: 0.8, textTransform: "uppercase", marginBottom: 2 }}>{mentorship.mentor?.gender === "female" ? "Meine Mentorin" : "Mein Mentor"}</Text>
                   <Text style={{ fontSize: 15, fontWeight: "700", color: themeColors.text }}>{mentorship.mentor.name}</Text>
                   {mentorship.mentor.city ? <Text style={{ fontSize: 12, color: themeColors.textSecondary }}>{mentorship.mentor.city}</Text> : null}
                 </View>

@@ -620,7 +620,7 @@ function AdminMenteesView() {
 
             {!selectMode && mentorship ? (
               <>
-                <Text style={[styles.mentorLabel, { color: themeColors.textTertiary }]}>{t("mentees.mentor")}: {mentorship.mentor?.name}</Text>
+                <Text style={[styles.mentorLabel, { color: themeColors.textTertiary }]}>{mentorship.mentor?.gender === "female" ? t("mentees.mentorin") : t("mentees.mentor")}: {mentorship.mentor?.name}</Text>
                 {mentorship.status === "active" && (() => {
                   const dur = getMentorshipDuration(mentorship.assigned_at);
                   return (
@@ -1081,7 +1081,7 @@ function MenteeProgressView() {
     >
       <View style={styles.page}>
         <Text style={[styles.pageTitle, { color: themeColors.text }]}>{t("mentees.myProgress")}</Text>
-        <Text style={[styles.pageSubtitle, { color: themeColors.textSecondary }]}>{t("mentees.mentor")}: {mentorship.mentor?.name}</Text>
+        <Text style={[styles.pageSubtitle, { color: themeColors.textSecondary }]}>{mentorship.mentor?.gender === "female" ? t("mentees.mentorin") : t("mentees.mentor")}: {mentorship.mentor?.name}</Text>
 
         {/* Gesamtfortschritt – dunkle Hero-Card */}
         <View style={styles.progressHeaderCard}>
