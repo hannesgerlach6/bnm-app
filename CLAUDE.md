@@ -49,6 +49,7 @@ Alle SQL-Änderungen dokumentieren. Selbstständig handeln.
   24. `supabase/fix-message-template-subject.sql` — subject-Spalte für message_templates (E-Mail-Betreff aus body extrahiert)
   25. `supabase/fix-application-type.sql` — application_type-Spalte für mentor_applications (mentor/mentee)
   26. `supabase/intro-videos.sql` — Einführungsvideos Seed-Daten (category="video", visible_to="mentees")
+  27. `supabase/participation-surveys.sql` — Teilnahmeabfragen fuer Mentees (participation_surveys + participation_responses)
   26. Dashboard: Auth → Email → "Confirm email" OFF
   13. Test-User manuell anlegen + Profile-INSERT
   14. `lib/supabase.ts`: URL + Anon Key ändern (2 Zeilen)
@@ -106,6 +107,31 @@ neuemuslime.com-Stil. Dunkelblau (#0A3A5A) + Gold (#EEA71B). `constants/Colors.t
 ---
 
 ## FORTSCHRITTS-LOG
+
+### 2026-05-06 — Teilnahmeabfragen für Mentees (neu)
+**Neue SQL-Migration:** `supabase/participation-surveys.sql`
+- Neue Tabelle `participation_surveys` (id, title, description, survey_date, visible_to, is_active, created_by)
+- Neue Tabelle `participation_responses` (survey_id, user_id, response: yes/maybe/no) mit UNIQUE-Constraint
+- RLS: Mentees sehen aktive Surveys, Admin/Office verwaltet alle
+
+**Types:** `types/index.ts` — `ParticipationSurvey`, `ParticipationSurveyResponse`, `SurveyVisibility`, `SurveyResponse`
+
+**DataContext:** `contexts/DataContext.tsx`
+- State: `participationSurveys`, `participationResponses`
+- Laden in `loadAllData` (parallel)
+- Funktionen: `addParticipationSurvey`, `updateParticipationSurvey`, `deleteParticipationSurvey`, `respondToSurvey`, `getMySurveyResponse`, `getSurveyResponsesBySurveyId`
+
+**Admin-Screen:** `app/admin/participation-surveys.tsx`
+- Abfragen erstellen/bearbeiten/löschen
+- Ja/Vielleicht/Nein Statistiken pro Abfrage
+- Aufklappbare Teilnehmerliste mit Namen + Antwort
+
+**Mentee-Dashboard:** `app/(tabs)/index.tsx`
+- `activeSurveys` useMemo (nach Sichtbarkeit gefiltert)
+- Survey-Cards mit Ja/Vielleicht/Nein-Buttons (Auswahl wird sofort gespeichert, erneut tippen = deselektieren)
+
+**Tools-Screen:** `app/(tabs)/tools.tsx`
+- Neuer "Teilnahmeabfragen"-Button für Admin/Office
 
 ### 2026-05-06 — Einführungsvideos für Mentees + Feedback-Fixes
 **Einführungsvideos:**

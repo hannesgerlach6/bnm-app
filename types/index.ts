@@ -251,3 +251,25 @@ export interface StreakData {
   longest_streak: number;
   last_activity_date?: string;
 }
+
+export type SurveyVisibility = "all" | "male" | "female";
+export type SurveyResponse = "yes" | "maybe" | "no";
+
+export interface ParticipationSurvey {
+  id: string;
+  title: string;
+  description?: string;
+  survey_date?: string;
+  visible_to: SurveyVisibility;
+  is_active: boolean;
+  created_by?: string;
+  created_at: string;
+}
+
+export interface ParticipationSurveyResponse {
+  id: string;
+  survey_id: string;
+  user_id: string;
+  response: SurveyResponse;
+  created_at: string;
+}

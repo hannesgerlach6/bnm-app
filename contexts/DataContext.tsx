@@ -31,6 +31,10 @@ import type {
   EventAttendee,
   EventAttendeeStatus,
   ResourceVisibility,
+  ParticipationSurvey,
+  ParticipationSurveyResponse,
+  SurveyVisibility,
+  SurveyResponse,
 } from "../types";
 import { XP_VALUES } from "../lib/gamification";
 
@@ -103,6 +107,8 @@ export interface DataContextValue {
   resources: Resource[];
   eventParticipations: EventParticipation[];
   resourceCompletions: ResourceCompletion[];
+  participationSurveys: ParticipationSurvey[];
+  participationResponses: ParticipationSurveyResponse[];
   calendarEvents: CalendarEvent[];
   eventAttendees: EventAttendee[];
 
@@ -211,6 +217,14 @@ export interface DataContextValue {
   toggleResourceCompletion: (resourceId: string) => Promise<void>;
   isResourceCompleted: (resourceId: string) => boolean;
   getResourceCompletionCount: (resourceId: string) => number;
+
+  // Participation Survey actions
+  addParticipationSurvey: (survey: Omit<ParticipationSurvey, "id" | "created_at">) => Promise<void>;
+  updateParticipationSurvey: (id: string, data: Partial<Omit<ParticipationSurvey, "id" | "created_at">>) => Promise<void>;
+  deleteParticipationSurvey: (id: string) => Promise<void>;
+  respondToSurvey: (surveyId: string, response: SurveyResponse) => Promise<void>;
+  getMySurveyResponse: (surveyId: string) => ParticipationSurveyResponse | undefined;
+  getSurveyResponsesBySurveyId: (surveyId: string) => ParticipationSurveyResponse[];
 
   // Calendar actions
   addCalendarEvent: (event: Omit<CalendarEvent, "id" | "created_at">) => Promise<string | null>;
@@ -345,6 +359,29 @@ function mapResourceCompletion(row: Record<string, unknown>): ResourceCompletion
     resource_id: row.resource_id as string,
     user_id: row.user_id as string,
     completed_at: row.completed_at as string,
+  };
+}
+
+function mapParticipationSurvey(row: Record<string, unknown>): ParticipationSurvey {
+  return {
+    id: row.id as string,
+    title: row.title as string,
+    description: row.description as string | undefined,
+    survey_date: row.survey_date as string | undefined,
+    visible_to: (row.visible_to as SurveyVisibility) ?? "all",
+    is_active: row.is_active as boolean,
+    created_by: row.created_by as string | undefined,
+    created_at: row.created_at as string,
+  };
+}
+
+function mapParticipationResponse(row: Record<string, unknown>): ParticipationSurveyResponse {
+  return {
+    id: row.id as string,
+    survey_id: row.survey_id as string,
+    user_id: row.user_id as string,
+    response: (row.response as SurveyResponse) ?? "maybe",
+    created_at: row.created_at as string,
   };
 }
 
@@ -493,6 +530,8 @@ export function DataProvider({ children }: { children: ReactNode }) {
   const [resources, setResources] = useState<Resource[]>([]);
   const [eventParticipations, setEventParticipations] = useState<EventParticipation[]>([]);
   const [resourceCompletions, setResourceCompletions] = useState<ResourceCompletion[]>([]);
+  const [participationSurveys, setParticipationSurveys] = useState<ParticipationSurvey[]>([]);
+  const [participationResponses, setParticipationResponses] = useState<ParticipationSurveyResponse[]>([]);
   const [calendarEvents, setCalendarEvents] = useState<CalendarEvent[]>([]);
   const [eventAttendees, setEventAttendees] = useState<EventAttendee[]>([]);
   const [mentorOfMonthVisible, setMentorOfMonthVisible] = useState<boolean>(true);
@@ -698,6 +737,8 @@ export function DataProvider({ children }: { children: ReactNode }) {
         calendarEventsRes,
         eventAttendeesRes,
         adminMsgsRes,
+        surveysRes,
+        surveyResponsesRes,
       ] = await Promise.all([
         safe(supabase.from("profiles").select("*")),
         safe(supabase.from("mentorships").select("*")),
@@ -719,6 +760,8 @@ export function DataProvider({ children }: { children: ReactNode }) {
         safe(isAdminOrOffice
           ? supabase.from("admin_messages").select("*").order("created_at", { ascending: true })
           : supabase.from("admin_messages").select("*").eq("user_id", authUser!.id).order("created_at", { ascending: true })),
+        safe(supabase.from("participation_surveys").select("*").order("created_at", { ascending: false })),
+        safe(supabase.from("participation_responses").select("*")),
       ] as const);
 
       // Error-Logging: Supabase-Fehler sichtbar machen
@@ -956,6 +999,18 @@ export function DataProvider({ children }: { children: ReactNode }) {
       if (eventAttendeesRes.error) console.warn("[DataContext] event_attendees error:", eventAttendeesRes.error.message);
       if (eventAttendeesRes.data) {
         setEventAttendees(eventAttendeesRes.data.map(mapEventAttendee));
+      }
+
+      // Participation Surveys
+      if (surveysRes.error) console.warn("[DataContext] participation_surveys error:", surveysRes.error.message);
+      if (surveysRes.data) {
+        setParticipationSurveys(surveysRes.data.map(mapParticipationSurvey));
+      }
+
+      // Participation Responses
+      if (surveyResponsesRes.error) console.warn("[DataContext] participation_responses error:", surveyResponsesRes.error.message);
+      if (surveyResponsesRes.data) {
+        setParticipationResponses(surveyResponsesRes.data.map(mapParticipationResponse));
       }
 
       // ─── Admin-Messages verarbeiten (Query läuft parallel im Promise.all oben) ──
@@ -3468,6 +3523,77 @@ export function DataProvider({ children }: { children: ReactNode }) {
     [authUser, eventParticipations]
   );
 
+  // ─── Participation Survey Actions ────────────────────────────────────────────
+
+  const addParticipationSurvey = useCallback(async (survey: Omit<ParticipationSurvey, "id" | "created_at">) => {
+    if (!authUser) return;
+    const { data, error } = await supabase
+      .from("participation_surveys")
+      .insert({ ...survey, created_by: authUser.id })
+      .select()
+      .maybeSingle();
+    if (error) throw new Error(error.message);
+    if (data) setParticipationSurveys((prev) => [mapParticipationSurvey(data), ...prev]);
+  }, [authUser]);
+
+  const updateParticipationSurvey = useCallback(async (id: string, data: Partial<Omit<ParticipationSurvey, "id" | "created_at">>) => {
+    const { error } = await supabase.from("participation_surveys").update(data).eq("id", id);
+    if (error) throw new Error(error.message);
+    setParticipationSurveys((prev) => prev.map((s) => s.id === id ? { ...s, ...data } : s));
+  }, []);
+
+  const deleteParticipationSurvey = useCallback(async (id: string) => {
+    const { error } = await supabase.from("participation_surveys").delete().eq("id", id);
+    if (error) throw new Error(error.message);
+    setParticipationSurveys((prev) => prev.filter((s) => s.id !== id));
+    setParticipationResponses((prev) => prev.filter((r) => r.survey_id !== id));
+  }, []);
+
+  const respondToSurvey = useCallback(async (surveyId: string, response: SurveyResponse) => {
+    if (!authUser) return;
+    const { data: existing } = await supabase
+      .from("participation_responses")
+      .select("id, response")
+      .eq("survey_id", surveyId)
+      .eq("user_id", authUser.id)
+      .maybeSingle();
+
+    if (existing) {
+      if (existing.response === response) {
+        // Same → remove
+        const { error } = await supabase.from("participation_responses").delete().eq("id", existing.id);
+        if (error) throw new Error(error.message);
+        setParticipationResponses((prev) => prev.filter((r) => r.id !== existing.id));
+      } else {
+        // Different → update
+        const { error } = await supabase.from("participation_responses").update({ response }).eq("id", existing.id);
+        if (error) throw new Error(error.message);
+        setParticipationResponses((prev) => prev.map((r) => r.id === existing.id ? { ...r, response } : r));
+      }
+    } else {
+      const { data, error } = await supabase
+        .from("participation_responses")
+        .insert({ survey_id: surveyId, user_id: authUser.id, response })
+        .select()
+        .maybeSingle();
+      if (error) throw new Error(error.message);
+      if (data) setParticipationResponses((prev) => [...prev, mapParticipationResponse(data)]);
+    }
+  }, [authUser]);
+
+  const getMySurveyResponse = useCallback(
+    (surveyId: string) => {
+      if (!authUser) return undefined;
+      return participationResponses.find((r) => r.survey_id === surveyId && r.user_id === authUser.id);
+    },
+    [authUser, participationResponses]
+  );
+
+  const getSurveyResponsesBySurveyId = useCallback(
+    (surveyId: string) => participationResponses.filter((r) => r.survey_id === surveyId),
+    [participationResponses]
+  );
+
   // ─── Resource Completion Actions ───────────────────────────────────────────────
 
   const toggleResourceCompletion = useCallback(async (resourceId: string) => {
@@ -3835,6 +3961,14 @@ export function DataProvider({ children }: { children: ReactNode }) {
     toggleResourceCompletion,
     isResourceCompleted,
     getResourceCompletionCount,
+    participationSurveys,
+    participationResponses,
+    addParticipationSurvey,
+    updateParticipationSurvey,
+    deleteParticipationSurvey,
+    respondToSurvey,
+    getMySurveyResponse,
+    getSurveyResponsesBySurveyId,
     calendarEvents,
     eventAttendees,
     addCalendarEvent,
@@ -3914,6 +4048,9 @@ export function DataProvider({ children }: { children: ReactNode }) {
     addResource, updateResource, deleteResource,
     toggleEventParticipation, getEventParticipationsByResourceId, getMyEventParticipation,
     resourceCompletions, toggleResourceCompletion, isResourceCompleted, getResourceCompletionCount,
+    participationSurveys, participationResponses,
+    addParticipationSurvey, updateParticipationSurvey, deleteParticipationSurvey,
+    respondToSurvey, getMySurveyResponse, getSurveyResponsesBySurveyId,
     calendarEvents, eventAttendees, addCalendarEvent, updateCalendarEvent, deleteCalendarEvent,
     respondToEvent, inviteToEvent, getEventsByDate,
     addHadith, updateHadith, deleteHadith, reorderHadithe, bulkInsertHadithe,

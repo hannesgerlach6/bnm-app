@@ -1739,7 +1739,7 @@ function MenteeDashboard() {
   const { t } = useLanguage();
   const themeColors = useThemeColors();
   const { isDark } = useTheme();
-  const { getMentorshipByMenteeId, getCompletedStepIds, sessionTypes, hadithe, refreshData, isLoading, calendarEvents, eventAttendees, respondToEvent, feedback, updateMenteeNotes, resources } = useData();
+  const { getMentorshipByMenteeId, getCompletedStepIds, sessionTypes, hadithe, refreshData, isLoading, calendarEvents, eventAttendees, respondToEvent, feedback, updateMenteeNotes, resources, participationSurveys, respondToSurvey, getMySurveyResponse } = useData();
   const { sendThanks } = useGamification();
   const [refreshing, setRefreshing] = useState(false);
   const [hadithOffset, setHadithOffset] = useState(0);
@@ -1783,6 +1783,16 @@ function MenteeDashboard() {
       .sort((a, b) => new Date(a.start_at).getTime() - new Date(b.start_at).getTime())
       .slice(0, 3);
   }, [calendarEvents, user]);
+
+  // Teilnahmeabfragen: aktive Surveys für diesen Mentee
+  const activeSurveys = useMemo(() => {
+    return participationSurveys.filter((s) => {
+      if (!s.is_active) return false;
+      if (s.visible_to === "male" && user?.gender !== "male") return false;
+      if (s.visible_to === "female" && user?.gender !== "female") return false;
+      return true;
+    });
+  }, [participationSurveys, user]);
 
   // Einführungsvideos: Ressourcen mit category="video" die für diesen User sichtbar sind
   const introVideos = useMemo(() => {
@@ -1902,6 +1912,77 @@ function MenteeDashboard() {
                   <Ionicons name="chevron-forward-outline" size={16} color={themeColors.textTertiary} />
                 </BNMPressable>
               ))}
+            </View>
+          </View>
+        )}
+
+        {/* ── Teilnahmeabfragen ── */}
+        {activeSurveys.length > 0 && (
+          <View style={[styles.levelCard, { backgroundColor: themeColors.card, borderColor: sem(SEMANTIC.goldBorder, isDark) }]}>
+            <View style={{ flexDirection: "row", alignItems: "center", gap: 8, marginBottom: 12 }}>
+              <Ionicons name="clipboard-outline" size={20} color={COLORS.gradientStart} />
+              <Text style={{ fontSize: 11, fontWeight: "700", color: themeColors.textTertiary, letterSpacing: 0.8, textTransform: "uppercase" }}>
+                Teilnahmeabfragen
+              </Text>
+            </View>
+            <View style={{ gap: 12 }}>
+              {activeSurveys.map((survey) => {
+                const myResponse = getMySurveyResponse(survey.id);
+                const RESPONSE_OPTIONS: { key: "yes" | "maybe" | "no"; label: string; color: string }[] = [
+                  { key: "yes", label: "Ja", color: COLORS.cta },
+                  { key: "maybe", label: "Vielleicht", color: COLORS.gold },
+                  { key: "no", label: "Nein", color: COLORS.error },
+                ];
+                function formatSurveyDate(d?: string) {
+                  if (!d) return null;
+                  try { return new Date(d).toLocaleDateString("de-DE", { day: "2-digit", month: "2-digit", year: "numeric" }); }
+                  catch { return d; }
+                }
+                return (
+                  <View key={survey.id} style={{ borderRadius: RADIUS.sm, borderWidth: 1, borderColor: sem(SEMANTIC.darkBorder, isDark), overflow: "hidden" }}>
+                    <View style={{ padding: 12, backgroundColor: isDark ? "#1A1A24" : themeColors.background }}>
+                      <Text style={{ fontSize: 14, fontWeight: "700", color: themeColors.text }}>{survey.title}</Text>
+                      {survey.survey_date && (
+                        <Text style={{ fontSize: 12, color: themeColors.textTertiary, marginTop: 3 }}>
+                          {formatSurveyDate(survey.survey_date)}
+                        </Text>
+                      )}
+                      {survey.description ? (
+                        <Text style={{ fontSize: 13, color: themeColors.textSecondary, marginTop: 6, lineHeight: 20 }}>{survey.description}</Text>
+                      ) : null}
+                    </View>
+                    <View style={{ flexDirection: "row", borderTopWidth: 1, borderTopColor: sem(SEMANTIC.darkBorder, isDark) }}>
+                      {RESPONSE_OPTIONS.map((opt, idx) => {
+                        const selected = myResponse?.response === opt.key;
+                        return (
+                          <BNMPressable
+                            key={opt.key}
+                            style={{
+                              flex: 1,
+                              paddingVertical: 10,
+                              alignItems: "center",
+                              backgroundColor: selected ? opt.color + "20" : "transparent",
+                              borderLeftWidth: idx > 0 ? 1 : 0,
+                              borderLeftColor: sem(SEMANTIC.darkBorder, isDark),
+                            }}
+                            onPress={async () => {
+                              try { await respondToSurvey(survey.id, opt.key); }
+                              catch { /* silent */ }
+                            }}
+                            accessibilityRole="button"
+                            accessibilityLabel={opt.label}
+                          >
+                            <Text style={{ fontSize: 13, fontWeight: "700", color: selected ? opt.color : themeColors.textSecondary }}>
+                              {opt.label}
+                            </Text>
+                            {selected && <View style={{ width: 4, height: 4, borderRadius: 2, backgroundColor: opt.color, marginTop: 4 }} />}
+                          </BNMPressable>
+                        );
+                      })}
+                    </View>
+                  </View>
+                );
+              })}
             </View>
           </View>
         )}

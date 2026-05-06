@@ -165,6 +165,19 @@ export default function ToolsTabScreen() {
 
             <BNMPressable
               style={[styles.toolItem, { backgroundColor: themeColors.card, width: itemWidth }]}
+              onPress={() => router.push("/admin/participation-surveys" as never)}
+              accessibilityRole="link"
+              accessibilityLabel="Teilnahmeabfragen verwalten"
+            >
+              <View style={[styles.toolIconBg, { backgroundColor: "#E6F7F0" }]}>
+                <Ionicons name="clipboard-outline" size={24} color={COLORS.cta} />
+              </View>
+              <Text style={[styles.toolLabel, { color: themeColors.text }]}>Teilnahmeabfragen</Text>
+              <Text style={[styles.toolSubLabel, { color: themeColors.textSecondary }]}>Abfragen für Mentees erstellen</Text>
+            </BNMPressable>
+
+            <BNMPressable
+              style={[styles.toolItem, { backgroundColor: themeColors.card, width: itemWidth }]}
               onPress={() => router.push("/admin/certificate-generator" as never)}
               accessibilityRole="link"
               accessibilityLabel="Zertifikate erstellen"
