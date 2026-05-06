@@ -61,32 +61,67 @@ serve(async (req) => {
     });
   }
 
-  // action_link direkt verwenden: Supabase verifiziert den Token serverseitig,
-  // setzt die Session und redirected zu /reset-password#access_token=...
-  // Das ist zuverlässiger als Token manuell zu extrahieren und verifyOtp() zu nutzen.
   const resetLink = data.properties.action_link;
-  const htmlBody = `
+
+  // Template aus DB laden — Admin kann Text anpassen
+  let subject = "[BNM] Passwort zurücksetzen";
+  let bodyText: string | null = null;
+  try {
+    const { data: tplRow } = await supabase
+      .from("message_templates")
+      .select("body")
+      .eq("template_key", "password_reset")
+      .eq("is_active", true)
+      .maybeSingle();
+    if (tplRow?.body) {
+      const parts = String(tplRow.body).split(/\n---\n/);
+      if (parts.length >= 2) {
+        const subjectLine = parts[0].replace(/^Betreff:\s*/i, "").trim();
+        let body = parts.slice(1).join("\n---\n").trim();
+        // Username aus E-Mail ableiten (vor @)
+        const emailLocal = email.split("@")[0];
+        const vars: Record<string, string> = {
+          name: emailLocal,
+          reset_link: resetLink,
+        };
+        for (const [k, v] of Object.entries(vars)) {
+          const re = new RegExp(`\\{${k}\\}`, "g");
+          body = body.replace(re, v);
+        }
+        subject = subjectLine || subject;
+        bodyText = body;
+      }
+    }
+  } catch {
+    // Template-Lookup fehlgeschlagen — Fallback unten
+  }
+
+  const escapeHtml = (s: string) => s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+
+  const htmlBody = bodyText
+    ? `
 <div style="font-family:Arial,sans-serif;max-width:600px;margin:0 auto">
   <div style="background:#0A3A5A;padding:24px;text-align:center">
     <h1 style="color:#EEA71B;margin:0;font-size:28px">BNM</h1>
     <p style="color:rgba(255,255,255,0.6);margin:4px 0 0;font-size:12px">Betreuung neuer Muslime</p>
   </div>
   <div style="padding:32px;background:#fff">
-    <h2 style="color:#0A3A5A;margin:0 0 16px">Passwort zurücksetzen</h2>
-    <p style="color:#475467;font-size:14px;line-height:22px">
-      Du hast eine Anfrage zum Zurücksetzen deines Passworts gestellt.
-      Klicke auf den folgenden Link, um ein neues Passwort zu wählen:
-    </p>
-    <a href="${resetLink}" style="display:inline-block;background:#0A3A5A;color:#fff;padding:12px 24px;border-radius:8px;text-decoration:none;font-weight:600;margin:16px 0">
-      Neues Passwort wählen
-    </a>
-    <p style="color:#98A2B3;font-size:12px;margin-top:24px">
-      Wenn du diese Anfrage nicht gestellt hast, kannst du diese E-Mail ignorieren.
-      Der Link ist 24 Stunden gültig.
-    </p>
+    <div style="color:#475467;font-size:14px;line-height:22px;white-space:pre-line">${escapeHtml(bodyText)}</div>
   </div>
   <div style="padding:16px;background:#F9FAFB;text-align:center">
     <p style="color:#98A2B3;font-size:12px;margin:0">BNM – Betreuung neuer Muslime · neuemuslime.com</p>
+  </div>
+</div>`.trim()
+    : `
+<div style="font-family:Arial,sans-serif;max-width:600px;margin:0 auto">
+  <div style="background:#0A3A5A;padding:24px;text-align:center">
+    <h1 style="color:#EEA71B;margin:0;font-size:28px">BNM</h1>
+  </div>
+  <div style="padding:32px;background:#fff">
+    <h2 style="color:#0A3A5A">Passwort zurücksetzen</h2>
+    <p>Klicke auf den folgenden Link, um ein neues Passwort zu wählen:</p>
+    <a href="${resetLink}" style="display:inline-block;background:#0A3A5A;color:#fff;padding:12px 24px;border-radius:8px;text-decoration:none;font-weight:600;margin:16px 0">Neues Passwort wählen</a>
+    <p style="color:#98A2B3;font-size:12px">Der Link ist 1 Stunde gültig.</p>
   </div>
 </div>`.trim();
 
@@ -101,7 +136,7 @@ serve(async (req) => {
       body: JSON.stringify({
         from: "BNM <noreply@neuemuslime.com>",
         to: [email.trim().toLowerCase()],
-        subject: "[BNM] Passwort zurücksetzen",
+        subject,
         html: htmlBody,
       }),
     });

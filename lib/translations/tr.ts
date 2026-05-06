@@ -545,6 +545,7 @@ const tr: Record<TranslationKeys, string> = {
   "mentorship.since": "{0} tarihinden beri",
   "mentorship.mentee": "DANIŞAN",
   "mentorship.mentor": "MENTOR",
+  "mentorship.mentorin": "MENTOR",
   "mentorship.progress": "İlerleme",
   "mentorship.stepsCompleted": "{0} / {1} adım tamamlandı",
   "mentorship.sessionHistory": "OTURUM GEÇMİŞİ",
@@ -1537,6 +1538,7 @@ const tr: Record<TranslationKeys, string> = {
 
   // Mentees screen
   "mentees.mentor": "Mentor",
+  "mentees.mentorin": "Mentor",
   "mentees.steps": "Adımlar",
 
   // Document session – error messages

@@ -205,13 +205,22 @@ export async function sendNewFeedbackNotification(
   rating: number,
   comment?: string
 ) {
+  const ratingStr = `${"★".repeat(rating)}${"☆".repeat(5 - rating)} (${rating}/5)`;
+  // Try DB template first
+  const template = await getEmailTemplate("admin_new_feedback", {
+    mentor_name: mentorName, mentee_name: menteeName,
+    rating: ratingStr, comment: comment || "—",
+  });
+  if (template) return sendEmail(await getAdminEmail(), template.subject, template.body);
+
+  // Fallback: hardcoded
   const subject = sanitizeSubject(`[BNM] Neues Feedback von ${menteeName}`);
   const body = `
 <p>Es wurde ein neues Feedback eingegangen.</p>
 <ul>
   <li><strong>Mentor:</strong> ${escapeHtml(mentorName)}</li>
   <li><strong>Mentee:</strong> ${escapeHtml(menteeName)}</li>
-  <li><strong>Bewertung:</strong> ${"★".repeat(rating)}${"☆".repeat(5 - rating)} (${rating}/5)</li>
+  <li><strong>Bewertung:</strong> ${ratingStr}</li>
   ${comment ? `<li><strong>Kommentar:</strong> ${escapeHtml(comment)}</li>` : ""}
 </ul>
 <p>Bitte im Admin-Dashboard einsehen.</p>
@@ -227,12 +236,21 @@ export async function sendFeedbackCopyToMentorEmail(
   rating: number,
   comment?: string
 ) {
+  const ratingStr = `${"★".repeat(rating)}${"☆".repeat(5 - rating)} (${rating}/5)`;
+  // Try DB template first
+  const template = await getEmailTemplate("feedback_copy_mentor", {
+    name: mentorName, mentee_name: menteeName,
+    rating: ratingStr, comment: comment || "—",
+  });
+  if (template) return sendEmail(mentorEmail, template.subject, template.body);
+
+  // Fallback: hardcoded
   const subject = sanitizeSubject(`[BNM] Feedback von ${menteeName}`);
   const body = `
 <p>Hallo ${escapeHtml(mentorName)},</p>
 <p>${escapeHtml(menteeName)} hat deine Betreuung bewertet. Hier ist eine Kopie des Feedbacks:</p>
 <ul>
-  <li><strong>Bewertung:</strong> ${"★".repeat(rating)}${"☆".repeat(5 - rating)} (${rating}/5)</li>
+  <li><strong>Bewertung:</strong> ${ratingStr}</li>
   ${comment ? `<li><strong>Kommentar:</strong> ${escapeHtml(comment)}</li>` : ""}
 </ul>
 <p>Das vollständige Feedback (inkl. Fragebogen) kannst du in der App unter deinen Betreuungen einsehen.</p>
@@ -247,6 +265,15 @@ export async function sendNewMenteeRegistrationNotification(
   city: string,
   gender: string
 ) {
+  const genderLabel = gender === "male" ? "m" : "w";
+  // Try DB template first
+  const template = await getEmailTemplate("admin_new_mentee", {
+    mentee_name: menteeName, mentee_email: menteeEmail,
+    mentee_city: city, mentee_gender: genderLabel,
+  });
+  if (template) return sendEmail(await getAdminEmail(), template.subject, template.body);
+
+  // Fallback: hardcoded
   const subject = sanitizeSubject(`[BNM] Neue Mentee-Anmeldung: ${menteeName}`);
   const body = `
 <p>Eine neue Mentee-Anmeldung wurde eingereicht.</p>
@@ -254,7 +281,7 @@ export async function sendNewMenteeRegistrationNotification(
   <li><strong>Name:</strong> ${escapeHtml(menteeName)}</li>
   <li><strong>E-Mail:</strong> ${escapeHtml(menteeEmail)}</li>
   <li><strong>Stadt:</strong> ${escapeHtml(city)}</li>
-  <li><strong>Geschlecht:</strong> ${gender === "male" ? "Bruder" : "Schwester"}</li>
+  <li><strong>Geschlecht:</strong> ${genderLabel}</li>
 </ul>
 <p>Bitte im Admin-Dashboard unter "Anmeldungen" prüfen.</p>
 <hr><p style="color:#98A2B3;font-size:12px">BNM – Betreuung neuer Muslime</p>
@@ -268,6 +295,15 @@ export async function sendNewMentorApplicationNotification(
   city: string,
   gender: string
 ) {
+  const genderLabel = gender === "male" ? "m" : "w";
+  // Try DB template first
+  const template = await getEmailTemplate("admin_new_application", {
+    applicant_name: applicantName, applicant_email: applicantEmail,
+    applicant_city: city, applicant_gender: genderLabel,
+  });
+  if (template) return sendEmail(await getAdminEmail(), template.subject, template.body);
+
+  // Fallback: hardcoded
   const subject = sanitizeSubject(`[BNM] Neue Mentor-Bewerbung: ${applicantName}`);
   const body = `
 <p>Eine neue Mentor-Bewerbung wurde eingereicht.</p>
@@ -275,7 +311,7 @@ export async function sendNewMentorApplicationNotification(
   <li><strong>Name:</strong> ${escapeHtml(applicantName)}</li>
   <li><strong>E-Mail:</strong> ${escapeHtml(applicantEmail)}</li>
   <li><strong>Stadt:</strong> ${escapeHtml(city)}</li>
-  <li><strong>Geschlecht:</strong> ${gender === "male" ? "Bruder" : "Schwester"}</li>
+  <li><strong>Geschlecht:</strong> ${genderLabel}</li>
 </ul>
 <p>Bitte im Admin-Dashboard unter "Bewerbungen" prüfen.</p>
 <hr><p style="color:#98A2B3;font-size:12px">BNM – Betreuung neuer Muslime</p>
@@ -318,9 +354,15 @@ export async function sendMentorshipStatusChangeNotification(
   menteeName: string,
   newStatus: "completed" | "cancelled"
 ) {
-  // Immer an Admin-E-Mail senden (Parameter wird ignoriert — war oft leer)
-  const statusLabel =
-    newStatus === "completed" ? "abgeschlossen" : "abgebrochen";
+  const statusLabel = newStatus === "completed" ? "abgeschlossen" : "abgebrochen";
+  // Try DB template first
+  const template = await getEmailTemplate("admin_status_change", {
+    mentor_name: mentorName, mentee_name: menteeName,
+    status_label: statusLabel,
+  });
+  if (template) return sendEmail(await getAdminEmail(), template.subject, template.body);
+
+  // Fallback: hardcoded
   const subject = sanitizeSubject(`[BNM] Betreuung ${statusLabel}: ${menteeName} & ${mentorName}`);
   const body = `
 <p>Eine Betreuung wurde als <strong>${statusLabel}</strong> markiert.</p>
@@ -498,42 +540,48 @@ export async function sendCertificateEmail(
   templateType: "direct" | "thirdparty" | "custom" = "thirdparty",
   customBody?: string
 ): Promise<boolean> {
-  const subject = sanitizeSubject(`BNM – Urkunde: ${mentorName} – ${period}`);
+  let subject = sanitizeSubject(`BNM – Urkunde: ${mentorName} – ${period}`);
+  let bodyHtml: string;
 
-  // Template 1: Persönliche Nachricht direkt an den Mentor
-  const directBody = `
-    <h2 style="color:#0A3A5A;margin:0 0 8px">Urkunde: Mentor des Monats</h2>
-    <p style="color:#6B7280;margin:0 0 24px">Zeitraum: ${escapeHtml(period)}</p>
-    <p style="font-size:16px;color:#111">
-      Assalamu alaykum liebe/r <strong>${escapeHtml(mentorName)}</strong>,
-    </p>
-    <p style="font-size:16px;color:#111">
-      herzlichen Glückwunsch! Du wurdest als <strong>Mentor des Monats ${escapeHtml(period)}</strong> ausgezeichnet.
-      Dein Einsatz und deine Hingabe in der Betreuung neuer Muslime sind eine große Bereicherung für unser Programm.
-      Im Anhang findest du deine persönliche Urkunde.
-    </p>
-    <p style="font-size:16px;color:#111">Barakallahu fik – möge Allah dich segnen für deine Arbeit.</p>
-    <p style="color:#6B7280;margin-top:24px">Das BNM-Team</p>`;
-
-  // Template 2: Neutrale Weiterleitungs-E-Mail (z.B. an Dritte)
-  const thirdpartyBody = `
-    <h2 style="color:#0A3A5A;margin:0 0 8px">Urkunde: Mentor des Monats</h2>
-    <p style="color:#6B7280;margin:0 0 24px">Zeitraum: ${escapeHtml(period)}</p>
-    <p style="font-size:16px;color:#111">
-      Im Anhang findest du die Urkunde für <strong>${escapeHtml(mentorName)}</strong> als Mentor des Monats ${escapeHtml(period)}.
-    </p>
-    <p style="color:#6B7280;margin-top:24px">Barakallahu fik<br>Das BNM-Team</p>`;
-
-  // Template 3: Freitext — vom Admin selbst verfasst, Zeilenumbrüche → <br>
-  const customBodyHtml = customBody
-    ? `<h2 style="color:#0A3A5A;margin:0 0 24px">Urkunde: Mentor des Monats</h2>` +
-      `<div style="font-size:16px;color:#111;white-space:pre-line">${escapeHtml(customBody)}</div>`
-    : thirdpartyBody;
-
-  const bodyHtml =
-    templateType === "direct" ? directBody :
-    templateType === "custom" ? customBodyHtml :
-    thirdpartyBody;
+  if (templateType === "custom" && customBody) {
+    // Freitext-Modus: Admin schreibt Text direkt im UI
+    bodyHtml =
+      `<h2 style="color:#0A3A5A;margin:0 0 24px">Urkunde: Mentor des Monats</h2>` +
+      `<div style="font-size:16px;color:#111;white-space:pre-line">${escapeHtml(customBody)}</div>`;
+  } else {
+    // direct/thirdparty: aus DB-Template laden
+    const templateKey = templateType === "direct" ? "certificate_direct" : "certificate_thirdparty";
+    const tpl = await getEmailTemplate(templateKey, { mentor_name: mentorName, period });
+    if (tpl) {
+      subject = sanitizeSubject(tpl.subject);
+      // Plaintext-Body in HTML konvertieren (Zeilenumbrüche bewahren)
+      bodyHtml =
+        `<h2 style="color:#0A3A5A;margin:0 0 24px">Urkunde: Mentor des Monats</h2>` +
+        `<div style="font-size:16px;color:#111;white-space:pre-line">${escapeHtml(tpl.body)}</div>`;
+    } else {
+      // Fallback: hardcoded (nur falls Template fehlt)
+      bodyHtml = templateType === "direct"
+        ? `
+          <h2 style="color:#0A3A5A;margin:0 0 8px">Urkunde: Mentor des Monats</h2>
+          <p style="color:#6B7280;margin:0 0 24px">Zeitraum: ${escapeHtml(period)}</p>
+          <p style="font-size:16px;color:#111">
+            Assalamu alaykum liebe/r <strong>${escapeHtml(mentorName)}</strong>,
+          </p>
+          <p style="font-size:16px;color:#111">
+            herzlichen Glückwunsch! Du wurdest als <strong>Mentor des Monats ${escapeHtml(period)}</strong> ausgezeichnet.
+            Im Anhang findest du deine persönliche Urkunde.
+          </p>
+          <p style="font-size:16px;color:#111">Barakallahu fik</p>
+          <p style="color:#6B7280;margin-top:24px">Das BNM-Team</p>`
+        : `
+          <h2 style="color:#0A3A5A;margin:0 0 8px">Urkunde: Mentor des Monats</h2>
+          <p style="color:#6B7280;margin:0 0 24px">Zeitraum: ${escapeHtml(period)}</p>
+          <p style="font-size:16px;color:#111">
+            Im Anhang findest du die Urkunde für <strong>${escapeHtml(mentorName)}</strong> als Mentor des Monats ${escapeHtml(period)}.
+          </p>
+          <p style="color:#6B7280;margin-top:24px">Barakallahu fik<br>Das BNM-Team</p>`;
+    }
+  }
 
   const html = `
 <div style="font-family:Arial,sans-serif;max-width:600px;margin:0 auto">

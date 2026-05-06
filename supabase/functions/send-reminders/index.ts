@@ -20,6 +20,59 @@ const EXPO_PUSH_URL = "https://exp.host/--/api/v2/push/send";
 const REMINDER_THRESHOLD_DAYS = 3;  // Erinnerung wenn keine Session seit X Tagen
 const REMINDER_COOLDOWN_DAYS = 2;   // Keine Doppel-Erinnerung innerhalb X Tage
 
+// Lädt E-Mail-Template aus DB (im Format "Betreff: ...\n---\n...") und ersetzt Platzhalter.
+// Fallback auf null falls Template nicht existiert.
+async function loadTemplate(
+  supabase: any,
+  templateKey: string,
+  vars: Record<string, string>
+): Promise<{ subject: string; body: string } | null> {
+  try {
+    const { data } = await supabase
+      .from("message_templates")
+      .select("body")
+      .eq("template_key", templateKey)
+      .eq("is_active", true)
+      .maybeSingle();
+    if (!data?.body) return null;
+    const parts = String(data.body).split(/\n---\n/);
+    if (parts.length < 2) return null;
+    const subjectLine = parts[0].replace(/^Betreff:\s*/i, "").trim();
+    let body = parts.slice(1).join("\n---\n").trim();
+    let subject = subjectLine;
+    for (const [key, val] of Object.entries(vars)) {
+      const re = new RegExp(`\\{${key}\\}`, "g");
+      body = body.replace(re, val);
+      subject = subject.replace(re, val);
+    }
+    return { subject, body };
+  } catch (e) {
+    return null;
+  }
+}
+
+// Konvertiert Plaintext-Body zu HTML (für Resend)
+function textToHtml(text: string): string {
+  const escaped = text
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/\n/g, "<br>");
+  return `
+    <div style="font-family: sans-serif; max-width: 600px; margin: auto; background: #f8f7f4; padding: 32px; border-radius: 8px;">
+      <div style="text-align: center; margin-bottom: 24px;">
+        <h1 style="color: #0A3A5A; font-size: 22px; margin: 0;">Betreuung neuer Muslime</h1>
+      </div>
+      <div style="color: #475467; line-height: 1.5;">${escaped}</div>
+      <div style="text-align: center; margin: 32px 0;">
+        <a href="https://neuemuslime.com" style="display: inline-block; padding: 12px 28px; background: #EEA71B; color: #0A3A5A; text-decoration: none; border-radius: 5px; font-weight: bold; font-size: 15px;">Zur BNM-App →</a>
+      </div>
+      <p style="color: #98A2B3; font-size: 12px; margin-top: 24px; text-align: center;">
+        Betreuung neuer Muslime · <a href="https://neuemuslime.com" style="color: #98A2B3;">neuemuslime.com</a>
+      </p>
+    </div>`;
+}
+
 Deno.serve(async (req: Request) => {
   // GET + POST erlauben (pg_cron nutzt manchmal GET)
   if (req.method !== "POST" && req.method !== "GET") {
@@ -138,6 +191,17 @@ Deno.serve(async (req: Request) => {
     if (mentorData?.email && resendKey) {
       try {
         const mentorName = mentorData.name ?? "Mentor";
+        // Template aus DB laden (Admin kann anpassen)
+        const tpl = await loadTemplate(supabase, "mentor_reminder", {
+          name: mentorName,
+          mentee_name: menteeName,
+          days: String(REMINDER_THRESHOLD_DAYS),
+        });
+        const subject = tpl?.subject ?? "BNM: Session-Erinnerung";
+        const html = tpl
+          ? textToHtml(tpl.body)
+          : `<p>Hallo ${mentorName},</p><p>Bitte dokumentiere deine letzte Session mit ${menteeName}.</p>`;
+
         const emailRes = await fetch("https://api.resend.com/emails", {
           method: "POST",
           headers: {
@@ -147,32 +211,8 @@ Deno.serve(async (req: Request) => {
           body: JSON.stringify({
             from: "BNM <noreply@neuemuslime.com>",
             to: [mentorData.email],
-            subject: "BNM: Session-Erinnerung",
-            html: `
-              <div style="font-family: sans-serif; max-width: 600px; margin: auto; background: #f8f7f4; padding: 32px; border-radius: 8px;">
-                <div style="text-align: center; margin-bottom: 24px;">
-                  <h1 style="color: #0A3A5A; font-size: 22px; margin: 0;">Betreuung neuer Muslime</h1>
-                </div>
-                <h2 style="color: #0A3A5A; font-size: 18px;">Erinnerung: Session dokumentieren</h2>
-                <p style="color: #475467;">Hallo ${mentorName},</p>
-                <p style="color: #475467;">
-                  es ist schon eine Weile her, seit du eine Session mit <strong>${menteeName}</strong> dokumentiert hast.
-                </p>
-                <p style="color: #475467;">
-                  Bitte melde dich bei deinem Mentee und trage die Session in der BNM-App ein — so bleibt der Fortschritt für alle sichtbar.
-                </p>
-                <div style="text-align: center; margin: 32px 0;">
-                  <a href="https://neuemuslime.com"
-                     style="display: inline-block; padding: 12px 28px; background: #EEA71B; color: #0A3A5A;
-                            text-decoration: none; border-radius: 5px; font-weight: bold; font-size: 15px;">
-                    Zur BNM-App →
-                  </a>
-                </div>
-                <p style="color: #98A2B3; font-size: 12px; margin-top: 24px; text-align: center;">
-                  Betreuung neuer Muslime · <a href="https://neuemuslime.com" style="color: #98A2B3;">neuemuslime.com</a>
-                </p>
-              </div>
-            `,
+            subject,
+            html,
           }),
         });
 
