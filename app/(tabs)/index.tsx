@@ -2044,7 +2044,7 @@ function MenteeDashboard() {
                       )}
                     </View>
                   )}
-                  <BNMPressable style={[styles.modalConfirmBtn, { marginTop: 16 }]} onPress={() => setShowMentorContact(false)} accessibilityRole="button" accessibilityLabel="Schließen">
+                  <BNMPressable style={[styles.modalConfirmBtn, { marginTop: 16, flex: 0, alignSelf: "stretch" }]} onPress={() => setShowMentorContact(false)} accessibilityRole="button" accessibilityLabel="Schließen">
                     <Text style={styles.modalConfirmText}>Schließen</Text>
                   </BNMPressable>
                 </View>
