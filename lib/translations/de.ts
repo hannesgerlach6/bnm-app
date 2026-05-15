@@ -22,7 +22,7 @@ const de = {
   "dashboard.mentors": "Mentoren",
   "dashboard.totalMentees": "Mentees gesamt",
   "dashboard.salam": "Salam Aleikum,",
-  "dashboard.yourProgress": "Dein Fortschritt",
+  "dashboard.yourProgress": "Mein Fortschritt",
   "dashboard.your10Steps": "Deine 10 Schritte",
   "dashboard.viewMentorship": "Betreuung ansehen",
   "dashboard.viewProfile": "Profil ansehen",
@@ -1903,7 +1903,7 @@ const de = {
   "gamification.thankSuccess": "Dankeschön gesendet!",
 
   // Gamification – Achievements
-  "gamification.achievementsTitle": "Achievements",
+  "gamification.achievementsTitle": "Meilensteine",
   "gamification.achievementLocked": "Noch nicht freigeschaltet",
   "gamification.achievement.first_completion": "Erster Abschluss",
   "gamification.achievement.first_completion.desc": "Erste Betreuung erfolgreich beendet",

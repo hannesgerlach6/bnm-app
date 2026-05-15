@@ -24,7 +24,7 @@ const en: Record<TranslationKeys, string> = {
   "dashboard.mentors": "Mentors",
   "dashboard.totalMentees": "Total Mentees",
   "dashboard.salam": "Salam Aleikum,",
-  "dashboard.yourProgress": "Your Progress",
+  "dashboard.yourProgress": "My Progress",
   "dashboard.your10Steps": "Your 10 Steps",
   "dashboard.viewMentorship": "View Mentorship",
   "dashboard.viewProfile": "View Profile",
@@ -1895,7 +1895,7 @@ const en: Record<TranslationKeys, string> = {
   "gamification.thankSuccess": "Thank you sent!",
 
   // Gamification – Achievements
-  "gamification.achievementsTitle": "Achievements",
+  "gamification.achievementsTitle": "Milestones",
   "gamification.achievementLocked": "Not yet unlocked",
   "gamification.achievement.first_completion": "First Completion",
   "gamification.achievement.first_completion.desc": "Successfully finished first mentorship",

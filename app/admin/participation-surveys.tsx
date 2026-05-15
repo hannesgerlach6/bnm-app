@@ -119,8 +119,9 @@ export default function ParticipationSurveysScreen() {
       showSuccess(editingId ? "Abfrage aktualisiert" : "Abfrage erstellt");
       setShowForm(false);
       setEditingId(null);
-    } catch {
-      showError("Fehler beim Speichern");
+    } catch (e) {
+      const msg = e instanceof Error ? e.message : String(e);
+      showError(`Fehler beim Speichern: ${msg}`);
     } finally {
       setSaving(false);
     }
@@ -134,8 +135,9 @@ export default function ParticipationSurveysScreen() {
         try {
           await deleteParticipationSurvey(id);
           showSuccess("Abfrage gelöscht");
-        } catch {
-          showError("Fehler beim Löschen");
+        } catch (e) {
+          const msg = e instanceof Error ? e.message : String(e);
+          showError(`Fehler beim Löschen: ${msg}`);
         }
       }
     );
@@ -144,8 +146,9 @@ export default function ParticipationSurveysScreen() {
   async function handleToggleActive(survey: ParticipationSurvey) {
     try {
       await updateParticipationSurvey(survey.id, { is_active: !survey.is_active });
-    } catch {
-      showError("Fehler");
+    } catch (e) {
+      const msg = e instanceof Error ? e.message : String(e);
+      showError(`Fehler: ${msg}`);
     }
   }
 

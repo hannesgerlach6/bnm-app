@@ -24,7 +24,7 @@ const tr: Record<TranslationKeys, string> = {
   "dashboard.mentors": "Mentorlar",
   "dashboard.totalMentees": "Toplam Danışanlar",
   "dashboard.salam": "Selam Aleykum,",
-  "dashboard.yourProgress": "İlerlemeniz",
+  "dashboard.yourProgress": "İlerlemem",
   "dashboard.your10Steps": "10 Adımın",
   "dashboard.viewMentorship": "Danışmanlığı Görüntüle",
   "dashboard.viewProfile": "Profili Görüntüle",
@@ -1895,7 +1895,7 @@ const tr: Record<TranslationKeys, string> = {
   "gamification.thankSuccess": "Teşekkür gönderildi!",
 
   // Gamification – Başarımlar
-  "gamification.achievementsTitle": "Başarımlar",
+  "gamification.achievementsTitle": "Kilometre Taşları",
   "gamification.achievementLocked": "Henüz kilidi açılmadı",
   "gamification.achievement.first_completion": "İlk Tamamlama",
   "gamification.achievement.first_completion.desc": "İlk mentorluk başarıyla tamamlandı",

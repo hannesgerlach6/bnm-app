@@ -24,7 +24,7 @@ const ar: Record<TranslationKeys, string> = {
   "dashboard.mentors": "المرشدون",
   "dashboard.totalMentees": "إجمالي المتعلمين",
   "dashboard.salam": "السلام عليكم،",
-  "dashboard.yourProgress": "تقدمك",
+  "dashboard.yourProgress": "تقدمي",
   "dashboard.your10Steps": "خطواتك العشر",
   "dashboard.viewMentorship": "عرض الإرشاد",
   "dashboard.viewProfile": "عرض الملف الشخصي",
@@ -1895,7 +1895,7 @@ const ar: Record<TranslationKeys, string> = {
   "gamification.thankSuccess": "تم إرسال الشكر!",
 
   // Gamification – الإنجازات
-  "gamification.achievementsTitle": "الإنجازات",
+  "gamification.achievementsTitle": "معالم",
   "gamification.achievementLocked": "لم يُفتح بعد",
   "gamification.achievement.first_completion": "أول إنجاز",
   "gamification.achievement.first_completion.desc": "أُنهيت الإرشادية الأولى بنجاح",
