@@ -1747,6 +1747,7 @@ function MenteeDashboard() {
   const [thanksMessage, setThanksMessage] = useState("");
   const [sendingThanks, setSendingThanks] = useState(false);
   const [showMentorContact, setShowMentorContact] = useState(false);
+  const [editingSurveyIds, setEditingSurveyIds] = useState<Set<string>>(new Set());
   const onRefresh = useCallback(async () => {
     setRefreshing(true);
     await refreshData();
@@ -1785,11 +1786,14 @@ function MenteeDashboard() {
   }, [calendarEvents, user]);
 
   // Teilnahmeabfragen: aktive Surveys für diesen Mentee
+  // Ausgeblendet ab Tag NACH dem survey_date (wenn gesetzt).
   const activeSurveys = useMemo(() => {
+    const todayIso = new Date().toISOString().slice(0, 10); // YYYY-MM-DD
     return participationSurveys.filter((s) => {
       if (!s.is_active) return false;
       if (s.visible_to === "male" && user?.gender !== "male") return false;
       if (s.visible_to === "female" && user?.gender !== "female") return false;
+      if (s.survey_date && s.survey_date < todayIso) return false;
       return true;
     });
   }, [participationSurveys, user]);
@@ -1928,6 +1932,7 @@ function MenteeDashboard() {
             <View style={{ gap: 12 }}>
               {activeSurveys.map((survey) => {
                 const myResponse = getMySurveyResponse(survey.id);
+                const isEditing = editingSurveyIds.has(survey.id);
                 const RESPONSE_OPTIONS: { key: "yes" | "maybe" | "no"; label: string; color: string }[] = [
                   { key: "yes", label: "Ja", color: COLORS.cta },
                   { key: "maybe", label: "Vielleicht", color: COLORS.gold },
@@ -1938,6 +1943,29 @@ function MenteeDashboard() {
                   try { return new Date(d).toLocaleDateString("de-DE", { day: "2-digit", month: "2-digit", year: "numeric" }); }
                   catch { return d; }
                 }
+                const myOpt = myResponse ? RESPONSE_OPTIONS.find((o) => o.key === myResponse.response) : null;
+
+                // Kompakte Pille, wenn schon geantwortet und nicht im Edit-Modus
+                if (myOpt && !isEditing) {
+                  return (
+                    <BNMPressable
+                      key={survey.id}
+                      style={{ flexDirection: "row", alignItems: "center", gap: 10, paddingVertical: 10, paddingHorizontal: 12, borderRadius: RADIUS.sm, borderWidth: 1, borderColor: sem(SEMANTIC.darkBorder, isDark), backgroundColor: isDark ? "#1A1A24" : themeColors.background }}
+                      onPress={() => setEditingSurveyIds((prev) => { const n = new Set(prev); n.add(survey.id); return n; })}
+                      accessibilityRole="button"
+                      accessibilityLabel={`${survey.title} – Antwort ändern`}
+                    >
+                      <Text style={{ flex: 1, fontSize: 13, fontWeight: "600", color: themeColors.text }} numberOfLines={1}>
+                        {survey.title}
+                      </Text>
+                      <View style={{ paddingHorizontal: 10, paddingVertical: 4, borderRadius: RADIUS.xs, backgroundColor: myOpt.color + "20" }}>
+                        <Text style={{ fontSize: 12, fontWeight: "700", color: myOpt.color }}>{myOpt.label}</Text>
+                      </View>
+                      <Ionicons name="create-outline" size={16} color={themeColors.textTertiary} />
+                    </BNMPressable>
+                  );
+                }
+
                 return (
                   <View key={survey.id} style={{ borderRadius: RADIUS.sm, borderWidth: 1, borderColor: sem(SEMANTIC.darkBorder, isDark), overflow: "hidden" }}>
                     <View style={{ padding: 12, backgroundColor: isDark ? "#1A1A24" : themeColors.background }}>
@@ -1966,8 +1994,10 @@ function MenteeDashboard() {
                               borderLeftColor: sem(SEMANTIC.darkBorder, isDark),
                             }}
                             onPress={async () => {
-                              try { await respondToSurvey(survey.id, opt.key); }
-                              catch { /* silent */ }
+                              try {
+                                await respondToSurvey(survey.id, opt.key);
+                                setEditingSurveyIds((prev) => { const n = new Set(prev); n.delete(survey.id); return n; });
+                              } catch { /* silent */ }
                             }}
                             accessibilityRole="button"
                             accessibilityLabel={opt.label}

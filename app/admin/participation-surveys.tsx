@@ -20,13 +20,30 @@ import { COLORS, RADIUS, SHADOWS, SEMANTIC, sem } from "../../constants/Colors";
 import { Container } from "../../components/Container";
 import { EmptyState } from "../../components/EmptyState";
 import { Ionicons } from "@expo/vector-icons";
+import DateTimePicker from "@react-native-community/datetimepicker";
 import type { ParticipationSurvey, SurveyVisibility } from "../../types";
 
 const VISIBILITY_OPTIONS: { key: SurveyVisibility; label: string }[] = [
-  { key: "all", label: "Alle" },
-  { key: "male", label: "Brüder" },
-  { key: "female", label: "Schwestern" },
+  { key: "all", label: "Alle Mentees" },
+  { key: "male", label: "Mentees (Brüder)" },
+  { key: "female", label: "Mentees (Schwestern)" },
 ];
+
+const ISO_DATE_RE = /^\d{4}-\d{2}-\d{2}$/;
+
+function toIsoDate(d: Date): string {
+  const y = d.getFullYear();
+  const m = String(d.getMonth() + 1).padStart(2, "0");
+  const day = String(d.getDate()).padStart(2, "0");
+  return `${y}-${m}-${day}`;
+}
+
+function formatDisplayDate(iso: string): string {
+  if (!iso || !ISO_DATE_RE.test(iso)) return "Datum wählen";
+  try {
+    return new Date(iso + "T00:00:00").toLocaleDateString("de-DE", { weekday: "short", day: "numeric", month: "long", year: "numeric" });
+  } catch { return iso; }
+}
 
 type FormData = {
   title: string;
@@ -67,6 +84,7 @@ export default function ParticipationSurveysScreen() {
   const [form, setForm] = useState<FormData>(EMPTY_FORM);
   const [saving, setSaving] = useState(false);
   const [expandedId, setExpandedId] = useState<string | null>(null);
+  const [showDatePicker, setShowDatePicker] = useState(false);
 
   const onRefresh = useCallback(async () => {
     setRefreshing(true);
@@ -102,6 +120,9 @@ export default function ParticipationSurveysScreen() {
 
   async function handleSave() {
     if (!form.title.trim()) { showError("Titel ist erforderlich"); return; }
+    if (form.survey_date.trim() && !ISO_DATE_RE.test(form.survey_date.trim())) {
+      showError("Ungültiges Datum (Format: JJJJ-MM-TT)"); return;
+    }
     setSaving(true);
     try {
       const payload = {
@@ -118,6 +139,7 @@ export default function ParticipationSurveysScreen() {
       }
       showSuccess(editingId ? "Abfrage aktualisiert" : "Abfrage erstellt");
       setShowForm(false);
+      setShowDatePicker(false);
       setEditingId(null);
     } catch (e) {
       const msg = e instanceof Error ? e.message : String(e);
@@ -229,15 +251,59 @@ export default function ParticipationSurveysScreen() {
                 />
 
                 <Text style={[styles.label, { color: themeColors.textSecondary }]}>Datum (optional)</Text>
-                <TextInput
-                  style={[styles.input, { backgroundColor: themeColors.elevated, color: themeColors.text, borderColor: themeColors.border }]}
-                  value={form.survey_date}
-                  onChangeText={(v) => setForm((p) => ({ ...p, survey_date: v }))}
-                  placeholder="JJJJ-MM-TT"
-                  placeholderTextColor={themeColors.textTertiary}
-                />
+                {Platform.OS === "web" ? (
+                  <View style={[styles.input, { backgroundColor: themeColors.elevated, borderColor: themeColors.border, padding: 0 }]}>
+                    {(global as any).document ? (
+                      <input
+                        type="date"
+                        value={form.survey_date}
+                        onChange={(e: any) => setForm((p) => ({ ...p, survey_date: e.target.value }))}
+                        style={{
+                          width: "100%", border: "none", outline: "none", background: "transparent",
+                          fontSize: 14, color: themeColors.text, padding: "10px 12px", boxSizing: "border-box",
+                          fontFamily: "inherit",
+                        } as any}
+                      />
+                    ) : null}
+                  </View>
+                ) : (
+                  <>
+                    <BNMPressable
+                      style={[styles.input, { backgroundColor: themeColors.elevated, borderColor: themeColors.border, flexDirection: "row", alignItems: "center", justifyContent: "space-between" }]}
+                      onPress={() => setShowDatePicker((v) => !v)}
+                      accessibilityRole="button"
+                    >
+                      <Text style={{ color: form.survey_date ? themeColors.text : themeColors.textTertiary, fontSize: 14 }}>
+                        {formatDisplayDate(form.survey_date)}
+                      </Text>
+                      <View style={{ flexDirection: "row", alignItems: "center", gap: 8 }}>
+                        {form.survey_date ? (
+                          <BNMPressable onPress={() => setForm((p) => ({ ...p, survey_date: "" }))} accessibilityLabel="Datum entfernen">
+                            <Ionicons name="close-circle" size={18} color={themeColors.textTertiary} />
+                          </BNMPressable>
+                        ) : null}
+                        <Ionicons name="calendar-outline" size={18} color={themeColors.textSecondary} />
+                      </View>
+                    </BNMPressable>
+                    {showDatePicker && (
+                      <DateTimePicker
+                        value={form.survey_date && ISO_DATE_RE.test(form.survey_date) ? new Date(form.survey_date + "T00:00:00") : new Date()}
+                        mode="date"
+                        display={Platform.OS === "ios" ? "spinner" : "default"}
+                        locale="de-DE"
+                        onChange={(_, date) => {
+                          if (Platform.OS === "android") setShowDatePicker(false);
+                          if (date) setForm((p) => ({ ...p, survey_date: toIsoDate(date) }));
+                        }}
+                      />
+                    )}
+                  </>
+                )}
 
                 <Text style={[styles.label, { color: themeColors.textSecondary }]}>Sichtbar für</Text>
+                <Text style={{ fontSize: 11, color: themeColors.textTertiary, marginTop: 2, marginBottom: 6 }}>
+                  Die Abfrage erscheint nur im Mentee-Dashboard.
+                </Text>
                 <View style={styles.chipRow}>
                   {VISIBILITY_OPTIONS.map((opt) => (
                     <BNMPressable
