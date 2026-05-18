@@ -50,6 +50,7 @@ Alle SQL-Änderungen dokumentieren. Selbstständig handeln.
   25. `supabase/fix-application-type.sql` — application_type-Spalte für mentor_applications (mentor/mentee)
   26. `supabase/intro-videos.sql` — Einführungsvideos Seed-Daten (category="video", visible_to="mentees")
   27. `supabase/participation-surveys.sql` — Teilnahmeabfragen fuer Mentees (participation_surveys + participation_responses)
+  28. `supabase/fix-user-delete-fks.sql` — FKs (mentorships.assigned_by, mentor_applications.reviewed_by, qa_entries.created_by) auf ON DELETE SET NULL (User-Loeschung war blockiert)
   26. Dashboard: Auth → Email → "Confirm email" OFF
   13. Test-User manuell anlegen + Profile-INSERT
   14. `lib/supabase.ts`: URL + Anon Key ändern (2 Zeilen)

@@ -150,19 +150,18 @@ export default function ParticipationSurveysScreen() {
   }
 
   async function handleDelete(id: string) {
-    showConfirm(
+    const ok = await showConfirm(
       "Abfrage löschen?",
-      "Alle Antworten werden ebenfalls gelöscht.",
-      async () => {
-        try {
-          await deleteParticipationSurvey(id);
-          showSuccess("Abfrage gelöscht");
-        } catch (e) {
-          const msg = e instanceof Error ? e.message : String(e);
-          showError(`Fehler beim Löschen: ${msg}`);
-        }
-      }
+      "Alle Antworten werden ebenfalls gelöscht."
     );
+    if (!ok) return;
+    try {
+      await deleteParticipationSurvey(id);
+      showSuccess("Abfrage gelöscht");
+    } catch (e) {
+      const msg = e instanceof Error ? e.message : String(e);
+      showError(`Fehler beim Löschen: ${msg}`);
+    }
   }
 
   async function handleToggleActive(survey: ParticipationSurvey) {
